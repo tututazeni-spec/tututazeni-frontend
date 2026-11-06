@@ -200,6 +200,7 @@ export function EvaluationDetailModal({
       <ModalContent
         title={data ? `Avaliação — ${data.evaluated.fullName}` : 'Avaliação'}
         hideHeading
+        navyClose
         className="max-w-4xl max-h-[90vh] overflow-y-auto"
       >
         {isLoading || !data ? (

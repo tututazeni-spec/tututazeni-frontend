@@ -44,6 +44,7 @@ import type {
   EventLogisticsStatus,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EventLogisticsDetailModal } from './EventLogisticsDetailModal';
 
 const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
@@ -141,6 +142,8 @@ export function VenuesLogisticsTab() {
   const eventOptions = useEventPickerOptions('logistics');
 
   const [eventId, setEventId] = useState<number | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [newEquipment, setNewEquipment] = useState('');
   const [newResource, setNewResource] = useState('');
   const [newSupplier, setNewSupplier] = useState('');
@@ -208,11 +211,27 @@ export function VenuesLogisticsTab() {
       }),
     {
       invalidateKeys: [queryKeys.events.all],
-      onSuccess: () =>
-        notify({ title: 'Logística guardada', intent: 'success' }),
+      onSuccess: () => {
+        notify({ title: 'Logística guardada', intent: 'success' });
+        setEditing(false);
+      },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
+
+  function cancelEditing() {
+    setForm(toForm(logistics ?? null));
+    setResponsible(
+      logistics?.responsible
+        ? {
+            id: logistics.responsible.id,
+            fullName: logistics.responsible.fullName,
+            avatarUrl: null,
+          }
+        : null,
+    );
+    setEditing(false);
+  }
 
   const resources = parseResources(form.resourcesNeeded);
 
@@ -340,7 +359,10 @@ export function VenuesLogisticsTab() {
         <Combobox
           items={eventOptions}
           value={undefined}
-          onValueChange={(v) => setEventId(Number(v))}
+          onValueChange={(v) => {
+            setEventId(Number(v));
+            setEditing(false);
+          }}
           placeholder="Selecionar evento"
           searchPlaceholder="Pesquisar evento…"
           emptyText="Nenhum evento encontrado"
@@ -361,7 +383,10 @@ export function VenuesLogisticsTab() {
         <Combobox
           items={eventOptions}
           value={String(eventId)}
-          onValueChange={(v) => setEventId(Number(v))}
+          onValueChange={(v) => {
+            setEventId(Number(v));
+            setEditing(false);
+          }}
           placeholder="Selecionar evento"
           searchPlaceholder="Pesquisar evento…"
           emptyText="Nenhum evento encontrado"
@@ -379,19 +404,45 @@ export function VenuesLogisticsTab() {
       ) : (
         <>
           {event && (
-            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Ver logística guardada do evento"
+              onClick={() => setDetailOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setDetailOpen(true);
+                }
+              }}
+              className="relative cursor-pointer overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+            >
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="truncate font-body text-sm font-semibold text-brand">
                   {event.title}
                 </div>
-                <span
-                  className={cn(
-                    'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
-                    proximityLevel(event.startAt).cls,
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                      proximityLevel(event.startAt).cls,
+                    )}
+                  >
+                    {relativeLabel(event.startAt)}
+                  </span>
+                  {canManage && !editing && (
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditing(true);
+                      }}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
+                      Editar logística
+                    </Button>
                   )}
-                >
-                  {relativeLabel(event.startAt)}
-                </span>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <div>
@@ -428,184 +479,39 @@ export function VenuesLogisticsTab() {
             </div>
           )}
 
-          <div className="space-y-4">
-            <NavyPanel seed={event?.id ?? 0} title="Equipamentos">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex flex-wrap gap-2">
-                    {(
-                      Object.entries(EQUIPMENT_CFG) as Array<
-                        [EventEquipmentType, { label: string }]
-                      >
-                    ).map(([value, cfg]) => (
-                      <label
-                        key={value}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
-                      >
-                        <Checkbox
-                          checked={form.equipment.includes(value)}
-                          onChange={() => toggleEquipment(value)}
-                          disabled={!canManage}
-                          size="sm"
-                        />
-                        {cfg.label}
-                      </label>
-                    ))}
-                    {form.customEquipment.map((name) => (
-                      <span
-                        key={name}
-                        className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
-                      >
-                        {name}
-                        {canManage && (
-                          <button
-                            type="button"
-                            aria-label={`Remover ${name}`}
-                            onClick={() => removeCustomEquipment(name)}
-                            className="rounded-full hover:bg-white/20"
-                          >
-                            <X size={12} strokeWidth={2} />
-                          </button>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                  {canManage && (
-                    <div className="mt-2 flex max-w-sm items-center gap-2">
-                      <Input
-                        value={newEquipment}
-                        onChange={(e) => setNewEquipment(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addCustomEquipment();
-                          }
-                        }}
-                        maxLength={80}
-                        placeholder="Outro equipamento…"
-                        aria-label="Adicionar outro equipamento"
-                        className="w-full"
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        intent="secondary"
-                        onClick={addCustomEquipment}
-                        disabled={!newEquipment.trim()}
-                      >
-                        <Plus size={14} strokeWidth={1.75} />
-                        Adicionar
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {canManage ? (
-                  <div className="w-full sm:max-w-xs">
-                    <DepartmentUserPicker
-                      label="Responsável"
-                      htmlFor="log-responsible"
-                      value={responsible}
-                      onChange={setResponsible}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full sm:max-w-xs">
-                    <div className="mb-1.5 font-body text-xs font-medium text-ink">
-                      Responsável
-                    </div>
-                    <div className="text-sm text-ink">
-                      {responsible?.fullName ?? '—'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </NavyPanel>
-            <NavyPanel seed={event?.id ?? 0} title="Recursos necessários">
-              <div>
-                <div className="flex flex-wrap gap-2">
-                  {RESOURCE_SUGGESTIONS.map((name) => {
-                    const on = resources.includes(name);
-                    return (
-                      <label
-                        key={name}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
-                      >
-                        <Checkbox
-                          checked={on}
-                          onChange={() =>
-                            on ? removeResource(name) : addResource(name)
-                          }
-                          disabled={!canManage}
-                          size="sm"
-                        />
-                        {name}
-                      </label>
-                    );
-                  })}
-                  {resources
-                    .filter((r) => !RESOURCE_SUGGESTIONS.includes(r))
-                    .map((name) => (
-                      <span
-                        key={name}
-                        className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
-                      >
-                        {name}
-                        {canManage && (
-                          <button
-                            type="button"
-                            aria-label={`Remover ${name}`}
-                            onClick={() => removeResource(name)}
-                            className="rounded-full hover:bg-white/20"
-                          >
-                            <X size={12} strokeWidth={2} />
-                          </button>
-                        )}
-                      </span>
-                    ))}
-                </div>
-                {canManage && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <Input
-                      value={newResource}
-                      onChange={(e) => setNewResource(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addResource(newResource);
-                          setNewResource('');
-                        }
-                      }}
-                      maxLength={120}
-                      placeholder="Outro recurso…"
-                      aria-label="Adicionar outro recurso"
-                      className="w-full"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      intent="secondary"
-                      onClick={() => {
-                        addResource(newResource);
-                        setNewResource('');
-                      }}
-                      disabled={!newResource.trim()}
-                    >
-                      <Plus size={14} strokeWidth={1.75} />
-                      Adicionar
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </NavyPanel>
-            <NavyPanel seed={event?.id ?? 0} title="Fornecedores e serviços">
-              <div className="space-y-3">
-                <div>
-                  <div className="mb-1.5 font-body text-xs font-medium text-ink">
-                    Fornecedores
-                  </div>
-                  {suppliers.length > 0 && (
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {suppliers.map((name) => (
+          {event && detailOpen && (
+            <EventLogisticsDetailModal
+              event={event}
+              logistics={logistics}
+              onClose={() => setDetailOpen(false)}
+            />
+          )}
+
+          {editing && canManage && (
+            <div className="space-y-4">
+              <NavyPanel seed={event?.id ?? 0} title="Equipamentos">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex flex-wrap gap-2">
+                      {(
+                        Object.entries(EQUIPMENT_CFG) as Array<
+                          [EventEquipmentType, { label: string }]
+                        >
+                      ).map(([value, cfg]) => (
+                        <label
+                          key={value}
+                          className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        >
+                          <Checkbox
+                            checked={form.equipment.includes(value)}
+                            onChange={() => toggleEquipment(value)}
+                            disabled={!canManage}
+                            size="sm"
+                          />
+                          {cfg.label}
+                        </label>
+                      ))}
+                      {form.customEquipment.map((name) => (
                         <span
                           key={name}
                           className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
@@ -615,7 +521,7 @@ export function VenuesLogisticsTab() {
                             <button
                               type="button"
                               aria-label={`Remover ${name}`}
-                              onClick={() => removeSupplier(name)}
+                              onClick={() => removeCustomEquipment(name)}
                               className="rounded-full hover:bg-white/20"
                             >
                               <X size={12} strokeWidth={2} />
@@ -624,29 +530,125 @@ export function VenuesLogisticsTab() {
                         </span>
                       ))}
                     </div>
+                    {canManage && (
+                      <div className="mt-2 flex max-w-sm items-center gap-2">
+                        <Input
+                          value={newEquipment}
+                          onChange={(e) => setNewEquipment(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addCustomEquipment();
+                            }
+                          }}
+                          maxLength={80}
+                          placeholder="Outro equipamento…"
+                          aria-label="Adicionar outro equipamento"
+                          className="w-full"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          intent="secondary"
+                          onClick={addCustomEquipment}
+                          disabled={!newEquipment.trim()}
+                        >
+                          <Plus size={14} strokeWidth={1.75} />
+                          Adicionar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {canManage ? (
+                    <div className="w-full sm:max-w-xs">
+                      <DepartmentUserPicker
+                        label="Responsável"
+                        htmlFor="log-responsible"
+                        value={responsible}
+                        onChange={setResponsible}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full sm:max-w-xs">
+                      <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                        Responsável
+                      </div>
+                      <div className="text-sm text-ink">
+                        {responsible?.fullName ?? '—'}
+                      </div>
+                    </div>
                   )}
+                </div>
+              </NavyPanel>
+              <NavyPanel seed={event?.id ?? 0} title="Recursos necessários">
+                <div>
+                  <div className="flex flex-wrap gap-2">
+                    {RESOURCE_SUGGESTIONS.map((name) => {
+                      const on = resources.includes(name);
+                      return (
+                        <label
+                          key={name}
+                          className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        >
+                          <Checkbox
+                            checked={on}
+                            onChange={() =>
+                              on ? removeResource(name) : addResource(name)
+                            }
+                            disabled={!canManage}
+                            size="sm"
+                          />
+                          {name}
+                        </label>
+                      );
+                    })}
+                    {resources
+                      .filter((r) => !RESOURCE_SUGGESTIONS.includes(r))
+                      .map((name) => (
+                        <span
+                          key={name}
+                          className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
+                        >
+                          {name}
+                          {canManage && (
+                            <button
+                              type="button"
+                              aria-label={`Remover ${name}`}
+                              onClick={() => removeResource(name)}
+                              className="rounded-full hover:bg-white/20"
+                            >
+                              <X size={12} strokeWidth={2} />
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                  </div>
                   {canManage && (
-                    <div className="flex items-center gap-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <Input
-                        value={newSupplier}
-                        onChange={(e) => setNewSupplier(e.target.value)}
+                        value={newResource}
+                        onChange={(e) => setNewResource(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
-                            addSupplier();
+                            addResource(newResource);
+                            setNewResource('');
                           }
                         }}
                         maxLength={120}
-                        placeholder="Nome do fornecedor…"
-                        aria-label="Adicionar fornecedor"
+                        placeholder="Outro recurso…"
+                        aria-label="Adicionar outro recurso"
                         className="w-full"
                       />
                       <Button
                         type="button"
                         size="sm"
                         intent="secondary"
-                        onClick={addSupplier}
-                        disabled={!newSupplier.trim()}
+                        onClick={() => {
+                          addResource(newResource);
+                          setNewResource('');
+                        }}
+                        disabled={!newResource.trim()}
                       >
                         <Plus size={14} strokeWidth={1.75} />
                         Adicionar
@@ -654,251 +656,317 @@ export function VenuesLogisticsTab() {
                     </div>
                   )}
                 </div>
+              </NavyPanel>
+              <NavyPanel seed={event?.id ?? 0} title="Fornecedores e serviços">
+                <div className="space-y-3">
+                  <div>
+                    <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                      Fornecedores
+                    </div>
+                    {suppliers.length > 0 && (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {suppliers.map((name) => (
+                          <span
+                            key={name}
+                            className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
+                          >
+                            {name}
+                            {canManage && (
+                              <button
+                                type="button"
+                                aria-label={`Remover ${name}`}
+                                onClick={() => removeSupplier(name)}
+                                className="rounded-full hover:bg-white/20"
+                              >
+                                <X size={12} strokeWidth={2} />
+                              </button>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {canManage && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newSupplier}
+                          onChange={(e) => setNewSupplier(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addSupplier();
+                            }
+                          }}
+                          maxLength={120}
+                          placeholder="Nome do fornecedor…"
+                          aria-label="Adicionar fornecedor"
+                          className="w-full"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          intent="secondary"
+                          onClick={addSupplier}
+                          disabled={!newSupplier.trim()}
+                        >
+                          <Plus size={14} strokeWidth={1.75} />
+                          Adicionar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <FormField label="Catering" htmlFor="log-catering">
+                      <Input
+                        id="log-catering"
+                        value={form.catering}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, catering: e.target.value }))
+                        }
+                        disabled={!canManage}
+                        className="w-full"
+                      />
+                    </FormField>
+                    <FormField label="Transporte" htmlFor="log-transport">
+                      <Input
+                        id="log-transport"
+                        value={form.transport}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, transport: e.target.value }))
+                        }
+                        disabled={!canManage}
+                        className="w-full"
+                      />
+                    </FormField>
+                    <FormField label="Alojamento" htmlFor="log-accommodation">
+                      <Input
+                        id="log-accommodation"
+                        value={form.accommodation}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            accommodation: e.target.value,
+                          }))
+                        }
+                        disabled={!canManage}
+                        className="w-full"
+                      />
+                    </FormField>
+                    <FormField label="Segurança" htmlFor="log-security">
+                      <Input
+                        id="log-security"
+                        value={form.security}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, security: e.target.value }))
+                        }
+                        disabled={!canManage}
+                        className="w-full"
+                      />
+                    </FormField>
+                    <FormField label="Decoração" htmlFor="log-decoration">
+                      <Input
+                        id="log-decoration"
+                        value={form.decoration}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, decoration: e.target.value }))
+                        }
+                        disabled={!canManage}
+                        className="w-full"
+                      />
+                    </FormField>
+                  </div>
+                  <div>
+                    <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                      Outros serviços
+                    </div>
+                    {form.customServices.length > 0 && (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {form.customServices.map((entry) => (
+                          <span
+                            key={entry}
+                            className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
+                          >
+                            {entry}
+                            {canManage && (
+                              <button
+                                type="button"
+                                aria-label={`Remover ${entry}`}
+                                onClick={() => removeCustomService(entry)}
+                                className="rounded-full hover:bg-white/20"
+                              >
+                                <X size={12} strokeWidth={2} />
+                              </button>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {canManage && (
+                      <div className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                        <Input
+                          value={newServiceName}
+                          onChange={(e) => setNewServiceName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addCustomService();
+                            }
+                          }}
+                          maxLength={80}
+                          placeholder="Serviço (ex.: Fotografia)…"
+                          aria-label="Nome do serviço"
+                          className="w-full"
+                        />
+                        <Input
+                          value={newServiceDetail}
+                          onChange={(e) => setNewServiceDetail(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addCustomService();
+                            }
+                          }}
+                          maxLength={110}
+                          placeholder="Detalhe (opcional)"
+                          aria-label="Detalhe do serviço"
+                          className="w-full"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          intent="secondary"
+                          onClick={addCustomService}
+                          disabled={!newServiceName.trim()}
+                        >
+                          <Plus size={14} strokeWidth={1.75} />
+                          Adicionar serviço
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </NavyPanel>
+              <NavyPanel seed={event?.id ?? 0} title="Estado e custos">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <FormField label="Catering" htmlFor="log-catering">
-                    <Input
-                      id="log-catering"
-                      value={form.catering}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, catering: e.target.value }))
-                      }
-                      disabled={!canManage}
-                      className="w-full"
-                    />
-                  </FormField>
-                  <FormField label="Transporte" htmlFor="log-transport">
-                    <Input
-                      id="log-transport"
-                      value={form.transport}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, transport: e.target.value }))
-                      }
-                      disabled={!canManage}
-                      className="w-full"
-                    />
-                  </FormField>
-                  <FormField label="Alojamento" htmlFor="log-accommodation">
-                    <Input
-                      id="log-accommodation"
-                      value={form.accommodation}
-                      onChange={(e) =>
+                  <FormField label="Estado" htmlFor="log-status">
+                    <Select
+                      items={Object.entries(LOGISTICS_STATUS_CFG).map(
+                        ([value, cfg]) => ({ value, label: cfg.label }),
+                      )}
+                      value={form.status}
+                      onValueChange={(v) =>
                         setForm((f) => ({
                           ...f,
-                          accommodation: e.target.value,
+                          status: v as EventLogisticsStatus,
                         }))
                       }
                       disabled={!canManage}
                       className="w-full"
                     />
                   </FormField>
-                  <FormField label="Segurança" htmlFor="log-security">
+                  <FormField
+                    label="Orçamento (custo estimado)"
+                    htmlFor="log-budget"
+                  >
                     <Input
-                      id="log-security"
-                      value={form.security}
+                      id="log-budget"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={form.budget}
                       onChange={(e) =>
-                        setForm((f) => ({ ...f, security: e.target.value }))
+                        setForm((f) => ({ ...f, budget: e.target.value }))
                       }
                       disabled={!canManage}
                       className="w-full"
                     />
                   </FormField>
-                  <FormField label="Decoração" htmlFor="log-decoration">
+                  <FormField label="Custo realizado" htmlFor="log-actual-cost">
                     <Input
-                      id="log-decoration"
-                      value={form.decoration}
+                      id="log-actual-cost"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={form.actualCost}
                       onChange={(e) =>
-                        setForm((f) => ({ ...f, decoration: e.target.value }))
+                        setForm((f) => ({ ...f, actualCost: e.target.value }))
                       }
                       disabled={!canManage}
                       className="w-full"
                     />
                   </FormField>
                 </div>
-                <div>
-                  <div className="mb-1.5 font-body text-xs font-medium text-ink">
-                    Outros serviços
+                <div className="space-y-2">
+                  <div className="font-body text-xs font-medium text-ink">
+                    Serviços e custos
                   </div>
-                  {form.customServices.length > 0 && (
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {form.customServices.map((entry) => (
-                        <span
-                          key={entry}
-                          className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
-                        >
-                          {entry}
-                          {canManage && (
-                            <button
-                              type="button"
-                              aria-label={`Remover ${entry}`}
-                              onClick={() => removeCustomService(entry)}
-                              className="rounded-full hover:bg-white/20"
-                            >
-                              <X size={12} strokeWidth={2} />
-                            </button>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {canManage && (
-                    <div className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_1fr_auto]">
-                      <Input
-                        value={newServiceName}
-                        onChange={(e) => setNewServiceName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addCustomService();
-                          }
-                        }}
-                        maxLength={80}
-                        placeholder="Serviço (ex.: Fotografia)…"
-                        aria-label="Nome do serviço"
-                        className="w-full"
-                      />
-                      <Input
-                        value={newServiceDetail}
-                        onChange={(e) => setNewServiceDetail(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addCustomService();
-                          }
-                        }}
-                        maxLength={110}
-                        placeholder="Detalhe (opcional)"
-                        aria-label="Detalhe do serviço"
-                        className="w-full"
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        intent="secondary"
-                        onClick={addCustomService}
-                        disabled={!newServiceName.trim()}
+                  {serviceItems.map((item) => {
+                    const on = item.key in form.serviceCosts;
+                    return (
+                      <div
+                        key={item.key}
+                        className="flex flex-wrap items-center gap-3 rounded-control border border-brand-line bg-surface px-3 py-1.5"
                       >
-                        <Plus size={14} strokeWidth={1.75} />
-                        Adicionar serviço
-                      </Button>
+                        <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-brand">
+                          <Checkbox
+                            checked={on}
+                            onChange={() => toggleServiceCost(item.key)}
+                            disabled={!canManage}
+                            size="sm"
+                          />
+                          <span className="truncate font-semibold">
+                            {item.label}
+                          </span>
+                          {item.detail && (
+                            <span className="truncate text-xs text-brand-muted">
+                              {item.detail}
+                            </span>
+                          )}
+                        </label>
+                        {on && (
+                          <Input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            value={form.serviceCosts[item.key]}
+                            onChange={(e) =>
+                              setServiceCost(item.key, e.target.value)
+                            }
+                            disabled={!canManage}
+                            placeholder="Custo"
+                            aria-label={`Custo de ${item.label}`}
+                            className="w-36"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                  {Object.keys(form.serviceCosts).length > 0 && (
+                    <div className="text-right font-body text-xs text-brand-muted">
+                      Total dos serviços seleccionados:{' '}
+                      <b className="text-brand">{servicesTotal.toFixed(2)}</b>
                     </div>
                   )}
                 </div>
-              </div>
-            </NavyPanel>
-            <NavyPanel seed={event?.id ?? 0} title="Estado e custos">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormField label="Estado" htmlFor="log-status">
-                  <Select
-                    items={Object.entries(LOGISTICS_STATUS_CFG).map(
-                      ([value, cfg]) => ({ value, label: cfg.label }),
-                    )}
-                    value={form.status}
-                    onValueChange={(v) =>
-                      setForm((f) => ({
-                        ...f,
-                        status: v as EventLogisticsStatus,
-                      }))
-                    }
-                    disabled={!canManage}
-                    className="w-full"
-                  />
-                </FormField>
-                <FormField
-                  label="Orçamento (custo estimado)"
-                  htmlFor="log-budget"
-                >
-                  <Input
-                    id="log-budget"
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.budget}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, budget: e.target.value }))
-                    }
-                    disabled={!canManage}
-                    className="w-full"
-                  />
-                </FormField>
-                <FormField label="Custo realizado" htmlFor="log-actual-cost">
-                  <Input
-                    id="log-actual-cost"
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.actualCost}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, actualCost: e.target.value }))
-                    }
-                    disabled={!canManage}
-                    className="w-full"
-                  />
-                </FormField>
-              </div>
-              <div className="space-y-2">
-                <div className="font-body text-xs font-medium text-ink">
-                  Serviços e custos
-                </div>
-                {serviceItems.map((item) => {
-                  const on = item.key in form.serviceCosts;
-                  return (
-                    <div
-                      key={item.key}
-                      className="flex flex-wrap items-center gap-3 rounded-control border border-brand-line bg-surface px-3 py-1.5"
+                {canManage && (
+                  <div className="flex justify-end gap-2 border-t border-brand-line pt-4">
+                    <Button
+                      intent="secondary"
+                      disabled={save.isPending}
+                      onClick={cancelEditing}
                     >
-                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-brand">
-                        <Checkbox
-                          checked={on}
-                          onChange={() => toggleServiceCost(item.key)}
-                          disabled={!canManage}
-                          size="sm"
-                        />
-                        <span className="truncate font-semibold">
-                          {item.label}
-                        </span>
-                        {item.detail && (
-                          <span className="truncate text-xs text-brand-muted">
-                            {item.detail}
-                          </span>
-                        )}
-                      </label>
-                      {on && (
-                        <Input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          value={form.serviceCosts[item.key]}
-                          onChange={(e) =>
-                            setServiceCost(item.key, e.target.value)
-                          }
-                          disabled={!canManage}
-                          placeholder="Custo"
-                          aria-label={`Custo de ${item.label}`}
-                          className="w-36"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-                {Object.keys(form.serviceCosts).length > 0 && (
-                  <div className="text-right font-body text-xs text-brand-muted">
-                    Total dos serviços seleccionados:{' '}
-                    <b className="text-brand">{servicesTotal.toFixed(2)}</b>
+                      Cancelar
+                    </Button>
+                    <Button
+                      loading={save.isPending}
+                      onClick={() => save.mutate(undefined)}
+                    >
+                      Guardar
+                    </Button>
                   </div>
                 )}
-              </div>
-              {canManage && (
-                <div className="flex justify-end border-t border-brand-line pt-4">
-                  <Button
-                    loading={save.isPending}
-                    onClick={() => save.mutate(undefined)}
-                  >
-                    Guardar
-                  </Button>
-                </div>
-              )}
-            </NavyPanel>
-          </div>
+              </NavyPanel>
+            </div>
+          )}
         </>
       )}
     </div>
