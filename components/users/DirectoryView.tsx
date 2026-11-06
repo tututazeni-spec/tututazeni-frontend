@@ -55,6 +55,10 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
     ...positionOptions.map((p) => ({ value: p.value, label: p.label })),
   ];
 
+  // Por omissão o diretório não lista ninguém: só pesquisa quando há filtro.
+  const hasFilter =
+    search.trim() !== '' || departmentId !== '' || positionId !== '';
+
   const { data = [], isLoading: loading } = useApiQuery<DirectoryUser[]>(
     queryKeys.users.directory(
       debouncedSearch,
@@ -69,6 +73,7 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
       },
       staleTime: STALE_TIME.SEMI_STATIC,
       placeholderData: keepPreviousData,
+      enabled: hasFilter,
     },
   );
 
@@ -98,7 +103,12 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
           />
         </CardBody>
       </Card>
-      {loading ? (
+      {!hasFilter ? (
+        <EmptyState
+          variant="inline"
+          title="Pesquise ou filtre para ver colaboradores"
+        />
+      ) : loading ? (
         <Skeleton
           rows={8}
           wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
