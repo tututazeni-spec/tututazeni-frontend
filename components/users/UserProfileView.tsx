@@ -162,15 +162,8 @@ export function UserProfileView({
                 )}
               </div>
               {user.manager && (
-                <div className="flex items-center gap-2 mt-2">
-                  <Avatar
-                    name={user.manager.fullName}
-                    url={user.manager.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                  <span className="text-xs text-ink-muted">
-                    Gestor: <strong>{user.manager.fullName}</strong>
-                  </span>
+                <div className="mt-2 text-xs text-ink-muted">
+                  Gestor: <strong>{user.manager.fullName}</strong>
                 </div>
               )}
             </div>
