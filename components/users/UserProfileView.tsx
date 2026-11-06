@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Clock,
   Trophy,
-  TrendingUp,
   AlertTriangle,
 } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -27,6 +26,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -256,11 +256,10 @@ export function UserProfileView({
               label="Concluídos"
               value={stats.enrollments.completed}
             />
-            <NavyStatCard
-              icon={TrendingUp}
-              tone="orange"
+            <ThermometerStatCard
               label="Taxa conclusão"
-              value={`${stats.completionRate}%`}
+              value={stats.completionRate}
+              display={`${stats.completionRate}%`}
             />
             <NavyStatCard
               icon={Trophy}
