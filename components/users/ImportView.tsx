@@ -5,8 +5,8 @@
 // de importações anteriores (mesma UserAuditLog do separador "Histórico &
 // Auditoria", filtrada por action=BULK_IMPORT).
 //
-// Só CSV real é suportado — não .xlsx binário. O parsing/mapeamento fica
-// todo no browser (importUsersCsv.ts); o backend (POST /users/import) só
+// Aceita CSV e Excel (.xlsx, primeira folha). O parsing/mapeamento fica
+// todo no browser (importUsersCsv.ts / importUsersXlsx.ts); o backend (POST /users/import) só
 // recebe as linhas já mapeadas e faz o que precisa de bater na BD:
 // resolver departamento/cargo por nome, detectar duplicados contra
 // utilizadores existentes e criar/actualizar.
@@ -45,6 +45,7 @@ import {
   type ImportField,
   type ParsedCsv,
 } from './importUsersCsv';
+import { parseXlsx } from './importUsersXlsx';
 import { auditActionLabel, describeAuditMeta } from './auditLogLabels';
 import type {
   ImportReport,
@@ -108,19 +109,28 @@ export function ImportView() {
       return;
     }
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = typeof reader.result === 'string' ? reader.result : '';
-      const result = parseCsv(text);
+    const applyResult = (result: ParsedCsv) => {
       setParsed(result);
       if (!result.error) {
         setMapping(guessMapping(result.headers));
         setStep('map');
       }
     };
+    const isExcel = /\.xlsx$/i.test(file.name);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      if (isExcel) {
+        applyResult(await parseXlsx(reader.result as ArrayBuffer));
+      } else {
+        applyResult(
+          parseCsv(typeof reader.result === 'string' ? reader.result : ''),
+        );
+      }
+    };
     reader.onerror = () =>
       setReadError('Não foi possível ler o ficheiro. Tenta outra vez.');
-    reader.readAsText(file);
+    if (isExcel) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
   };
 
   const mappedHasRequiredFields =
@@ -194,14 +204,14 @@ export function ImportView() {
           1. Carregar ficheiro
         </div>
         <FormField
-          label="Ficheiro CSV"
+          label="Ficheiro Excel ou CSV"
           htmlFor="import-file"
-          hint="Cabeçalho + uma linha por utilizador. Excel: exportar como CSV primeiro (Ficheiro → Exportar → CSV)."
+          hint="Cabeçalho + uma linha por utilizador. Aceita Excel (.xlsx, lê a primeira folha) e CSV."
         >
           <Input
             id="import-file"
             type="file"
-            accept=".csv,text/csv"
+            accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             onChange={(e) => handleFile(e.target.files?.[0])}
             className="file:mr-3 file:rounded-control file:border-0 file:bg-surface-sunken file:px-3 file:py-1 file:font-body file:text-xs file:text-ink"
           />

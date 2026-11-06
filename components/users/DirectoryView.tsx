@@ -6,15 +6,24 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Briefcase, Building2 } from 'lucide-react';
 import { PersonCard } from './PersonCard';
+import { usePositionOptions } from './createUserData';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Input } from '@/components/ui/Input';
+import { Card, CardBody } from '@/components/ui/Card';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DirectoryUser } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+
+interface DepartmentRow {
+  id: number;
+  name: string;
+}
 
 interface DirectoryViewProps {
   onSelect: (id: number) => void;
@@ -23,13 +32,41 @@ interface DirectoryViewProps {
 /* ── Vista principal ───────────────────────────────────────── */
 export function DirectoryView({ onSelect }: DirectoryViewProps) {
   const [search, setSearch] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
+  const [positionId, setPositionId] = useState('');
   const debouncedSearch = useDebounce(search);
 
+  const deptParams = { limit: 200 };
+  const { data: depts } = useApiQuery<{ data: DepartmentRow[] }>(
+    queryKeys.departments.list(deptParams),
+    '/departments',
+    { params: deptParams, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { options: positionOptions } = usePositionOptions();
+  const departmentItems = [
+    { value: 'ALL', label: 'Todos os departamentos' },
+    ...(depts?.data ?? []).map((d) => ({
+      value: String(d.id),
+      label: d.name,
+    })),
+  ];
+  const positionItems = [
+    { value: 'ALL', label: 'Todos os cargos' },
+    ...positionOptions.map((p) => ({ value: p.value, label: p.label })),
+  ];
+
   const { data = [], isLoading: loading } = useApiQuery<DirectoryUser[]>(
-    queryKeys.users.directory(debouncedSearch),
+    queryKeys.users.directory(
+      debouncedSearch,
+      [departmentId, positionId].join('|'),
+    ),
     '/users/directory',
     {
-      params: { search: debouncedSearch },
+      params: {
+        search: debouncedSearch,
+        departmentId: departmentId || undefined,
+        positionId: positionId || undefined,
+      },
       staleTime: STALE_TIME.SEMI_STATIC,
       placeholderData: keepPreviousData,
     },
@@ -37,14 +74,30 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
 
   return (
     <div>
-      <Input
-        variant="underline"
-        type="text"
-        placeholder="Pesquisar colaborador, cargo, departamento…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-5"
-      />
+      <Card className="mb-5">
+        <CardBody className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar colaborador, cargo, departamento…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={departmentItems}
+            value={departmentId || 'ALL'}
+            onValueChange={(v) => setDepartmentId(v === 'ALL' ? '' : v)}
+          />
+          <Select
+            variant="underline"
+            icon={Briefcase}
+            items={positionItems}
+            value={positionId || 'ALL'}
+            onValueChange={(v) => setPositionId(v === 'ALL' ? '' : v)}
+          />
+        </CardBody>
+      </Card>
       {loading ? (
         <Skeleton
           rows={8}
