@@ -92,6 +92,7 @@ export interface LiveClassesViewProps {
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
   onStart: (lc: LiveClass) => void;
+  onPublish?: (lc: LiveClass) => void;
   onPostpone: (lc: LiveClass) => void;
   onCancel: (lc: LiveClass) => void;
   onDuplicate: (lc: LiveClass) => void;
@@ -118,6 +119,7 @@ export function LiveClassesView({
   onViewRecording,
   onDelete,
   onStart,
+  onPublish,
   onPostpone,
   onCancel,
   onDuplicate,
@@ -304,6 +306,7 @@ export function LiveClassesView({
                   onViewRecording={onViewRecording}
                   onDelete={onDelete}
                   onStart={onStart}
+                  onPublish={onPublish}
                   onPostpone={onPostpone}
                   onCancel={onCancel}
                   onDuplicate={onDuplicate}

@@ -219,6 +219,19 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
     },
   );
 
+  const publish = useApiMutation(
+    (s: LiveClassSession) =>
+      apiClient.post(
+        `/live-classes/${s.liveClassId}/sessions/${s.id}/publish`,
+        {},
+      ),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Sessão publicada.', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   const remove = useApiMutation(
     (s: LiveClassSession) =>
       apiClient.delete(`/live-classes/${s.liveClassId}/sessions/${s.id}`),
@@ -283,7 +296,9 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 fallback={<Video size={56} strokeWidth={1.25} />}
                 badges={
                   <NavyBadge tone={STATUS_TONE[s.status] ?? 'neutral'}>
-                    {STATUS_CFG[s.status]?.label ?? s.status}
+                    {s.status === 'EM_PREPARACAO'
+                      ? 'Rascunho'
+                      : (STATUS_CFG[s.status]?.label ?? s.status)}
                   </NavyBadge>
                 }
                 metrics={[
@@ -303,65 +318,77 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 ]}
                 actions={
                   canManage && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                    <>
+                      {s.status === 'EM_PREPARACAO' && (
                         <Button
                           type="button"
                           intent="onDarkGhost"
-                          size="icon"
-                          aria-label="Mais ações"
-                          title="Mais ações"
+                          size="sm"
+                          onClick={() => publish.mutate(s)}
                         >
-                          <MoreVertical size={15} strokeWidth={1.75} />
+                          Publicar
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={() => openEdit(s)}>
-                          <Pencil
-                            size={13}
-                            strokeWidth={1.75}
-                            className="mr-2 inline"
-                          />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            setInstructorId(
-                              s.instructor?.id ? String(s.instructor.id) : '',
-                            );
-                            setInstructorFor(s);
-                          }}
-                        >
-                          <UserPlus
-                            size={13}
-                            strokeWidth={1.75}
-                            className="mr-2 inline"
-                          />
-                          Adicionar formadores
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            setAttendanceFor(s);
-                          }}
-                        >
-                          <Users
-                            size={13}
-                            strokeWidth={1.75}
-                            className="mr-2 inline"
-                          />
-                          Adicionar presenças
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => onDelete(s)}>
-                          <Trash2
-                            size={13}
-                            strokeWidth={1.75}
-                            className="mr-2 inline"
-                          />
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            type="button"
+                            intent="onDarkGhost"
+                            size="icon"
+                            aria-label="Mais ações"
+                            title="Mais ações"
+                          >
+                            <MoreVertical size={15} strokeWidth={1.75} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => openEdit(s)}>
+                            <Pencil
+                              size={13}
+                              strokeWidth={1.75}
+                              className="mr-2 inline"
+                            />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              setInstructorId(
+                                s.instructor?.id ? String(s.instructor.id) : '',
+                              );
+                              setInstructorFor(s);
+                            }}
+                          >
+                            <UserPlus
+                              size={13}
+                              strokeWidth={1.75}
+                              className="mr-2 inline"
+                            />
+                            Adicionar formadores
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              setAttendanceFor(s);
+                            }}
+                          >
+                            <Users
+                              size={13}
+                              strokeWidth={1.75}
+                              className="mr-2 inline"
+                            />
+                            Adicionar presenças
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onSelect={() => onDelete(s)}>
+                            <Trash2
+                              size={13}
+                              strokeWidth={1.75}
+                              className="mr-2 inline"
+                            />
+                            Eliminar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
                   )
                 }
               />

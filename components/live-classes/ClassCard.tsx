@@ -48,6 +48,8 @@ export interface ClassCardProps {
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
   onStart: (lc: LiveClass) => void;
+  /** Publica uma aula em rascunho (EM_PREPARACAO → AGENDADA). */
+  onPublish?: (lc: LiveClass) => void;
   onPostpone: (lc: LiveClass) => void;
   onCancel: (lc: LiveClass) => void;
   onDuplicate: (lc: LiveClass) => void;
@@ -121,6 +123,7 @@ export function ClassCard({
   onViewRecording,
   onDelete,
   onStart,
+  onPublish,
   onPostpone,
   onCancel,
   onDuplicate,
@@ -130,8 +133,10 @@ export function ClassCard({
   const isLive = status === 'live';
   const lines = titleLines(lc.topic);
   const typeLabel = TYPE_CFG[lc.type]?.label ?? lc.type;
-  const statusLabel =
-    status === 'upcoming'
+  const isDraft = lc.status === 'EM_PREPARACAO';
+  const statusLabel = isDraft
+    ? 'Rascunho'
+    : status === 'upcoming'
       ? 'Agendada'
       : status === 'past'
         ? 'Concluída'
@@ -195,10 +200,16 @@ export function ClassCard({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onStart(lc)}>
-                  <Play size={13} strokeWidth={1.75} className="mr-2 inline" />
-                  Iniciar aula
-                </DropdownMenuItem>
+                {!isDraft && (
+                  <DropdownMenuItem onSelect={() => onStart(lc)}>
+                    <Play
+                      size={13}
+                      strokeWidth={1.75}
+                      className="mr-2 inline"
+                    />
+                    Iniciar aula
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onSelect={() => onAddInstructor(lc)}>
                   <UserPlus
                     size={13}
@@ -310,17 +321,27 @@ export function ClassCard({
         onClick={(ev) => ev.stopPropagation()}
         onKeyDown={(ev) => ev.stopPropagation()}
       >
-        <button
-          type="button"
-          onClick={() => onOpen(lc.id)}
-          className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full px-5 py-3.5 text-base font-bold text-white shadow-[0_4px_12px_rgba(249,115,22,0.45)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          style={{
-            background: 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)',
-          }}
-        >
-          <Radio size={18} strokeWidth={2} />
-          {isLive ? 'Entrar agora' : 'Abrir sala'}
-        </button>
+        {isDraft && canManage && onPublish ? (
+          <button
+            type="button"
+            onClick={() => onPublish(lc)}
+            className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-white px-5 py-3.5 text-base font-bold text-[#0F1F3D] hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            Publicar
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onOpen(lc.id)}
+            className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full px-5 py-3.5 text-base font-bold text-white shadow-[0_4px_12px_rgba(249,115,22,0.45)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            style={{
+              background: 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)',
+            }}
+          >
+            <Radio size={18} strokeWidth={2} />
+            {isLive ? 'Entrar agora' : 'Abrir sala'}
+          </button>
+        )}
         {lc.recordingUrl && (
           <button
             type="button"
