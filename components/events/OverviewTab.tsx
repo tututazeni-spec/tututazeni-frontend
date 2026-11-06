@@ -320,12 +320,12 @@ export function OverviewTab({
                 >
                   <span
                     title={typeCfg.label}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brand-line bg-brand-soft"
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-ink"
                   >
                     <TypeIcon
                       size={20}
                       strokeWidth={1.75}
-                      className="text-brand-ink"
+                      className="text-white"
                     />
                   </span>
                   <div className="min-w-0 flex-1">
