@@ -17,6 +17,7 @@ import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
   Building2,
+  CalendarDays,
   Download,
   Landmark,
   MapPin,
@@ -186,13 +187,15 @@ export function ParticipantsTab() {
     return (
       <div className="space-y-4">
         <Combobox
+          variant="underline"
+          icon={CalendarDays}
           items={eventOptions}
           value={undefined}
           onValueChange={(v) => setEventId(Number(v))}
           placeholder="Selecionar evento"
           searchPlaceholder="Pesquisar evento…"
           emptyText="Nenhum evento encontrado"
-          className="max-w-lg"
+          className="w-72"
         />
         <EmptyState
           icon={UsersIcon}
@@ -207,6 +210,8 @@ export function ParticipantsTab() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Combobox
+          variant="underline"
+          icon={CalendarDays}
           items={eventOptions}
           value={String(eventId)}
           onValueChange={(v) => {
@@ -216,7 +221,7 @@ export function ParticipantsTab() {
           placeholder="Selecionar evento"
           searchPlaceholder="Pesquisar evento…"
           emptyText="Nenhum evento encontrado"
-          className="max-w-sm"
+          className="w-72"
         />
         <div className="flex gap-2">
           <Button size="sm" onClick={() => setShowAdd(true)}>
