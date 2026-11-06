@@ -201,7 +201,7 @@ export function UserProfileView({
               )}
               {user.accountStatus === 'ACTIVE' && (
                 <Button
-                  intent="warning"
+                  intent="danger"
                   size="sm"
                   onClick={() => onAction('suspend')}
                   disabled={actionLoading}
