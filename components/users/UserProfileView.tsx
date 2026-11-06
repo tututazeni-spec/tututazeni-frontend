@@ -122,7 +122,7 @@ export function UserProfileView({
       </Button>
 
       {/* Profile header */}
-      <Card className="p-6 mb-5">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="flex items-start gap-5">
           <Avatar
             name={user.fullName}
@@ -131,7 +131,7 @@ export function UserProfileView({
           />
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1 flex-wrap">
-              <h2 className="text-xl font-semibold text-ink">
+              <h2 className="text-xl font-semibold text-brand">
                 {user.fullName}
               </h2>
               <StatusBadge
@@ -141,8 +141,8 @@ export function UserProfileView({
               />
               <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
             </div>
-            <div className="text-sm text-ink-muted mb-2">{user.email}</div>
-            <div className="flex flex-wrap gap-4 text-xs text-ink-faint">
+            <div className="text-sm text-brand-muted mb-2">{user.email}</div>
+            <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
               {user.employeeNumber && (
                 <span className="font-mono">{user.employeeNumber}</span>
               )}
@@ -221,7 +221,7 @@ export function UserProfileView({
             ))}
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Tabs */}
       <ProfileTabNav
