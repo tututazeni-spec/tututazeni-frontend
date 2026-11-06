@@ -26,8 +26,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { SpeedometerChart } from '@/components/ui/charts/SpeedometerChart';
-import { RATE_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
+import { RateGauge } from './profile/shared';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -257,19 +256,7 @@ export function UserProfileView({
               label="Concluídos"
               value={stats.enrollments.completed}
             />
-            <div className="flex min-h-[155px] flex-col items-center justify-center gap-2">
-              <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                Taxa conclusão
-              </h3>
-              <SpeedometerChart
-                value={stats.completionRate}
-                min={0}
-                max={100}
-                bands={RATE_BANDS}
-                size={150}
-                display={`${stats.completionRate}%`}
-              />
-            </div>
+            <RateGauge label="Taxa conclusão" value={stats.completionRate} />
             <NavyStatCard
               icon={Trophy}
               tone="blue"

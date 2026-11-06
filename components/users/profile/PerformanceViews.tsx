@@ -17,6 +17,7 @@ import {
 import type { EvalResults } from '@/components/evaluation/types';
 import type { QueryData } from '@/hooks/useUserProfileData';
 import { InfoCard, LoadingRows } from './shared';
+import { ptLabel } from './labels';
 import {
   careerPlanRows,
   completedIntent,
@@ -161,7 +162,9 @@ export function PdiView({
               </div>
             </TableCell>
             <TableCell>
-              <Badge intent={priorityIntent(p.priority)}>{p.priority}</Badge>
+              <Badge intent={priorityIntent(p.priority)}>
+                {ptLabel(p.priority)}
+              </Badge>
             </TableCell>
             <TableCell className="text-xs font-mono text-ink-muted">
               {p.overallProgress}%
@@ -170,7 +173,9 @@ export function PdiView({
               {p.period ?? '—'}
             </TableCell>
             <TableCell>
-              <Badge intent={completedIntent(p.status)}>{p.status}</Badge>
+              <Badge intent={completedIntent(p.status)}>
+                {ptLabel(p.status)}
+              </Badge>
             </TableCell>
           </TableRow>
         ))}

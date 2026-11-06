@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
 import { LoadingRows } from './shared';
+import { ptLabel } from './labels';
 import { completedIntent, gapClass } from './logic';
 import {
   type TrainingParticipation,
@@ -54,7 +55,7 @@ export function TrainingView({
                 {p.session?.training.title ?? '—'}
               </div>
               <div className="text-xs text-ink-faint">
-                {p.session?.training.type}
+                {ptLabel(p.session?.training.type)}
               </div>
             </TableCell>
             <TableCell className="text-xs text-ink-muted">
@@ -64,7 +65,7 @@ export function TrainingView({
               {p.session?.training.workloadHours ?? '—'}h
             </TableCell>
             <TableCell>
-              <Badge intent="info">{p.status}</Badge>
+              <Badge intent="info">{ptLabel(p.status)}</Badge>
             </TableCell>
           </TableRow>
         ))}
@@ -137,7 +138,9 @@ export function CoursesView({
                 {e.deadline ? fmtDate(e.deadline) : '—'}
               </TableCell>
               <TableCell>
-                <Badge intent={completedIntent(e.status)}>{e.status}</Badge>
+                <Badge intent={completedIntent(e.status)}>
+                  {ptLabel(e.status)}
+                </Badge>
               </TableCell>
               <TableCell className="text-xs text-ink-muted">
                 {e.certificate ? fmtDate(e.certificate.issuedAt) : '—'}
@@ -177,7 +180,7 @@ export function CompetenciesView({
                 {c.competency.name}
               </div>
               <div className="text-xs text-ink-faint">
-                {c.competency.category ?? '—'}
+                {ptLabel(c.competency.category)}
               </div>
             </TableCell>
             <TableCell className="text-xs font-mono text-ink-muted">

@@ -20,7 +20,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { LoadingRows } from './shared';
+import { LoadingRows, RateGauge } from './shared';
+import { ptLabel } from './labels';
 import {
   approvedIntent,
   attendanceIntent,
@@ -151,11 +152,9 @@ export function AttendanceView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <NavyStatCard
-          icon={CalendarCheck}
-          tone="green"
+        <RateGauge
           label="Taxa de presença"
-          value={`${data.summary.attendanceRate}%`}
+          value={data.summary.attendanceRate}
         />
         <NavyStatCard
           icon={UserCheck}
@@ -198,7 +197,9 @@ export function AttendanceView({
                 {r.clockOut ?? '—'}
               </TableCell>
               <TableCell>
-                <Badge intent={attendanceIntent(r.status)}>{r.status}</Badge>
+                <Badge intent={attendanceIntent(r.status)}>
+                  {ptLabel(r.status)}
+                </Badge>
               </TableCell>
             </TableRow>
           ))}
