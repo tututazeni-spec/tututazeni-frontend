@@ -48,10 +48,6 @@ export const CAN_AUTHOR_LIVE_CLASSES_ROLES: readonly Role[] = [
   'INSTRUCTOR_EXTERNO',
 ];
 
-// Espelha @Roles(…, INSTRUCTOR_EXTERNO) nos endpoints de criar/editar aulas, sessões, participantes
-// e material. Publicar gravações, salas virtuais e definições continuam só ADMIN/RH.
-export const CAN_AUTHOR_LIVE_CLASSES_ROLES: readonly Role[] = [...ADMIN_ROLES, 'INSTRUCTOR_EXTERNO'];
-
 // ─── Navegação de topo (docs/aulas-ao-vivo.md — abas principais) ───────────
 // Materiais/Avaliações/Relatórios/Configurações (secções 11/12/13/14)
 // completam a lista — settings só é mostrado a canManage (ver page.tsx).

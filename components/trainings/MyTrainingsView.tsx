@@ -50,7 +50,6 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
             <Button
               key={s}
               size="sm"
-              className="border-brand"
               intent={filter === s ? 'primary' : 'secondary'}
               className="border-brand"
               onClick={() => setFilter(s)}
