@@ -51,14 +51,12 @@ export function useInstructorInvites() {
         res.emailSent
           ? notify({
               title: 'Convite enviado',
-              description:
-                'O instrutor recebeu um link de uso único por email.',
+              description: 'O instrutor recebeu um link de uso único por email.',
               intent: 'success',
             })
           : notify({
               title: 'Convite criado, mas o email não foi enviado',
-              description:
-                'Use "Reenviar" na linha do convite para tentar de novo.',
+              description: 'Use "Reenviar" na linha do convite para tentar de novo.',
               intent: 'danger',
             }),
     },
@@ -97,8 +95,7 @@ export function useInstructorInvites() {
       }),
     {
       invalidateKeys: [KEY],
-      onSuccess: () =>
-        notify({ title: 'Acesso prolongado', intent: 'success' }),
+      onSuccess: () => notify({ title: 'Acesso prolongado', intent: 'success' }),
       onError,
     },
   );
@@ -107,8 +104,7 @@ export function useInstructorInvites() {
       apiClient.post(`/instructor-invites/users/${userId}/deactivate`),
     {
       invalidateKeys: [KEY],
-      onSuccess: () =>
-        notify({ title: 'Acesso desativado', intent: 'success' }),
+      onSuccess: () => notify({ title: 'Acesso desativado', intent: 'success' }),
       onError,
     },
   );
@@ -121,8 +117,7 @@ export function useInstructorInvites() {
       onSuccess: () =>
         notify({
           title: 'Dispositivo reposto',
-          description:
-            'No próximo acesso o instrutor confirma o dispositivo por código.',
+          description: 'No próximo acesso o instrutor confirma o dispositivo por código.',
           intent: 'success',
         }),
       onError,

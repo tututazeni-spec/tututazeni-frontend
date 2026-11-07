@@ -103,9 +103,7 @@ export function InstructorInvitesView() {
     destructive: boolean,
     run: () => void,
   ) {
-    if (
-      await confirm({ title, message, destructive, confirmLabel: 'Confirmar' })
-    ) {
+    if (await confirm({ title, message, destructive, confirmLabel: 'Confirmar' })) {
       run();
     }
   }
@@ -325,11 +323,7 @@ function NewInviteModal({
       return;
     }
     try {
-      await onSubmit({
-        fullName: fullName.trim(),
-        email: email.trim(),
-        accessDays,
-      });
+      await onSubmit({ fullName: fullName.trim(), email: email.trim(), accessDays });
       setFullName('');
       setEmail('');
       setDays('30');

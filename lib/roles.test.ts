@@ -93,7 +93,10 @@ describe('filterNavSections', () => {
 });
 
 describe('instrutor externo', () => {
-  type NavItem = { href: string; roles?: readonly Role[] };
+  interface NavItem {
+    href: string;
+    roles?: readonly Role[];
+  }
   const sections: { label: string; items: NavItem[] }[] = [
     {
       label: 'Aprender',

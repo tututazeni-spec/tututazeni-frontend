@@ -94,7 +94,7 @@ export interface VacationFilters {
 }
 
 /** GET /leave/vacations — tabela de saldos/plano anual de férias. */
-export function useVacations(filters: VacationFilters) {
+export function useVacations(filters: VacationFilters, enabled = true) {
   const params = compact({ ...filters, limit: 20 });
   const q = useApiQuery<VacationsResponse>(
     queryKeys.leave.vacations(params),
@@ -103,6 +103,7 @@ export function useVacations(filters: VacationFilters) {
       params,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
+      enabled,
     },
   );
   return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };

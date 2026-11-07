@@ -12,7 +12,7 @@
 // "Gestão" (tabela admin) — mesmo `id` ('catalog'), a página escolhe o
 // componente por role.
 
-import type { Role } from '@/lib/roles';
+import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
 import type { TopLevelView, View } from './types';
 
 // `roles` — restringe o separador aos papéis listados (undefined = todos os
