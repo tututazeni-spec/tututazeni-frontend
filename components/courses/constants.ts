@@ -19,16 +19,7 @@ import type { TopLevelView, View } from './types';
 // autenticados). Espelha os @Roles() dos endpoints por trás de cada aba:
 // admin/dashboard e a tabela de gestão de cursos são ADMIN/RH; inscrições e
 // progresso (courses/enrollments) também aceitam GESTOR.
-const ALL_BUT_EXTERNAL: readonly Role[] = [
-  'ADMIN',
-  'RH',
-  'GESTOR',
-  'LIDER',
-  'COLABORADOR',
-  'INSTRUCTOR',
-  'DIRECTOR',
-  'AUDITOR',
-];
+const ALL_BUT_EXTERNAL: readonly Role[] = AUTHENTICATED_ROLES;
 
 export const NAV: Array<{
   id: TopLevelView;
