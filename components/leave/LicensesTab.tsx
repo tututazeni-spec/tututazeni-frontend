@@ -124,7 +124,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
           Filtros
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
           <Input
             variant="underline"
             placeholder="Procurar nome ou n.º interno"
@@ -168,21 +168,24 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
               ...departments.options,
             ]}
           />
-          <div className="flex items-center gap-2">
+          <div className="col-span-2 flex min-w-0 items-center gap-2">
             <Input
               type="date"
               aria-label="Desde"
               value={filters.from}
               onChange={(e) => set({ from: e.target.value })}
-              className="w-full"
+              className="w-full min-w-0"
             />
+            <span className="text-xs text-ink-faint" aria-hidden>
+              até
+            </span>
             <Input
               type="date"
               aria-label="Até"
               min={filters.from}
               value={filters.to}
               onChange={(e) => set({ to: e.target.value })}
-              className="w-full"
+              className="w-full min-w-0"
             />
           </div>
         </div>
