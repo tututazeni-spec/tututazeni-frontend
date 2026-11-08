@@ -14,9 +14,10 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
-import { formatDate, formatDateTime, getInitials } from '@/lib/format';
+import { formatDate, formatDateTime } from '@/lib/format';
 import { PAY_REGIME_LABELS, PHASE_CFG } from './constants';
 import { LeaveFileLink } from './LeaveFileLink';
 import type { LicensePhase, LicenseRow } from './types';
@@ -115,9 +116,11 @@ export function LicenseCard({
     >
       <div className="flex min-w-0 flex-col justify-center gap-1 px-2 py-0.5 lg:w-[30%] lg:shrink-0">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold">
-            {getInitials(r.user.fullName, '?')}
-          </span>
+          <Avatar
+            name={r.user.fullName}
+            url={r.user.avatarUrl ?? undefined}
+            size="sm"
+          />
           <span className="truncate font-body text-xs font-semibold">
             {r.user.fullName}
           </span>

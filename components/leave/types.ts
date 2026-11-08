@@ -184,6 +184,7 @@ export interface LicenseRow {
     id: number;
     fullName: string;
     employeeNumber: string | null;
+    avatarUrl?: string | null;
     department: { id: number; name: string } | null;
   };
   leaveTypeCode: string;
