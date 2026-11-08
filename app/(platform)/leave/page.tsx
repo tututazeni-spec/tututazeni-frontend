@@ -30,13 +30,11 @@ import {
   ClipboardList,
   LayoutDashboard,
   Palmtree,
-  Plus,
   ScrollText,
   Settings,
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { PillNav } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { AbsenceCalendarTab } from '@/components/leave/AbsenceCalendarTab';
@@ -44,7 +42,6 @@ import { AbsencesTab } from '@/components/leave/AbsencesTab';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
 import { LEAVE_ADMIN_ROLES } from '@/components/leave/constants';
 import { LicensesTab } from '@/components/leave/LicensesTab';
-import { NewLicenseModal } from '@/components/leave/NewLicenseModal';
 import { OverviewTab } from '@/components/leave/OverviewTab';
 import { PlanningTab } from '@/components/leave/PlanningTab';
 import { ReportsTab } from '@/components/leave/ReportsTab';
@@ -70,7 +67,6 @@ const LEAVE_APPROVER_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('overview');
-  const [showModal, setShowModal] = useState(false);
   const notify = useToast();
   const role = useCurrentRole();
   // `!!role &&` (não "deixar passar enquanto undefined"): isto controla
@@ -79,10 +75,6 @@ export default function LeavePage() {
   const isApprover = useHasRole(LEAVE_APPROVER_ROLES);
 
   const leaveTypes = useLeaveTypes();
-  // Licenças: tudo menos férias (que têm o seu próprio fluxo na aba Férias).
-  const licenseTypes = leaveTypes.filter(
-    (t) => t.code !== 'VACATION' && t.active,
-  );
   const { data: pending } = usePendingApprovals(isApprover);
 
   const cancel = useApiMutation(
@@ -156,11 +148,6 @@ export default function LeavePage() {
           src="/images/ferias e licenças.jpg"
           title="Férias e Ausências"
           hint="Férias, licenças e gestão de ausências"
-          action={
-            <Button onClick={() => setShowModal(true)}>
-              <Plus size={15} strokeWidth={1.75} /> Nova licença
-            </Button>
-          }
         />
       </div>
 
@@ -212,17 +199,6 @@ export default function LeavePage() {
           <SettingsTab />
         )}
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <NewLicenseModal
-          leaveTypes={licenseTypes}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => {
-            setTab('leaves');
-          }}
-        />
-      )}
     </div>
   );
 }
