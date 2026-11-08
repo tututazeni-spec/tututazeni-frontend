@@ -32,6 +32,7 @@ import {
   TIMED_ABSENCE_TYPES,
   absenceTypeLabel,
 } from './constants';
+import { LeaveFileLink } from './LeaveFileLink';
 import type { AbsenceDetail, AbsenceOccurrenceType } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -294,15 +295,13 @@ function DetailBody({
               <ul className="space-y-0.5">
                 {a.attachments.map((f) => (
                   <li key={f.id}>
-                    <a
-                      href={f.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <LeaveFileLink
+                      fileUrl={f.fileUrl}
                       className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                     >
                       <Paperclip size={12} strokeWidth={1.75} />
                       {f.name}
-                    </a>
+                    </LeaveFileLink>
                   </li>
                 ))}
               </ul>
