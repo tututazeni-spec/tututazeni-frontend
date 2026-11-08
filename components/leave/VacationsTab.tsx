@@ -280,7 +280,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                             ? () => onSelectUser(r.userId)
                             : undefined
                         }
-                        className={`border-t border-slate-100 transition-colors hover:bg-slate-50/70 ${
+                        className={`border-t border-slate-100 hover:bg-transparent ${
                           onSelectUser ? 'cursor-pointer' : ''
                         }`}
                       >
