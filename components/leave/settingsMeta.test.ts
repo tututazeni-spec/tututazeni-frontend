@@ -19,6 +19,7 @@ const BASE: LeaveSettings = {
   unjustifiedOccurrenceTypes: ['UNJUSTIFIED_ABSENCE', 'NO_SHOW'],
   carryOverEnabled: true,
   carryOverMaxDays: null,
+  carryOverDeadline: '03-31',
   minNoticeDays: null,
   maxAdvanceDays: null,
   documentRequiredCategories: [],

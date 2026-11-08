@@ -483,7 +483,7 @@ function BalancesSection({ draft, set }: SectionProps) {
     <>
       <SettingsSection
         title="Transição de dias"
-        description="Aplicada quando o RH processa a transição de fim de ano; é idempotente por ano."
+        description="A transição corre sozinha a 1 de Janeiro e é idempotente por ano; o RH também a pode processar manualmente."
       >
         <ToggleRow
           label="Permitir transição de saldos"
@@ -500,6 +500,20 @@ function BalancesSection({ draft, set }: SectionProps) {
           max={365}
           suffix="dias"
         />
+        <FormField
+          label="Prazo para gozar os dias transitados"
+          htmlFor="set-co-deadline"
+          hint="Mês-dia (MM-DD). Depois desta data, os dias transitados que não foram gozados caducam e o colaborador é avisado."
+        >
+          <Input
+            id="set-co-deadline"
+            placeholder="03-31"
+            maxLength={5}
+            value={draft.carryOverDeadline}
+            onChange={(e) => set('carryOverDeadline', e.target.value)}
+            className="w-full"
+          />
+        </FormField>
       </SettingsSection>
 
       <SettingsSection

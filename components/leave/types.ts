@@ -608,6 +608,8 @@ export interface LeaveSettings {
   unjustifiedOccurrenceTypes: AbsenceOccurrenceType[];
   carryOverEnabled: boolean;
   carryOverMaxDays: number | null;
+  /** MM-DD: último dia para gozar os dias transitados. */
+  carryOverDeadline: string;
   minNoticeDays: number | null;
   maxAdvanceDays: number | null;
   documentRequiredCategories: string[];
