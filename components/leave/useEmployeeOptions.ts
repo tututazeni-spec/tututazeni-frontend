@@ -14,14 +14,16 @@ export const CAN_PICK_EMPLOYEE_LEAVE = ADMIN_RH_GESTOR_ROLES;
 export const CAN_PICK_EMPLOYEE_ABSENCE = EVAL_CREATOR_ROLES;
 
 export function useEmployeeOptions(picker: string, enabled: boolean) {
-  const params = { limit: 100 };
-  const q = useApiQuery<{ data: Array<{ id: number; name: string }> }>(
-    queryKeys.employees.list({ picker, ...params }),
-    '/employees',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  // /users/directory devolve Users (o `userId` que POST /leave espera) e está
+  // aberto a qualquer perfil autenticado. /employees lista a tabela Employee
+  // (IDs diferentes) e recusa GESTOR/DIRECTOR.
+  const q = useApiQuery<Array<{ id: number; fullName: string }>>(
+    queryKeys.employees.list({ picker, source: 'users-directory' }),
+    '/users/directory',
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
   );
-  return (q.data?.data ?? []).map((e) => ({
+  return (q.data ?? []).map((e) => ({
     value: String(e.id),
-    label: e.name,
+    label: e.fullName,
   }));
 }
