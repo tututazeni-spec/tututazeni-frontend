@@ -448,6 +448,7 @@ export interface ApprovalRow {
     user: {
       id: number;
       fullName: string;
+      avatarUrl?: string | null;
       department: { id: number; name: string } | null;
     };
     type: { code: string; name: string; color: string | null };
