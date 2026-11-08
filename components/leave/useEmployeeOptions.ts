@@ -17,13 +17,17 @@ export function useEmployeeOptions(picker: string, enabled: boolean) {
   // /users/directory devolve Users (o `userId` que POST /leave espera) e está
   // aberto a qualquer perfil autenticado. /employees lista a tabela Employee
   // (IDs diferentes) e recusa GESTOR/DIRECTOR.
-  const q = useApiQuery<Array<{ id: number; fullName: string }>>(
+  const q = useApiQuery<Array<{ id: number; fullName: string; role?: { name: string } | null }>>(
     queryKeys.employees.list({ picker, source: 'users-directory' }),
     '/users/directory',
     { staleTime: STALE_TIME.SEMI_STATIC, enabled },
   );
-  return (q.data ?? []).map((e) => ({
-    value: String(e.id),
-    label: e.fullName,
-  }));
+  // Instrutores externos não são colaboradores: não têm férias, licenças nem
+  // ausências geridas neste módulo.
+  return (q.data ?? [])
+    .filter((e) => e.role?.name !== 'INSTRUCTOR_EXTERNO')
+    .map((e) => ({
+      value: String(e.id),
+      label: e.fullName,
+    }));
 }
