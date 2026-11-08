@@ -20,7 +20,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { LoadingRows } from './shared';
+import { LoadingRows, RateGauge, SectionCard } from './shared';
+import { ptLabel } from './labels';
 import {
   approvedIntent,
   attendanceIntent,
@@ -44,36 +45,38 @@ export function DocumentsView({
     return <EmptyState title="Sem documentos associados" />;
 
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableHeaderCell>Documento</TableHeaderCell>
-          <TableHeaderCell>Categoria</TableHeaderCell>
-          <TableHeaderCell>Sensibilidade</TableHeaderCell>
-          <TableHeaderCell>Criado em</TableHeaderCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {data.data.map((d) => (
-          <TableRow key={d.id}>
-            <TableCell className="text-sm font-medium text-ink">
-              {d.title}
-            </TableCell>
-            <TableCell className="text-xs text-ink-muted">
-              {d.category ?? '—'}
-            </TableCell>
-            <TableCell>
-              <Badge intent={sensitivityIntent(d.sensitivity)}>
-                {d.sensitivity}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-xs text-ink-faint">
-              {fmtDate(d.createdAt)}
-            </TableCell>
+    <SectionCard title="Documentos">
+      <Table>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableRow>
+            <TableHeaderCell>Documento</TableHeaderCell>
+            <TableHeaderCell>Categoria</TableHeaderCell>
+            <TableHeaderCell>Sensibilidade</TableHeaderCell>
+            <TableHeaderCell>Criado em</TableHeaderCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {data.data.map((d) => (
+            <TableRow key={d.id}>
+              <TableCell className="text-sm font-medium text-ink">
+                {d.title}
+              </TableCell>
+              <TableCell className="text-xs text-ink-muted">
+                {d.category ?? '—'}
+              </TableCell>
+              <TableCell>
+                <Badge intent={sensitivityIntent(d.sensitivity)}>
+                  {d.sensitivity}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-xs text-ink-faint">
+                {fmtDate(d.createdAt)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </SectionCard>
   );
 }
 
@@ -107,34 +110,36 @@ export function LeaveView({
       {!requests || requests.data.length === 0 ? (
         <EmptyState title="Sem pedidos de férias/licença" />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Tipo</TableHeaderCell>
-              <TableHeaderCell>Período</TableHeaderCell>
-              <TableHeaderCell>Dias</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {requests.data.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="text-sm text-ink">
-                  {r.leaveTypeCode}
-                </TableCell>
-                <TableCell className="text-xs text-ink-faint">
-                  {fmtDate(r.startDate)} — {fmtDate(r.endDate)}
-                </TableCell>
-                <TableCell className="text-xs font-mono text-ink-muted">
-                  {r.workDays}
-                </TableCell>
-                <TableCell>
-                  <Badge intent={approvedIntent(r.status)}>{r.status}</Badge>
-                </TableCell>
+        <SectionCard title="Pedidos de férias e licenças">
+          <Table>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableRow>
+                <TableHeaderCell>Tipo</TableHeaderCell>
+                <TableHeaderCell>Período</TableHeaderCell>
+                <TableHeaderCell>Dias</TableHeaderCell>
+                <TableHeaderCell>Estado</TableHeaderCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {requests.data.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="text-sm text-ink">
+                    {r.leaveTypeCode}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-faint">
+                    {fmtDate(r.startDate)} — {fmtDate(r.endDate)}
+                  </TableCell>
+                  <TableCell className="text-xs font-mono text-ink-muted">
+                    {r.workDays}
+                  </TableCell>
+                  <TableCell>
+                    <Badge intent={approvedIntent(r.status)}>{r.status}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </SectionCard>
       )}
     </div>
   );
@@ -151,11 +156,9 @@ export function AttendanceView({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <NavyStatCard
-          icon={CalendarCheck}
-          tone="green"
+        <RateGauge
           label="Taxa de presença"
-          value={`${data.summary.attendanceRate}%`}
+          value={data.summary.attendanceRate}
         />
         <NavyStatCard
           icon={UserCheck}
@@ -177,7 +180,7 @@ export function AttendanceView({
         />
       </div>
       <Table>
-        <TableHead>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Data</TableHeaderCell>
             <TableHeaderCell>Entrada</TableHeaderCell>
@@ -198,7 +201,9 @@ export function AttendanceView({
                 {r.clockOut ?? '—'}
               </TableCell>
               <TableCell>
-                <Badge intent={attendanceIntent(r.status)}>{r.status}</Badge>
+                <Badge intent={attendanceIntent(r.status)}>
+                  {ptLabel(r.status)}
+                </Badge>
               </TableCell>
             </TableRow>
           ))}

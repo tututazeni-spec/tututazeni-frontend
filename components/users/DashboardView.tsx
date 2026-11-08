@@ -66,21 +66,21 @@ export function DashboardView() {
         <NavyStatCard
           tab="list"
           icon={UserMinus}
-          tone="orange"
+          tone="red"
           label="Inactivos"
           value={data.users.inactive}
         />
         <NavyStatCard
           tab="list"
           icon={Clock}
-          tone="blue"
+          tone="orange"
           label="Pendentes"
           value={data.users.pending}
         />
         <NavyStatCard
           tab="list"
           icon={Ban}
-          tone={data.users.suspended > 0 ? 'red' : 'blue'}
+          tone="red"
           label="Suspensos"
           value={data.users.suspended}
         />

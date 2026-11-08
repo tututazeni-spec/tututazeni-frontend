@@ -64,8 +64,8 @@ const HEADERS: { label: string; center: boolean }[] = [
 ];
 
 const HEADER_CELL =
-  'px-4 py-4 text-xs font-semibold uppercase tracking-wide text-brand-ink whitespace-nowrap';
-const BODY_CELL = 'px-4 py-4 text-sm text-brand-ink';
+  'px-2 py-3 text-[11px] font-semibold uppercase tracking-wide text-white';
+const BODY_CELL = 'px-2 py-2.5 text-xs text-brand-ink';
 
 /* ── Badge de departamento (cor + ícone) ───────────────────── */
 interface DeptStyle {
@@ -92,10 +92,10 @@ function DepartmentBadge({ name }: { name: string | undefined }) {
   const Icon = s.icon;
   return (
     <span
-      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium"
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
       style={{ backgroundColor: s.bg, color: s.text }}
     >
-      <Icon size={16} strokeWidth={2} />
+      <Icon size={13} strokeWidth={2} />
       {name}
     </span>
   );
@@ -115,7 +115,7 @@ function NumberPill({
       : 'bg-slate-100 text-slate-500';
   return (
     <span
-      className={`inline-flex min-w-[56px] items-center justify-center rounded-full px-4 py-2 text-sm font-medium ${cls}`}
+      className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}
     >
       {value}
     </span>
@@ -139,10 +139,20 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
   });
   const [showModal, setShowModal] = useState(false);
   const debouncedSearch = useDebounce(filters.search, 300);
-  const { data, loading, refetch } = useVacations({
-    ...filters,
-    search: debouncedSearch,
-  });
+  // Por omissão a lista fica vazia: só carrega quando há um filtro activo
+  // (o ano sozinho não conta).
+  const hasFilter = Boolean(
+    debouncedSearch.trim() ||
+    filters.unitId ||
+    filters.departmentId ||
+    filters.planState,
+  );
+  const {
+    data: fetched,
+    loading,
+    refetch,
+  } = useVacations({ ...filters, search: debouncedSearch }, hasFilter);
+  const data = hasFilter ? fetched : null;
   const units = useUnitOptions();
   const departments = useDepartmentOptions();
 
@@ -172,9 +182,6 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-          Filtros
-        </h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Input
             variant="underline"
@@ -225,7 +232,12 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         </div>
       </Card>
 
-      {loading && !data ? (
+      {!hasFilter ? (
+        <EmptyState
+          title="Use os filtros para ver colaboradores"
+          description="Pesquise por nome ou escolha uma unidade, departamento ou estado para listar o plano de férias."
+        />
+      ) : loading && !data ? (
         <Skeleton
           rows={6}
           wrapperClassName="space-y-2"
@@ -239,18 +251,10 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       ) : (
         <>
           <div className="overflow-hidden rounded-panel border border-slate-200/70 bg-surface shadow-sm">
-            {/* Barra de título */}
-            <div className="flex items-center gap-4 bg-[#0F2E5E] px-6 py-5">
-              <Users size={24} strokeWidth={1.75} className="text-[#3B82F6]" />
-              <h3 className="text-xl font-semibold text-white">
-                Colaboradores
-              </h3>
-            </div>
-
-            <div className="overflow-x-auto">
-              <div className="min-w-[1200px]">
+            <div>
+              <div className="w-full">
                 <Table>
-                  <TableHead className="bg-brand-soft">
+                  <TableHead className="bg-[#0F1F3D]">
                     <TableRow>
                       {HEADERS.map((h) => (
                         <TableHeaderCell
@@ -262,7 +266,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                           {h.label}
                         </TableHeaderCell>
                       ))}
-                      <TableHeaderCell className="w-16 px-4 py-4">
+                      <TableHeaderCell className="w-10 px-2 py-3">
                         <span className="sr-only">Abrir</span>
                       </TableHeaderCell>
                     </TableRow>
@@ -281,11 +285,11 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         }`}
                       >
                         <TableCell className={BODY_CELL}>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2.5">
                             <Avatar
                               name={r.fullName}
                               url={r.avatarUrl ?? undefined}
-                              size="lg"
+                              size="md"
                             />
                             <div className="min-w-0">
                               <p className="font-semibold text-brand-ink">
@@ -325,9 +329,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         <TableCell className={`${BODY_CELL} text-center`}>
                           <NumberPill value={r.availableDays} tone="blue" />
                         </TableCell>
-                        <TableCell
-                          className={`${BODY_CELL} whitespace-nowrap text-center`}
-                        >
+                        <TableCell className={`${BODY_CELL} text-center`}>
                           {r.nextPeriod ? (
                             `${formatDate(r.nextPeriod.startDate)} → ${formatDate(r.nextPeriod.endDate)}`
                           ) : (
@@ -343,10 +345,10 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                             />
                           </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4">
+                        <TableCell className="px-2 py-2.5">
                           <span
                             aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-brand-ink"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-soft text-brand-ink"
                           >
                             <ChevronRight size={18} strokeWidth={2} />
                           </span>

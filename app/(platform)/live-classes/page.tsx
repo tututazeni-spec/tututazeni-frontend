@@ -175,6 +175,20 @@ export default function LivePage() {
     }
   }
 
+  const publishMutation = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/live-classes/${id}/publish`, {}),
+    { invalidateKeys },
+  );
+  async function publishClass(lc: LiveClass) {
+    try {
+      await publishMutation.mutateAsync(lc.id);
+      showToast('Aula publicada.', 'success');
+    } catch (e) {
+      reportError(e, { source: 'LiveClassesPage.publishClass' });
+      showToast(e instanceof Error ? e.message : String(e), 'error');
+    }
+  }
+
   const cancelMutation = useApiMutation<unknown, number>(
     (id) => apiClient.post(`/live-classes/${id}/cancel`, {}),
     { invalidateKeys },
@@ -284,6 +298,7 @@ export default function LivePage() {
             onViewRecording={setViewRecording}
             onDelete={deleteClass}
             onStart={startClass}
+            onPublish={publishClass}
             onPostpone={setPostponing}
             onCancel={cancelClass}
             onDuplicate={duplicateClass}

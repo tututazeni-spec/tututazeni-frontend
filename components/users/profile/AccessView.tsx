@@ -17,6 +17,21 @@ import { InfoCard, LoadingRows } from './shared';
 import { accessProfileRows, accessSessionRows } from './logic';
 import { type AccessOverview } from '../types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import {
+  translateAction,
+  translateResource,
+} from '@/components/roles-permissions/permissionLabels';
+
+// Módulo em português; "Dashboard" mantém-se como está.
+const moduleLabel = (subject: string): string =>
+  subject.toUpperCase() === 'DASHBOARD'
+    ? 'Dashboard'
+    : translateResource(subject);
+
+// O `name` das permissões vem da API em formatos inconsistentes; o rótulo é
+// composto por acção + módulo, que são fiáveis.
+const permissionLabel = (p: { action: string; subject: string }): string =>
+  `${translateAction(p.action)} · ${moduleLabel(p.subject)}`;
 
 export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
   if (isLoading) return <LoadingRows />;
@@ -30,14 +45,14 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
       </div>
 
       {data.authorizedModules.length > 0 && (
-        <Card className="p-5">
-          <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+        <Card className="overflow-hidden">
+          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             Módulos autorizados
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 p-5">
             {data.authorizedModules.map((m) => (
               <Badge key={m} intent="info">
-                {m}
+                {moduleLabel(m)}
               </Badge>
             ))}
           </div>
@@ -45,14 +60,14 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
       )}
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Permissões do perfil ({data.permissions.length})
         </div>
         {data.permissions.length === 0 ? (
           <EmptyState title="Sem permissões atribuídas ao perfil" />
         ) : (
           <Table>
-            <TableHead>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Permissão</TableHeaderCell>
                 <TableHeaderCell>Acção</TableHeaderCell>
@@ -63,13 +78,13 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
               {data.permissions.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="text-xs font-medium text-ink">
-                    {p.name}
+                    {permissionLabel(p)}
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
-                    {p.action}
+                    {translateAction(p.action)}
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
-                    {p.subject}
+                    {moduleLabel(p.subject)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -79,14 +94,14 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Permissões especiais ({data.specialPermissions.length})
         </div>
         {data.specialPermissions.length === 0 ? (
           <EmptyState title="Sem permissões especiais concedidas" />
         ) : (
           <Table>
-            <TableHead>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Permissão</TableHeaderCell>
                 <TableHeaderCell>Concedida em</TableHeaderCell>
@@ -96,7 +111,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
               {data.specialPermissions.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="text-xs font-medium text-ink">
-                    {p.name}
+                    {permissionLabel(p)}
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
                     {p.grantedAt ? fmtDate(p.grantedAt) : '—'}

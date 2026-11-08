@@ -14,6 +14,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
+import { Card, CardBody } from '@/components/ui/Card';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
@@ -31,7 +32,7 @@ import {
   describeAuditMeta,
 } from './auditLogLabels';
 import type { ModuleAuditLogsResponse } from './types';
-import { Activity } from 'lucide-react';
+import { Activity, CalendarDays } from 'lucide-react';
 
 const ACTION_ITEMS = [
   { value: 'ALL', label: 'Todas as ações' },
@@ -67,40 +68,62 @@ export function AuditHistoryView() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Select
-          variant="underline"
-          icon={Activity}
-          items={ACTION_ITEMS}
-          value={action || 'ALL'}
-          onValueChange={(v) => {
-            setPage(1);
-            setAction(v === 'ALL' ? '' : v);
-          }}
-          className="w-56"
-        />
-        <Input
-          type="date"
-          value={from}
-          onChange={(e) => {
-            setPage(1);
-            setFrom(e.target.value);
-          }}
-          className="w-40"
-        />
-        <span className="font-body text-xs text-ink-faint">até</span>
-        <Input
-          type="date"
-          value={to}
-          onChange={(e) => {
-            setPage(1);
-            setTo(e.target.value);
-          }}
-          className="w-40"
-        />
-        <span className="ml-auto self-center font-body text-xs text-ink-faint">
-          {data?.meta.total ?? 0} registos
-        </span>
+      <Card className="mb-3">
+        <CardBody className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+          <Select
+            variant="underline"
+            icon={Activity}
+            items={ACTION_ITEMS}
+            value={action || 'ALL'}
+            onValueChange={(v) => {
+              setPage(1);
+              setAction(v === 'ALL' ? '' : v);
+            }}
+          />
+          <div className="flex items-center gap-3">
+            <CalendarDays
+              aria-hidden
+              size={20}
+              strokeWidth={1.5}
+              className="shrink-0 text-brand-muted"
+            />
+            <span className="font-body text-sm text-brand-muted">De</span>
+            <Input
+              variant="underline"
+              type="date"
+              aria-label="De"
+              value={from}
+              onChange={(e) => {
+                setPage(1);
+                setFrom(e.target.value);
+              }}
+              className="w-full"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <CalendarDays
+              aria-hidden
+              size={20}
+              strokeWidth={1.5}
+              className="shrink-0 text-brand-muted"
+            />
+            <span className="font-body text-sm text-brand-muted">Até</span>
+            <Input
+              variant="underline"
+              type="date"
+              aria-label="Até"
+              value={to}
+              onChange={(e) => {
+                setPage(1);
+                setTo(e.target.value);
+              }}
+              className="w-full"
+            />
+          </div>
+        </CardBody>
+      </Card>
+      <div className="mb-4 text-right font-body text-xs text-ink-faint">
+        {data?.meta.total ?? 0} registos
       </div>
 
       {isLoading ? (

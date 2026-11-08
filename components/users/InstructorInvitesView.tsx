@@ -4,7 +4,15 @@
 // O instrutor recebe o link por email, define a senha e a conta desativa-se sozinha no fim do prazo.
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Ban,
+  CalendarPlus,
+  ChevronDown,
+  Plus,
+  Send,
+  Smartphone,
+  UserX,
+} from 'lucide-react';
 import { ApiError } from '@/lib/apiClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import {
@@ -16,7 +24,15 @@ import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { DataTable, type DataTableColumn } from '@/components/ui/DataTable';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { FormField } from '@/components/ui/FormField';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalClose, ModalContent } from '@/components/ui/Modal';
 import { PeriodPills } from '@/components/ui/Pills';
@@ -46,6 +62,29 @@ const fmt = (iso: string | null) =>
 
 const accessEnded = (row: InstructorInvite) =>
   row.accessExpiresAt !== null && new Date(row.accessExpiresAt) < new Date();
+
+function MenuGroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted">
+      {children}
+    </div>
+  );
+}
+
+function MenuRow({
+  icon,
+  children,
+}: {
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="flex items-center gap-2">
+      {icon}
+      {children}
+    </span>
+  );
+}
 
 export function InstructorInvitesView() {
   const confirm = useConfirm();
@@ -104,72 +143,87 @@ export function InstructorInvitesView() {
     {
       key: 'actions',
       header: 'Ações',
-      render: (r) => (
-        <span className="flex flex-wrap gap-1">
-          {r.status !== 'ACCEPTED' && (
-            <Button
-              size="sm"
-              intent="ghost"
-              onClick={() => resend.mutate(r.id)}
-            >
-              Reenviar
-            </Button>
-          )}
-          {r.status === 'PENDING' && (
-            <Button
-              size="sm"
-              intent="ghostDanger"
-              onClick={() =>
-                ask(
-                  'Revogar convite',
-                  `O link enviado a ${r.email} deixa de funcionar.`,
-                  true,
-                  () => revoke.mutate(r.id),
-                )
-              }
-            >
-              Revogar
-            </Button>
-          )}
-          {(r.status === 'PENDING' || r.status === 'EXPIRED') && (
-            <Button
-              size="sm"
-              intent="ghost"
-              onClick={() => extend.mutate({ userId: r.userId, accessDays: 30 })}
-            >
-              Prolongar 30 dias
-            </Button>
-          )}
-          {r.status === 'ACCEPTED' && (
-            <>
+      render: (r) => {
+        const canResend = r.status !== 'ACCEPTED';
+        const canRevoke = r.status === 'PENDING';
+        const canExtend = r.status !== 'REVOKED';
+        const accepted = r.status === 'ACCEPTED';
+        const canDeactivate = accepted && !accessEnded(r);
+        const hasInvite = canResend || canRevoke;
+        const hasAccess = canExtend || accepted;
+        if (!hasInvite && !hasAccess) return <span>—</span>;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 intent="ghost"
-                onClick={() =>
-                  extend.mutate({ userId: r.userId, accessDays: 30 })
-                }
+                aria-label={`Ações para ${r.fullName}`}
               >
-                Prolongar 30 dias
+                Ações
+                <ChevronDown size={14} strokeWidth={1.75} />
               </Button>
-              <Button
-                size="sm"
-                intent="ghost"
-                onClick={() =>
-                  ask(
-                    'Repor dispositivo',
-                    `${r.fullName} terá de confirmar o dispositivo com um código enviado por email no próximo acesso.`,
-                    false,
-                    () => resetDevices.mutate(r.userId),
-                  )
-                }
-              >
-                Repor dispositivo
-              </Button>
-              {!accessEnded(r) && (
-                <Button
-                  size="sm"
-                  intent="ghostDanger"
-                  onClick={() =>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {hasInvite && <MenuGroupLabel>Convite</MenuGroupLabel>}
+              {canResend && (
+                <DropdownMenuItem onSelect={() => resend.mutate(r.id)}>
+                  <MenuRow icon={<Send size={14} strokeWidth={1.75} />}>
+                    Reenviar convite
+                  </MenuRow>
+                </DropdownMenuItem>
+              )}
+              {hasInvite && hasAccess && <DropdownMenuSeparator />}
+              {hasAccess && <MenuGroupLabel>Acesso</MenuGroupLabel>}
+              {canExtend && (
+                <DropdownMenuItem
+                  onSelect={() =>
+                    extend.mutate({ userId: r.userId, accessDays: 30 })
+                  }
+                >
+                  <MenuRow icon={<CalendarPlus size={14} strokeWidth={1.75} />}>
+                    Prolongar 30 dias
+                  </MenuRow>
+                </DropdownMenuItem>
+              )}
+              {accepted && (
+                <DropdownMenuItem
+                  onSelect={() =>
+                    ask(
+                      'Repor dispositivo',
+                      `${r.fullName} terá de confirmar o dispositivo com um código enviado por email no próximo acesso.`,
+                      false,
+                      () => resetDevices.mutate(r.userId),
+                    )
+                  }
+                >
+                  <MenuRow icon={<Smartphone size={14} strokeWidth={1.75} />}>
+                    Repor dispositivo
+                  </MenuRow>
+                </DropdownMenuItem>
+              )}
+              {(canRevoke || canDeactivate) && <DropdownMenuSeparator />}
+              {canRevoke && (
+                <DropdownMenuItem
+                  className="text-danger"
+                  onSelect={() =>
+                    ask(
+                      'Revogar convite',
+                      `O link enviado a ${r.email} deixa de funcionar.`,
+                      true,
+                      () => revoke.mutate(r.id),
+                    )
+                  }
+                >
+                  <MenuRow icon={<Ban size={14} strokeWidth={1.75} />}>
+                    Revogar convite
+                  </MenuRow>
+                </DropdownMenuItem>
+              )}
+              {canDeactivate && (
+                <DropdownMenuItem
+                  className="text-danger"
+                  onSelect={() =>
                     ask(
                       'Desativar acesso',
                       `${r.fullName} deixa de poder entrar e as sessões abertas terminam. O que criou mantém-se.`,
@@ -178,13 +232,15 @@ export function InstructorInvitesView() {
                     )
                   }
                 >
-                  Desativar
-                </Button>
+                  <MenuRow icon={<UserX size={14} strokeWidth={1.75} />}>
+                    Desativar acesso
+                  </MenuRow>
+                </DropdownMenuItem>
               )}
-            </>
-          )}
-        </span>
-      ),
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
   ];
 
@@ -211,14 +267,22 @@ export function InstructorInvitesView() {
         />
       )}
 
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(r) => r.id}
-        searchKeys={['fullName', 'email']}
-        searchPlaceholder="Pesquisar instrutor ou email"
-        emptyLabel="Ainda não há convites de instrutores externos."
-      />
+      <Card className="overflow-hidden">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Convites de instrutores externos
+        </div>
+        <div className="p-4">
+          <DataTable
+            columns={columns}
+            data={rows}
+            rowKey={(r) => r.id}
+            searchKeys={['fullName', 'email']}
+            searchPlaceholder="Pesquisar instrutor ou email"
+            emptyLabel="Ainda não há convites de instrutores externos."
+            headerClassName="bg-brand/60 text-white"
+          />
+        </div>
+      </Card>
 
       <NewInviteModal
         open={open}

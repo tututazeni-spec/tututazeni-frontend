@@ -137,7 +137,7 @@ describe('cursos e competências', () => {
     render(<CoursesView data={data} isLoading={false} />);
     expect(screen.getByText('Segurança')).toBeTruthy();
     expect(screen.getByText('100%')).toBeTruthy();
-    expect(screen.getByText('COMPLETED')).toBeTruthy();
+    expect(screen.getByText('Concluído')).toBeTruthy();
   });
 
   it('competências: lacuna positiva a vermelho, sem lacuna a verde', () => {
@@ -304,7 +304,7 @@ describe('actividade', () => {
     render(<ActivityView data={data} isLoading={false} />);
     expect(screen.getByText('7 dias')).toBeTruthy();
     expect(screen.getByText('85%')).toBeTruthy();
-    expect(screen.getByText('COURSE: 12')).toBeTruthy();
+    expect(screen.getByText('Curso: 12')).toBeTruthy();
   });
 
   it('sem eventos no último ano', () => {

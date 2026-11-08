@@ -181,7 +181,7 @@ export function GovernanceTab() {
             {(data?.unusedRoles ?? []).map((r, i) => (
               <span
                 key={i}
-                className="text-xs font-data bg-warning-subtle text-warning-ink px-2 py-0.5 rounded-control border border-warning"
+                className="text-xs bg-warning-subtle text-warning-ink px-2 py-0.5 rounded-control border border-warning"
               >
                 {r.name}
               </span>

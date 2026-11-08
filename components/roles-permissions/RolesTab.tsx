@@ -139,7 +139,7 @@ export function RolesTab() {
                   <h4 className="font-bold text-ink text-lg">
                     {selected.name}
                   </h4>
-                  <p className="text-xs text-ink-faint font-data">
+                  <p className="text-xs text-ink-faint">
                     {selected.code} · {selected._count?.users ?? 0} utilizadores
                   </p>
                 </div>
@@ -207,7 +207,7 @@ export function RolesTab() {
               </p>
               <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto mb-4">
                 {(selected.permissions ?? []).map((p, i) => (
-                  <Badge key={i} intent="neutral" className="font-data">
+                  <Badge key={i} intent="neutral">
                     {p.name}
                   </Badge>
                 ))}

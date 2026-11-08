@@ -62,10 +62,21 @@ export function useInstructorInvites() {
     },
   );
   const resend = useApiMutation(
-    (id: string) => apiClient.post(`/instructor-invites/${id}/resend`),
+    (id: string) =>
+      apiClient.post<{ inviteId: string; emailSent: boolean }>(
+        `/instructor-invites/${id}/resend`,
+      ),
     {
       invalidateKeys: [KEY],
-      onSuccess: () => notify({ title: 'Convite reenviado', intent: 'success' }),
+      onSuccess: (res) =>
+        res.emailSent
+          ? notify({ title: 'Convite reenviado', intent: 'success' })
+          : notify({
+              title: 'Novo convite criado, mas o email não foi enviado',
+              description:
+                'O servidor de email não respondeu. Tente "Reenviar" mais tarde.',
+              intent: 'danger',
+            }),
       onError,
     },
   );

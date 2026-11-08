@@ -150,6 +150,15 @@ export function SessionsTab({ training }: SessionsTabProps) {
     },
   );
 
+  const publish = useApiMutation(
+    (id: number) => apiClient.patch(`/trainings/sessions/${id}/publish`),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Sessão publicada.', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   const remove = useApiMutation(
     (id: number) => apiClient.delete(`/trainings/sessions/${id}`),
     {
@@ -211,6 +220,12 @@ export function SessionsTab({ training }: SessionsTabProps) {
                       <span className="h-2 w-2 rounded-full bg-white" />
                       {MODALITY_LABEL[s.modality] ?? s.modality}
                     </span>
+                    {s.published === false && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FDE9C8] px-3 py-1 text-sm font-semibold text-[#8A5A00]">
+                        <span className="h-2 w-2 rounded-full bg-[#D98E04]" />
+                        Rascunho
+                      </span>
+                    )}
                     {s.waitlistEnabled && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3E9F5] px-3 py-1 text-sm font-semibold text-[#0F1F3D]">
                         <span className="h-2 w-2 rounded-full bg-[#7A869E]" />
@@ -244,6 +259,16 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 </div>
                 <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
                 <div className="flex shrink-0 items-center gap-2">
+                  {s.published === false && (
+                    <button
+                      type="button"
+                      className="inline-flex h-11 items-center justify-center rounded-full bg-[#0F1F3D] px-5 text-sm font-bold text-white transition hover:bg-[#1E3A5F] disabled:opacity-50"
+                      disabled={publish.isPending && publish.variables === s.id}
+                      onClick={() => publish.mutate(s.id)}
+                    >
+                      Publicar
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-[#1E3A5F]"

@@ -120,6 +120,8 @@ interface CohortCardProps {
   onOpen?: () => void;
   onDelete?: () => void;
   onClose?: () => void;
+  /** Publica uma turma em rascunho (abre as inscrições). */
+  onPublish?: () => void;
   /** Só leitura (colaborador): sem participantes, eliminar nem encerrar. */
   readOnly?: boolean;
 }
@@ -131,6 +133,7 @@ export function CohortCard({
   onOpen,
   onDelete,
   onClose,
+  onPublish,
   readOnly,
 }: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' • ');
@@ -200,19 +203,30 @@ export function CohortCard({
             >
               <Trash2 size={15} strokeWidth={1.75} />
             </Button>
-            {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
+            {c.status === 'DRAFT' && (
               <button
                 type="button"
-                className={
-                  open
-                    ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
-                    : `${NAVY_ACTION} border border-white/25`
-                }
-                onClick={onClose}
+                className={`${NAVY_ACTION} border border-white/25`}
+                onClick={onPublish}
               >
-                Encerrar
+                Publicar
               </button>
             )}
+            {c.status !== 'DRAFT' &&
+              c.status !== 'CLOSED' &&
+              c.status !== 'CANCELLED' && (
+                <button
+                  type="button"
+                  className={
+                    open
+                      ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
+                      : `${NAVY_ACTION} border border-white/25`
+                  }
+                  onClick={onClose}
+                >
+                  Encerrar
+                </button>
+              )}
           </>
         )
       }
@@ -323,6 +337,20 @@ export function TurmasView() {
         queryKeys.courses.openCohorts('CLOSED'),
       ],
       onSuccess: () => toast({ title: 'Turma encerrada', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const publish = useApiMutation(
+    (id: number) => apiClient.patch(`/courses/cohorts/${id}/publish`),
+    {
+      invalidateKeys: [
+        queryKeys.courses.cohorts(Number(courseId)),
+        queryKeys.courses.openCohorts('OPEN'),
+        queryKeys.courses.openCohorts('ACTIVE'),
+        queryKeys.courses.openCohorts('CLOSED'),
+      ],
+      onSuccess: () => toast({ title: 'Turma publicada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -490,6 +518,7 @@ export function TurmasView() {
                 onOpen={() => setDetailId(c.id)}
                 onDelete={() => onDelete(c)}
                 onClose={() => onClose(c)}
+                onPublish={() => publish.mutate(c.id)}
               />
             ))}
           </div>

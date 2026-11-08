@@ -305,6 +305,15 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
           {charts.absenteeismByDepartment.length ? (
             <BarChart
               orientation="horizontal"
+              labelWidth={Math.min(
+                240,
+                Math.max(
+                  120,
+                  ...charts.absenteeismByDepartment
+                    .slice(0, 8)
+                    .map((d) => d.department.length * 6.5 + 20),
+                ),
+              )}
               categories={charts.absenteeismByDepartment
                 .slice(0, 8)
                 .map((d) => d.department)}

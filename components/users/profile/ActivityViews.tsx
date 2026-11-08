@@ -15,7 +15,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { LoadingRows } from './shared';
+import { LoadingRows, RateGauge } from './shared';
+import { ptLabel } from './labels';
 import { type UserTimelineResponse, type UserActivityStats } from '../types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -29,7 +30,7 @@ export function HistoryView({
 
   return (
     <Table>
-      <TableHead>
+      <TableHead className="bg-brand/60 [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Evento</TableHeaderCell>
           <TableHeaderCell>Módulo</TableHeaderCell>
@@ -41,14 +42,18 @@ export function HistoryView({
           <TableRow key={e.id}>
             <TableCell>
               <span className="mr-2">{e.icon}</span>
-              <span className="text-sm text-ink">{e.title ?? e.category}</span>
+              <span className="text-sm text-ink">
+                {e.title ?? ptLabel(e.category)}
+              </span>
               {e.milestone && (
                 <Badge intent="warning" className="ml-2">
                   Marco
                 </Badge>
               )}
             </TableCell>
-            <TableCell className="text-xs text-ink-muted">{e.module}</TableCell>
+            <TableCell className="text-xs text-ink-muted">
+              {ptLabel(e.module)}
+            </TableCell>
             <TableCell className="text-xs text-ink-faint">
               {fmtDate(e.timestamp)}
             </TableCell>
@@ -81,12 +86,7 @@ export function ActivityView({
           label="Dias activos (1 ano)"
           value={data.activeDays}
         />
-        <NavyStatCard
-          icon={CheckCircle2}
-          tone="green"
-          label="Taxa de conclusão"
-          value={`${data.completionRate}%`}
-        />
+        <RateGauge label="Taxa de conclusão" value={data.completionRate} />
         <NavyStatCard
           icon={Zap}
           tone="blue"
@@ -94,23 +94,25 @@ export function ActivityView({
           value={data.xpPoints}
         />
       </div>
-      <Card className="p-5">
-        <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+      <Card className="overflow-hidden">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Actividade por categoria
         </div>
-        {Object.keys(data.byCategory).length === 0 ? (
-          <div className="text-xs text-ink-faint">
-            Sem eventos no último ano
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {Object.entries(data.byCategory).map(([cat, count]) => (
-              <Badge key={cat} intent="neutral">
-                {cat}: {count}
-              </Badge>
-            ))}
-          </div>
-        )}
+        <div className="p-5">
+          {Object.keys(data.byCategory).length === 0 ? (
+            <div className="text-xs text-ink-faint">
+              Sem eventos no último ano
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(data.byCategory).map(([cat, count]) => (
+                <Badge key={cat} intent="neutral">
+                  {ptLabel(cat)}: {count}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       </Card>
     </div>
   );

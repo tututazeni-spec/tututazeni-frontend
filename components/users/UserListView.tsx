@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Filter, UserCheck } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
@@ -16,7 +16,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Card, CardBody } from '@/components/ui/Card';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
@@ -31,6 +34,21 @@ import { ACCOUNT_STATUS_MAP, HR_STATUS_MAP } from './types';
 import type { PaginatedUsers } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { NativeSelect } from '@/components/ui/NativeSelect';
+
+const STATUS_ITEMS = [
+  { value: 'ALL', label: 'Todos os estados' },
+  { value: 'ACTIVE', label: 'Activo' },
+  { value: 'PENDING', label: 'Pendente' },
+  { value: 'SUSPENDED', label: 'Suspenso' },
+  { value: 'INACTIVE', label: 'Inactivo' },
+];
+
+const HR_STATUS_ITEMS = [
+  { value: 'ALL', label: 'Estado RH: Todos' },
+  { value: 'ACTIVE', label: 'Activo' },
+  { value: 'ON_LEAVE', label: 'Em licença' },
+  { value: 'TERMINATED', label: 'Desligado' },
+];
 
 interface UserListViewProps {
   onSelect: (id: number) => void;
@@ -66,6 +84,12 @@ export function UserListView({ onSelect }: UserListViewProps) {
     hrStatus: filters.hrStatus,
   };
 
+  // Por omissão a lista não mostra ninguém: só pesquisa quando há filtro.
+  const hasFilter =
+    filters.search.trim() !== '' ||
+    filters.status !== '' ||
+    filters.hrStatus !== '';
+
   const {
     data,
     isLoading: loading,
@@ -74,6 +98,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
     params,
     staleTime: STALE_TIME.DYNAMIC,
     placeholderData: keepPreviousData,
+    enabled: hasFilter,
   });
 
   // Bulk action como mutação: ao concluir, invalida as listas de utilizadores.
@@ -107,37 +132,36 @@ export function UserListView({ onSelect }: UserListViewProps) {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <Input
-          variant="underline"
-          type="text"
-          placeholder="Pesquisar por nome, email, nº funcionário…"
-          value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value })}
-          className="min-w-[160px] flex-1"
-        />
-        <NativeSelect
-          value={filters.status}
-          onChange={(e) => updateFilters({ status: e.target.value })}
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="PENDING">Pendente</option>
-          <option value="SUSPENDED">Suspenso</option>
-          <option value="INACTIVE">Inactivo</option>
-        </NativeSelect>
-        <NativeSelect
-          value={filters.hrStatus}
-          onChange={(e) => updateFilters({ hrStatus: e.target.value })}
-        >
-          <option value="">Estado RH: Todos</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="ON_LEAVE">Em licença</option>
-          <option value="TERMINATED">Desligado</option>
-        </NativeSelect>
-        <span className="text-sm text-ink-faint">
-          {data?.total ?? 0} utilizadores
-        </span>
+      <Card className="mb-3">
+        <CardBody className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar por nome, email, nº funcionário…"
+            value={filters.search}
+            onChange={(e) => updateFilters({ search: e.target.value })}
+          />
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={STATUS_ITEMS}
+            value={filters.status || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ status: v === 'ALL' ? '' : v })
+            }
+          />
+          <Select
+            variant="underline"
+            icon={UserCheck}
+            items={HR_STATUS_ITEMS}
+            value={filters.hrStatus || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ hrStatus: v === 'ALL' ? '' : v })
+            }
+          />
+        </CardBody>
+      </Card>
+      <div className="mb-5 text-sm text-ink-faint">
+        {hasFilter ? (data?.total ?? 0) : 0} utilizadores
       </div>
 
       {/* Bulk actions */}
@@ -173,19 +197,25 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
 
       {/* Tabela */}
-      {loading && (
+      {!hasFilter && (
+        <EmptyState
+          variant="inline"
+          title="Pesquise ou filtre para ver utilizadores"
+        />
+      )}
+      {hasFilter && loading && (
         <Skeleton
           rows={5}
           wrapperClassName="space-y-2"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && (
+      {hasFilter && error && (
         <div className="px-4 py-8 text-center text-sm text-danger">
           {error.message}
         </div>
       )}
-      {!loading && (
+      {hasFilter && !loading && (
         <Table>
           <TableHead className="bg-brand/60">
             <TableRow className="hover:bg-transparent">
@@ -280,7 +310,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
 
       {/* Paginação */}
-      {data && data.totalPages > 1 && (
+      {hasFilter && data && data.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}

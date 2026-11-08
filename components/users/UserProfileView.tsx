@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Clock,
   Trophy,
-  TrendingUp,
   AlertTriangle,
 } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -27,6 +26,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { RateGauge } from './profile/shared';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -56,6 +56,16 @@ import {
   TrainingTab,
 } from './ProfileTabs';
 import { QualificationsTab } from './QualificationsTab';
+import { STATUS_CFG } from '@/components/enrollments/constants';
+import { ProfileTabNav } from './ProfileTabNav';
+
+// Estado da matrícula em português (os valores vêm da API em inglês).
+function enrollmentStatusLabel(status: string): string {
+  if (status === 'PENDING_APPROVAL') return 'Aguarda aprovação';
+  return (
+    (STATUS_CFG as Record<string, { label: string }>)[status]?.label ?? status
+  );
+}
 
 export interface UserProfileViewProps {
   userId: number;
@@ -121,120 +131,114 @@ export function UserProfileView({
       </Button>
 
       {/* Profile header */}
-      <Card className="p-6 mb-5">
-        <div className="flex items-start gap-5">
+      <div className="relative mb-5 flex items-stretch gap-6 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        {/* Círculo da foto: ocupa a altura toda do cartão, de ponta a ponta */}
+        <div className="flex aspect-square min-h-[11rem] shrink-0 items-center justify-center self-stretch">
           <Avatar
             name={user.fullName}
             url={user.avatarUrl ?? undefined}
-            size="lg"
+            className="!h-[95%] !w-[95%] !text-5xl"
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1 flex-wrap">
-              <h2 className="text-xl font-semibold text-ink">
-                {user.fullName}
-              </h2>
-              <StatusBadge
-                value={user.accountStatus}
-                map={ACCOUNT_STATUS_MAP}
-                variant="dot"
-              />
-              <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
-            </div>
-            <div className="text-sm text-ink-muted mb-2">{user.email}</div>
-            <div className="flex flex-wrap gap-4 text-xs text-ink-faint">
-              {user.employeeNumber && (
-                <span className="font-mono">{user.employeeNumber}</span>
-              )}
-              {user.position && <span>{user.position.name}</span>}
-              {user.department && <span>{user.department.name}</span>}
-              {user.city && user.country && (
-                <span>
-                  {user.city}, {user.country}
-                </span>
-              )}
-              {user.hireDate && <span>Admissão: {fmtDate(user.hireDate)}</span>}
-            </div>
-            {user.manager && (
-              <div className="flex items-center gap-2 mt-2">
-                <Avatar
-                  name={user.manager.fullName}
-                  url={user.manager.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <span className="text-xs text-ink-muted">
-                  Gestor: <strong>{user.manager.fullName}</strong>
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Acções */}
-          <div className="flex flex-col gap-2">
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={() => onAction('deactivate')}
-                disabled={actionLoading}
-              >
-                Desactivar
-              </Button>
-            )}
-            {user.accountStatus !== 'ACTIVE' && (
-              <Button
-                intent="success"
-                size="sm"
-                onClick={() => onAction('activate')}
-                disabled={actionLoading}
-              >
-                Activar
-              </Button>
-            )}
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="warning"
-                size="sm"
-                onClick={() => onAction('suspend')}
-                disabled={actionLoading}
-              >
-                Suspender
-              </Button>
-            )}
-          </div>
         </div>
+        <div className="min-w-0 flex-1 py-6 pr-6">
+          <div className="flex items-start gap-5">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1 flex-wrap">
+                <h2 className="text-xl font-semibold text-brand">
+                  {user.fullName}
+                </h2>
+                <StatusBadge
+                  value={user.accountStatus}
+                  map={ACCOUNT_STATUS_MAP}
+                  variant="dot"
+                />
+                <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
+              </div>
+              <div className="text-sm text-brand-muted mb-2">{user.email}</div>
+              <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
+                {user.employeeNumber && (
+                  <span className="font-mono">{user.employeeNumber}</span>
+                )}
+                {user.position && <span>{user.position.name}</span>}
+                {user.department && <span>{user.department.name}</span>}
+                {user.city && user.country && (
+                  <span>
+                    {user.city}, {user.country}
+                  </span>
+                )}
+                {user.hireDate && (
+                  <span>Admissão: {fmtDate(user.hireDate)}</span>
+                )}
+              </div>
+              {user.manager && (
+                <div className="mt-2 text-xs text-ink-muted">
+                  Gestor: <strong>{user.manager.fullName}</strong>
+                </div>
+              )}
+            </div>
 
-        {/* Bio */}
-        {user.profile?.bio && (
-          <div className="mt-4 pt-4 border-t border-border text-sm text-ink-muted">
-            {user.profile.bio}
+            {/* Acções */}
+            <div className="flex flex-col gap-2">
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  onClick={() => onAction('deactivate')}
+                  disabled={actionLoading}
+                >
+                  Desactivar
+                </Button>
+              )}
+              {user.accountStatus !== 'ACTIVE' && (
+                <Button
+                  intent="success"
+                  size="sm"
+                  onClick={() => onAction('activate')}
+                  disabled={actionLoading}
+                >
+                  Activar
+                </Button>
+              )}
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="danger"
+                  size="sm"
+                  onClick={() => onAction('suspend')}
+                  disabled={actionLoading}
+                >
+                  Suspender
+                </Button>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Tags de interesses */}
-        {user.profile?.interests && user.profile.interests.length > 0 && (
-          <div className="flex gap-1.5 mt-3 flex-wrap">
-            {user.profile.interests.map((i, idx) => (
-              <Badge key={idx} intent="info">
-                {i}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </Card>
+          {/* Bio */}
+          {user.profile?.bio && (
+            <div className="mt-4 pt-4 border-t border-border text-sm text-ink-muted">
+              {user.profile.bio}
+            </div>
+          )}
+
+          {/* Tags de interesses */}
+          {user.profile?.interests && user.profile.interests.length > 0 && (
+            <div className="flex gap-1.5 mt-3 flex-wrap">
+              {user.profile.interests.map((i, idx) => (
+                <Badge key={idx} intent="info">
+                  {i}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Tabs */}
-      <div className="flex w-fit flex-wrap gap-1 mb-5 rounded-control bg-surface-sunken p-1">
-        {TABS.map((t) => (
-          <Button
-            key={t.id}
-            size="sm"
-            intent={tab === t.id ? 'primary' : 'ghost'}
-            onClick={() => onTabChange(t.id)}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
+      <ProfileTabNav
+        className="mb-5"
+        items={TABS}
+        value={tab}
+        onChange={(id) => onTabChange(id as ProfileTab)}
+      />
 
       {/* Resumo */}
       {tab === 'overview' && stats && (
@@ -252,12 +256,7 @@ export function UserProfileView({
               label="Concluídos"
               value={stats.enrollments.completed}
             />
-            <NavyStatCard
-              icon={TrendingUp}
-              tone="orange"
-              label="Taxa conclusão"
-              value={`${stats.completionRate}%`}
-            />
+            <RateGauge label="Taxa conclusão" value={stats.completionRate} />
             <NavyStatCard
               icon={Trophy}
               tone="blue"
@@ -279,51 +278,55 @@ export function UserProfileView({
           )}
 
           <div className="grid grid-cols-2 gap-5">
-            <Card className="p-5">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+            <Card className="overflow-hidden">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Dados pessoais
               </div>
-              {[
-                ['Email', user.email],
-                ['Telefone', user.phone ?? '—'],
-                ['País', user.country ?? '—'],
-                ['Cidade', user.city ?? '—'],
-                ['Idioma', user.language ?? '—'],
-              ].map(([l, v]) => (
-                <div
-                  key={l}
-                  className="flex justify-between py-1.5 border-b border-border last:border-0"
-                >
-                  <span className="text-xs text-ink-muted">{l}</span>
-                  <span className="text-xs font-medium text-ink">{v}</span>
-                </div>
-              ))}
+              <div className="p-5">
+                {[
+                  ['Email', user.email],
+                  ['Telefone', user.phone ?? '—'],
+                  ['País', user.country ?? '—'],
+                  ['Cidade', user.city ?? '—'],
+                  ['Idioma', user.language ?? '—'],
+                ].map(([l, v]) => (
+                  <div
+                    key={l}
+                    className="flex justify-between py-1.5 border-b border-border last:border-0"
+                  >
+                    <span className="text-xs text-ink-muted">{l}</span>
+                    <span className="text-xs font-medium text-ink">{v}</span>
+                  </div>
+                ))}
+              </div>
             </Card>
-            <Card className="p-5">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+            <Card className="overflow-hidden">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Organização
               </div>
-              {[
-                ['Departamento', user.department?.name ?? '—'],
-                ['Cargo', user.position?.name ?? '—'],
-                ['Unidade', user.unit?.name ?? '—'],
-                ['Admissão', fmtDate(user.hireDate)],
-                ['Role sistema', user.role?.name ?? '—'],
-              ].map(([l, v]) => (
-                <div
-                  key={l}
-                  className="flex justify-between py-1.5 border-b border-border last:border-0"
-                >
-                  <span className="text-xs text-ink-muted">{l}</span>
-                  <span className="text-xs font-medium text-ink">{v}</span>
-                </div>
-              ))}
+              <div className="p-5">
+                {[
+                  ['Departamento', user.department?.name ?? '—'],
+                  ['Cargo', user.position?.name ?? '—'],
+                  ['Unidade', user.unit?.name ?? '—'],
+                  ['Admissão', fmtDate(user.hireDate)],
+                  ['Role sistema', user.role?.name ?? '—'],
+                ].map(([l, v]) => (
+                  <div
+                    key={l}
+                    className="flex justify-between py-1.5 border-b border-border last:border-0"
+                  >
+                    <span className="text-xs text-ink-muted">{l}</span>
+                    <span className="text-xs font-medium text-ink">{v}</span>
+                  </div>
+                ))}
+              </div>
             </Card>
           </div>
 
           {stats.recentActivity.length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Actividade recente
               </div>
               {stats.recentActivity.map((e) => (
@@ -347,7 +350,9 @@ export function UserProfileView({
                   </div>
                   <div className="flex-1">
                     <div className="text-sm text-ink">{e.course?.title}</div>
-                    <div className="text-xs text-ink-faint">{e.status}</div>
+                    <div className="text-xs text-ink-faint">
+                      {enrollmentStatusLabel(e.status)}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -101,7 +101,7 @@ export function MatrixTab() {
           {filtered.map((p, i) => (
             <TableRow key={i}>
               <TableCell>
-                <p className="font-data text-ink">{translatePermName(p)}</p>
+                <p className="text-sm font-medium text-ink">{translatePermName(p)}</p>
                 <p className="text-micro text-ink-faint">
                   {translateResource(p.subject)} · {translateAction(p.action)}
                 </p>
