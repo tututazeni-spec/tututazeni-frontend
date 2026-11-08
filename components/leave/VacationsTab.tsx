@@ -255,7 +255,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
               <div className="w-full">
                 <Table>
                   <TableHead className="bg-[#0F1F3D]">
-                    <TableRow>
+                    <TableRow className="hover:bg-transparent">
                       {HEADERS.map((h) => (
                         <TableHeaderCell
                           key={h.label}
@@ -280,7 +280,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                             ? () => onSelectUser(r.userId)
                             : undefined
                         }
-                        className={`border-t border-slate-100 hover:bg-transparent ${
+                        className={`border-t border-slate-100 transition-colors hover:bg-slate-50/70 ${
                           onSelectUser ? 'cursor-pointer' : ''
                         }`}
                       >
