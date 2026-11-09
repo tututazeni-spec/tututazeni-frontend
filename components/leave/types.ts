@@ -218,6 +218,7 @@ export interface LicenseRow {
   status: LeaveStatus;
   phase: LicensePhase;
   registeredBy: { id: number; fullName: string | null } | null;
+  canApprove: boolean;
   canCancel: boolean;
   /** Só ADMIN/RH recebem este campo. */
   payrollImpact?: 'NONE' | 'VALIDATION_REQUIRED';

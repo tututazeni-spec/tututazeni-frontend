@@ -7,6 +7,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   CalendarDays,
+  Check,
   Clock,
   FileLock2,
   Paperclip,
@@ -87,12 +88,14 @@ export interface LicenseCardProps {
   /** ADMIN/RH: mostra o aviso de validação na folha salarial. */
   showPayroll: boolean;
   onCancel: (id: number) => void;
+  onDecide: (row: LicenseRow, action: 'APPROVE' | 'REJECT') => void;
 }
 
 export function LicenseCard({
   row: r,
   showPayroll,
   onCancel,
+  onDecide,
 }: LicenseCardProps) {
   const infos: InfoCellProps[] = [
     { icon: CalendarDays, value: periodLabel(r), label: 'Período' },
@@ -102,7 +105,7 @@ export function LicenseCard({
   ];
   const hasProof = r.documents.length > 0 || r.hasDocument;
   const needsPayroll = showPayroll && r.payrollImpact === 'VALIDATION_REQUIRED';
-  const hasActions = needsPayroll || r.canCancel;
+  const hasActions = needsPayroll || r.canCancel || r.canApprove;
   const missingProof =
     r.type.requiresDocument && !r.hasDocument && r.documents.length === 0;
 
@@ -218,6 +221,30 @@ export function LicenseCard({
                     />
                     Validar na folha salarial
                   </span>
+                )}
+                {r.canApprove && (
+                  <>
+                    <Button
+                      type="button"
+                      intent="success"
+                      size="sm"
+                      onClick={() => onDecide(r, 'APPROVE')}
+                      className="!h-6 gap-1.5 !rounded-full !px-3 !text-xs"
+                    >
+                      <Check size={12} strokeWidth={1.75} className="shrink-0" />
+                      Aprovar
+                    </Button>
+                    <Button
+                      type="button"
+                      intent="secondary"
+                      size="sm"
+                      onClick={() => onDecide(r, 'REJECT')}
+                      className="!h-6 gap-1.5 !rounded-full border-danger/60 !px-3 !text-xs text-danger-ink hover:bg-danger-subtle"
+                    >
+                      <X size={12} strokeWidth={1.75} className="shrink-0" />
+                      Recusar
+                    </Button>
+                  </>
                 )}
                 {r.canCancel && (
                   <Button

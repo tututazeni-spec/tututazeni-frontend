@@ -20,10 +20,11 @@ import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useLicenses, type LicenseFilters } from '@/hooks/useLeave';
+import { ApprovalDecisionModal } from './ApprovalDecisionModal';
 import { PHASE_CFG } from './constants';
 import { LicenseCard } from './LicenseCard';
 import { NewLicenseModal } from './NewLicenseModal';
-import type { LeaveType } from './types';
+import type { LeaveType, LicenseRow } from './types';
 
 const ALL = 'ALL';
 const VACATION_CODE = 'VACATION';
@@ -46,6 +47,10 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
     page: 1,
   });
   const [showModal, setShowModal] = useState(false);
+  const [deciding, setDeciding] = useState<{
+    row: LicenseRow;
+    action: 'APPROVE' | 'REJECT';
+  } | null>(null);
   const debouncedSearch = useDebounce(filters.search, 300);
   const { data, loading, refetch } = useLicenses({
     ...filters,
@@ -166,6 +171,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                 row={r}
                 showPayroll={showPayroll}
                 onCancel={onCancel}
+                onDecide={(row, action) => setDeciding({ row, action })}
               />
             ))}
           </div>
@@ -179,6 +185,22 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
             onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
           />
         </>
+      )}
+
+      {deciding && (
+        <ApprovalDecisionModal
+          row={{
+            requestId: deciding.row.id,
+            request: {
+              user: deciding.row.user,
+              type: deciding.row.type,
+              startDate: deciding.row.startDate,
+              endDate: deciding.row.endDate,
+            },
+          }}
+          action={deciding.action}
+          onClose={() => setDeciding(null)}
+        />
       )}
 
       {showModal && (
