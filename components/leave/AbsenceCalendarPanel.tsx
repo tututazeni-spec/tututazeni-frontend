@@ -7,6 +7,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   AlertTriangle,
   CalendarDays,
@@ -30,6 +31,7 @@ import {
   todayKey,
   weekDays,
 } from './calendarUtils';
+import { AbsenceDayModal } from './AbsenceDayModal';
 import type { AbsenceCalendarData, CalendarEntry, CalendarView } from './types';
 
 const BLUE = '#2563EB';
@@ -355,10 +357,9 @@ export function AbsenceCalendarPanel({
       : [{ name: 'Ausência', color: BLUE }]),
     { name: 'Feriado', color: GREEN },
   ];
-  const goTo = (day: string) => {
-    onViewChange('day');
-    onDateChange(day);
-  };
+  // Clicar num dia abre a lista de quem está de férias ou ausente nessa data.
+  const [openDay, setOpenDay] = useState<string | null>(null);
+  const goTo = (day: string) => setOpenDay(day);
 
   return (
     <div className="flex flex-col overflow-hidden rounded-[24px] border border-brand/10 bg-white shadow-[0_8px_24px_rgba(15,31,61,0.12)] lg:flex-row print:shadow-none">
@@ -445,6 +446,15 @@ export function AbsenceCalendarPanel({
           </>
         ) : null}
       </div>
+
+      {openDay && data && (
+        <AbsenceDayModal
+          day={openDay}
+          entries={entriesOn(data.entries, openDay)}
+          holiday={data.holidays.find((h) => h.date === openDay)?.name}
+          onClose={() => setOpenDay(null)}
+        />
+      )}
     </div>
   );
 }

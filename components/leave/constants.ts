@@ -43,6 +43,9 @@ export const CATEGORY_LABELS: Record<LeaveCategory, string> = {
   OTHER: 'Outro',
 };
 
+/** Código do tipo de licença que representa as férias. */
+export const VACATION_CODE = 'VACATION';
+
 export const MONTH_NAMES = [
   'Jan',
   'Fev',
