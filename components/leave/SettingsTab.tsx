@@ -167,7 +167,7 @@ export function SettingsTab() {
         className="h-fit overflow-hidden rounded-2xl bg-[#0F1F3D] shadow-md"
         aria-label="Secções das configurações"
       >
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0B1A4A] via-[#0F1F3D] to-[#1D4ED8] px-5 pb-8 pt-5 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0B1A4A] via-[#0F1F3D] to-[#1D4ED8] flex h-20 items-center px-4 text-white">
           <span
             aria-hidden
             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10"
@@ -176,15 +176,15 @@ export function SettingsTab() {
             aria-hidden
             className="absolute -right-4 top-6 h-24 w-24 rounded-full bg-white/10"
           />
-          <div className="relative flex items-center gap-4">
-            <current.icon size={40} strokeWidth={1.5} className="shrink-0" />
-            <span aria-hidden className="h-12 w-px shrink-0 bg-white/30" />
-            <h3 className="text-xl font-semibold leading-tight">
+          <div className="relative flex w-full items-center gap-3">
+            <current.icon size={34} strokeWidth={1.5} className="shrink-0" />
+            <span aria-hidden className="h-10 w-px shrink-0 bg-white/30" />
+            <h3 className="min-w-0 flex-1 text-lg font-semibold leading-tight">
               {current.label}
             </h3>
           </div>
         </div>
-        <div className="-mt-4 space-y-2 rounded-t-2xl bg-white p-3">
+        <div className="space-y-2 bg-white p-3">
           {visible
             .filter((s) => s.key !== current.key)
             .map((s) => (

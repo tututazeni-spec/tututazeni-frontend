@@ -304,10 +304,10 @@ export function ChipMultiSelect<T extends string>({
               )
             }
             className={cn(
-              'rounded-control border px-2.5 py-1 text-xs transition-colors',
+              'rounded-control border px-2.5 py-1 text-xs transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white',
               on
-                ? 'border-primary bg-primary-subtle text-primary font-semibold'
-                : 'border-border bg-surface text-ink-muted hover:bg-surface-sunken',
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] font-semibold text-white'
+                : 'border-border bg-surface text-ink-muted',
             )}
           >
             {o.label}
