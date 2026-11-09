@@ -23,6 +23,7 @@ import { useLicenses, type LicenseFilters } from '@/hooks/useLeave';
 import { ApprovalDecisionModal } from './ApprovalDecisionModal';
 import { PHASE_CFG } from './constants';
 import { LicenseCard } from './LicenseCard';
+import { LicenseDetailModal } from './LicenseDetailModal';
 import { NewLicenseModal } from './NewLicenseModal';
 import type { LeaveType, LicenseRow } from './types';
 
@@ -47,6 +48,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
     page: 1,
   });
   const [showModal, setShowModal] = useState(false);
+  const [openRow, setOpenRow] = useState<LicenseRow | null>(null);
   const [deciding, setDeciding] = useState<{
     row: LicenseRow;
     action: 'APPROVE' | 'REJECT';
@@ -172,6 +174,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                 showPayroll={showPayroll}
                 onCancel={onCancel}
                 onDecide={(row, action) => setDeciding({ row, action })}
+                onOpen={setOpenRow}
               />
             ))}
           </div>
@@ -185,6 +188,17 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
             onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
           />
         </>
+      )}
+
+      {openRow && (
+        <LicenseDetailModal
+          row={openRow}
+          onClose={() => setOpenRow(null)}
+          onDecide={(row, action) => {
+            setOpenRow(null);
+            setDeciding({ row, action });
+          }}
+        />
       )}
 
       {deciding && (

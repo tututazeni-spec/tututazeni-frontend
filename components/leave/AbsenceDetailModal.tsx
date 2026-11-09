@@ -9,7 +9,22 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, FileLock2, Paperclip } from 'lucide-react';
+import {
+  AlertCircle,
+  CalendarDays,
+  ClipboardCheck,
+  Clock,
+  Compass,
+  FileLock2,
+  History,
+  MessageSquareText,
+  Paperclip,
+  Send,
+  ShieldCheck,
+  User,
+  UserCheck,
+  Wallet,
+} from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useAbsenceDetail, useAbsenceHistory } from '@/hooks/useLeave';
 import { apiClient } from '@/lib/apiClient';
@@ -17,6 +32,12 @@ import { formatDate, formatDateTime } from '@/lib/format';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import {
+  DetailDivider,
+  DetailHeader,
+  DetailInfoRow,
+  DetailSectionRow,
+} from '@/components/ui/DetailCardParts';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -63,21 +84,6 @@ function fieldValue(field: string, v: unknown): string {
   return text;
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <dt className="text-xs text-ink-faint">{label}</dt>
-      <dd className="text-sm text-ink">{children}</dd>
-    </div>
-  );
-}
-
 export interface AbsenceDetailModalProps {
   absenceId: number;
   onClose: () => void;
@@ -94,10 +100,10 @@ export function AbsenceDetailModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        navyHeader
         title={a ? `Ocorrência #${a.id} — ${a.user.fullName}` : 'Ocorrência'}
-        description="Detalhe, justificação e histórico de alterações."
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        hideHeading
+        navyClose
+        className="max-w-4xl max-h-[90vh] overflow-y-auto"
       >
         {loading || !a ? (
           <Skeleton
@@ -108,6 +114,7 @@ export function AbsenceDetailModal({
         ) : (
           <DetailBody
             a={a}
+            onClose={onClose}
             showHistory={showHistory}
             onToggleHistory={() => setShowHistory((v) => !v)}
             history={history.data}
@@ -121,6 +128,7 @@ export function AbsenceDetailModal({
 
 interface DetailBodyProps {
   a: AbsenceDetail;
+  onClose: () => void;
   showHistory: boolean;
   onToggleHistory: () => void;
   history: ReturnType<typeof useAbsenceHistory>['data'];
@@ -129,6 +137,7 @@ interface DetailBodyProps {
 
 function DetailBody({
   a,
+  onClose,
   showHistory,
   onToggleHistory,
   history,
@@ -221,411 +230,452 @@ function DetailBody({
   const fixTimed = TIMED_ABSENCE_TYPES.includes(fix.occurrenceType);
 
   return (
-    <div className="mt-4 space-y-5">
-      {error && (
-        <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
-          <AlertCircle size={16} strokeWidth={1.75} />
-          {error}
-        </div>
-      )}
+    <div>
+      <DetailHeader
+        name={a.user.fullName}
+        avatarUrl={a.user.avatarUrl}
+        subtitle={
+          [
+            a.user.employeeNumber && `N.º ${a.user.employeeNumber}`,
+            a.user.department?.name,
+          ]
+            .filter(Boolean)
+            .join(' · ') || undefined
+        }
+      >
+        <span className="text-sm font-semibold uppercase tracking-wide text-ink">
+          {absenceTypeLabel(a)}
+        </span>
+        <StatusBadge
+          value={a.justificationStatus}
+          map={JUSTIFICATION_CFG}
+          variant="pill"
+        />
+      </DetailHeader>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
-        <Field label="Colaborador">
-          {a.user.fullName}
-          <span className="text-ink-faint">
-            {' '}
-            · {a.user.employeeNumber ?? '—'} · {a.user.department?.name ?? '—'}
-          </span>
-        </Field>
-        <Field label="Tipo">{absenceTypeLabel(a)}</Field>
-        <Field label="Data">{formatDate(a.date)}</Field>
-        <Field label="Horário / duração">
-          {a.startTime && a.endTime ? `${a.startTime}–${a.endTime} · ` : ''}
-          {a.durationHours
-            ? `${a.durationHours} h`
-            : `${a.durationDays} dia(s)`}
-        </Field>
-        <Field label="Estado de justificação">
-          <StatusBadge
-            value={a.justificationStatus}
-            map={JUSTIFICATION_CFG}
-            variant="dot"
-          />
-        </Field>
-        <Field label="Origem">{ABSENCE_SOURCE_LABELS[a.source]}</Field>
-        <Field label="Impacto na assiduidade">
-          {a.attendance
-            ? `${ATTENDANCE_STATUS_LABELS[a.attendance.status] ?? a.attendance.status} (${formatDate(a.attendance.date)})`
-            : 'Sem registo associado'}
-        </Field>
-        <Field label="Validador">
-          {a.validator
-            ? `${a.validator.fullName ?? '—'}${a.validatedAt ? ` · ${formatDateTime(a.validatedAt)}` : ''}`
-            : '—'}
-        </Field>
-        <Field label="Encaminhada para">{a.forwardedTo?.fullName ?? '—'}</Field>
-        <Field label="Validação do RH">
-          {a.sentToHrAt ? `Enviada · ${formatDateTime(a.sentToHrAt)}` : '—'}
-        </Field>
-        <Field label="Registada por">
-          {a.createdBy.fullName ?? '—'} · {formatDateTime(a.createdAt)}
-        </Field>
-        {a.payrollReview !== undefined && (
-          <Field label="Impacto salarial">
-            {a.payrollReview ? 'Requer análise do Payroll' : 'Sem indicação'}
-          </Field>
-        )}
-      </dl>
-
-      <section className="space-y-2">
-        <h3 className="text-sm font-semibold text-ink">Justificação</h3>
-        {a.occurrenceType === 'HEALTH_ABSENCE' &&
-        a.justification === null &&
-        protectedFiles ? (
-          <p className="flex items-center gap-2 text-sm text-ink-faint">
-            <FileLock2 size={14} strokeWidth={1.75} /> Dados de saúde — acesso
-            restrito ao colaborador e ao RH.
-          </p>
-        ) : (
-          <>
-            <p className="text-sm text-ink-muted whitespace-pre-wrap">
-              {a.justification || 'Sem justificação apresentada.'}
-            </p>
-            {a.attachments.length > 0 && (
-              <ul className="space-y-0.5">
-                {a.attachments.map((f) => (
-                  <li key={f.id}>
-                    <LeaveFileLink
-                      fileUrl={f.fileUrl}
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                    >
-                      <Paperclip size={12} strokeWidth={1.75} />
-                      {f.name}
-                    </LeaveFileLink>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {a.validationNotes && (
-              <p className="text-sm text-ink-muted">
-                <span className="text-ink-faint">Parecer do validador: </span>
-                {a.validationNotes}
-              </p>
-            )}
-          </>
-        )}
-      </section>
-
-      <div className="flex flex-wrap gap-2">
-        {act.submitJustification && (
-          <Button
-            size="sm"
-            intent="secondary"
-            onClick={() => setMode('justify')}
-          >
-            Submeter justificação
-          </Button>
-        )}
-        {act.validate && (
-          <Button
-            size="sm"
-            intent="secondary"
-            onClick={() => setMode('validate')}
-          >
-            Validar / recusar
-          </Button>
-        )}
-        {act.attach && (
-          <Button size="sm" intent="ghost" onClick={() => setMode('attach')}>
-            Anexar comprovativo
-          </Button>
-        )}
-        {act.correct && (
-          <Button size="sm" intent="ghost" onClick={() => setMode('correct')}>
-            Corrigir registo
-          </Button>
-        )}
-        {act.forward && (
-          <Button
-            size="sm"
-            intent="ghost"
-            loading={forward.isPending}
-            onClick={() => forward.mutate(undefined)}
-          >
-            Encaminhar para o gestor
-          </Button>
-        )}
-        {act.sendToHr && (
-          <Button
-            size="sm"
-            intent="ghost"
-            loading={sendToHr.isPending}
-            onClick={() => sendToHr.mutate(undefined)}
-          >
-            Enviar para validação do RH
-          </Button>
-        )}
-        <Button size="sm" intent="ghost" onClick={onToggleHistory}>
-          {showHistory ? 'Ocultar histórico' : 'Histórico do colaborador'}
-        </Button>
-      </div>
-
-      {mode === 'justify' && (
-        <div className="space-y-3 rounded-card border border-border p-3">
-          <FormField label="Justificação *" htmlFor="abd-just">
-            <Textarea
-              id="abd-just"
-              rows={3}
-              value={justification}
-              onChange={(e) => setJustification(e.target.value)}
-              className="w-full resize-none"
-            />
-          </FormField>
-          <DocFields doc={doc} onChange={setDoc} />
-          <FormActions
-            onCancel={() => setMode(null)}
-            submitLabel="Submeter"
-            loading={justify.isPending}
-            disabled={!justification.trim() || docIncomplete}
-            onSubmit={() => {
-              setError('');
-              justify.mutate(undefined);
-            }}
-          />
-        </div>
-      )}
-
-      {mode === 'validate' && (
-        <div className="space-y-3 rounded-card border border-border p-3">
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              intent={decision === 'VALIDATE' ? 'primary' : 'ghost'}
-              onClick={() => setDecision('VALIDATE')}
-            >
-              Validar
-            </Button>
-            <Button
-              size="sm"
-              intent={decision === 'REJECT' ? 'danger' : 'ghost'}
-              onClick={() => setDecision('REJECT')}
-            >
-              Recusar
-            </Button>
+      <div className="mt-6 space-y-5">
+        {error && (
+          <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+            <AlertCircle size={16} strokeWidth={1.75} />
+            {error}
           </div>
-          <FormField
-            label={
-              decision === 'REJECT' ? 'Justificação da recusa *' : 'Comentário'
-            }
-            htmlFor="abd-notes"
-          >
-            <Textarea
-              id="abd-notes"
-              rows={2}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full resize-none"
-            />
-          </FormField>
-          <FormActions
-            onCancel={() => setMode(null)}
-            submitLabel="Confirmar"
-            loading={validate.isPending}
-            disabled={decision === 'REJECT' && !notes.trim()}
-            onSubmit={() => {
-              setError('');
-              validate.mutate(undefined);
-            }}
-          />
-        </div>
-      )}
+        )}
 
-      {mode === 'attach' && (
-        <div className="space-y-3 rounded-card border border-border p-3">
-          <DocFields doc={doc} onChange={setDoc} />
-          <FormActions
-            onCancel={() => setMode(null)}
-            submitLabel="Anexar"
-            loading={attach.isPending}
-            disabled={!docBody}
-            onSubmit={() => {
-              setError('');
-              attach.mutate(undefined);
-            }}
-          />
-        </div>
-      )}
-
-      {mode === 'correct' && (
-        <div className="space-y-3 rounded-card border border-border p-3">
-          <div className="grid grid-cols-2 gap-3">
-            <FormField label="Data" htmlFor="abd-fdate">
-              <Input
-                id="abd-fdate"
-                type="date"
-                value={fix.date}
-                onChange={(e) =>
-                  setFix((f) => ({ ...f, date: e.target.value }))
-                }
-                className="w-full"
-              />
-            </FormField>
-            <FormField label="Tipo" htmlFor="abd-ftype">
-              <Select
-                className="w-full"
-                value={fix.occurrenceType}
-                onValueChange={(v) =>
-                  setFix((f) => ({
-                    ...f,
-                    occurrenceType: v as AbsenceOccurrenceType,
-                  }))
-                }
-                items={TYPE_ITEMS}
-              />
-            </FormField>
-            <FormField
-              label={`Hora de início${fixTimed ? ' *' : ''}`}
-              htmlFor="abd-fs"
-            >
-              <Input
-                id="abd-fs"
-                type="time"
-                value={fix.startTime}
-                onChange={(e) =>
-                  setFix((f) => ({ ...f, startTime: e.target.value }))
-                }
-                className="w-full"
-              />
-            </FormField>
-            <FormField
-              label={`Hora de fim${fixTimed ? ' *' : ''}`}
-              htmlFor="abd-fe"
-            >
-              <Input
-                id="abd-fe"
-                type="time"
-                value={fix.endTime}
-                onChange={(e) =>
-                  setFix((f) => ({ ...f, endTime: e.target.value }))
-                }
-                className="w-full"
-              />
-            </FormField>
+        <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr]">
+          <div className="space-y-4">
+            <DetailInfoRow icon={CalendarDays} label="Data">
+              {formatDate(a.date)}
+            </DetailInfoRow>
+            <DetailInfoRow icon={Clock} label="Horário / duração">
+              {a.startTime && a.endTime ? `${a.startTime}–${a.endTime} · ` : ''}
+              {a.durationHours
+                ? `${a.durationHours} h`
+                : `${a.durationDays} dia(s)`}
+            </DetailInfoRow>
+            <DetailInfoRow icon={Compass} label="Origem">
+              {ABSENCE_SOURCE_LABELS[a.source]}
+            </DetailInfoRow>
+            <DetailInfoRow icon={ClipboardCheck} label="Impacto na assiduidade">
+              {a.attendance
+                ? `${ATTENDANCE_STATUS_LABELS[a.attendance.status] ?? a.attendance.status} (${formatDate(a.attendance.date)})`
+                : 'Sem registo associado'}
+            </DetailInfoRow>
+            <DetailInfoRow icon={UserCheck} label="Validador">
+              {a.validator
+                ? `${a.validator.fullName ?? '—'}${a.validatedAt ? ` · ${formatDateTime(a.validatedAt)}` : ''}`
+                : '—'}
+            </DetailInfoRow>
+            <DetailInfoRow icon={Send} label="Encaminhada para">
+              {a.forwardedTo?.fullName ?? '—'}
+            </DetailInfoRow>
+            <DetailInfoRow icon={ShieldCheck} label="Validação do RH">
+              {a.sentToHrAt ? `Enviada · ${formatDateTime(a.sentToHrAt)}` : '—'}
+            </DetailInfoRow>
+            <DetailInfoRow icon={User} label="Registada por">
+              {a.createdBy.fullName ?? '—'} · {formatDateTime(a.createdAt)}
+            </DetailInfoRow>
+            {a.payrollReview !== undefined && (
+              <DetailInfoRow icon={Wallet} label="Impacto salarial">
+                {a.payrollReview
+                  ? 'Requer análise do Payroll'
+                  : 'Sem indicação'}
+              </DetailInfoRow>
+            )}
           </div>
-          {fix.occurrenceType === 'OTHER' && (
-            <FormField label="Categoria" htmlFor="abd-fc">
-              <Input
-                id="abd-fc"
-                value={fix.customCategory}
-                maxLength={100}
-                onChange={(e) =>
-                  setFix((f) => ({ ...f, customCategory: e.target.value }))
-                }
-                className="w-full"
-              />
-            </FormField>
-          )}
-          <FormField
-            label="Motivo da correcção *"
-            htmlFor="abd-freason"
-            hint="Fica registado na auditoria com os valores anteriores"
-          >
-            <Textarea
-              id="abd-freason"
-              rows={2}
-              value={fix.reason}
-              onChange={(e) =>
-                setFix((f) => ({ ...f, reason: e.target.value }))
-              }
-              className="w-full resize-none"
-            />
-          </FormField>
-          <FormActions
-            onCancel={() => setMode(null)}
-            submitLabel="Guardar correcção"
-            loading={correct.isPending}
-            disabled={!fix.reason.trim()}
-            onSubmit={() => {
-              setError('');
-              correct.mutate(undefined);
-            }}
-          />
-        </div>
-      )}
 
-      <section className="space-y-2">
-        <h3 className="text-sm font-semibold text-ink">
-          Histórico de alterações
-        </h3>
-        {a.revisions.length === 0 ? (
-          <EmptyState variant="inline" title="Sem alterações registadas" />
-        ) : (
-          <ol className="space-y-2">
-            {a.revisions.map((r) => (
-              <li key={r.id} className="text-sm border-l-2 border-border pl-3">
-                <p className="text-ink">
-                  {r.reason}{' '}
-                  <span className="text-ink-faint">
-                    · {r.changedBy.fullName ?? '—'} ·{' '}
-                    {formatDateTime(r.createdAt)}
-                  </span>
-                </p>
-                {Object.entries(r.changes).map(([field, pair]) => (
-                  <p key={field} className="text-xs text-ink-muted">
-                    {FIELD_LABELS[field] ?? field}: {fieldValue(field, pair[0])}{' '}
-                    → {fieldValue(field, pair[1])}
+          <DetailDivider />
+
+          <div className="space-y-5">
+            <DetailSectionRow icon={MessageSquareText} label="Justificação">
+              <div className="space-y-2">
+                {a.occurrenceType === 'HEALTH_ABSENCE' &&
+                a.justification === null &&
+                protectedFiles ? (
+                  <p className="flex items-center gap-2 text-sm text-ink-faint">
+                    <FileLock2 size={14} strokeWidth={1.75} /> Dados de saúde —
+                    acesso restrito ao colaborador e ao RH.
                   </p>
-                ))}
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+                ) : (
+                  <>
+                    <p className="text-sm text-ink-muted whitespace-pre-wrap">
+                      {a.justification || 'Sem justificação apresentada.'}
+                    </p>
+                    {a.attachments.length > 0 && (
+                      <ul className="space-y-0.5">
+                        {a.attachments.map((f) => (
+                          <li key={f.id}>
+                            <LeaveFileLink
+                              fileUrl={f.fileUrl}
+                              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                            >
+                              <Paperclip size={12} strokeWidth={1.75} />
+                              {f.name}
+                            </LeaveFileLink>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {a.validationNotes && (
+                      <p className="text-sm text-ink-muted">
+                        <span className="text-ink-faint">
+                          Parecer do validador:{' '}
+                        </span>
+                        {a.validationNotes}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            </DetailSectionRow>
+            <DetailSectionRow icon={History} label="Histórico de alterações">
+              {a.revisions.length === 0 ? (
+                <EmptyState
+                  variant="inline"
+                  title="Sem alterações registadas"
+                />
+              ) : (
+                <ol className="space-y-2">
+                  {a.revisions.map((r) => (
+                    <li
+                      key={r.id}
+                      className="text-sm border-l-2 border-border pl-3"
+                    >
+                      <p className="text-ink">
+                        {r.reason}{' '}
+                        <span className="text-ink-faint">
+                          · {r.changedBy.fullName ?? '—'} ·{' '}
+                          {formatDateTime(r.createdAt)}
+                        </span>
+                      </p>
+                      {Object.entries(r.changes).map(([field, pair]) => (
+                        <p key={field} className="text-xs text-ink-muted">
+                          {FIELD_LABELS[field] ?? field}:{' '}
+                          {fieldValue(field, pair[0])} →{' '}
+                          {fieldValue(field, pair[1])}
+                        </p>
+                      ))}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </DetailSectionRow>
+          </div>
+        </div>
 
-      {showHistory && (
-        <section className="space-y-2">
-          <h3 className="text-sm font-semibold text-ink">
-            Histórico de ausências de {a.user.fullName}
-          </h3>
-          {historyLoading || !history ? (
-            <Skeleton
-              rows={3}
-              wrapperClassName="space-y-2"
-              itemClassName="h-6 bg-surface-sunken rounded-control"
-            />
-          ) : (
-            <>
-              <p className="text-sm text-ink-muted">
-                {history.summary.total} ocorrência(s) ·{' '}
-                {history.summary.totalDays} dia(s) ·{' '}
-                {history.summary.byType
-                  .map(
-                    (t) =>
-                      `${ABSENCE_TYPE_LABELS[t.occurrenceType]}: ${t.count}`,
-                  )
-                  .join(' · ') || '—'}
-              </p>
-              <ul className="space-y-1 text-sm">
-                {history.records.slice(0, 20).map((h) => (
-                  <li key={h.id} className="flex items-center gap-2">
-                    <span className="w-24 text-ink-muted">
-                      {formatDate(h.date)}
-                    </span>
-                    <span className="flex-1 text-ink">
-                      {absenceTypeLabel(h)}
-                    </span>
-                    <StatusBadge
-                      value={h.justificationStatus}
-                      map={JUSTIFICATION_CFG}
-                      variant="dot"
-                    />
-                  </li>
-                ))}
-              </ul>
-            </>
+        <div className="flex flex-wrap gap-2">
+          {act.submitJustification && (
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setMode('justify')}
+            >
+              Submeter justificação
+            </Button>
           )}
-        </section>
-      )}
+          {act.validate && (
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setMode('validate')}
+            >
+              Validar / recusar
+            </Button>
+          )}
+          {act.attach && (
+            <Button size="sm" intent="ghost" onClick={() => setMode('attach')}>
+              Anexar comprovativo
+            </Button>
+          )}
+          {act.correct && (
+            <Button size="sm" intent="ghost" onClick={() => setMode('correct')}>
+              Corrigir registo
+            </Button>
+          )}
+          {act.forward && (
+            <Button
+              size="sm"
+              intent="ghost"
+              loading={forward.isPending}
+              onClick={() => forward.mutate(undefined)}
+            >
+              Encaminhar para o gestor
+            </Button>
+          )}
+          {act.sendToHr && (
+            <Button
+              size="sm"
+              intent="ghost"
+              loading={sendToHr.isPending}
+              onClick={() => sendToHr.mutate(undefined)}
+            >
+              Enviar para validação do RH
+            </Button>
+          )}
+          <Button size="sm" intent="ghost" onClick={onToggleHistory}>
+            {showHistory ? 'Ocultar histórico' : 'Histórico do colaborador'}
+          </Button>
+        </div>
+
+        {mode === 'justify' && (
+          <div className="space-y-3 rounded-card border border-border p-3">
+            <FormField label="Justificação *" htmlFor="abd-just">
+              <Textarea
+                id="abd-just"
+                rows={3}
+                value={justification}
+                onChange={(e) => setJustification(e.target.value)}
+                className="w-full resize-none"
+              />
+            </FormField>
+            <DocFields doc={doc} onChange={setDoc} />
+            <FormActions
+              onCancel={() => setMode(null)}
+              submitLabel="Submeter"
+              loading={justify.isPending}
+              disabled={!justification.trim() || docIncomplete}
+              onSubmit={() => {
+                setError('');
+                justify.mutate(undefined);
+              }}
+            />
+          </div>
+        )}
+
+        {mode === 'validate' && (
+          <div className="space-y-3 rounded-card border border-border p-3">
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                intent={decision === 'VALIDATE' ? 'primary' : 'ghost'}
+                onClick={() => setDecision('VALIDATE')}
+              >
+                Validar
+              </Button>
+              <Button
+                size="sm"
+                intent={decision === 'REJECT' ? 'danger' : 'ghost'}
+                onClick={() => setDecision('REJECT')}
+              >
+                Recusar
+              </Button>
+            </div>
+            <FormField
+              label={
+                decision === 'REJECT'
+                  ? 'Justificação da recusa *'
+                  : 'Comentário'
+              }
+              htmlFor="abd-notes"
+            >
+              <Textarea
+                id="abd-notes"
+                rows={2}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full resize-none"
+              />
+            </FormField>
+            <FormActions
+              onCancel={() => setMode(null)}
+              submitLabel="Confirmar"
+              loading={validate.isPending}
+              disabled={decision === 'REJECT' && !notes.trim()}
+              onSubmit={() => {
+                setError('');
+                validate.mutate(undefined);
+              }}
+            />
+          </div>
+        )}
+
+        {mode === 'attach' && (
+          <div className="space-y-3 rounded-card border border-border p-3">
+            <DocFields doc={doc} onChange={setDoc} />
+            <FormActions
+              onCancel={() => setMode(null)}
+              submitLabel="Anexar"
+              loading={attach.isPending}
+              disabled={!docBody}
+              onSubmit={() => {
+                setError('');
+                attach.mutate(undefined);
+              }}
+            />
+          </div>
+        )}
+
+        {mode === 'correct' && (
+          <div className="space-y-3 rounded-card border border-border p-3">
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Data" htmlFor="abd-fdate">
+                <Input
+                  id="abd-fdate"
+                  type="date"
+                  value={fix.date}
+                  onChange={(e) =>
+                    setFix((f) => ({ ...f, date: e.target.value }))
+                  }
+                  className="w-full"
+                />
+              </FormField>
+              <FormField label="Tipo" htmlFor="abd-ftype">
+                <Select
+                  className="w-full"
+                  value={fix.occurrenceType}
+                  onValueChange={(v) =>
+                    setFix((f) => ({
+                      ...f,
+                      occurrenceType: v as AbsenceOccurrenceType,
+                    }))
+                  }
+                  items={TYPE_ITEMS}
+                />
+              </FormField>
+              <FormField
+                label={`Hora de início${fixTimed ? ' *' : ''}`}
+                htmlFor="abd-fs"
+              >
+                <Input
+                  id="abd-fs"
+                  type="time"
+                  value={fix.startTime}
+                  onChange={(e) =>
+                    setFix((f) => ({ ...f, startTime: e.target.value }))
+                  }
+                  className="w-full"
+                />
+              </FormField>
+              <FormField
+                label={`Hora de fim${fixTimed ? ' *' : ''}`}
+                htmlFor="abd-fe"
+              >
+                <Input
+                  id="abd-fe"
+                  type="time"
+                  value={fix.endTime}
+                  onChange={(e) =>
+                    setFix((f) => ({ ...f, endTime: e.target.value }))
+                  }
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+            {fix.occurrenceType === 'OTHER' && (
+              <FormField label="Categoria" htmlFor="abd-fc">
+                <Input
+                  id="abd-fc"
+                  value={fix.customCategory}
+                  maxLength={100}
+                  onChange={(e) =>
+                    setFix((f) => ({ ...f, customCategory: e.target.value }))
+                  }
+                  className="w-full"
+                />
+              </FormField>
+            )}
+            <FormField
+              label="Motivo da correcção *"
+              htmlFor="abd-freason"
+              hint="Fica registado na auditoria com os valores anteriores"
+            >
+              <Textarea
+                id="abd-freason"
+                rows={2}
+                value={fix.reason}
+                onChange={(e) =>
+                  setFix((f) => ({ ...f, reason: e.target.value }))
+                }
+                className="w-full resize-none"
+              />
+            </FormField>
+            <FormActions
+              onCancel={() => setMode(null)}
+              submitLabel="Guardar correcção"
+              loading={correct.isPending}
+              disabled={!fix.reason.trim()}
+              onSubmit={() => {
+                setError('');
+                correct.mutate(undefined);
+              }}
+            />
+          </div>
+        )}
+
+        {showHistory && (
+          <section className="space-y-2">
+            <h3 className="text-sm font-semibold text-ink">
+              Histórico de ausências de {a.user.fullName}
+            </h3>
+            {historyLoading || !history ? (
+              <Skeleton
+                rows={3}
+                wrapperClassName="space-y-2"
+                itemClassName="h-6 bg-surface-sunken rounded-control"
+              />
+            ) : (
+              <>
+                <p className="text-sm text-ink-muted">
+                  {history.summary.total} ocorrência(s) ·{' '}
+                  {history.summary.totalDays} dia(s) ·{' '}
+                  {history.summary.byType
+                    .map(
+                      (t) =>
+                        `${ABSENCE_TYPE_LABELS[t.occurrenceType]}: ${t.count}`,
+                    )
+                    .join(' · ') || '—'}
+                </p>
+                <ul className="space-y-1 text-sm">
+                  {history.records.slice(0, 20).map((h) => (
+                    <li key={h.id} className="flex items-center gap-2">
+                      <span className="w-24 text-ink-muted">
+                        {formatDate(h.date)}
+                      </span>
+                      <span className="flex-1 text-ink">
+                        {absenceTypeLabel(h)}
+                      </span>
+                      <StatusBadge
+                        value={h.justificationStatus}
+                        map={JUSTIFICATION_CFG}
+                        variant="dot"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        )}
+
+        <div className="flex gap-3 border-t border-border pt-4">
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
+            Fechar
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -55,6 +55,7 @@ export interface LicenseCardProps {
   showPayroll: boolean;
   onCancel: (id: number) => void;
   onDecide: (row: LicenseRow, action: 'APPROVE' | 'REJECT') => void;
+  onOpen: (row: LicenseRow) => void;
 }
 
 export function LicenseCard({
@@ -62,10 +63,10 @@ export function LicenseCard({
   showPayroll,
   onCancel,
   onDecide,
+  onOpen,
 }: LicenseCardProps) {
   const hasProof = r.documents.length > 0 || r.hasDocument;
   const needsPayroll = showPayroll && r.payrollImpact === 'VALIDATION_REQUIRED';
-  const hasActions = needsPayroll || r.canCancel || r.canApprove;
   const missingProof =
     r.type.requiresDocument && !r.hasDocument && r.documents.length === 0;
 
@@ -86,7 +87,11 @@ export function LicenseCard({
       infos={[
         { icon: CalendarDays, value: periodLabel(r), label: 'Período' },
         { icon: Clock, value: durationLabel(r), label: 'Duração' },
-        { icon: Wallet, value: PAY_REGIME_LABELS[r.payRegime], label: 'Regime' },
+        {
+          icon: Wallet,
+          value: PAY_REGIME_LABELS[r.payRegime],
+          label: 'Regime',
+        },
         {
           icon: UserCheck,
           value: r.approver?.fullName ?? '—',
@@ -94,7 +99,9 @@ export function LicenseCard({
         },
       ]}
       recordedLabel={`Submetida em ${formatDateTime(r.submittedAt)}${
-        r.registeredBy ? ` · registada por ${r.registeredBy.fullName ?? '—'}` : ''
+        r.registeredBy
+          ? ` · registada por ${r.registeredBy.fullName ?? '—'}`
+          : ''
       }`}
       footer={
         <>
@@ -130,62 +137,69 @@ export function LicenseCard({
             </div>
           )}
 
-          {hasProof && hasActions && (
+          {hasProof && (
             <span
               aria-hidden
               className="hidden h-4 w-px bg-brand/20 sm:block"
             />
           )}
 
-          {hasActions && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {needsPayroll && (
-                <span className={`${PILL} bg-warning-subtle text-warning-ink`}>
-                  <span
-                    aria-hidden
-                    className="h-2 w-2 shrink-0 rounded-full bg-warning"
-                  />
-                  Validar na folha salarial
-                </span>
-              )}
-              {r.canApprove && (
-                <>
-                  <Button
-                    type="button"
-                    intent="success"
-                    size="sm"
-                    onClick={() => onDecide(r, 'APPROVE')}
-                    className="!h-6 gap-1.5 !rounded-full !px-3 !text-xs"
-                  >
-                    <Check size={12} strokeWidth={1.75} className="shrink-0" />
-                    Aprovar
-                  </Button>
-                  <Button
-                    type="button"
-                    intent="secondary"
-                    size="sm"
-                    onClick={() => onDecide(r, 'REJECT')}
-                    className="!h-6 gap-1.5 !rounded-full border-danger/60 !px-3 !text-xs text-danger-ink hover:bg-danger-subtle"
-                  >
-                    <X size={12} strokeWidth={1.75} className="shrink-0" />
-                    Recusar
-                  </Button>
-                </>
-              )}
-              {r.canCancel && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {needsPayroll && (
+              <span className={`${PILL} bg-warning-subtle text-warning-ink`}>
+                <span
+                  aria-hidden
+                  className="h-2 w-2 shrink-0 rounded-full bg-warning"
+                />
+                Validar na folha salarial
+              </span>
+            )}
+            <Button
+              type="button"
+              intent="secondary"
+              size="sm"
+              onClick={() => onOpen(r)}
+              className="!h-6 !rounded-full !px-3 !text-xs"
+            >
+              Abrir
+            </Button>
+            {r.canApprove && (
+              <>
+                <Button
+                  type="button"
+                  intent="success"
+                  size="sm"
+                  onClick={() => onDecide(r, 'APPROVE')}
+                  className="!h-6 gap-1.5 !rounded-full !px-3 !text-xs"
+                >
+                  <Check size={12} strokeWidth={1.75} className="shrink-0" />
+                  Aprovar
+                </Button>
                 <Button
                   type="button"
                   intent="secondary"
                   size="sm"
-                  onClick={() => onCancel(r.id)}
+                  onClick={() => onDecide(r, 'REJECT')}
                   className="!h-6 gap-1.5 !rounded-full border-danger/60 !px-3 !text-xs text-danger-ink hover:bg-danger-subtle"
                 >
                   <X size={12} strokeWidth={1.75} className="shrink-0" />
-                  Cancelar pedido
+                  Recusar
                 </Button>
-              )}
-            </div>
-          )}
+              </>
+            )}
+            {r.canCancel && (
+              <Button
+                type="button"
+                intent="secondary"
+                size="sm"
+                onClick={() => onCancel(r.id)}
+                className="!h-6 gap-1.5 !rounded-full border-danger/60 !px-3 !text-xs text-danger-ink hover:bg-danger-subtle"
+              >
+                <X size={12} strokeWidth={1.75} className="shrink-0" />
+                Cancelar pedido
+              </Button>
+            )}
+          </div>
         </>
       }
     />
