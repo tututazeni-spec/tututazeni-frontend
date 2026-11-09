@@ -271,6 +271,7 @@ export interface AbsenceActions {
   correct: boolean;
   forward: boolean;
   sendToHr: boolean;
+  cancel: boolean;
 }
 
 export interface AbsenceRow {
@@ -279,6 +280,7 @@ export interface AbsenceRow {
     id: number;
     fullName: string;
     employeeNumber: string | null;
+    avatarUrl?: string | null;
     department: { id: number; name: string } | null;
   };
   date: string;
