@@ -40,6 +40,7 @@ import {
 import { usePlanning, type PlanningFilters } from '@/hooks/useLeave';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
+import { CoverageAlertsList } from './CoverageAlertsList';
 import { DEPT_COLORS } from './constants';
 import type { PlanningDay, PlanningTeam } from './types';
 
@@ -216,21 +217,7 @@ export function PlanningTab() {
                 <AlertTriangle size={15} strokeWidth={1.75} />
                 Alertas de falta de cobertura
               </h3>
-              <ul className="space-y-1 text-xs text-ink-muted max-h-48 overflow-y-auto">
-                {data.alerts.map((a) => (
-                  <li key={`${a.date}-${a.departmentId}`}>
-                    <span className="font-medium text-ink">
-                      {formatDate(a.date)}
-                    </span>{' '}
-                    — {a.department ?? 'Sem departamento'}: {a.absent} de{' '}
-                    {a.headcount} ausentes ({a.availabilityPercent}% disponível,
-                    mínimo {a.minAvailabilityPercent}%)
-                    {a.causedByPending
-                      ? ' — se os pendentes forem aprovados'
-                      : ''}
-                  </li>
-                ))}
-              </ul>
+              <CoverageAlertsList alerts={data.alerts} limit={50} />
             </Card>
           )}
 

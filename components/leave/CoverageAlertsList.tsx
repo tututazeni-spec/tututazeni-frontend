@@ -9,7 +9,10 @@ import { formatDate } from '@/lib/format';
 import { WEEKDAY_SHORT } from './constants';
 import type { AbsenceCalendarData } from './types';
 
-type CoverageAlert = AbsenceCalendarData['alerts'][number];
+type CoverageAlert = AbsenceCalendarData['alerts'][number] & {
+  /** Só no Planeamento: o alerta existe apenas se os pendentes forem aprovados. */
+  causedByPending?: boolean;
+};
 
 /** Colunas partilhadas pelo cabeçalho e pelas linhas (a partir de `sm`). */
 const COLUMNS =
@@ -83,8 +86,15 @@ export function CoverageAlertsList({
                 {weekdayOf(a.date)}
               </span>
             </span>
-            <span className="min-w-0 truncate text-ink">
-              {a.department ?? 'Sem departamento'}
+            <span className="min-w-0 text-ink">
+              <span className="block truncate">
+                {a.department ?? 'Sem departamento'}
+              </span>
+              {a.causedByPending && (
+                <span className="text-xs text-warning-ink">
+                  Se os pendentes forem aprovados
+                </span>
+              )}
             </span>
             <span className="inline-flex items-center gap-1.5 text-ink">
               <Users
