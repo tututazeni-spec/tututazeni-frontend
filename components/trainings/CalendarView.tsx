@@ -23,14 +23,15 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
 import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import { STATUS_TONE } from './trainingTones';
-import type { CalendarEvent, CalendarResponse } from './types';
+import type { CalendarEvent, CalendarResponse, TrainingStatus } from './types';
 
 interface CalendarViewProps {
   onSelectTraining: (id: number) => void;
@@ -53,6 +54,21 @@ const STATUS_ITEMS = [
 
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const MAX_CHIPS = 3;
+
+const SIDEBAR_BG =
+  'linear-gradient(170deg, #1E3A5F 0%, #0F1F3D 55%, #0A1630 100%)';
+
+/** Cor de cada estado (legenda, borda e fundo dos chips). */
+const STATUS_COLOR: Record<TrainingStatus, string> = {
+  DRAFT: '#94A3B8',
+  PUBLISHED: '#2563EB',
+  COMPLETED: '#16A34A',
+  CANCELLED: '#E11D48',
+  ARCHIVED: '#64748B',
+};
+
+const tint = (color: string, percent: number) =>
+  `color-mix(in srgb, ${color} ${percent}%, white)`;
 
 function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -119,6 +135,11 @@ export function CalendarView({ onSelectTraining }: CalendarViewProps) {
 
   const grid = useMemo(() => buildGrid(monthAnchor), [monthAnchor]);
   const todayKey = dayKey(new Date());
+  // Legenda: os estados presentes no mês; sem eventos, só "Publicada".
+  const legend: TrainingStatus[] = [
+    ...new Set((data?.events ?? []).map((ev) => ev.status)),
+  ];
+  if (legend.length === 0) legend.push('PUBLISHED');
   const selectedEvents = selectedDay
     ? (eventsByDay.get(selectedDay) ?? [])
     : [];
@@ -130,128 +151,178 @@ export function CalendarView({ onSelectTraining }: CalendarViewProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button intent="ghost" size="sm" onClick={() => goToMonth(-1)}>
-            <ChevronLeft size={16} strokeWidth={1.75} />
-          </Button>
-          <span className="min-w-[140px] text-center font-body text-sm font-medium text-ink">
-            {monthAnchor.toLocaleDateString('pt-AO', {
-              month: 'long',
-              year: 'numeric',
-            })}
-          </span>
-          <Button intent="ghost" size="sm" onClick={() => goToMonth(1)}>
-            <ChevronRight size={16} strokeWidth={1.75} />
-          </Button>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectedDay(dayKey(new Date()));
-              setMonthAnchor(new Date());
-            }}
-          >
-            Hoje
-          </Button>
-        </div>
-        <div className="flex gap-2">
-          <Select
-            variant="underline"
-            icon={List}
-            items={MODALITY_ITEMS}
-            value={modality}
-            onValueChange={setModality}
-            className="w-44"
-          />
-          <Select
-            variant="underline"
-            icon={MapPin}
-            items={STATUS_ITEMS}
-            value={status}
-            onValueChange={setStatus}
-            className="w-40"
-          />
-        </div>
-      </div>
-
       {isLoading ? (
         <Skeleton rows={4} />
       ) : (
         <>
-          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-            <div className="min-w-[640px]">
-              <div className="grid grid-cols-7 border-b border-border">
-                {WEEKDAYS.map((w) => (
-                  <div
-                    key={w}
-                    className="px-2 py-2 text-center font-body text-xs font-semibold uppercase tracking-wide text-ink-muted"
+          <div className="flex flex-col overflow-hidden rounded-[24px] border border-brand/10 bg-white shadow-[0_8px_24px_rgba(15,31,61,0.12)] lg:flex-row">
+            <aside
+              className="flex flex-col gap-4 p-5 text-white lg:w-52 lg:shrink-0"
+              style={{ background: SIDEBAR_BG }}
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-card border-2 border-white">
+                <GraduationCap size={22} strokeWidth={1.75} />
+              </span>
+              <h3 className="font-display text-2xl font-bold">Formações</h3>
+              <hr className="border-white/25" />
+              <ul className="space-y-3">
+                {legend.map((st) => (
+                  <li
+                    key={st}
+                    className="flex items-center gap-2.5 font-body text-sm font-semibold"
                   >
-                    {w}
-                  </div>
+                    <span
+                      aria-hidden
+                      className="h-3.5 w-3.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: STATUS_COLOR[st] }}
+                    />
+                    {STATUS_CFG[st].label}
+                  </li>
                 ))}
+              </ul>
+            </aside>
+
+            <div className="min-w-0 flex-1 space-y-4 bg-surface-sunken p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <IconButton
+                    icon={ChevronLeft}
+                    label="Mês anterior"
+                    intent="ghost"
+                    className="rounded-full border border-brand/15 bg-white shadow-sm"
+                    onClick={() => goToMonth(-1)}
+                  />
+                  <h3 className="font-display text-xl font-bold capitalize text-brand">
+                    {monthAnchor.toLocaleDateString('pt-AO', {
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </h3>
+                  <IconButton
+                    icon={ChevronRight}
+                    label="Mês seguinte"
+                    intent="ghost"
+                    className="rounded-full border border-brand/15 bg-white shadow-sm"
+                    onClick={() => goToMonth(1)}
+                  />
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedDay(dayKey(new Date()));
+                      setMonthAnchor(new Date());
+                    }}
+                  >
+                    Hoje
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Select
+                    variant="underline"
+                    icon={List}
+                    items={MODALITY_ITEMS}
+                    value={modality}
+                    onValueChange={setModality}
+                    className="w-44"
+                  />
+                  <Select
+                    variant="underline"
+                    icon={MapPin}
+                    items={STATUS_ITEMS}
+                    value={status}
+                    onValueChange={setStatus}
+                    className="w-40"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-7">
-                {grid.map((d) => {
-                  const key = dayKey(d);
-                  const inMonth = d.getMonth() === monthAnchor.getMonth();
-                  const dayEvents = eventsByDay.get(key) ?? [];
-                  const isToday = key === todayKey;
-                  const isSelected = key === selectedDay;
-                  const toggle = () => setSelectedDay(isSelected ? null : key);
-                  return (
+
+              <div className="overflow-x-auto">
+                <div className="grid min-w-[640px] grid-cols-7 gap-2">
+                  {WEEKDAYS.map((w) => (
                     <div
-                      key={key}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`${formatDate(key, { day: '2-digit', month: 'long' })}, ${dayEvents.length} evento(s)`}
-                      onClick={toggle}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          toggle();
-                        }
-                      }}
-                      className={`min-h-[96px] cursor-pointer border-b border-r border-border p-1.5 text-left transition-colors hover:bg-black/5 ${
-                        inMonth ? '' : 'bg-black/[0.03]'
-                      } ${isSelected ? 'ring-2 ring-inset ring-[#0F1F3D]' : ''}`}
+                      key={w}
+                      className="rounded-card bg-brand/[0.07] py-2 text-center font-body text-sm font-bold text-brand"
                     >
-                      <span
-                        className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 font-body text-xs ${
+                      {w}
+                    </div>
+                  ))}
+                  {grid.map((d) => {
+                    const key = dayKey(d);
+                    const inMonth = d.getMonth() === monthAnchor.getMonth();
+                    const dayEvents = eventsByDay.get(key) ?? [];
+                    const isToday = key === todayKey;
+                    const isSelected = key === selectedDay;
+                    const toggle = () =>
+                      setSelectedDay(isSelected ? null : key);
+                    return (
+                      <div
+                        key={key}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${formatDate(key, { day: '2-digit', month: 'long' })}, ${dayEvents.length} evento(s)`}
+                        onClick={toggle}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggle();
+                          }
+                        }}
+                        className={cn(
+                          'min-h-24 cursor-pointer space-y-1 rounded-card border border-brand/10 p-2 text-left shadow-[0_1px_3px_rgba(15,31,61,0.08)] transition-shadow hover:shadow-md',
+                          inMonth ? 'bg-white' : 'bg-white/40',
+                          isSelected && 'ring-2 ring-brand',
+                        )}
+                        style={
                           isToday
-                            ? 'bg-[#0F1F3D] font-semibold text-white'
-                            : inMonth
-                              ? 'text-ink'
-                              : 'text-ink-muted'
-                        }`}
+                            ? { background: tint(STATUS_COLOR.PUBLISHED, 14) }
+                            : undefined
+                        }
                       >
-                        {d.getDate()}
-                      </span>
-                      <div className="mt-1 space-y-1">
-                        {dayEvents.slice(0, MAX_CHIPS).map((ev) => (
-                          <button
-                            key={`${ev.kind}-${ev.id}`}
-                            type="button"
-                            title={ev.title}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSelectTraining(ev.trainingId);
-                            }}
-                            className="block w-full truncate rounded bg-[#0F1F3D] px-1.5 py-0.5 text-left font-body text-[11px] text-white hover:opacity-90"
-                          >
-                            {ev.start ? `${formatTime(ev.start)} ` : ''}
-                            {ev.title}
-                          </button>
-                        ))}
+                        <span
+                          className={cn(
+                            'text-sm font-bold',
+                            inMonth ? 'text-brand' : 'text-brand-muted/60',
+                          )}
+                        >
+                          {d.getDate()}
+                        </span>
+                        {dayEvents.slice(0, MAX_CHIPS).map((ev) => {
+                          const color = STATUS_COLOR[ev.status];
+                          return (
+                            <button
+                              key={`${ev.kind}-${ev.id}`}
+                              type="button"
+                              title={ev.title}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectTraining(ev.trainingId);
+                              }}
+                              className="block w-full break-words rounded-control px-1.5 py-1 text-left font-body text-micro font-semibold leading-tight text-brand transition hover:brightness-95"
+                              style={{
+                                background: tint(color, 14),
+                                borderLeft: `3px solid ${color}`,
+                              }}
+                            >
+                              {ev.start && (
+                                <>
+                                  <span className="font-bold">
+                                    {formatTime(ev.start)}
+                                  </span>{' '}
+                                </>
+                              )}
+                              {ev.title}
+                            </button>
+                          );
+                        })}
                         {dayEvents.length > MAX_CHIPS && (
-                          <span className="block px-1 font-body text-[11px] text-ink-muted">
+                          <span className="block font-body text-micro font-semibold text-brand-muted">
                             +{dayEvents.length - MAX_CHIPS} mais
                           </span>
                         )}
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
