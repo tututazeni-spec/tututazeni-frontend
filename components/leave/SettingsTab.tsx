@@ -12,6 +12,7 @@ import {
   CalendarClock,
   CalendarCog,
   CheckCircle2,
+  ChevronRight,
   History,
   Plug,
   Scale,
@@ -31,7 +32,6 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { useLeaveSettings } from '@/hooks/useLeave';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
-import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import {
@@ -163,24 +163,47 @@ export function SettingsTab() {
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[15rem_1fr]">
-      <nav className="space-y-1" aria-label="Secções das configurações">
-        {visible.map((s) => (
-          <button
-            key={s.key}
-            type="button"
-            onClick={() => setSection(s.key)}
-            aria-current={current.key === s.key ? 'page' : undefined}
-            className={cn(
-              'flex w-full items-center gap-2 rounded-control px-3 py-2 text-left text-sm transition-colors',
-              current.key === s.key
-                ? 'bg-primary-subtle font-semibold text-primary'
-                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
-            )}
-          >
-            <s.icon size={16} strokeWidth={1.75} />
-            {s.label}
-          </button>
-        ))}
+      <nav
+        className="h-fit overflow-hidden rounded-2xl bg-[#0F1F3D] shadow-md"
+        aria-label="Secções das configurações"
+      >
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0B1A4A] via-[#0F1F3D] to-[#1D4ED8] px-5 pb-8 pt-5 text-white">
+          <span
+            aria-hidden
+            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10"
+          />
+          <span
+            aria-hidden
+            className="absolute -right-4 top-6 h-24 w-24 rounded-full bg-white/10"
+          />
+          <div className="relative flex items-center gap-4">
+            <current.icon size={40} strokeWidth={1.5} className="shrink-0" />
+            <span aria-hidden className="h-12 w-px shrink-0 bg-white/30" />
+            <h3 className="text-xl font-semibold leading-tight">
+              {current.label}
+            </h3>
+          </div>
+        </div>
+        <div className="-mt-4 space-y-2 rounded-t-2xl bg-white p-3">
+          {visible
+            .filter((s) => s.key !== current.key)
+            .map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSection(s.key)}
+                className="group flex w-full items-center gap-3 text-left"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E8EEFB] text-[#0F1F3D]">
+                  <s.icon size={20} strokeWidth={1.75} />
+                </span>
+                <span className="flex flex-1 items-center justify-between rounded-full bg-[#EEF2FC] px-4 py-2.5 text-sm font-medium text-[#0F1F3D] transition-colors group-hover:bg-[#DCE6FA]">
+                  {s.label}
+                  <ChevronRight size={16} strokeWidth={2} />
+                </span>
+              </button>
+            ))}
+        </div>
       </nav>
 
       <div className="min-w-0 space-y-4">
@@ -266,7 +289,10 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
           <CalendarClock size={16} strokeWidth={1.75} className="mt-0.5" />
           <span>
             Há uma alteração agendada para{' '}
-            <strong>{formatDateNumeric(overview.upcoming.effectiveFrom)}</strong>:{' '}
+            <strong>
+              {formatDateNumeric(overview.upcoming.effectiveFrom)}
+            </strong>
+            :{' '}
             {overview.upcoming.changedKeys
               .map((k) => SETTING_LABELS[k] ?? k)
               .join(', ')}

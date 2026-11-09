@@ -52,7 +52,11 @@ export function usePendingApprovals(enabled = true) {
   const q = useApiQuery<LeaveRequest[]>(
     queryKeys.leave.pendingApprovals(),
     '/leave/pending-approvals',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000), enabled },
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: pollInterval(60_000),
+      enabled,
+    },
   );
   return { data: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
 }
@@ -282,13 +286,18 @@ export interface ReportFilters {
 }
 
 /** GET /leave/reports/:kind — corre um relatório (ADMIN/RH). */
-export function useLeaveReport(kind: LeaveReportKind, filters: ReportFilters) {
+export function useLeaveReport(
+  kind: LeaveReportKind,
+  filters: ReportFilters,
+  enabled = true,
+) {
   const params = compact({ ...filters });
   const q = useApiQuery<ReportResult>(
     queryKeys.leave.report(kind, params),
     `/leave/reports/${kind}`,
     {
       params,
+      enabled,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
     },
@@ -346,7 +355,10 @@ export function useDelegations(all: boolean) {
   const q = useApiQuery<DelegationRow[]>(
     queryKeys.leave.delegations(all),
     '/leave/settings/delegations',
-    { params: all ? { all: 'true' } : undefined, staleTime: STALE_TIME.DYNAMIC },
+    {
+      params: all ? { all: 'true' } : undefined,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
   );
   return { data: q.data ?? [], loading: q.isLoading };
 }

@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { AlertCircle, UserRoundCheck } from 'lucide-react';
+import { SectionHeader } from './SettingsFields';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Combobox } from '@/components/ui/Combobox';
@@ -97,144 +98,145 @@ export function DelegationsPanel() {
 
   return (
     <div className="space-y-4">
-      <Card className="overflow-hidden p-4 space-y-4">
-        <div className="-mx-4 -mt-4 bg-brand/60 px-4 py-3">
-          <h3 className="text-sm font-semibold text-white">
-            Nova substituição
-          </h3>
-          <p className="text-xs text-white/80">
-            Para quando estiver ausente: as suas aprovações vão para o
-            substituto escolhido.
-          </p>
-        </div>
-        {error && (
-          <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
-            <AlertCircle size={16} strokeWidth={1.75} />
-            {error}
-          </div>
-        )}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {isAdmin && (
-            <FormField
-              label="Aprovador ausente"
-              htmlFor="deleg-delegator"
-              hint="Vazio = você"
-            >
+      <Card className="overflow-hidden p-0">
+        <SectionHeader
+          title="Nova substituição"
+          description="Para quando estiver ausente: as suas aprovações vão para o substituto escolhido."
+        />
+        <div className="space-y-4 p-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+              <AlertCircle size={16} strokeWidth={1.75} />
+              {error}
+            </div>
+          )}
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {isAdmin && (
+              <FormField
+                label="Aprovador ausente"
+                htmlFor="deleg-delegator"
+                hint="Vazio = você"
+              >
+                <Combobox
+                  items={items}
+                  value={delegatorId}
+                  onValueChange={setDelegatorId}
+                  placeholder="Eu próprio"
+                  searchPlaceholder="Procurar…"
+                  emptyText="Ninguém encontrado"
+                  className="w-full"
+                />
+              </FormField>
+            )}
+            <FormField label="Substituto *" htmlFor="deleg-delegate">
               <Combobox
                 items={items}
-                value={delegatorId}
-                onValueChange={setDelegatorId}
-                placeholder="Eu próprio"
+                value={delegateId}
+                onValueChange={setDelegateId}
+                placeholder="Seleccionar substituto"
                 searchPlaceholder="Procurar…"
                 emptyText="Ninguém encontrado"
                 className="w-full"
               />
             </FormField>
-          )}
-          <FormField label="Substituto *" htmlFor="deleg-delegate">
-            <Combobox
-              items={items}
-              value={delegateId}
-              onValueChange={setDelegateId}
-              placeholder="Seleccionar substituto"
-              searchPlaceholder="Procurar…"
-              emptyText="Ninguém encontrado"
+            <FormField label="De *" htmlFor="deleg-start">
+              <Input
+                id="deleg-start"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+            <FormField
+              label="Até *"
+              htmlFor="deleg-end"
+              error={
+                endDate && endDate < startDate
+                  ? 'A data de fim é anterior ao início'
+                  : undefined
+              }
+            >
+              <Input
+                id="deleg-end"
+                type="date"
+                min={startDate}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+          </div>
+          <FormField label="Motivo" htmlFor="deleg-reason">
+            <Textarea
+              id="deleg-reason"
+              rows={2}
+              maxLength={300}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Ex.: férias"
               className="w-full"
             />
           </FormField>
-          <FormField label="De *" htmlFor="deleg-start">
-            <Input
-              id="deleg-start"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full"
-            />
-          </FormField>
-          <FormField
-            label="Até *"
-            htmlFor="deleg-end"
-            error={
-              endDate && endDate < startDate
-                ? 'A data de fim é anterior ao início'
-                : undefined
-            }
-          >
-            <Input
-              id="deleg-end"
-              type="date"
-              min={startDate}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full"
-            />
-          </FormField>
-        </div>
-        <FormField label="Motivo" htmlFor="deleg-reason">
-          <Textarea
-            id="deleg-reason"
-            rows={2}
-            maxLength={300}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Ex.: férias"
-            className="w-full"
-          />
-        </FormField>
-        <div className="flex justify-end">
-          <Button
-            loading={create.isPending}
-            disabled={invalid}
-            onClick={() => {
-              setError('');
-              create.mutate(undefined);
-            }}
-          >
-            Registar substituição
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              loading={create.isPending}
+              disabled={invalid}
+              onClick={() => {
+                setError('');
+                create.mutate(undefined);
+              }}
+            >
+              Registar substituição
+            </Button>
+          </div>
         </div>
       </Card>
 
-      <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-          {isAdmin ? 'Substituições' : 'As minhas substituições'}
-        </h3>
-        {!loading && rows.length === 0 ? (
-          <EmptyState
-            icon={UserRoundCheck}
-            title="Sem substituições"
-            description="Quando registar uma, ela aparece aqui até terminar."
-          />
-        ) : (
-          <ul className="divide-y divide-border">
-            {rows.map((r) => (
-              <li
-                key={r.id}
-                className="flex items-center justify-between gap-3 py-2.5"
-              >
-                <div className="min-w-0 text-sm text-ink">
-                  <span className="font-medium">{r.delegatorName ?? '—'}</span>
-                  <span className="text-ink-faint"> → </span>
-                  <span className="font-medium">{r.delegateName ?? '—'}</span>
-                  <span className="ml-2 text-xs text-ink-faint">
-                    {formatIsoDay(r.startDate)} a {formatIsoDay(r.endDate)}
-                    {r.reason ? ` · ${r.reason}` : ''}
-                    {!r.active ? ' · revogada' : ''}
-                  </span>
-                </div>
-                {r.active && (
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => askRevoke(r.id)}
-                  >
-                    Revogar
-                  </Button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+      <Card className="overflow-hidden p-0">
+        <SectionHeader
+          title={isAdmin ? 'Substituições' : 'As minhas substituições'}
+        />
+        <div className="p-4">
+          {!loading && rows.length === 0 ? (
+            <EmptyState
+              icon={UserRoundCheck}
+              title="Sem substituições"
+              description="Quando registar uma, ela aparece aqui até terminar."
+            />
+          ) : (
+            <ul className="divide-y divide-border">
+              {rows.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between gap-3 py-2.5"
+                >
+                  <div className="min-w-0 text-sm text-ink">
+                    <span className="font-medium">
+                      {r.delegatorName ?? '—'}
+                    </span>
+                    <span className="text-ink-faint"> → </span>
+                    <span className="font-medium">{r.delegateName ?? '—'}</span>
+                    <span className="ml-2 text-xs text-ink-faint">
+                      {formatIsoDay(r.startDate)} a {formatIsoDay(r.endDate)}
+                      {r.reason ? ` · ${r.reason}` : ''}
+                      {!r.active ? ' · revogada' : ''}
+                    </span>
+                  </div>
+                  {r.active && (
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => askRevoke(r.id)}
+                    >
+                      Revogar
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </Card>
     </div>
   );
