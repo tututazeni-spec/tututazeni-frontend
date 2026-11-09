@@ -34,6 +34,7 @@ import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import { todayKey } from './calendarUtils';
 import { AbsenceCalendarPanel } from './AbsenceCalendarPanel';
+import { CoverageAlertsList } from './CoverageAlertsList';
 import {
   CAN_PICK_EMPLOYEE_ABSENCE,
   useEmployeeOptions,
@@ -190,31 +191,14 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
       {data && (
         <>
           {(data.alerts.length > 0 || data.overlaps.length > 0) && (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4">
               {data.alerts.length > 0 && (
                 <Card className="overflow-hidden p-4">
                   <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
                     <AlertTriangle size={14} strokeWidth={1.75} />
                     Cobertura insuficiente
                   </h3>
-                  <ul className="space-y-1 text-sm text-ink-muted">
-                    {data.alerts.slice(0, 15).map((a, i) => (
-                      <li key={`${a.date}-${a.departmentId}-${i}`}>
-                        {formatDate(a.date)} ·{' '}
-                        {a.department ?? 'Sem departamento'}: {a.absent} de{' '}
-                        {a.headcount} ausentes — disponibilidade{' '}
-                        <strong className="text-ink">
-                          {a.availabilityPercent}%
-                        </strong>{' '}
-                        (mínimo {a.minAvailabilityPercent}%)
-                      </li>
-                    ))}
-                  </ul>
-                  {data.alerts.length > 15 && (
-                    <p className="mt-1 text-xs text-ink-faint">
-                      +{data.alerts.length - 15} dia(s) com alerta.
-                    </p>
-                  )}
+                  <CoverageAlertsList alerts={data.alerts} />
                 </Card>
               )}
               {data.overlaps.length > 0 && (
