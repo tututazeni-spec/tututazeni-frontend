@@ -11,12 +11,13 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
 import { Card } from '@/components/ui/Card';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG, STATUS_CFG } from './constants';
-import type { LiveClassCalendarEvent } from './types';
+import type { LiveClassCalendarEvent, LiveClassStatus } from './types';
 
 const MODALITY_ITEMS = [
   { value: 'ALL', label: 'Todas as modalidades' },
@@ -26,6 +27,22 @@ const MODALITY_ITEMS = [
 ];
 
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+const SIDEBAR_BG =
+  'linear-gradient(170deg, #1E3A5F 0%, #0F1F3D 55%, #0A1630 100%)';
+
+/** Cor de cada estado (legenda, borda e fundo dos chips). */
+const STATUS_COLOR: Record<LiveClassStatus, string> = {
+  AGENDADA: '#2563EB',
+  EM_PREPARACAO: '#D97706',
+  EM_CURSO: '#E11D48',
+  CONCLUIDA: '#16A34A',
+  CANCELADA: '#94A3B8',
+  ADIADA: '#F59E0B',
+};
+
+const tint = (color: string, percent: number) =>
+  `color-mix(in srgb, ${color} ${percent}%, white)`;
 
 function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -87,6 +104,12 @@ export function CalendarView() {
 
   const selectedEvents = byDay.get(selectedDay) ?? [];
 
+  // Legenda: os estados presentes no mês; sem aulas, só "Agendada".
+  const legend: LiveClassStatus[] = [
+    ...new Set((data ?? []).map((ev) => ev.status)),
+  ];
+  if (legend.length === 0) legend.push('AGENDADA');
+
   function goToMonth(delta: number) {
     setMonthAnchor((d) => {
       const next = new Date(d.getFullYear(), d.getMonth() + delta, 1);
@@ -97,132 +120,163 @@ export function CalendarView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button intent="ghost" size="sm" onClick={() => goToMonth(-1)}>
-            <ChevronLeft size={16} strokeWidth={1.75} />
-          </Button>
-          <span className="min-w-[140px] text-center font-body text-sm font-medium capitalize text-ink">
-            {monthAnchor.toLocaleDateString('pt-AO', {
-              month: 'long',
-              year: 'numeric',
-            })}
-          </span>
-          <Button intent="ghost" size="sm" onClick={() => goToMonth(1)}>
-            <ChevronRight size={16} strokeWidth={1.75} />
-          </Button>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => {
-              setMonthAnchor(new Date());
-              setSelectedDay(dayKey(new Date()));
-            }}
-          >
-            Hoje
-          </Button>
-        </div>
-        <Select
-          variant="underline"
-          icon={List}
-          items={MODALITY_ITEMS}
-          value={modality}
-          onValueChange={setModality}
-          className="w-56"
-        />
-      </div>
-
       {isLoading ? (
         <Skeleton rows={4} />
       ) : (
         <>
-          <Card className="overflow-hidden p-0">
-            <div className="grid grid-cols-7 border-b border-border bg-brand/60">
-              {WEEKDAYS.map((w) => (
-                <div
-                  key={w}
-                  className="px-2 py-3 text-center text-xs font-medium uppercase tracking-wide text-white"
-                >
-                  {w}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7">
-              {gridDays.map((d) => {
-                const key = dayKey(d);
-                const inMonth = d.getMonth() === monthAnchor.getMonth();
-                const events = byDay.get(key) ?? [];
-                const isToday = key === todayKey;
-                const isSelected = key === selectedDay;
-                return (
-                  <div
-                    key={key}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedDay(key)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        setSelectedDay(key);
-                      }
-                    }}
-                    className={`min-h-[84px] cursor-pointer border-b border-r border-border p-1.5 hover:bg-surface-sunken ${
-                      inMonth ? '' : 'bg-surface-sunken/50'
-                    } ${isSelected ? 'ring-2 ring-inset ring-[#0F1F3D]' : ''}`}
+          <div className="flex flex-col overflow-hidden rounded-[24px] border border-brand/10 bg-white shadow-[0_8px_24px_rgba(15,31,61,0.12)] lg:flex-row">
+            <aside
+              className="flex flex-col gap-4 p-5 text-white lg:w-52 lg:shrink-0"
+              style={{ background: SIDEBAR_BG }}
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-card border-2 border-white">
+                <Video size={22} strokeWidth={1.75} />
+              </span>
+              <h3 className="font-display text-2xl font-bold">Aulas ao vivo</h3>
+              <hr className="border-white/25" />
+              <ul className="space-y-3">
+                {legend.map((st) => (
+                  <li
+                    key={st}
+                    className="flex items-center gap-2.5 font-body text-sm font-semibold"
                   >
                     <span
-                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full font-body text-xs ${
-                        isToday
-                          ? 'bg-[#0F1F3D] font-medium text-white'
-                          : inMonth
-                            ? 'text-ink'
-                            : 'text-ink-faint'
-                      }`}
+                      aria-hidden
+                      className="h-3.5 w-3.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: STATUS_COLOR[st] }}
+                    />
+                    {STATUS_CFG[st]?.label ?? st}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+
+            <div className="min-w-0 flex-1 space-y-4 bg-surface-sunken p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <IconButton
+                    icon={ChevronLeft}
+                    label="Mês anterior"
+                    intent="ghost"
+                    className="rounded-full border border-brand/15 bg-white shadow-sm"
+                    onClick={() => goToMonth(-1)}
+                  />
+                  <h3 className="font-display text-xl font-bold capitalize text-brand">
+                    {monthAnchor.toLocaleDateString('pt-AO', {
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </h3>
+                  <IconButton
+                    icon={ChevronRight}
+                    label="Mês seguinte"
+                    intent="ghost"
+                    className="rounded-full border border-brand/15 bg-white shadow-sm"
+                    onClick={() => goToMonth(1)}
+                  />
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setMonthAnchor(new Date());
+                      setSelectedDay(dayKey(new Date()));
+                    }}
+                  >
+                    Hoje
+                  </Button>
+                </div>
+                <Select
+                  variant="underline"
+                  icon={List}
+                  items={MODALITY_ITEMS}
+                  value={modality}
+                  onValueChange={setModality}
+                  className="w-56"
+                />
+              </div>
+
+              <div className="overflow-x-auto">
+                <div className="grid min-w-[640px] grid-cols-7 gap-2">
+                  {WEEKDAYS.map((w) => (
+                    <div
+                      key={w}
+                      className="rounded-card bg-brand/[0.07] py-2 text-center font-body text-sm font-bold text-brand"
                     >
-                      {d.getDate()}
-                    </span>
-                    <div className="mt-1 space-y-0.5">
-                      {events.slice(0, 2).map((ev) => (
-                        <button
-                          key={ev.id}
-                          type="button"
-                          title={ev.title}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/live-classes/${ev.liveClassId}`);
-                          }}
-                          className="flex w-full items-center gap-1 overflow-hidden rounded-md bg-gradient-to-br from-[#0F1F3D] via-[#14284f] to-[#1d3a8a] px-1.5 py-1 text-left font-body text-[11px] text-white transition hover:brightness-110"
-                        >
-                          {ev.status === 'EM_CURSO' ? (
-                            <span
-                              className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#E11D48] ring-2 ring-white/40"
-                              title="Ao vivo"
-                            />
-                          ) : (
-                            <Video
-                              size={11}
-                              strokeWidth={1.75}
-                              className="flex-shrink-0"
-                            />
-                          )}
-                          <span className="flex-shrink-0 font-bold">
-                            {formatTime(ev.start)}
-                          </span>
-                          <span className="truncate text-white/80">
-                            {ev.title}
-                          </span>
-                        </button>
-                      ))}
-                      {events.length > 2 && (
-                        <div className="px-1 font-body text-[11px] text-ink-faint">
-                          +{events.length - 2} mais
-                        </div>
-                      )}
+                      {w}
                     </div>
-                  </div>
-                );
-              })}
+                  ))}
+                  {gridDays.map((d) => {
+                    const key = dayKey(d);
+                    const inMonth = d.getMonth() === monthAnchor.getMonth();
+                    const events = byDay.get(key) ?? [];
+                    const isToday = key === todayKey;
+                    const isSelected = key === selectedDay;
+                    return (
+                      <div
+                        key={key}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setSelectedDay(key)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            setSelectedDay(key);
+                          }
+                        }}
+                        className={cn(
+                          'min-h-24 cursor-pointer space-y-1 rounded-card border border-brand/10 p-2 shadow-[0_1px_3px_rgba(15,31,61,0.08)] transition-shadow hover:shadow-md',
+                          inMonth ? 'bg-white' : 'bg-white/40',
+                          isSelected && 'ring-2 ring-brand',
+                        )}
+                        style={
+                          isToday
+                            ? { background: tint(STATUS_COLOR.AGENDADA, 14) }
+                            : undefined
+                        }
+                      >
+                        <span
+                          className={cn(
+                            'text-sm font-bold',
+                            inMonth ? 'text-brand' : 'text-brand-muted/60',
+                          )}
+                        >
+                          {d.getDate()}
+                        </span>
+                        {events.slice(0, 2).map((ev) => {
+                          const color = STATUS_COLOR[ev.status];
+                          return (
+                            <button
+                              key={ev.id}
+                              type="button"
+                              title={ev.title}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/live-classes/${ev.liveClassId}`);
+                              }}
+                              className="block w-full break-words rounded-control px-1.5 py-1 text-left font-body text-micro font-semibold leading-tight text-brand transition hover:brightness-95"
+                              style={{
+                                background: tint(color, 14),
+                                borderLeft: `3px solid ${color}`,
+                              }}
+                            >
+                              <span className="font-bold">
+                                {formatTime(ev.start)}
+                              </span>{' '}
+                              {ev.title}
+                            </button>
+                          );
+                        })}
+                        {events.length > 2 && (
+                          <div className="font-body text-micro font-semibold text-brand-muted">
+                            +{events.length - 2} mais
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </Card>
+          </div>
 
           <Card className="overflow-hidden p-0">
             <div className="border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
