@@ -48,8 +48,17 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { cardSolidColor } from './cardColors';
+import { competencyIcon } from './CatalogView';
 import { CATEGORY_CFG } from './constants';
 import type { CompetencyDetail } from './types';
+
+// Botões do card: letra branca, sem efeito ao passar o cursor.
+const NAVY_BTN =
+  'border border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white';
+const RED_BTN =
+  'border border-[#DC2626] bg-[#DC2626] text-white hover:bg-[#DC2626] hover:text-white disabled:opacity-100';
+const BLACK_BTN =
+  'border border-black bg-black text-white hover:bg-black hover:text-white';
 
 export interface CompetencyDetailModalProps {
   competencyId: number;
@@ -154,6 +163,7 @@ export function CompetencyDetailModal({
         // aqui passa a ser a cor do cartão da competência no catálogo.
         style={
           {
+            '--detail-label': '#0F1F3D',
             '--color-brand-ink': cardSolidColor(competencyId),
             '--color-brand': cardSolidColor(competencyId),
             '--color-brand-hover': cardSolidColor(competencyId),
@@ -172,7 +182,7 @@ export function CompetencyDetailModal({
           </div>
         ) : (
           <>
-            <DetailHeader name={data.name}>
+            <DetailHeader name={data.name} icon={competencyIcon(data)}>
               <StatusBadge value={data.category} map={CATEGORY_CFG} />
             </DetailHeader>
 
@@ -230,7 +240,8 @@ export function CompetencyDetailModal({
                 {canManage && canDelete && (
                   <>
                     <Button
-                      intent="danger"
+                      intent="secondary"
+                      className={RED_BTN}
                       onClick={onDelete}
                       loading={remove.isPending}
                       disabled={busy || usersAttached}
@@ -247,17 +258,26 @@ export function CompetencyDetailModal({
                 )}
               </div>
               <div className="flex gap-3">
-                <Button intent="secondary" onClick={onClose}>
+                <Button
+                  intent="secondary"
+                  className={NAVY_BTN}
+                  onClick={onClose}
+                >
                   Fechar
                 </Button>
                 {canManage && (
                   <>
-                    <Button onClick={onEdit} disabled={busy}>
+                    <Button
+                      className={NAVY_BTN}
+                      onClick={onEdit}
+                      disabled={busy}
+                    >
                       Editar
                     </Button>
                     {archived ? (
                       <Button
                         intent="secondary"
+                        className={NAVY_BTN}
                         onClick={() => reactivate.mutate(undefined)}
                         loading={reactivate.isPending}
                         disabled={busy}
@@ -266,7 +286,8 @@ export function CompetencyDetailModal({
                       </Button>
                     ) : (
                       <Button
-                        intent="danger"
+                        intent="secondary"
+                        className={BLACK_BTN}
                         onClick={onArchive}
                         loading={archive.isPending}
                         disabled={busy}
