@@ -205,8 +205,8 @@ export function GapsView() {
           description="Nenhuma lacuna de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
+        <div className="scroll-navy overflow-x-auto rounded-[14px] border border-border bg-surface shadow-elevated">
+          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-ink">
             <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
@@ -223,7 +223,7 @@ export function GapsView() {
               {(hasFilter ? (rows ?? []) : []).map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                  className="border-b border-border transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -248,16 +248,16 @@ export function GapsView() {
                         </span>
                       )}
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-white">
+                        <p className="truncate font-semibold text-ink">
                           {r.colaborador}
                         </p>
-                        <p className="truncate text-xs text-on-brand-faint">
+                        <p className="truncate text-xs text-ink-faint">
                           {r.departamento ?? '—'} · {r.cargo ?? '—'}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 leading-snug text-white">
+                  <td className="px-4 py-3 leading-snug text-ink">
                     <p>{r.competencia}</p>
                     <StatusBadge
                       value={r.categoria}
@@ -265,28 +265,28 @@ export function GapsView() {
                       className="mt-0.5"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelAtual}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelEsperado}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.gap}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge value={r.prioridade} map={GAP_PRIORITY_CFG} />
                   </td>
-                  <td className="px-4 py-3 text-xs text-white">
+                  <td className="px-4 py-3 text-xs text-ink">
                     {r.competenciaCritica ? 'Sim' : 'Não'}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-ink-muted">
                     {formatDateNumeric(r.dataIdentificacao)}
                   </td>
-                  <td className="px-4 py-3 text-xs text-on-brand">
+                  <td className="px-4 py-3 text-xs text-ink-muted">
                     {r.planoDesenvolvimentoAssociado?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3">
