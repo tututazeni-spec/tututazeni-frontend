@@ -11,8 +11,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import {
   AlertTriangle,
   Building2,
-  ChevronLeft,
-  ChevronRight,
+  CalendarClock,
   Clock,
   Download,
   Landmark,
@@ -27,6 +26,16 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
+import {
+  CALENDAR_CELL,
+  CALENDAR_CELL_DIM,
+  CalendarChip,
+  CalendarNav,
+  CalendarPanel,
+  CalendarWeekdayCells,
+  calendarTint,
+} from '@/components/ui/CalendarPanel';
+import { PeriodPills } from '@/components/ui/Pills';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
@@ -88,6 +97,14 @@ const KIND_ITEMS = [
   { value: 'PROCESS', label: 'Só processos' },
 ];
 
+/** Cor de cada tom de prazo (ponto da legenda e borda dos chips). */
+const TONE_COLOR: Record<ReturnType<typeof toneOf>, string> = {
+  done: 'var(--color-success)',
+  overdue: 'var(--color-danger)',
+  soon: 'var(--color-warning)',
+  normal: 'var(--color-info)',
+};
+
 const timeOf = (iso: string | null) =>
   iso
     ? new Date(iso).toLocaleTimeString('pt-PT', {
@@ -105,30 +122,25 @@ interface ChipProps {
 function Chip({ item, onClick, showTime = true }: ChipProps) {
   const tone = toneOf(item);
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <CalendarChip
+      color={TONE_COLOR[tone]}
       title={`${item.code} — ${item.title} (${item.processTitle})`}
-      className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
-        CHIP_CLASS[tone],
-        item.hasConflict && 'ring-1 ring-warning ring-offset-1',
-        tone === 'done' && 'opacity-70',
-      )}
+      muted={tone === 'done'}
+      className={
+        item.hasConflict ? 'ring-1 ring-warning ring-offset-1' : undefined
+      }
+      onClick={onClick}
     >
-      {showTime && (
-        <span className="shrink-0 font-mono">{timeOf(item.dueAt)}</span>
+      {showTime && item.dueAt && (
+        <>
+          <span className="font-bold">{timeOf(item.dueAt)}</span>{' '}
+        </>
       )}
-      <span
-        className={cn(
-          'truncate font-medium',
-          tone === 'done' && 'line-through',
-        )}
-      >
+      <span className={cn(tone === 'done' && 'line-through')}>
         {item.kind === 'PROCESS' ? '◆ ' : ''}
         {item.title}
       </span>
-    </button>
+    </CalendarChip>
   );
 }
 
@@ -320,61 +332,6 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
 
   return (
     <div className="space-y-4">
-      {/* Barra de navegação */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => setAnchor(shiftAnchor(mode, anchor, -1))}
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={16} strokeWidth={1.75} />
-          </Button>
-          <span className="min-w-[160px] text-center font-body text-sm font-medium capitalize text-ink">
-            {titleFor(mode, anchor)}
-          </span>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => setAnchor(shiftAnchor(mode, anchor, 1))}
-            aria-label="Seguinte"
-          >
-            <ChevronRight size={16} strokeWidth={1.75} />
-          </Button>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => setAnchor(new Date())}
-          >
-            Hoje
-          </Button>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex gap-1 rounded-card bg-surface-sunken p-1">
-            {MODES.map((m) => (
-              <Button
-                key={m.id}
-                size="sm"
-                intent={mode === m.id ? 'primary' : 'ghost'}
-                onClick={() => setMode(m.id)}
-              >
-                {m.label}
-              </Button>
-            ))}
-          </div>
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={exportIcs}
-            loading={exporting}
-          >
-            <Download size={14} strokeWidth={1.75} />
-            Exportar .ics
-          </Button>
-        </div>
-      </div>
-
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3">
         <Input
@@ -500,60 +457,85 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
           ver tudo.
         </p>
       )}
-      {error && (
-        <div className="font-body text-sm text-danger">{error.message}</div>
-      )}
-      {isLoading && <Skeleton rows={4} />}
-
-      {/* Mês */}
-      {data && mode === 'month' && (
-        <Card className="overflow-hidden p-0">
-          <div className="grid grid-cols-7 border-b border-border bg-brand/60">
-            {WEEKDAYS.map((w) => (
-              <div
-                key={w}
-                className={
-                  'cursor-default select-none px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-white'
-                }
-              >
-                {w}
-              </div>
-            ))}
+      <CalendarPanel
+        icon={CalendarClock}
+        title="Prazos"
+        legend={TONE_LEGEND.map((l) => ({
+          label: l.label,
+          color: TONE_COLOR[l.tone],
+        }))}
+        nav={
+          <CalendarNav
+            label={titleFor(mode, anchor)}
+            onPrev={() => setAnchor(shiftAnchor(mode, anchor, -1))}
+            onNext={() => setAnchor(shiftAnchor(mode, anchor, 1))}
+            onToday={() => setAnchor(new Date())}
+          />
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PeriodPills
+              label="Vista do calendário"
+              options={MODES.map((m) => ({ value: m.id, label: m.label }))}
+              value={mode}
+              onChange={setMode}
+            />
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={exportIcs}
+              loading={exporting}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar .ics
+            </Button>
           </div>
-          <div className="grid grid-cols-7">
-            {range.days.map((d) => {
-              const items = dayItems(d);
-              const k = dayKey(d);
-              const inMonth = d.getMonth() === anchorMonth;
-              const expanded = expandedDay === k;
-              const visible = expanded ? items : items.slice(0, 2);
-              const overflow = items.length - visible.length;
-              return (
-                <div
-                  key={k}
-                  className={cn(
-                    'flex min-h-[92px] flex-col border-b border-r border-border p-1',
-                    !inMonth && 'bg-surface-sunken/40',
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAnchor(d);
-                      setMode('day');
-                    }}
+        }
+      >
+        {error && (
+          <div className="font-body text-sm text-danger">{error.message}</div>
+        )}
+        {isLoading && <Skeleton rows={4} />}
+
+        {/* Mês */}
+        {data && mode === 'month' && (
+          <div className="overflow-x-auto">
+            <div className="grid min-w-[640px] grid-cols-7 gap-2">
+              <CalendarWeekdayCells labels={WEEKDAYS} />
+              {range.days.map((d) => {
+                const items = dayItems(d);
+                const k = dayKey(d);
+                const inMonth = d.getMonth() === anchorMonth;
+                const expanded = expandedDay === k;
+                const visible = expanded ? items : items.slice(0, 2);
+                const overflow = items.length - visible.length;
+                return (
+                  <div
+                    key={k}
                     className={cn(
-                      'mb-0.5 self-start font-body text-xs',
-                      k === todayKey
-                        ? 'inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-white'
-                        : inMonth
-                          ? 'text-ink-muted'
-                          : 'text-ink-faint',
+                      CALENDAR_CELL,
+                      'flex min-h-24 flex-col gap-1 p-2',
+                      !inMonth && CALENDAR_CELL_DIM,
                     )}
+                    style={
+                      k === todayKey
+                        ? { background: calendarTint('var(--color-info)', 14) }
+                        : undefined
+                    }
                   >
-                    {d.getDate()}
-                  </button>
-                  <div className="flex flex-1 flex-col justify-center space-y-0.5 pb-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAnchor(d);
+                        setMode('day');
+                      }}
+                      className={cn(
+                        'self-start text-sm font-bold',
+                        inMonth ? 'text-brand' : 'text-brand-muted/60',
+                      )}
+                    >
+                      {d.getDate()}
+                    </button>
                     {visible.map((it) => (
                       <Chip key={it.key} item={it} onClick={() => open(it)} />
                     ))}
@@ -567,105 +549,99 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                       </LinkButton>
                     )}
                   </div>
-                </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Semana */}
+        {data && mode === 'week' && (
+          <div className="space-y-3">
+            {range.days.map((d) => {
+              const items = dayItems(d);
+              return (
+                <Card
+                  key={dayKey(d)}
+                  className={cn(
+                    'overflow-hidden p-0',
+                    dayKey(d) === todayKey && 'ring-1 ring-primary',
+                  )}
+                >
+                  <div
+                    className={cn(
+                      NAVY_HEADER,
+                      'border-b border-border px-4 py-2',
+                    )}
+                  >
+                    {formatDate(d, {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'long',
+                    })}
+                  </div>
+                  {items.length === 0 ? (
+                    <EmptyState variant="inline" title="Sem prazos" />
+                  ) : (
+                    <div className="divide-y divide-border">
+                      {items.map((it) => (
+                        <DayRow
+                          key={it.key}
+                          item={it}
+                          onClick={() => open(it)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </Card>
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
-            {TONE_LEGEND.map((l) => (
-              <span key={l.tone} className="inline-flex items-center gap-1.5">
-                <span
-                  className={cn('h-2.5 w-4 rounded-sm', BAR_CLASS[l.tone])}
-                />
-                {l.label}
-              </span>
-            ))}
-          </div>
-        </Card>
-      )}
+        )}
 
-      {/* Semana */}
-      {data && mode === 'week' && (
-        <div className="space-y-3">
-          {range.days.map((d) => {
-            const items = dayItems(d);
-            return (
-              <Card
-                key={dayKey(d)}
-                className={cn(
-                  'overflow-hidden p-0',
-                  dayKey(d) === todayKey && 'ring-1 ring-primary',
-                )}
-              >
-                <div
-                  className={cn(
-                    NAVY_HEADER,
-                    'border-b border-border px-4 py-2',
-                  )}
-                >
-                  {formatDate(d, {
-                    weekday: 'long',
-                    day: '2-digit',
-                    month: 'long',
-                  })}
-                </div>
-                {items.length === 0 ? (
-                  <EmptyState variant="inline" title="Sem prazos" />
-                ) : (
-                  <div className="divide-y divide-border">
-                    {items.map((it) => (
-                      <DayRow key={it.key} item={it} onClick={() => open(it)} />
-                    ))}
-                  </div>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Dia */}
-      {data &&
-        mode === 'day' &&
-        (dayItems(range.days[0]).length === 0 ? (
-          <EmptyState
-            title="Sem prazos neste dia"
-            description="Nenhuma tarefa ou processo vence nesta data com os filtros actuais."
-          />
-        ) : (
-          <Card className="divide-y divide-border overflow-hidden p-0">
-            {dayItems(range.days[0]).map((it) => (
-              <DayRow key={it.key} item={it} onClick={() => open(it)} />
-            ))}
-          </Card>
-        ))}
-
-      {/* Cronograma */}
-      {data && mode === 'timeline' && (
-        <div className="rounded-card border border-border bg-surface p-4">
-          {ganttRows.length === 0 ? (
+        {/* Dia */}
+        {data &&
+          mode === 'day' &&
+          (dayItems(range.days[0]).length === 0 ? (
             <EmptyState
-              title="Sem actividades no mês"
-              description="Nenhuma actividade com prazo neste mês e filtros."
+              title="Sem prazos neste dia"
+              description="Nenhuma tarefa ou processo vence nesta data com os filtros actuais."
             />
           ) : (
-            <GanttChart
-              rows={ganttRows}
-              unitLabel="dia do mês"
-              todayValue={
-                anchor.getMonth() === new Date().getMonth() &&
-                anchor.getFullYear() === new Date().getFullYear()
-                  ? new Date().getDate()
-                  : undefined
-              }
-            />
-          )}
-          <p className="mt-2 font-body text-xs text-ink-faint">
-            ◆ processo · barras do início ao prazo; passe o rato para ver as
-            dependências por concluir.
-          </p>
-        </div>
-      )}
+            <Card className="divide-y divide-border overflow-hidden p-0">
+              {dayItems(range.days[0]).map((it) => (
+                <DayRow key={it.key} item={it} onClick={() => open(it)} />
+              ))}
+            </Card>
+          ))}
+
+        {/* Cronograma */}
+        {data && mode === 'timeline' && (
+          <div className="rounded-card border border-border bg-surface p-4">
+            {ganttRows.length === 0 ? (
+              <EmptyState
+                title="Sem actividades no mês"
+                description="Nenhuma actividade com prazo neste mês e filtros."
+              />
+            ) : (
+              <GanttChart
+                rows={ganttRows}
+                unitLabel="dia do mês"
+                todayValue={
+                  anchor.getMonth() === new Date().getMonth() &&
+                  anchor.getFullYear() === new Date().getFullYear()
+                    ? new Date().getDate()
+                    : undefined
+                }
+              />
+            )}
+            <p className="mt-2 font-body text-xs text-ink-faint">
+              ◆ processo · barras do início ao prazo; passe o rato para ver as
+              dependências por concluir.
+            </p>
+          </div>
+        )}
+      </CalendarPanel>
 
       {/* Conflitos */}
       {data && data.conflicts.length > 0 && (

@@ -7,7 +7,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { CalendarClock, Plus, Trash2 } from 'lucide-react';
+import { SectionHeader } from './SettingsFields';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
@@ -109,155 +110,157 @@ export function HolidaysPanel() {
 
   return (
     <div className="space-y-4">
-      <Card className="overflow-hidden p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
-        <h3 className="col-span-full -mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-          Localização e ano
-        </h3>
-        <FormField label="Localização" htmlFor="holiday-location">
-          <Select
-            items={locationItems}
-            value={location}
-            onValueChange={setLocation}
-            className="w-full"
-          />
-        </FormField>
-        <FormField label="Ano" htmlFor="holiday-year">
-          <Input
-            id="holiday-year"
-            type="number"
-            min={2000}
-            max={2100}
-            value={year}
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              if (n >= 2000 && n <= 2100) setYear(n);
-            }}
-            className="w-full"
-          />
-        </FormField>
-      </Card>
-
-      <Card className="overflow-hidden p-4 space-y-3">
-        <h3 className="-mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-          Acrescentar feriado
-        </h3>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_11rem_auto_auto] items-end">
-          <FormField label="Nome" htmlFor="holiday-name">
-            <Input
-              id="holiday-name"
-              value={name}
-              maxLength={120}
-              placeholder="Ex.: Dia da Cidade"
-              onChange={(e) => setName(e.target.value)}
+      <Card className="overflow-hidden p-0">
+        <SectionHeader title="Localização e ano" />
+        <div className="grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-[1fr_8rem]">
+          <FormField label="Localização" htmlFor="holiday-location">
+            <Select
+              items={locationItems}
+              value={location}
+              onValueChange={setLocation}
               className="w-full"
             />
           </FormField>
-          <FormField label="Data" htmlFor="holiday-date">
+          <FormField label="Ano" htmlFor="holiday-year">
             <Input
-              id="holiday-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              id="holiday-year"
+              type="number"
+              min={2000}
+              max={2100}
+              value={year}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (n >= 2000 && n <= 2100) setYear(n);
+              }}
               className="w-full"
             />
           </FormField>
-          <label className="flex items-center gap-2 pb-2 text-sm text-ink cursor-pointer">
-            <Checkbox
-              checked={recurring}
-              onChange={(e) => setRecurring(e.target.checked)}
-            />
-            Repete todos os anos
-          </label>
-          <Button
-            loading={add.isPending}
-            disabled={!name.trim() || !date}
-            onClick={submit}
-          >
-            <Plus size={16} strokeWidth={1.75} />
-            Adicionar
-          </Button>
         </div>
-        <p className="text-xs text-ink-faint">
-          {loc
-            ? `Aplica-se só aos colaboradores com localização "${loc}".`
-            : 'Aplica-se a todos os colaboradores.'}
-        </p>
       </Card>
 
-      <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-          Feriados em {year}
-          {loc ? ` — ${loc}` : ''}
-        </h3>
-        {loading && !data ? (
-          <Skeleton rows={4} />
-        ) : (
-          <ul className="divide-y divide-border">
-            {(data?.effective ?? []).map((h) => (
-              <li
-                key={h.date}
-                className="flex items-center justify-between gap-3 py-2"
-              >
-                <div className="min-w-0">
-                  <span className="text-sm text-ink">{h.name}</span>
-                  <span className="ml-2 text-xs text-ink-faint">
-                    {formatIsoDay(h.date)}
-                  </span>
-                  {h.source === 'CUSTOM' && (
-                    <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-micro font-semibold text-info-ink">
-                      Personalizado
+      <Card className="overflow-hidden p-0">
+        <SectionHeader title="Acrescentar feriado" />
+        <div className="space-y-3 p-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_11rem_auto_auto] items-end">
+            <FormField label="Nome" htmlFor="holiday-name">
+              <Input
+                id="holiday-name"
+                value={name}
+                maxLength={120}
+                placeholder="Ex.: Dia da Cidade"
+                onChange={(e) => setName(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+            <FormField label="Data" htmlFor="holiday-date">
+              <Input
+                id="holiday-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+            <label className="flex items-center gap-2 pb-2 text-sm text-ink cursor-pointer">
+              <Checkbox
+                checked={recurring}
+                onChange={(e) => setRecurring(e.target.checked)}
+              />
+              Repete todos os anos
+            </label>
+            <Button
+              loading={add.isPending}
+              disabled={!name.trim() || !date}
+              onClick={submit}
+            >
+              <Plus size={16} strokeWidth={1.75} />
+              Adicionar
+            </Button>
+          </div>
+          <p className="text-xs text-ink-faint">
+            {loc
+              ? `Aplica-se só aos colaboradores com localização "${loc}".`
+              : 'Aplica-se a todos os colaboradores.'}
+          </p>
+        </div>
+      </Card>
+
+      <Card className="overflow-hidden p-0">
+        <SectionHeader
+          icon={CalendarClock}
+          title={`Feriados em ${year}${loc ? ` — ${loc}` : ''}`}
+        />
+        <div className="p-4">
+          {loading && !data ? (
+            <Skeleton rows={4} />
+          ) : (
+            <ul className="divide-y divide-border">
+              {(data?.effective ?? []).map((h) => (
+                <li
+                  key={h.date}
+                  className="flex items-center justify-between gap-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <span className="text-sm text-ink">{h.name}</span>
+                    <span className="ml-2 text-xs text-ink-faint">
+                      {formatIsoDay(h.date)}
                     </span>
+                    {h.source === 'CUSTOM' && (
+                      <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-micro font-semibold text-info-ink">
+                        Personalizado
+                      </span>
+                    )}
+                  </div>
+                  {h.source === 'BASE' && (
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      loading={add.isPending}
+                      onClick={() => suppress(h)}
+                    >
+                      Suprimir
+                    </Button>
                   )}
-                </div>
-                {h.source === 'BASE' && (
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    loading={add.isPending}
-                    onClick={() => suppress(h)}
-                  >
-                    Suprimir
-                  </Button>
-                )}
-              </li>
-            ))}
-            {(data?.effective ?? []).length === 0 && (
-              <li className="py-3 text-sm text-ink-faint">
-                Sem feriados neste ano.
-              </li>
-            )}
-          </ul>
-        )}
+                </li>
+              ))}
+              {(data?.effective ?? []).length === 0 && (
+                <li className="py-3 text-sm text-ink-faint">
+                  Sem feriados neste ano.
+                </li>
+              )}
+            </ul>
+          )}
+        </div>
       </Card>
 
       {customHere.length > 0 && (
-        <Card className="overflow-hidden p-4">
-          <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
-            Configurados por si
-          </h3>
-          <ul className="divide-y divide-border">
-            {customHere.map((c) => (
-              <li
-                key={c.id}
-                className="flex items-center justify-between gap-3 py-2"
-              >
-                <div className="min-w-0 text-sm text-ink">
-                  {c.active ? c.name : `Suprimido: ${c.name}`}
-                  <span className="ml-2 text-xs text-ink-faint">
-                    {formatIsoDay(c.date)}
-                    {c.recurring ? ' · anual' : ''}
-                    {c.location ? ` · ${c.location}` : ' · nacional'}
-                  </span>
-                </div>
-                <IconButton
-                  intent="ghost"
-                  icon={Trash2}
-                  label={`Remover ${c.name}`}
-                  onClick={() => remove.mutate(c.id)}
-                />
-              </li>
-            ))}
-          </ul>
+        <Card className="overflow-hidden p-0">
+          <SectionHeader title="Configurados por si" />
+          <div className="p-4">
+            <ul className="divide-y divide-border">
+              {customHere.map((c) => (
+                <li
+                  key={c.id}
+                  className="flex items-center justify-between gap-3 py-2"
+                >
+                  <div className="min-w-0 text-sm text-ink">
+                    {c.active ? c.name : `Suprimido: ${c.name}`}
+                    <span className="ml-2 text-xs text-ink-faint">
+                      {formatIsoDay(c.date)}
+                      {c.recurring ? ' · anual' : ''}
+                      {c.location ? ` · ${c.location}` : ' · nacional'}
+                    </span>
+                  </div>
+                  <IconButton
+                    intent="ghost"
+                    icon={Trash2}
+                    label={`Remover ${c.name}`}
+                    onClick={() => remove.mutate(c.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
         </Card>
       )}
     </div>

@@ -8,19 +8,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Building2,
-  CalendarDays,
-  Clock,
-  FileLock2,
-  Filter,
-  MapPin,
-  Paperclip,
-  Plus,
-  UserCheck,
-  Wallet,
-  X,
-} from 'lucide-react';
+import { Building2, Filter, MapPin, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -28,50 +16,19 @@ import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
 import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useLicenses, type LicenseFilters } from '@/hooks/useLeave';
-import { formatDate, formatDateTime } from '@/lib/format';
-import { PAY_REGIME_LABELS, PHASE_CFG } from './constants';
+import { ApprovalDecisionModal } from './ApprovalDecisionModal';
+import { PHASE_CFG } from './constants';
+import { LicenseCard } from './LicenseCard';
+import { LicenseDetailModal } from './LicenseDetailModal';
 import { NewLicenseModal } from './NewLicenseModal';
-import type { LeaveType, LicensePhase, LicenseRow } from './types';
-
-const PHASE_TONE: Record<LicensePhase, NavyTone> = {
-  DRAFT: 'neutral',
-  PENDING: 'warning',
-  APPROVED: 'success',
-  REJECTED: 'danger',
-  IN_PROGRESS: 'info',
-  COMPLETED: 'neutral',
-  CANCELLED: 'neutral',
-};
+import type { LeaveType, LicenseRow } from './types';
 
 const ALL = 'ALL';
 const VACATION_CODE = 'VACATION';
-function periodLabel(r: LicenseRow): string {
-  const dates =
-    r.startDate.slice(0, 10) === r.endDate.slice(0, 10)
-      ? formatDate(r.startDate)
-      : `${formatDate(r.startDate)} → ${formatDate(r.endDate)}`;
-  return r.startTime && r.endTime
-    ? `${dates} · ${r.startTime}–${r.endTime}`
-    : dates;
-}
-
-function durationLabel(r: LicenseRow): string {
-  if (r.durationMode === 'HOURS' && r.hours) return `${r.hours} h`;
-  if (r.durationMode === 'HALF_AM' || r.durationMode === 'HALF_PM')
-    return '½ dia';
-  return `${r.workDays} dia(s)`;
-}
-
 export interface LicensesTabProps {
   leaveTypes: LeaveType[];
   onCancel: (id: number) => void;
@@ -91,6 +48,11 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
     page: 1,
   });
   const [showModal, setShowModal] = useState(false);
+  const [openRow, setOpenRow] = useState<LicenseRow | null>(null);
+  const [deciding, setDeciding] = useState<{
+    row: LicenseRow;
+    action: 'APPROVE' | 'REJECT';
+  } | null>(null);
   const debouncedSearch = useDebounce(filters.search, 300);
   const { data, loading, refetch } = useLicenses({
     ...filters,
@@ -124,7 +86,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
           Filtros
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
           <Input
             variant="underline"
             placeholder="Procurar nome ou n.º interno"
@@ -168,21 +130,24 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
               ...departments.options,
             ]}
           />
-          <div className="flex items-center gap-2">
+          <div className="col-span-2 flex min-w-0 items-center gap-2">
             <Input
               type="date"
               aria-label="Desde"
               value={filters.from}
               onChange={(e) => set({ from: e.target.value })}
-              className="w-full"
+              className="w-full min-w-0"
             />
+            <span className="text-xs text-ink-faint" aria-hidden>
+              até
+            </span>
             <Input
               type="date"
               aria-label="Até"
               min={filters.from}
               value={filters.to}
               onChange={(e) => set({ to: e.target.value })}
-              className="w-full"
+              className="w-full min-w-0"
             />
           </div>
         </div>
@@ -201,96 +166,15 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4">
             {data.data.map((r) => (
-              <NavyCard
+              <LicenseCard
                 key={r.id}
-                seed={r.id}
-                avatar={{ name: r.user.fullName }}
-                title={r.type.name}
-                subtitle={`${r.user.fullName}${r.user.employeeNumber ? ` · ${r.user.employeeNumber}` : ''}`}
-                badge={
-                  <>
-                    <NavyBadge tone={PHASE_TONE[r.phase]}>
-                      {PHASE_CFG[r.phase].label}
-                    </NavyBadge>
-                    {r.type.requiresDocument &&
-                      !r.hasDocument &&
-                      r.documents.length === 0 && (
-                        <NavyBadge tone="warning">
-                          Comprovativo em falta
-                        </NavyBadge>
-                      )}
-                  </>
-                }
-                infos={[
-                  {
-                    icon: CalendarDays,
-                    value: periodLabel(r),
-                    label: 'Período',
-                  },
-                  { icon: Clock, value: durationLabel(r), label: 'Duração' },
-                  {
-                    icon: Wallet,
-                    value: PAY_REGIME_LABELS[r.payRegime],
-                    label: 'Regime',
-                  },
-                  {
-                    icon: UserCheck,
-                    value: r.approver?.fullName ?? '—',
-                    label: 'Aprovador',
-                  },
-                ]}
-                footer={
-                  <>
-                    <span className="text-xs text-white/70">
-                      Submetida em {formatDateTime(r.submittedAt)}
-                      {r.registeredBy &&
-                        ` · registada por ${r.registeredBy.fullName ?? '—'}`}
-                    </span>
-                    {r.documents.map((d) => (
-                      <a
-                        key={d.id}
-                        href={d.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={NAVY_ACTION}
-                      >
-                        <Paperclip
-                          size={12}
-                          strokeWidth={1.75}
-                          className="mr-1"
-                        />
-                        {d.name}
-                      </a>
-                    ))}
-                    {r.documents.length === 0 && r.hasDocument && (
-                      <span
-                        className="inline-flex items-center gap-1 text-xs text-white/70"
-                        title="Documento protegido — acesso restrito ao titular e ao RH"
-                      >
-                        <FileLock2 size={13} strokeWidth={1.75} /> Protegido
-                      </span>
-                    )}
-                    {showPayroll &&
-                      r.payrollImpact === 'VALIDATION_REQUIRED' && (
-                        <NavyBadge tone="warning">
-                          Validar na folha salarial
-                        </NavyBadge>
-                      )}
-                    {r.canCancel && (
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="sm"
-                        onClick={() => onCancel(r.id)}
-                      >
-                        <X size={12} strokeWidth={1.75} className="mr-1" />{' '}
-                        Cancelar pedido
-                      </Button>
-                    )}
-                  </>
-                }
+                row={r}
+                showPayroll={showPayroll}
+                onCancel={onCancel}
+                onDecide={(row, action) => setDeciding({ row, action })}
+                onOpen={setOpenRow}
               />
             ))}
           </div>
@@ -304,6 +188,33 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
             onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
           />
         </>
+      )}
+
+      {openRow && (
+        <LicenseDetailModal
+          row={openRow}
+          onClose={() => setOpenRow(null)}
+          onDecide={(row, action) => {
+            setOpenRow(null);
+            setDeciding({ row, action });
+          }}
+        />
+      )}
+
+      {deciding && (
+        <ApprovalDecisionModal
+          row={{
+            requestId: deciding.row.id,
+            request: {
+              user: deciding.row.user,
+              type: deciding.row.type,
+              startDate: deciding.row.startDate,
+              endDate: deciding.row.endDate,
+            },
+          }}
+          action={deciding.action}
+          onClose={() => setDeciding(null)}
+        />
       )}
 
       {showModal && (

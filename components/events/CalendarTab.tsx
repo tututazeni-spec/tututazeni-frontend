@@ -12,8 +12,7 @@
 import { useMemo, useState } from 'react';
 import {
   Building2,
-  ChevronLeft,
-  ChevronRight,
+  CalendarDays,
   Filter,
   Landmark,
   MapPin,
@@ -24,7 +23,16 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
 import { cn } from '@/lib/cn';
-import { Button } from '@/components/ui/Button';
+import {
+  CALENDAR_CELL,
+  CALENDAR_CELL_DIM,
+  CalendarChip,
+  CalendarNav,
+  CalendarPanel,
+  CalendarWeekdayCells,
+  calendarTint,
+} from '@/components/ui/CalendarPanel';
+import { PeriodPills } from '@/components/ui/Pills';
 import { Card } from '@/components/ui/Card';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
@@ -64,6 +72,19 @@ const STATUS_ITEMS = [
     label: cfg.label,
   })),
 ];
+
+/** Cor de cada nível de proximidade (barra lateral e ponto da legenda). */
+const LEVEL_COLOR: Record<string, string> = {
+  Passado: 'var(--color-ink-faint)',
+  'Hoje / amanhã': 'var(--color-danger)',
+  'Até 7 dias': 'var(--color-warning)',
+  'Até 30 dias': 'var(--color-info)',
+  'Mais de 30 dias': 'var(--color-success)',
+};
+const LEGEND = PROXIMITY_LEVELS.map((l) => ({
+  label: l.label,
+  color: LEVEL_COLOR[l.label],
+}));
 
 function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -199,49 +220,6 @@ export function CalendarTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => step(-1)}
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={16} strokeWidth={1.75} />
-          </Button>
-          <span className="min-w-[160px] text-center font-body text-sm font-medium capitalize text-ink">
-            {headerLabel}
-          </span>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => step(1)}
-            aria-label="Seguinte"
-          >
-            <ChevronRight size={16} strokeWidth={1.75} />
-          </Button>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() => setAnchor(new Date())}
-          >
-            Hoje
-          </Button>
-        </div>
-        <div className="flex gap-1 rounded-card bg-surface-sunken p-1">
-          {VIEW_ITEMS.map((v) => (
-            <Button
-              key={v.value}
-              size="sm"
-              intent={view === v.value ? 'primary' : 'ghost'}
-              onClick={() => setView(v.value)}
-            >
-              {v.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
       <div className="flex flex-wrap items-end gap-3">
         <Select
           variant="underline"
@@ -298,26 +276,48 @@ export function CalendarTab() {
         </div>
       </div>
 
-      {isLoading ? (
-        <Skeleton rows={4} />
-      ) : view === 'month' ? (
-        <MonthGrid
-          anchor={anchor}
-          range={range}
-          byDay={byDay}
-          onSelect={setDetailId}
-        />
-      ) : view === 'week' ? (
-        <WeekList range={range} byDay={byDay} onSelect={setDetailId} />
-      ) : view === 'day' ? (
-        <DayList
-          day={anchor}
-          events={byDay.get(dayKey(anchor)) ?? []}
-          onSelect={setDetailId}
-        />
-      ) : (
-        <AgendaList byDay={byDay} onSelect={setDetailId} />
-      )}
+      <CalendarPanel
+        icon={CalendarDays}
+        title="Eventos"
+        legend={LEGEND}
+        nav={
+          <CalendarNav
+            label={headerLabel}
+            onPrev={() => step(-1)}
+            onNext={() => step(1)}
+            onToday={() => setAnchor(new Date())}
+          />
+        }
+        actions={
+          <PeriodPills
+            label="Vista do calendário"
+            options={VIEW_ITEMS}
+            value={view}
+            onChange={setView}
+          />
+        }
+      >
+        {isLoading ? (
+          <Skeleton rows={4} />
+        ) : view === 'month' ? (
+          <MonthGrid
+            anchor={anchor}
+            range={range}
+            byDay={byDay}
+            onSelect={setDetailId}
+          />
+        ) : view === 'week' ? (
+          <WeekList range={range} byDay={byDay} onSelect={setDetailId} />
+        ) : view === 'day' ? (
+          <DayList
+            day={anchor}
+            events={byDay.get(dayKey(anchor)) ?? []}
+            onSelect={setDetailId}
+          />
+        ) : (
+          <AgendaList byDay={byDay} onSelect={setDetailId} />
+        )}
+      </CalendarPanel>
     </div>
   );
 }
@@ -340,21 +340,15 @@ function EventChip({
     .filter(Boolean)
     .join(' · ');
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(ev.id)}
-      className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
-        level.cls,
-        past && 'opacity-70',
-      )}
+    <CalendarChip
+      color={LEVEL_COLOR[level.label]}
       title={tooltip}
+      muted={past}
+      onClick={() => onSelect(ev.id)}
     >
-      <span className="shrink-0 font-mono">{formatTime(ev.startAt)}</span>
-      <span className={cn('truncate font-medium', past && 'line-through')}>
-        {ev.title}
-      </span>
-    </button>
+      <span className="font-bold">{formatTime(ev.startAt)}</span>{' '}
+      <span className={cn(past && 'line-through')}>{ev.title}</span>
+    </CalendarChip>
   );
 }
 
@@ -382,18 +376,9 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
     .map((d) => d.toLocaleDateString('pt-AO', { weekday: 'short' }));
 
   return (
-    <Card className="overflow-hidden p-0">
-      <div className="grid grid-cols-7 border-b border-border bg-brand/60">
-        {WEEKDAY_LABELS.map((label, i) => (
-          <div
-            key={i}
-            className="cursor-default select-none px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-white"
-          >
-            {label}
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7">
+    <div className="overflow-x-auto">
+      <div className="grid min-w-[640px] grid-cols-7 gap-2">
+        <CalendarWeekdayCells labels={WEEKDAY_LABELS} />
         {cells.map((day) => {
           const events = byDay.get(dayKey(day)) ?? [];
           const inMonth = day.getMonth() === anchor.getMonth();
@@ -404,51 +389,41 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
             <div
               key={dayKey(day)}
               className={cn(
-                'flex min-h-[92px] flex-col border-b border-r border-border p-1',
-                !inMonth && 'bg-surface-sunken/40',
+                CALENDAR_CELL,
+                'flex min-h-24 flex-col gap-1 p-2',
+                !inMonth && CALENDAR_CELL_DIM,
               )}
+              style={
+                isSameDay(day, today)
+                  ? { background: calendarTint('var(--color-info)', 14) }
+                  : undefined
+              }
             >
-              <div
+              <span
                 className={cn(
-                  'mb-0.5 self-start font-body text-xs',
-                  isSameDay(day, today)
-                    ? 'inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-white'
-                    : inMonth
-                      ? 'text-ink-muted'
-                      : 'text-ink-faint',
+                  'text-sm font-bold',
+                  inMonth ? 'text-brand' : 'text-brand-muted/60',
                 )}
               >
                 {day.getDate()}
-              </div>
-              <div className="flex flex-1 flex-col justify-center space-y-0.5 pb-1">
-                {visible.map((ev) => (
-                  <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
-                ))}
-                {(overflow > 0 || expanded) && (
-                  <LinkButton
-                    type="button"
-                    onClick={() =>
-                      setExpandedDay(expanded ? null : dayKey(day))
-                    }
-                    className="px-1 font-body text-micro"
-                  >
-                    {expanded ? 'Ver menos' : `+${overflow} mais`}
-                  </LinkButton>
-                )}
-              </div>
+              </span>
+              {visible.map((ev) => (
+                <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
+              ))}
+              {(overflow > 0 || expanded) && (
+                <LinkButton
+                  type="button"
+                  onClick={() => setExpandedDay(expanded ? null : dayKey(day))}
+                  className="px-1 text-left font-body text-micro"
+                >
+                  {expanded ? 'Ver menos' : `+${overflow} mais`}
+                </LinkButton>
+              )}
             </div>
           );
         })}
       </div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
-        {PROXIMITY_LEVELS.map((l) => (
-          <span key={l.label} className="inline-flex items-center gap-1.5">
-            <span className={cn('h-2.5 w-4 rounded-sm', l.bar)} />
-            {l.label}
-          </span>
-        ))}
-      </div>
-    </Card>
+    </div>
   );
 }
 

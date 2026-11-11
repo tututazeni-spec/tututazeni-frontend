@@ -40,6 +40,7 @@ import {
 import { usePlanning, type PlanningFilters } from '@/hooks/useLeave';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
+import { CoverageAlertsList } from './CoverageAlertsList';
 import { DEPT_COLORS } from './constants';
 import type { PlanningDay, PlanningTeam } from './types';
 
@@ -216,21 +217,7 @@ export function PlanningTab() {
                 <AlertTriangle size={15} strokeWidth={1.75} />
                 Alertas de falta de cobertura
               </h3>
-              <ul className="space-y-1 text-xs text-ink-muted max-h-48 overflow-y-auto">
-                {data.alerts.map((a) => (
-                  <li key={`${a.date}-${a.departmentId}`}>
-                    <span className="font-medium text-ink">
-                      {formatDate(a.date)}
-                    </span>{' '}
-                    — {a.department ?? 'Sem departamento'}: {a.absent} de{' '}
-                    {a.headcount} ausentes ({a.availabilityPercent}% disponível,
-                    mínimo {a.minAvailabilityPercent}%)
-                    {a.causedByPending
-                      ? ' — se os pendentes forem aprovados'
-                      : ''}
-                  </li>
-                ))}
-              </ul>
+              <CoverageAlertsList alerts={data.alerts} limit={50} />
             </Card>
           )}
 
@@ -390,12 +377,49 @@ export function PlanningTab() {
               <h3 className="-mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
                 Férias aprovadas e ausências previstas
               </h3>
-              <ul className="space-y-1 text-xs text-ink-muted max-h-64 overflow-y-auto">
+              <ul className="max-h-80 divide-y divide-brand/10 overflow-y-auto">
                 {data.absentPeople.map((p) => (
-                  <li key={p.userId}>
-                    <span className="font-medium text-ink">{p.fullName}</span>
-                    {p.department ? ` (${p.department})` : ''}:{' '}
-                    {p.periods.join('; ')}
+                  <li
+                    key={p.userId}
+                    className="grid grid-cols-1 gap-x-4 gap-y-1.5 px-2 py-3 sm:grid-cols-[minmax(12rem,16rem)_minmax(0,1fr)]"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-brand">
+                        {p.fullName}
+                      </p>
+                      <p className="truncate text-xs text-ink-muted">
+                        {p.department ?? 'Sem departamento'}
+                      </p>
+                    </div>
+                    <ul className="space-y-1">
+                      {p.periods.map((raw, i) => {
+                        const period = parsePeriod(raw);
+                        return (
+                          <li
+                            key={`${raw}-${i}`}
+                            className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"
+                          >
+                            <span className="inline-flex rounded-pill bg-surface-sunken px-2 py-0.5 text-xs font-semibold text-brand">
+                              {period.label}
+                            </span>
+                            {period.from && (
+                              <span className="text-ink">
+                                {formatDate(period.from)}
+                                {period.to && period.to !== period.from && (
+                                  <>
+                                    {' '}
+                                    <span className="text-ink-faint">
+                                      →
+                                    </span>{' '}
+                                    {formatDate(period.to)}
+                                  </>
+                                )}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </li>
                 ))}
               </ul>
@@ -405,6 +429,19 @@ export function PlanningTab() {
       )}
     </div>
   );
+}
+
+/** O backend envia cada período como "Tipo: 2026-11-09 → 2026-11-16". */
+function parsePeriod(raw: string): {
+  label: string;
+  from: string | null;
+  to: string | null;
+} {
+  const m = raw.match(
+    /^(.*?):\s*(\d{4}-\d{2}-\d{2})(?:\s*→\s*(\d{4}-\d{2}-\d{2}))?$/,
+  );
+  if (!m) return { label: raw, from: null, to: null };
+  return { label: m[1], from: m[2], to: m[3] ?? null };
 }
 
 function Legend({ cls, label }: { cls: string; label: string }) {

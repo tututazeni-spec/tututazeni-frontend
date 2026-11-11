@@ -184,6 +184,7 @@ export interface LicenseRow {
     id: number;
     fullName: string;
     employeeNumber: string | null;
+    avatarUrl?: string | null;
     department: { id: number; name: string } | null;
   };
   leaveTypeCode: string;
@@ -217,6 +218,7 @@ export interface LicenseRow {
   status: LeaveStatus;
   phase: LicensePhase;
   registeredBy: { id: number; fullName: string | null } | null;
+  canApprove: boolean;
   canCancel: boolean;
   /** Só ADMIN/RH recebem este campo. */
   payrollImpact?: 'NONE' | 'VALIDATION_REQUIRED';
@@ -269,6 +271,7 @@ export interface AbsenceActions {
   correct: boolean;
   forward: boolean;
   sendToHr: boolean;
+  cancel: boolean;
 }
 
 export interface AbsenceRow {
@@ -277,6 +280,7 @@ export interface AbsenceRow {
     id: number;
     fullName: string;
     employeeNumber: string | null;
+    avatarUrl?: string | null;
     department: { id: number; name: string } | null;
   };
   date: string;
@@ -448,6 +452,7 @@ export interface ApprovalRow {
     user: {
       id: number;
       fullName: string;
+      avatarUrl?: string | null;
       department: { id: number; name: string } | null;
     };
     type: { code: string; name: string; color: string | null };
@@ -607,6 +612,8 @@ export interface LeaveSettings {
   unjustifiedOccurrenceTypes: AbsenceOccurrenceType[];
   carryOverEnabled: boolean;
   carryOverMaxDays: number | null;
+  /** MM-DD: último dia para gozar os dias transitados. */
+  carryOverDeadline: string;
   minNoticeDays: number | null;
   maxAdvanceDays: number | null;
   documentRequiredCategories: string[];

@@ -255,7 +255,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
               <div className="w-full">
                 <Table>
                   <TableHead className="bg-[#0F1F3D]">
-                    <TableRow>
+                    <TableRow className="hover:bg-transparent">
                       {HEADERS.map((h) => (
                         <TableHeaderCell
                           key={h.label}

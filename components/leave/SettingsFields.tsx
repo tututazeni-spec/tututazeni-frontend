@@ -6,6 +6,27 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import {
+  ArrowRightLeft,
+  Ban,
+  Calculator,
+  CalendarClock,
+  CalendarDays,
+  CalendarPlus,
+  Clock,
+  FileText,
+  Hourglass,
+  Layers,
+  MapPin,
+  Plug,
+  Settings2,
+  ShieldCheck,
+  Tags,
+  UserCog,
+  UserRoundCheck,
+  UserRoundPlus,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
@@ -19,20 +40,69 @@ export interface SettingsSectionProps {
   children: ReactNode;
 }
 
+const SECTION_ICONS: Record<string, LucideIcon> = {
+  'Ano de referência e período de férias': CalendarDays,
+  'Semana de trabalho e horário': Clock,
+  'Regra de contagem de dias': Calculator,
+  'Transição de dias': ArrowRightLeft,
+  'Limites de antecedência': CalendarClock,
+  'Documentos e substituto': FileText,
+  'Prazos de decisão e escalonamento': Hourglass,
+  'Cancelamento e alteração': Ban,
+  'Categorias justificadas e injustificadas': Tags,
+  'Cobertura operacional': Layers,
+  'Permissões do gestor': ShieldCheck,
+  Integrações: Plug,
+  'Nova substituição': UserRoundPlus,
+  'Localização e ano': MapPin,
+  'Acrescentar feriado': CalendarPlus,
+  'Configurados por si': UserCog,
+  Substituições: UserRoundCheck,
+  'As minhas substituições': UserRoundCheck,
+};
+
+export interface SectionHeaderProps {
+  title: string;
+  description?: string;
+  icon?: LucideIcon;
+  /** Conteúdo à direita do cabeçalho (ex.: estado). */
+  actions?: ReactNode;
+}
+
+/** Cabeçalho azul-marinho das secções: ícone redondo, divisor e título. */
+export function SectionHeader({
+  title,
+  description,
+  icon,
+  actions,
+}: SectionHeaderProps) {
+  const Icon = icon ?? SECTION_ICONS[title] ?? Settings2;
+  return (
+    <div className="relative flex items-center gap-4 overflow-hidden bg-gradient-to-r from-[#0B1730] via-[#0F1F3D] to-[#1D4ED8] px-5 py-4 text-white">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/30">
+        <Icon size={24} strokeWidth={1.75} />
+      </span>
+      <span aria-hidden className="h-10 w-px shrink-0 bg-white/30" />
+      <div className="min-w-0 flex-1">
+        <h3 className="text-base font-semibold leading-tight">{title}</h3>
+        {description && (
+          <p className="mt-0.5 text-sm text-white/80">{description}</p>
+        )}
+      </div>
+      {actions}
+    </div>
+  );
+}
+
 export function SettingsSection({
   title,
   description,
   children,
 }: SettingsSectionProps) {
   return (
-    <Card className="overflow-hidden p-5 space-y-4">
-      <div className="-mx-5 -mt-5 bg-brand/60 px-5 py-3">
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
-        {description && (
-          <p className="text-xs text-white/80 mt-0.5">{description}</p>
-        )}
-      </div>
-      {children}
+    <Card className="overflow-hidden p-0">
+      <SectionHeader title={title} description={description} />
+      <div className="space-y-4 p-5">{children}</div>
     </Card>
   );
 }
@@ -192,10 +262,10 @@ export function WeekdayPicker({ value, onChange }: WeekdayPickerProps) {
             title={d.label}
             onClick={() => toggle(d.value)}
             className={cn(
-              'rounded-control border px-3 py-1.5 text-xs font-semibold transition-colors',
+              'rounded-full border-[1.5px] px-5 py-2 text-sm font-semibold transition-colors',
               on
-                ? 'border-primary bg-primary-subtle text-primary'
-                : 'border-border bg-surface text-ink-muted hover:bg-surface-sunken',
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-[#0F1F3D]/20 bg-surface text-[#0F1F3D] hover:bg-[#EEF2FC]',
             )}
           >
             {d.short}
@@ -234,10 +304,10 @@ export function ChipMultiSelect<T extends string>({
               )
             }
             className={cn(
-              'rounded-control border px-2.5 py-1 text-xs transition-colors',
+              'rounded-control border px-2.5 py-1 text-xs transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white',
               on
-                ? 'border-primary bg-primary-subtle text-primary font-semibold'
-                : 'border-border bg-surface text-ink-muted hover:bg-surface-sunken',
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] font-semibold text-white'
+                : 'border-border bg-surface text-ink-muted',
             )}
           >
             {o.label}

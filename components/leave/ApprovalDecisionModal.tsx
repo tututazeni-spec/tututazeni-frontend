@@ -15,10 +15,19 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { formatDate } from '@/lib/format';
 import { queryKeys } from '@/lib/queryKeys';
-import type { ApprovalRow } from './types';
+/** Dados mínimos do pedido: servem tanto a fila de aprovações como o cartão de licença. */
+export interface DecisionTarget {
+  requestId: number;
+  request: {
+    user: { fullName: string };
+    type: { name: string };
+    startDate: string;
+    endDate: string;
+  };
+}
 
 export interface ApprovalDecisionModalProps {
-  row: ApprovalRow;
+  row: DecisionTarget;
   action: 'APPROVE' | 'REJECT';
   onClose: () => void;
 }

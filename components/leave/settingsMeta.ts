@@ -18,6 +18,7 @@ export const SETTING_LABELS: Record<keyof LeaveSettings, string> = {
   unjustifiedOccurrenceTypes: 'Ocorrências injustificadas',
   carryOverEnabled: 'Transição de dias activa',
   carryOverMaxDays: 'Limite global de transição',
+  carryOverDeadline: 'Prazo para gozar os dias transitados',
   minNoticeDays: 'Antecedência mínima',
   maxAdvanceDays: 'Antecedência máxima',
   documentRequiredCategories: 'Categorias com documento obrigatório',
@@ -78,6 +79,9 @@ export function validateDraft(d: LeaveSettings): string | null {
   }
   if (!!d.vacationWindowStart !== !!d.vacationWindowEnd) {
     return 'Indique o início e o fim do período de férias, ou nenhum.';
+  }
+  if (!/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(d.carryOverDeadline)) {
+    return 'O prazo dos dias transitados tem de ser um mês-dia válido (MM-DD).';
   }
   if (d.workdayEnd <= d.workdayStart) {
     return 'O fim do horário tem de ser posterior ao início.';

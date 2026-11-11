@@ -18,6 +18,7 @@ import {
   Repeat2,
   X,
 } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -27,18 +28,11 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useApprovals, type ApprovalFilters } from '@/hooks/useLeave';
 import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
@@ -206,42 +200,23 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead className="bg-brand/60 [&_th]:text-white">
-                <TableRow>
-                  <TableHeaderCell className="w-8" />
-                  <TableHeaderCell>Colaborador</TableHeaderCell>
-                  <TableHeaderCell>Pedido</TableHeaderCell>
-                  <TableHeaderCell>Etapa</TableHeaderCell>
-                  <TableHeaderCell>Aprovador</TableHeaderCell>
-                  <TableHeaderCell>Atribuída</TableHeaderCell>
-                  <TableHeaderCell>Prazo</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.data.map((a) => {
-                  const open = expanded === a.id;
-                  const hasDetail = a.reassignments.length > 0 || !!a.notes;
-                  return (
-                    <ApprovalRowView
-                      key={a.id}
-                      row={a}
-                      open={open}
-                      hasDetail={hasDetail}
-                      onToggle={() => setExpanded(open ? null : a.id)}
-                      onApprove={() =>
-                        setDeciding({ row: a, action: 'APPROVE' })
-                      }
-                      onReject={() => setDeciding({ row: a, action: 'REJECT' })}
-                      onReassign={() => setReassigning(a)}
-                    />
-                  );
-                })}
-              </TableBody>
-            </Table>
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            {data.data.map((a) => {
+              const open = expanded === a.id;
+              const hasDetail = a.reassignments.length > 0 || !!a.notes;
+              return (
+                <ApprovalRowView
+                  key={a.id}
+                  row={a}
+                  open={open}
+                  hasDetail={hasDetail}
+                  onToggle={() => setExpanded(open ? null : a.id)}
+                  onApprove={() => setDeciding({ row: a, action: 'APPROVE' })}
+                  onReject={() => setDeciding({ row: a, action: 'REJECT' })}
+                  onReassign={() => setReassigning(a)}
+                />
+              );
+            })}
           </div>
           <p className="text-xs text-ink-faint">
             {data.meta.total} etapa(s). O RH só decide depois do gestor; uma
@@ -292,112 +267,138 @@ function ApprovalRowView({
   onReassign,
 }: ApprovalRowViewProps) {
   return (
-    <>
-      <TableRow>
-        <TableCell>
-          {hasDetail && (
-            <button
-              type="button"
-              aria-label={open ? 'Ocultar histórico' : 'Ver histórico'}
-              onClick={onToggle}
-              className="text-ink-faint hover:text-ink"
-            >
-              {open ? (
-                <ChevronDown size={14} strokeWidth={1.75} />
-              ) : (
-                <ChevronRight size={14} strokeWidth={1.75} />
-              )}
-            </button>
-          )}
-        </TableCell>
-        <TableCell>
-          <p className="font-medium text-ink">{a.request.user.fullName}</p>
-          <p className="text-xs text-ink-faint">
+    <div className="border-b border-brand-line last:border-0">
+      <div className="relative flex w-full flex-wrap items-center gap-3 bg-surface px-5 py-3">
+        {hasDetail ? (
+          <button
+            type="button"
+            aria-label={open ? 'Ocultar histórico' : 'Ver histórico'}
+            onClick={onToggle}
+            className="shrink-0 text-brand-muted hover:text-brand"
+          >
+            {open ? (
+              <ChevronDown size={14} strokeWidth={1.75} />
+            ) : (
+              <ChevronRight size={14} strokeWidth={1.75} />
+            )}
+          </button>
+        ) : (
+          <span className="w-3.5 shrink-0" aria-hidden />
+        )}
+        <Avatar
+          name={a.request.user.fullName}
+          url={a.request.user.avatarUrl ?? undefined}
+          size="sm"
+        />
+        <div className="min-w-0 flex-1 basis-40">
+          <div className="truncate font-body text-sm font-semibold text-brand">
+            {a.request.user.fullName}
+          </div>
+          <div className="truncate font-body text-xs text-brand-muted">
             {a.request.user.department?.name ?? '—'}
-          </p>
-        </TableCell>
-        <TableCell>
-          <p className="flex items-center gap-1.5 text-ink">
+          </div>
+        </div>
+
+        <RowField label="Pedido" className="w-56 shrink-0">
+          <span className="flex items-center gap-1.5 text-brand">
             <span
-              className="w-2 h-2 rounded-full inline-block"
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
               style={{ backgroundColor: a.request.type.color ?? '#3B82F6' }}
             />
-            {a.request.type.name}
-          </p>
-          <p className="text-xs text-ink-faint">
+            <span className="truncate">{a.request.type.name}</span>
+          </span>
+          <span className="block truncate text-brand-muted">
             {formatDate(a.request.startDate)} → {formatDate(a.request.endDate)}{' '}
             · {a.request.workDays} dia(s)
-          </p>
-        </TableCell>
-        <TableCell>
+          </span>
+        </RowField>
+        <RowField label="Etapa" className="hidden w-32 shrink-0 md:block">
           {APPROVAL_STAGE_LABELS[a.stage]} (nível {a.level})
-        </TableCell>
-        <TableCell>{a.approver.fullName}</TableCell>
-        <TableCell>{formatDate(a.assignedAt)}</TableCell>
-        <TableCell>{a.dueAt ? formatDate(a.dueAt) : '—'}</TableCell>
-        <TableCell>
+        </RowField>
+        <RowField label="Aprovador" className="hidden w-36 shrink-0 lg:block">
+          <span className="block truncate">{a.approver.fullName}</span>
+        </RowField>
+        <RowField label="Atribuída" className="hidden w-24 shrink-0 lg:block">
+          {formatDate(a.assignedAt)}
+        </RowField>
+        <RowField label="Prazo" className="hidden w-24 shrink-0 lg:block">
+          {a.dueAt ? formatDate(a.dueAt) : '—'}
+        </RowField>
+        <RowField label="Estado" className="w-32 shrink-0">
           <StatusBadge value={a.state} map={APPROVAL_STATE_CFG} variant="dot" />
           {a.decidedAt && (
-            <p className="text-xs text-ink-faint mt-0.5">
+            <span className="mt-0.5 block text-brand-muted">
               {a.decision ? (DECISION_LABELS[a.decision] ?? a.decision) : ''} em{' '}
               {formatDate(a.decidedAt)}
+            </span>
+          )}
+        </RowField>
+
+        <div className="flex shrink-0 items-center justify-end gap-1">
+          {a.canAct && (
+            <>
+              <Button size="sm" intent="success" onClick={onApprove}>
+                <Check size={12} strokeWidth={1.75} /> Aprovar
+              </Button>
+              <Button size="sm" intent="danger" onClick={onReject}>
+                <X size={12} strokeWidth={1.75} /> Recusar
+              </Button>
+            </>
+          )}
+          {a.canReassign && (
+            <Button size="sm" intent="ghost" onClick={onReassign}>
+              <Repeat2 size={12} strokeWidth={1.75} /> Reatribuir
+            </Button>
+          )}
+        </div>
+      </div>
+      {open && hasDetail && (
+        <div className="space-y-2 bg-surface-sunken px-5 py-3 pl-14 font-body text-xs text-brand-muted">
+          {a.notes && (
+            <p>
+              <span className="font-semibold text-brand">Comentário: </span>
+              {a.notes}
             </p>
           )}
-        </TableCell>
-        <TableCell>
-          <div className="flex items-center justify-end gap-1">
-            {a.canAct && (
-              <>
-                <Button size="sm" intent="success" onClick={onApprove}>
-                  <Check size={12} strokeWidth={1.75} /> Aprovar
-                </Button>
-                <Button size="sm" intent="danger" onClick={onReject}>
-                  <X size={12} strokeWidth={1.75} /> Recusar
-                </Button>
-              </>
-            )}
-            {a.canReassign && (
-              <Button size="sm" intent="ghost" onClick={onReassign}>
-                <Repeat2 size={12} strokeWidth={1.75} /> Reatribuir
-              </Button>
-            )}
-          </div>
-        </TableCell>
-      </TableRow>
-      {open && hasDetail && (
-        <TableRow>
-          <TableCell />
-          <TableCell colSpan={8}>
-            <div className="space-y-2 text-xs text-ink-muted">
-              {a.notes && (
-                <p>
-                  <span className="font-semibold text-ink">Comentário: </span>
-                  {a.notes}
-                </p>
-              )}
-              {a.reassignments.length > 0 && (
-                <div>
-                  <p className="font-semibold text-ink mb-1">
-                    Histórico de reatribuições
-                  </p>
-                  <ul className="space-y-1">
-                    {a.reassignments.map((h) => (
-                      <li key={h.id}>
-                        {formatDate(h.createdAt)} —{' '}
-                        {h.kind === 'DELEGATE' ? 'delegado' : 'reatribuído'} de{' '}
-                        {h.from.fullName ?? `#${h.from.id}`} para{' '}
-                        {h.to.fullName ?? `#${h.to.id}`} por{' '}
-                        {h.by.fullName ?? `#${h.by.id}`}
-                        {h.reason ? ` — ${h.reason}` : ''}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+          {a.reassignments.length > 0 && (
+            <div>
+              <p className="mb-1 font-semibold text-brand">
+                Histórico de reatribuições
+              </p>
+              <ul className="space-y-1">
+                {a.reassignments.map((h) => (
+                  <li key={h.id}>
+                    {formatDate(h.createdAt)} —{' '}
+                    {h.kind === 'DELEGATE' ? 'delegado' : 'reatribuído'} de{' '}
+                    {h.from.fullName ?? `#${h.from.id}`} para{' '}
+                    {h.to.fullName ?? `#${h.to.id}`} por{' '}
+                    {h.by.fullName ?? `#${h.by.id}`}
+                    {h.reason ? ` — ${h.reason}` : ''}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </TableCell>
-        </TableRow>
+          )}
+        </div>
       )}
-    </>
+    </div>
+  );
+}
+
+interface RowFieldProps {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}
+
+/** Coluna de uma linha: rótulo pequeno por cima do valor (substitui o cabeçalho da tabela). */
+function RowField({ label, className, children }: RowFieldProps) {
+  return (
+    <div className={cn('min-w-0 font-body text-xs text-brand', className)}>
+      <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide text-brand-muted">
+        {label}
+      </span>
+      {children}
+    </div>
   );
 }

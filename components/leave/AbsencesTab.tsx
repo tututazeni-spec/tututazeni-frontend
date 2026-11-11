@@ -12,10 +12,8 @@ import { useState } from 'react';
 import {
   Building2,
   Compass,
-  FileLock2,
   Filter,
   MapPin,
-  Paperclip,
   Plus,
   RefreshCw,
 } from 'lucide-react';
@@ -26,56 +24,28 @@ import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAbsences, type AbsenceFilters } from '@/hooks/useLeave';
 import { apiClient } from '@/lib/apiClient';
-import { formatDate } from '@/lib/format';
 import { queryKeys } from '@/lib/queryKeys';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
+import { AbsenceCard } from './AbsenceCard';
 import { AbsenceDetailModal } from './AbsenceDetailModal';
 import { RegisterAbsenceModal } from './RegisterAbsenceModal';
 import {
   ABSENCE_SOURCE_LABELS,
   ABSENCE_TYPE_LABELS,
-  ATTENDANCE_STATUS_LABELS,
   JUSTIFICATION_CFG,
-  absenceTypeLabel,
 } from './constants';
-import type { AbsenceRow, CsvExport } from './types';
+import type { CsvExport } from './types';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 
 const ALL = 'ALL';
 const REVIEWER_ROLES = EVAL_CREATOR_ROLES;
-const BASE_HEADERS = [
-  'Colaborador',
-  'Data',
-  'Horário',
-  'Duração',
-  'Tipo',
-  'Justificação',
-  'Comprovativo',
-  'Origem',
-  'Estado',
-  'Validador',
-  'Assiduidade',
-];
-
-function durationLabel(a: AbsenceRow): string {
-  return a.durationHours ? `${a.durationHours} h` : `${a.durationDays} dia(s)`;
-}
-
 export function AbsencesTab() {
   const role = useCurrentRole();
   const notify = useToast();
@@ -126,6 +96,30 @@ export function AbsencesTab() {
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
+  const cancel = useApiMutation(
+    (id: number) => apiClient.patch(`/leave/absences/${id}/cancel`, {}),
+    {
+      invalidateKeys: [queryKeys.leave.all],
+      onSuccess: () =>
+        notify({ title: 'Registo de ausência cancelado.', intent: 'success' }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const confirm = useConfirm();
+  const handleCancel = async (id: number) => {
+    if (
+      !(await confirm({
+        title: 'Cancelar este registo de ausência?',
+        message:
+          'O registo, os comprovativos e o histórico de correcções serão removidos. Esta acção não pode ser anulada.',
+        confirmLabel: 'Cancelar registo',
+        cancelLabel: 'Manter registo',
+        destructive: true,
+      }))
+    )
+      return;
+    cancel.mutate(id);
+  };
   const sync = useApiMutation(
     () =>
       apiClient.post<{ created: number; skipped: number }>(
@@ -142,10 +136,6 @@ export function AbsencesTab() {
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
-
-  const headers = isOrg
-    ? [...BASE_HEADERS, 'Análise Payroll', '']
-    : [...BASE_HEADERS, ''];
 
   return (
     <div className="space-y-5">
@@ -280,86 +270,16 @@ export function AbsencesTab() {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead className="bg-brand/60 [&_th]:text-white">
-                <TableRow>
-                  {headers.map((h, i) => (
-                    <TableHeaderCell key={`${h}-${i}`}>{h}</TableHeaderCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.data.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell>
-                      <p className="font-medium text-ink">{a.user.fullName}</p>
-                      <p className="text-xs text-ink-faint">
-                        {a.user.department?.name ?? '—'}
-                      </p>
-                    </TableCell>
-                    <TableCell>{formatDate(a.date)}</TableCell>
-                    <TableCell>
-                      {a.startTime && a.endTime
-                        ? `${a.startTime}–${a.endTime}`
-                        : 'Dia inteiro'}
-                    </TableCell>
-                    <TableCell>{durationLabel(a)}</TableCell>
-                    <TableCell>{absenceTypeLabel(a)}</TableCell>
-                    <TableCell className="max-w-[16rem] truncate">
-                      {a.justification ??
-                        (a.hasAttachment && a.attachments.length === 0 ? (
-                          <span className="inline-flex items-center gap-1 text-ink-faint">
-                            <FileLock2 size={13} strokeWidth={1.75} /> Protegida
-                          </span>
-                        ) : (
-                          '—'
-                        ))}
-                    </TableCell>
-                    <TableCell>
-                      {a.hasAttachment ? (
-                        <Paperclip
-                          size={14}
-                          strokeWidth={1.75}
-                          aria-label="Tem comprovativo"
-                        />
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                    <TableCell>{ABSENCE_SOURCE_LABELS[a.source]}</TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        value={a.justificationStatus}
-                        map={JUSTIFICATION_CFG}
-                        variant="dot"
-                      />
-                    </TableCell>
-                    <TableCell>{a.validator?.fullName ?? '—'}</TableCell>
-                    <TableCell>
-                      {a.attendance
-                        ? (ATTENDANCE_STATUS_LABELS[a.attendance.status] ??
-                          a.attendance.status)
-                        : '—'}
-                    </TableCell>
-                    {isOrg && (
-                      <TableCell>
-                        {a.payrollReview ? 'Analisar' : '—'}
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        onClick={() => setOpenId(a.id)}
-                      >
-                        Abrir
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="grid grid-cols-1 gap-4">
+            {data.data.map((a) => (
+              <AbsenceCard
+                key={a.id}
+                row={a}
+                showPayroll={isOrg}
+                onOpen={setOpenId}
+                onCancel={handleCancel}
+              />
+            ))}
           </div>
           <p className="text-xs text-ink-faint">
             {data.meta.total} ocorrência(s). Motivos de saúde e respectivos
