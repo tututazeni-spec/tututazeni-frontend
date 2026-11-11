@@ -330,3 +330,33 @@ export const JOB_FUNCTION_NAMES = JOB_FUNCTIONS.map((f) => f.name);
 export function findJobFunction(name: string): JobFunctionTemplate | undefined {
   return JOB_FUNCTIONS.find((f) => f.name === name);
 }
+
+// Sugestões para o painel "Requisitos do cargo" (idiomas e certificações).
+export const LANGUAGE_OPTIONS: string[] = [
+  'Português',
+  'Inglês',
+  'Francês',
+  'Espanhol',
+  'Alemão',
+  'Italiano',
+  'Mandarim',
+  'Árabe',
+  'Umbundu',
+  'Kimbundu',
+  'Kikongo',
+];
+
+export const CERTIFICATION_OPTIONS: string[] = [
+  'PMP — Project Management Professional',
+  'Scrum Master (PSM/CSM)',
+  'ITIL Foundation',
+  'ISO 9001 — Auditor interno',
+  'ISO 27001 — Segurança da informação',
+  'AWS Certified Cloud Practitioner',
+  'Microsoft Certified (Azure/365)',
+  'CISA — Auditoria de sistemas',
+  'ACCA / CPA — Contabilidade',
+  'Higiene e segurança no trabalho',
+  'Primeiros socorros',
+  'Carta de condução',
+];
