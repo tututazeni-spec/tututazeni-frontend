@@ -70,18 +70,18 @@ const STATUS_ITEMS = [
 ];
 
 const COLUMNS = [
-  { w: 13, label: 'Colaborador' },
-  { w: 9, label: 'Avaliador' },
-  { w: 12, label: 'Competência' },
-  { w: 7, label: 'Tipo' },
-  { w: 6, label: 'Nível obtido', center: true },
-  { w: 6, label: 'Nível esperado', center: true },
-  { w: 6, label: 'Lacuna', center: true },
-  { w: 6, label: 'Data' },
-  { w: 6, label: 'Estado' },
-  { w: 9, label: 'Comentários', nowrap: true },
-  { w: 8, label: 'Evidências', nowrap: true },
-  { w: 12, label: 'Próxima avaliação', nowrap: true },
+  { label: 'Colaborador' },
+  { label: 'Avaliador' },
+  { label: 'Competência' },
+  { label: 'Tipo' },
+  { label: 'Nível obtido', center: true },
+  { label: 'Nível esperado', center: true },
+  { label: 'Lacuna', center: true },
+  { label: 'Data' },
+  { label: 'Estado' },
+  { label: 'Comentários' },
+  { label: 'Evidências' },
+  { label: 'Próxima avaliação' },
 ];
 
 const AVATAR_COLORS = ['#22B8A7', '#9B35D5', '#FF9C2A', '#1685FF'];
@@ -217,15 +217,14 @@ export function EvaluationsView() {
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <table className="w-full table-fixed border-collapse font-body text-sm text-white">
+        <div className="overflow-x-auto rounded-[14px] border border-border bg-surface shadow-elevated">
+          <table className="w-full min-w-[1500px] border-collapse font-body text-sm text-ink [&_td:not(:first-child)]:border-l [&_td:not(:first-child)]:border-border [&_th:not(:first-child)]:border-l [&_th:not(:first-child)]:border-[#6F8FB8]/30">
             <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
                   <th
                     key={c.label}
-                    style={{ width: `${c.w}%` }}
-                    className={`break-words px-2 py-3 text-[11px] font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'} ${'nowrap' in c && c.nowrap ? 'whitespace-nowrap' : ''}`}
+                    className={`whitespace-nowrap px-4 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'}`}
                   >
                     {c.label}
                   </th>
@@ -236,9 +235,9 @@ export function EvaluationsView() {
               {(hasFilter ? (rows ?? []) : []).map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                  className="border-b border-border transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
                 >
-                  <td className="px-2 py-3">
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -261,19 +260,19 @@ export function EvaluationsView() {
                         </span>
                       )}
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-white">
+                        <p className="truncate font-semibold text-ink">
                           {r.colaborador}
                         </p>
-                        <p className="truncate text-xs text-on-brand-faint">
+                        <p className="truncate text-xs text-ink-faint">
                           {r.departamento ?? '—'}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-2 py-3 text-on-brand">
+                  <td className="px-4 py-3 text-ink-muted">
                     {r.avaliador ?? '—'}
                   </td>
-                  <td className="px-2 py-3 leading-snug text-white">
+                  <td className="px-4 py-3 leading-snug text-ink">
                     <p>{r.competencia}</p>
                     <StatusBadge
                       value={r.categoria}
@@ -281,39 +280,39 @@ export function EvaluationsView() {
                       className="mt-0.5"
                     />
                   </td>
-                  <td className="px-2 py-3">
-                    <span className="inline-block rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
+                  <td className="px-4 py-3">
+                    <span className="inline-block rounded-full bg-info-subtle px-2.5 py-0.5 text-xs font-medium text-info-ink">
                       {r.tipoAvaliacao}
                     </span>
                   </td>
-                  <td className="px-2 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelObtido}
                   </td>
-                  <td className="px-2 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelEsperado ?? '—'}
                   </td>
-                  <td className="px-2 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.gap ?? '—'}
                   </td>
-                  <td className="px-2 py-3 text-xs text-on-brand">
+                  <td className="px-4 py-3 text-xs text-ink-muted">
                     {formatDateNumeric(r.data)}
                   </td>
-                  <td className="px-2 py-3 text-xs text-white">
+                  <td className="px-4 py-3 text-xs text-ink">
                     {EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado}
                   </td>
                   <td
-                    className="truncate px-2 py-3 text-xs text-on-brand"
+                    className="max-w-[220px] truncate px-4 py-3 text-xs text-ink-muted"
                     title={r.comentarios ?? ''}
                   >
                     {r.comentarios ?? '—'}
                   </td>
                   <td
-                    className="truncate px-2 py-3 text-xs text-on-brand"
+                    className="max-w-[180px] truncate px-4 py-3 text-xs text-ink-muted"
                     title={r.evidencias ?? ''}
                   >
                     {r.evidencias ?? '—'}
                   </td>
-                  <td className="px-2 py-3 text-xs text-on-brand-faint">
+                  <td className="px-4 py-3 text-xs text-ink-faint">
                     {r.proximaAvaliacao
                       ? formatDateNumeric(r.proximaAvaliacao)
                       : '—'}
