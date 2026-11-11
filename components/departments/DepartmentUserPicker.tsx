@@ -34,6 +34,10 @@ export interface DepartmentUserPickerProps {
    * departamento (do mesmo departamento, ou chefe do superior/subdepartamento).
    */
   managerOfDepartmentId?: number;
+  /** Restringe a pesquisa a colaboradores deste departamento (filtro). */
+  departmentId?: number;
+  /** Campo de pesquisa no desenho dos Filtros Underline. */
+  underline?: boolean;
 }
 
 export function DepartmentUserPicker({
@@ -43,13 +47,19 @@ export function DepartmentUserPicker({
   onChange,
   excludeId,
   managerOfDepartmentId,
+  departmentId,
+  underline = false,
 }: DepartmentUserPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const candidateMode = managerOfDepartmentId != null;
   const directory = useDirectoryUsers(
     search,
-    open && !value && !candidateMode && search.trim().length > 0,
+    open &&
+      !value &&
+      !candidateMode &&
+      (search.trim().length > 0 || departmentId != null),
+    departmentId,
   );
   const candidates = useManagerCandidates(
     managerOfDepartmentId,
@@ -106,13 +116,17 @@ export function DepartmentUserPicker({
           <Popover.Anchor asChild>
             <Input
               id={htmlFor}
+              variant={underline ? 'underline' : undefined}
               value={search}
               onChange={(e) => {
                 const v = e.target.value;
                 setSearch(v);
-                setOpen(v.trim().length > 0);
+                setOpen(v.trim().length > 0 || departmentId != null);
               }}
-              onFocus={() => search.trim().length > 0 && setOpen(true)}
+              onFocus={() =>
+                (search.trim().length > 0 || departmentId != null) &&
+                setOpen(true)
+              }
               className="w-full"
               placeholder="Pesquisar por nome ou email…"
               autoComplete="off"

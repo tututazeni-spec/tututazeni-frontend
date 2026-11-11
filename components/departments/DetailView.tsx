@@ -11,7 +11,9 @@ import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
   ArrowLeftRight,
+  Building2,
   Check,
+  Network,
   Plus,
   UserCheck,
   UserX,
@@ -114,6 +116,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const [transferReason, setTransferReason] = useState('');
   const [addUser, setAddUser] = useState<DirectoryUser | null>(null);
   const [addReason, setAddReason] = useState('');
+  const [addDeptFilter, setAddDeptFilter] = useState('ALL');
+  const [transferDeptFilter, setTransferDeptFilter] = useState('ALL');
   const [createSubOpen, setCreateSubOpen] = useState(false);
 
   // Colaborador escolhido por pesquisa de nome; departamento destino por lista.
@@ -123,6 +127,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const targetItems = flattenTree(treeQ.data ?? [], deptId);
+  const filterItems = [
+    { value: 'ALL', label: 'Todos os departamentos' },
+    ...flattenTree(treeQ.data ?? [], -1),
+  ];
 
   const deptQ = useApiQuery<
     Department & { users: Member[]; headHistory: HeadHistoryEntry[] }
@@ -390,9 +398,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             key={t.id}
             type="button"
             onClick={() => setActiveTab(t.id)}
-            className={`rounded-control px-3 py-1.5 text-sm font-medium text-white transition-colors ${
-              activeTab === t.id ? 'bg-brand' : 'bg-brand/60 hover:bg-brand/80'
-            }`}
+            className="rounded-control border border-[#0F1F3D] bg-white px-3 py-1.5 text-sm font-medium text-[#0F1F3D] transition-colors hover:bg-[#0F1F3D] hover:text-white"
           >
             {t.label}
           </button>
@@ -410,13 +416,27 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             <div className="flex flex-wrap gap-3">
               <div className="min-w-[220px] flex-1">
                 <DepartmentUserPicker
+                  underline
                   label="Colaborador"
                   htmlFor="dept-add-user"
                   value={addUser}
                   onChange={setAddUser}
+                  departmentId={
+                    addDeptFilter === 'ALL' ? undefined : Number(addDeptFilter)
+                  }
                 />
               </div>
+              <Select
+                variant="underline"
+                icon={Network}
+                items={filterItems}
+                value={addDeptFilter}
+                onValueChange={setAddDeptFilter}
+                placeholder="Departamento"
+                className="min-w-[200px] flex-1"
+              />
               <Input
+                variant="underline"
                 type="text"
                 placeholder="Motivo (opcional)"
                 value={addReason}
@@ -442,13 +462,30 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             <div className="flex flex-wrap gap-3">
               <div className="min-w-[220px] flex-1">
                 <DepartmentUserPicker
+                  underline
                   label="Colaborador"
                   htmlFor="dept-transfer-user"
                   value={transferUser}
                   onChange={setTransferUser}
+                  departmentId={
+                    transferDeptFilter === 'ALL'
+                      ? undefined
+                      : Number(transferDeptFilter)
+                  }
                 />
               </div>
               <Select
+                variant="underline"
+                icon={Network}
+                items={filterItems}
+                value={transferDeptFilter}
+                onValueChange={setTransferDeptFilter}
+                placeholder="Departamento do colaborador"
+                className="min-w-[200px] flex-1"
+              />
+              <Select
+                variant="underline"
+                icon={Building2}
                 items={targetItems}
                 value={transferTargetId}
                 onValueChange={setTransferTargetId}
@@ -456,6 +493,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 className="min-w-[200px] flex-1"
               />
               <Input
+                variant="underline"
                 type="text"
                 placeholder="Motivo (opcional)"
                 value={transferReason}
@@ -544,9 +582,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                     <span className="text-sm font-medium text-ink">
                       {child.name}
                     </span>
-                    <span className="text-xs text-ink-faint">
-                      {child.code}
-                    </span>
+                    <span className="text-xs text-ink-faint">{child.code}</span>
                     <Badge intent={child.active ? 'success' : 'neutral'}>
                       {child.active ? 'Activo' : 'Inactivo'}
                     </Badge>
