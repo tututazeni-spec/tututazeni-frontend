@@ -28,6 +28,12 @@ import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode, PositionRow } from './types';
+import { ChoiceOrManualField, ItemListPicker } from './PositionFormFields';
+import {
+  JOB_FAMILIES,
+  JOB_FUNCTION_NAMES,
+  findJobFunction,
+} from './positionCatalog';
 
 export interface PositionFormModalProps {
   onClose: () => void;
@@ -84,8 +90,8 @@ interface PositionFormModalFormValues {
   departmentId: string;
   reportsToPositionId: string;
   description: string;
-  responsibilities: string;
-  requirements: string;
+  responsibilityItems: string[];
+  requirementItems: string[];
   requiredTraining: string;
   requiredExperience: string;
   salaryMin: string;
@@ -108,8 +114,8 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
       departmentId: NO_DEPT,
       reportsToPositionId: NO_REPORTS_TO,
       description: '',
-      responsibilities: '',
-      requirements: '',
+      responsibilityItems: [],
+      requirementItems: [],
       requiredTraining: '',
       requiredExperience: '',
       salaryMin: '',
@@ -127,8 +133,8 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
     departmentId,
     reportsToPositionId,
     description,
-    responsibilities,
-    requirements,
+    responsibilityItems,
+    requirementItems,
     requiredTraining,
     requiredExperience,
     salaryMin,
@@ -160,6 +166,28 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
       label: p.name,
     })),
   ];
+
+  const template = findJobFunction(jobFunction);
+  // Ao mudar de função: retira as sugestões da anterior (mantém as escritas à
+  // mão) e, se a família estiver vazia, usa a habitual da nova função.
+  const handleFunctionChange = (next: string) => {
+    const previous = findJobFunction(jobFunction);
+    const incoming = findJobFunction(next);
+    if (previous) {
+      setField(
+        'responsibilityItems',
+        responsibilityItems.filter(
+          (r) => !previous.responsibilities.includes(r),
+        ),
+      );
+      setField(
+        'requirementItems',
+        requirementItems.filter((r) => !previous.requirements.includes(r)),
+      );
+    }
+    setField('jobFunction', next);
+    if (incoming && !jobFamily.trim()) setField('jobFamily', incoming.family);
+  };
 
   const min = salaryMin.trim() ? Number(salaryMin) : null;
   const max = salaryMax.trim() ? Number(salaryMax) : null;
@@ -205,10 +233,12 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
         ? { reportsToPositionId: Number(reportsToPositionId) }
         : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
-      ...(responsibilities.trim()
-        ? { responsibilities: responsibilities.trim() }
+      ...(responsibilityItems.length
+        ? { responsibilities: responsibilityItems.join('\n') }
         : {}),
-      ...(requirements.trim() ? { requirements: requirements.trim() } : {}),
+      ...(requirementItems.length
+        ? { requirements: requirementItems.join('\n') }
+        : {}),
       ...(requiredTraining.trim()
         ? { requiredTraining: requiredTraining.trim() }
         : {}),
@@ -261,21 +291,25 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
             </FormField>
 
             <FormField label="Função" htmlFor="pf-function">
-              <Input
+              <ChoiceOrManualField
                 id="pf-function"
+                options={JOB_FUNCTION_NAMES}
                 value={jobFunction}
-                onChange={(e) => setField('jobFunction', e.target.value)}
-                placeholder="Ex.: Gestão administrativa de pessoal"
+                onChange={handleFunctionChange}
+                placeholder="Seleccionar função…"
+                manualPlaceholder="Ex.: Gestão administrativa de pessoal"
                 maxLength={150}
               />
             </FormField>
 
             <FormField label="Família profissional" htmlFor="pf-family">
-              <Input
+              <ChoiceOrManualField
                 id="pf-family"
+                options={JOB_FAMILIES}
                 value={jobFamily}
-                onChange={(e) => setField('jobFamily', e.target.value)}
-                placeholder="Ex.: Recursos Humanos"
+                onChange={(v) => setField('jobFamily', v)}
+                placeholder="Seleccionar família…"
+                manualPlaceholder="Ex.: Recursos Humanos"
                 maxLength={100}
               />
             </FormField>
@@ -342,23 +376,23 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 label="Responsabilidades"
                 htmlFor="pf-responsibilities"
               >
-                <Textarea
-                  id="pf-responsibilities"
-                  value={responsibilities}
-                  onChange={(e) => setField('responsibilities', e.target.value)}
-                  rows={2}
-                  className="w-full"
+                <ItemListPicker
+                  suggestions={template?.responsibilities ?? []}
+                  value={responsibilityItems}
+                  onChange={(v) => setField('responsibilityItems', v)}
+                  addPlaceholder="Escrever uma responsabilidade e adicionar"
+                  emptyHint="Escolha uma função da lista para ver as responsabilidades sugeridas, ou escreva as suas."
                 />
               </FormField>
             </div>
             <div className="sm:col-span-2">
               <FormField label="Requisitos" htmlFor="pf-requirements">
-                <Textarea
-                  id="pf-requirements"
-                  value={requirements}
-                  onChange={(e) => setField('requirements', e.target.value)}
-                  rows={2}
-                  className="w-full"
+                <ItemListPicker
+                  suggestions={template?.requirements ?? []}
+                  value={requirementItems}
+                  onChange={(v) => setField('requirementItems', v)}
+                  addPlaceholder="Escrever um requisito e adicionar"
+                  emptyHint="Escolha uma função da lista para ver os requisitos sugeridos, ou escreva os seus."
                 />
               </FormField>
             </div>

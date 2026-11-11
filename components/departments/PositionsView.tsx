@@ -9,7 +9,15 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Plus, Briefcase, UserCheck, UserX } from 'lucide-react';
+import {
+  Briefcase,
+  Building2,
+  Filter,
+  Layers,
+  Plus,
+  UserCheck,
+  UserX,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -21,7 +29,8 @@ import type { PosLevel } from './types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -35,7 +44,6 @@ import {
 import type { DepartmentNode, PaginatedPositions } from './types';
 import { PositionDetailModal } from './PositionDetailModal';
 import { PositionFormModal } from './PositionFormModal';
-import { NativeSelect } from '@/components/ui/NativeSelect';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
@@ -164,57 +172,70 @@ export function PositionsView() {
       )}
 
       {/* Filtros */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
-          variant="underline"
-          type="text"
-          placeholder="Pesquisar por cargo, código ou função…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[160px] flex-1"
-        />
-        <NativeSelect
-          value={departmentId}
-          onChange={(e) => {
-            setDepartmentId(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os departamentos</option>
-          {deptItems.map((d) => (
-            <option key={d.value} value={d.value}>
-              {d.label}
-            </option>
-          ))}
-        </NativeSelect>
-        <NativeSelect
-          value={level}
-          onChange={(e) => {
-            setLevel(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os níveis</option>
-          {(Object.keys(LEVEL_CFG) as PosLevel[]).map((lvl) => (
-            <option key={lvl} value={lvl}>
-              {LEVEL_CFG[lvl].label}
-            </option>
-          ))}
-        </NativeSelect>
-        <NativeSelect
-          value={activeFilter}
-          onChange={(e) => {
-            setActiveFilter(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os estados</option>
-          <option value="true">Activos</option>
-          <option value="false">Inactivos</option>
-        </NativeSelect>
+      <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="min-w-[220px] flex-1">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar por cargo, código ou função…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[190px]">
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...deptItems.map((d) => ({
+                value: String(d.value),
+                label: d.label,
+              })),
+            ]}
+            value={departmentId || 'ALL'}
+            onValueChange={(v) => {
+              setDepartmentId(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[160px]">
+          <Select
+            variant="underline"
+            icon={Layers}
+            items={[
+              { value: 'ALL', label: 'Todos os níveis' },
+              ...(Object.keys(LEVEL_CFG) as PosLevel[]).map((lvl) => ({
+                value: lvl,
+                label: LEVEL_CFG[lvl].label,
+              })),
+            ]}
+            value={level || 'ALL'}
+            onValueChange={(v) => {
+              setLevel(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[160px]">
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={[
+              { value: 'ALL', label: 'Todos os estados' },
+              { value: 'true', label: 'Activos' },
+              { value: 'false', label: 'Inactivos' },
+            ]}
+            value={activeFilter || 'ALL'}
+            onValueChange={(v) => {
+              setActiveFilter(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
         {canManage && (
           <Button
             size="sm"
@@ -239,18 +260,25 @@ export function PositionsView() {
         <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
       {!loading && !error && (
-        <Table>
+        <Table
+          wrapperClassName="overflow-x-visible"
+          className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+        >
           <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
-            <TableRow>
-              <TableHeaderCell>Cargo</TableHeaderCell>
-              <TableHeaderCell>Função</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Nível</TableHeaderCell>
-              <TableHeaderCell>Reporta a</TableHeaderCell>
-              <TableHeaderCell>Posições</TableHeaderCell>
-              <TableHeaderCell>Ocupadas</TableHeaderCell>
-              <TableHeaderCell>Vagas</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell className="w-[16%]">Cargo</TableHeaderCell>
+              <TableHeaderCell className="w-[16%]">Função</TableHeaderCell>
+              <TableHeaderCell className="w-[14%]">
+                Departamento
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[9%]">Nível</TableHeaderCell>
+              <TableHeaderCell className="w-[14%]">Reporta a</TableHeaderCell>
+              <TableHeaderCell className="w-[8%]">Posições</TableHeaderCell>
+              <TableHeaderCell className="w-[9%] whitespace-nowrap">
+                Ocupadas
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[6%]">Vagas</TableHeaderCell>
+              <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -303,7 +331,10 @@ export function PositionsView() {
                     {pos.vacancies}
                   </TableCell>
                   <TableCell>
-                    <Badge intent={pos.active ? 'success' : 'neutral'}>
+                    <Badge
+                      intent={pos.active ? 'success' : 'neutral'}
+                      className="px-1.5 text-[10px]"
+                    >
                       {pos.active ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </TableCell>

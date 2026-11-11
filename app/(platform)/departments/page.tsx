@@ -53,6 +53,7 @@ const PANEL_COPY: Record<
     subtitle: string;
     icon: LucideIcon;
     imagePosition?: string;
+    showImage?: boolean;
   }
 > = {
   list: {
@@ -70,16 +71,19 @@ const PANEL_COPY: Record<
     title: 'Responsáveis',
     subtitle: 'Chefias dos departamentos',
     icon: UserCog,
+    showImage: false,
   },
   employees: {
     title: 'Colaboradores',
     subtitle: 'Pessoas por departamento',
     icon: Users,
+    showImage: false,
   },
   positions: {
     title: 'Cargos e funções',
     subtitle: 'Posições e vagas',
     icon: Briefcase,
+    imagePosition: '22%',
   },
   hierarquia: {
     title: 'Hierarquia',

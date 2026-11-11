@@ -10,7 +10,14 @@
 import { genderLabel } from '@/lib/gender';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Users, UserCheck, UserX } from 'lucide-react';
+import {
+  Building2,
+  FileText,
+  Filter,
+  Users,
+  UserCheck,
+  UserX,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,7 +27,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -32,7 +40,6 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { DepartmentNode, PaginatedEmployees } from './types';
-import { NativeSelect } from '@/components/ui/NativeSelect';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateNumeric } from '@/lib/format';
 
@@ -88,6 +95,10 @@ export function EmployeesView() {
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
+  // A tabela só mostra colaboradores depois de aplicado algum filtro.
+  const hasFilter = Boolean(
+    search.trim() || departmentId || contractType || activeFilter,
+  );
 
   const params = {
     page,
@@ -168,60 +179,75 @@ export function EmployeesView() {
       )}
 
       {/* Filtros */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
-          variant="underline"
-          type="text"
-          placeholder="Pesquisar por nome, e-mail ou nº de colaborador…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[160px] flex-1"
-        />
-        <NativeSelect
-          value={departmentId}
-          onChange={(e) => {
-            setDepartmentId(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os departamentos</option>
-          {deptItems.map((d) => (
-            <option key={d.value} value={d.value}>
-              {d.label}
-            </option>
-          ))}
-        </NativeSelect>
-        <NativeSelect
-          value={contractType}
-          onChange={(e) => {
-            setContractType(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os vínculos</option>
-          {Object.entries(CONTRACT_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </NativeSelect>
-        <NativeSelect
-          value={activeFilter}
-          onChange={(e) => {
-            setActiveFilter(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os estados</option>
-          <option value="true">Activos</option>
-          <option value="false">Inactivos</option>
-        </NativeSelect>
-        <span className="text-sm text-ink-faint">
-          {data?.total ?? 0} colaboradores
-        </span>
+      <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="min-w-[220px] flex-1">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar por nome, e-mail ou nº de colaborador…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[190px]">
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...deptItems.map((d) => ({
+                value: String(d.value),
+                label: d.label,
+              })),
+            ]}
+            value={departmentId || 'ALL'}
+            onValueChange={(v) => {
+              setDepartmentId(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[170px]">
+          <Select
+            variant="underline"
+            icon={FileText}
+            items={[
+              { value: 'ALL', label: 'Todos os vínculos' },
+              ...Object.entries(CONTRACT_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              })),
+            ]}
+            value={contractType || 'ALL'}
+            onValueChange={(v) => {
+              setContractType(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[160px]">
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={[
+              { value: 'ALL', label: 'Todos os estados' },
+              { value: 'true', label: 'Activos' },
+              { value: 'false', label: 'Inactivos' },
+            ]}
+            value={activeFilter || 'ALL'}
+            onValueChange={(v) => {
+              setActiveFilter(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        {hasFilter && (
+          <span className="text-sm text-ink-faint">
+            {data?.total ?? 0} colaboradores
+          </span>
+        )}
       </div>
 
       {/* Tabela */}
@@ -236,22 +262,42 @@ export function EmployeesView() {
         <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
       {!loading && !error && (
-        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
+        <Table
+          wrapperClassName="overflow-x-visible"
+          className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+        >
           <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
             <TableRow className="hover:bg-transparent">
-              <TableHeaderCell>Colaborador</TableHeaderCell>
-              <TableHeaderCell>Cargo</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Subdepartamento</TableHeaderCell>
-              <TableHeaderCell>Responsável directo</TableHeaderCell>
-              <TableHeaderCell>Localização</TableHeaderCell>
-              <TableHeaderCell>Tipo de vínculo</TableHeaderCell>
-              <TableHeaderCell>Admissão</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
+              <TableHeaderCell className="w-[17%]">Colaborador</TableHeaderCell>
+              <TableHeaderCell className="w-[11%]">Cargo</TableHeaderCell>
+              <TableHeaderCell className="w-[12%]">
+                Departamento
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[14%] whitespace-nowrap">
+                Subdepartamento
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[12%]">
+                Responsável directo
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[9%]">Localização</TableHeaderCell>
+              <TableHeaderCell className="w-[9%]">
+                Tipo de vínculo
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[8%]">Admissão</TableHeaderCell>
+              <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.data.length === 0 ? (
+            {!hasFilter ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="py-12 text-center text-ink-faint"
+                >
+                  Pesquise ou aplique um filtro para ver os colaboradores
+                </TableCell>
+              </TableRow>
+            ) : data?.data.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={9}
@@ -271,7 +317,9 @@ export function EmployeesView() {
                         size="sm"
                       />
                       <div>
-                        <div className="text-xs text-ink">{u.fullName}</div>
+                        <div className="text-[11px] leading-tight text-ink">
+                          {u.fullName}
+                        </div>
                         <div className="break-all text-micro text-ink-faint">
                           {u.employeeNumber ? `${u.employeeNumber} · ` : ''}
                           {u.email}
@@ -312,7 +360,7 @@ export function EmployeesView() {
         </Table>
       )}
 
-      {data && data.totalPages > 1 && (
+      {hasFilter && data && data.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}

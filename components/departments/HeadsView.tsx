@@ -101,19 +101,38 @@ export function HeadsView() {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
+            <Table
+              wrapperClassName="overflow-x-visible"
+              className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+            >
               <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
                 <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell>Departamento</TableHeaderCell>
-                  <TableHeaderCell>Responsável</TableHeaderCell>
-                  <TableHeaderCell>Cargo</TableHeaderCell>
-                  <TableHeaderCell>Substituto</TableHeaderCell>
-                  <TableHeaderCell>Desde</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell>Contacto</TableHeaderCell>
-                  <TableHeaderCell>Colaboradores</TableHeaderCell>
-                  <TableHeaderCell>Subdeptos</TableHeaderCell>
-                  {canManage && <TableHeaderCell>Acções</TableHeaderCell>}
+                  <TableHeaderCell className="w-[13%]">
+                    Departamento
+                  </TableHeaderCell>
+                  <TableHeaderCell className="w-[14%] !pl-5">
+                    Responsável
+                  </TableHeaderCell>
+                  <TableHeaderCell className="w-[10%]">Cargo</TableHeaderCell>
+                  <TableHeaderCell className="w-[11%]">
+                    Substituto
+                  </TableHeaderCell>
+                  <TableHeaderCell className="w-[8%]">Desde</TableHeaderCell>
+                  <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
+                  <TableHeaderCell className="w-[10%]">
+                    Contacto
+                  </TableHeaderCell>
+                  <TableHeaderCell className="w-[11%]">
+                    Colaboradores
+                  </TableHeaderCell>
+                  <TableHeaderCell className="w-[9%]">
+                    Subdeptos
+                  </TableHeaderCell>
+                  {canManage && (
+                    <TableHeaderCell className="w-[6%] whitespace-nowrap">
+                      Acções
+                    </TableHeaderCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -130,26 +149,26 @@ export function HeadsView() {
                   heads.map((row) => (
                     <TableRow key={row.departmentId}>
                       <TableCell>
-                        <span className="flex items-center gap-2">
-                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                        <span className="flex items-center gap-1.5">
+                          <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
                             {(() => {
                               const Icon = departmentIcon(
                                 row.departmentName,
                                 row.subdepartmentsUnderResponsibility > 0,
                               );
-                              return <Icon size={16} strokeWidth={1.75} />;
+                              return <Icon size={13} strokeWidth={1.75} />;
                             })()}
                           </span>
-                          <span className="text-xs font-bold text-brand">
+                          <span className="text-[11px] font-bold leading-tight text-brand">
                             {row.departmentName}
                           </span>
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="!pl-5">
                         {row.head ? (
-                          <span className="flex items-center gap-1.5">
+                          <span className="flex items-center gap-1">
                             <Avatar name={row.head.fullName} size="sm" />
-                            <span className="text-xs text-ink">
+                            <span className="text-[11px] leading-tight text-ink">
                               {row.head.fullName}
                             </span>
                           </span>
@@ -159,13 +178,13 @@ export function HeadsView() {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         {row.position ?? '—'}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         {row.deputyHead?.fullName ?? '—'}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         {formatDateNumeric(row.startedAt)}
                       </TableCell>
                       <TableCell>
@@ -173,13 +192,13 @@ export function HeadsView() {
                           {STATUS_LABEL[row.status] ?? row.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         <span className="break-all">{row.contact ?? '—'}</span>
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         {row.usersUnderResponsibility}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                      <TableCell className="text-ink-muted">
                         {row.subdepartmentsUnderResponsibility}
                       </TableCell>
                       {canManage && (
