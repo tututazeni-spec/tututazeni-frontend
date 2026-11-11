@@ -5,8 +5,12 @@
 
 'use client';
 
-import { Briefcase } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useState } from 'react';
+import { Briefcase, X } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,6 +19,9 @@ import { LEVEL_CFG } from './constants';
 import type { PosLevel } from './types';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { DepartmentUserPicker } from './DepartmentUserPicker';
+import type { DirectoryUser } from './departmentFormData';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PositionRequirementsPanel } from './PositionRequirementsPanel';
@@ -43,11 +50,46 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
   const { data: me } = useCurrentUser();
   // Escrita do mapeamento de competências é ADMIN/RH (backend); evita 403 a GESTOR.
   const canManage = isRoleAllowed(ADMIN_ROLES, me?.role?.name as Role | undefined);
+  const notify = useToast();
+  const confirm = useConfirm();
+  const [picked, setPicked] = useState<DirectoryUser | null>(null);
   const { data: p, isLoading } = useApiQuery<PositionDetail>(
     queryKeys.departments.positionDetail(positionId),
     `/positions/${positionId}`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
+
+  const invalidateKeys = [queryKeys.departments.all];
+  const assign = useApiMutation(
+    (userId: number) => apiClient.post(`/positions/${positionId}/assign`, { userId }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        setPicked(null);
+        notify({ title: 'Cargo atribuído', intent: 'success' });
+      },
+      onError: (e) =>
+        notify({ title: 'Não foi possível atribuir o cargo', description: e.message, intent: 'danger' }),
+    },
+  );
+  const unassign = useApiMutation(
+    (userId: number) => apiClient.delete(`/positions/${positionId}/users/${userId}`),
+    {
+      invalidateKeys,
+      onSuccess: () => notify({ title: 'Cargo retirado', intent: 'success' }),
+      onError: (e) =>
+        notify({ title: 'Não foi possível retirar o cargo', description: e.message, intent: 'danger' }),
+    },
+  );
+  const removeUser = async (userId: number, name: string) => {
+    const ok = await confirm({
+      title: 'Retirar o cargo?',
+      message: `«${name}» deixa de ter o cargo «${p?.name ?? ''}».`,
+      confirmLabel: 'Retirar',
+      destructive: true,
+    });
+    if (ok) unassign.mutate(userId);
+  };
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
@@ -159,8 +201,41 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
                         <div className="text-xs text-ink-faint">{u.email}</div>
                       </div>
                       {!u.active && <Badge intent="neutral">Inactivo</Badge>}
+                      {canManage && (
+                        <button
+                          type="button"
+                          aria-label={`Retirar o cargo a ${u.fullName}`}
+                          title="Retirar o cargo"
+                          onClick={() => removeUser(u.id, u.fullName)}
+                          className="ml-auto inline-flex h-7 w-7 items-center justify-center rounded-control text-ink-faint hover:bg-surface-sunken hover:text-danger"
+                        >
+                          <X size={14} strokeWidth={1.75} />
+                        </button>
+                      )}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {canManage && (
+                <div className="mt-3 flex items-end gap-2">
+                  <div className="min-w-0 flex-1">
+                    <DepartmentUserPicker
+                      label="Atribuir a um colaborador"
+                      htmlFor="pos-assign-user"
+                      value={picked}
+                      onChange={setPicked}
+                      excludeId={undefined}
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    disabled={!picked || assign.isPending}
+                    loading={assign.isPending}
+                    onClick={() => picked && assign.mutate(picked.id)}
+                  >
+                    Atribuir
+                  </Button>
                 </div>
               )}
             </div>
