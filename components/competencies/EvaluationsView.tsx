@@ -10,6 +10,14 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Briefcase,
+  Building2,
+  CalendarCheck,
+  ClipboardList,
+  Layers,
+  Target,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -60,18 +68,18 @@ const STATUS_ITEMS = [
 ];
 
 const COLUMNS = [
-  { label: 'Colaborador' },
-  { label: 'Avaliador' },
-  { label: 'Competência' },
-  { label: 'Tipo' },
-  { label: 'Nível obtido', center: true },
-  { label: 'Nível esperado', center: true },
-  { label: 'Lacuna', center: true },
-  { label: 'Data' },
-  { label: 'Estado' },
-  { label: 'Comentários' },
-  { label: 'Evidências' },
-  { label: 'Próxima avaliação' },
+  { w: 13, label: 'Colaborador' },
+  { w: 9, label: 'Avaliador' },
+  { w: 12, label: 'Competência' },
+  { w: 7, label: 'Tipo' },
+  { w: 6, label: 'Nível obtido', center: true },
+  { w: 6, label: 'Nível esperado', center: true },
+  { w: 6, label: 'Lacuna', center: true },
+  { w: 6, label: 'Data' },
+  { w: 6, label: 'Estado' },
+  { w: 9, label: 'Comentários', nowrap: true },
+  { w: 8, label: 'Evidências', nowrap: true },
+  { w: 12, label: 'Próxima avaliação', nowrap: true },
 ];
 
 const AVATAR_COLORS = ['#22B8A7', '#9B35D5', '#FF9C2A', '#1685FF'];
@@ -118,33 +126,59 @@ export function EvaluationsView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Building2}
           items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
           value={departmentId}
           onValueChange={setDepartmentId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Briefcase}
           items={[{ value: ALL, label: 'Cargo' }, ...positionOptions]}
           value={positionId}
           onValueChange={setPositionId}
+          className="w-[160px]"
         />
         <Select
+          variant="underline"
+          icon={Target}
           items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
           value={competencyId}
           onValueChange={setCompetencyId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={HIERARCHY_LEVEL_ITEMS}
           value={hierarchyLevel}
           onValueChange={setHierarchyLevel}
+          className="w-[180px]"
         />
-        <Select items={TYPE_ITEMS} value={source} onValueChange={setSource} />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={ClipboardList}
+          items={TYPE_ITEMS}
+          value={source}
+          onValueChange={setSource}
+          className="w-[140px]"
+        />
+        <Select
+          variant="underline"
+          icon={CalendarCheck}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+          className="w-[140px]"
+        />
         <UserFilterSearch
           selected={user}
           onChange={setUser}
-          className="w-[220px]"
+          className="w-[240px]"
         />
       </div>
 
@@ -156,14 +190,15 @@ export function EvaluationsView() {
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
+        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <table className="w-full table-fixed border-collapse font-body text-sm text-white">
             <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
                   <th
                     key={c.label}
-                    className={`px-4 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'}`}
+                    style={{ width: `${c.w}%` }}
+                    className={`break-words px-2 py-3 text-[11px] font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'} ${'nowrap' in c && c.nowrap ? 'whitespace-nowrap' : ''}`}
                   >
                     {c.label}
                   </th>
@@ -176,7 +211,7 @@ export function EvaluationsView() {
                   key={r.id}
                   className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     <div className="flex items-center gap-3">
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -208,10 +243,10 @@ export function EvaluationsView() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-on-brand">
+                  <td className="px-2 py-3 text-on-brand">
                     {r.avaliador ?? '—'}
                   </td>
-                  <td className="px-4 py-3 leading-snug text-white">
+                  <td className="px-2 py-3 leading-snug text-white">
                     <p>{r.competencia}</p>
                     <StatusBadge
                       value={r.categoria}
@@ -219,39 +254,39 @@ export function EvaluationsView() {
                       className="mt-0.5"
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
+                  <td className="px-2 py-3">
+                    <span className="inline-block rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
                       {r.tipoAvaliacao}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-2 py-3 text-center text-on-brand">
                     {r.nivelObtido}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-2 py-3 text-center text-on-brand">
                     {r.nivelEsperado ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-2 py-3 text-center text-on-brand">
                     {r.gap ?? '—'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
+                  <td className="px-2 py-3 text-xs text-on-brand">
                     {formatDateNumeric(r.data)}
                   </td>
-                  <td className="px-4 py-3 text-xs text-white">
+                  <td className="px-2 py-3 text-xs text-white">
                     {EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado}
                   </td>
                   <td
-                    className="max-w-[180px] truncate px-4 py-3 text-xs text-on-brand"
+                    className="truncate px-2 py-3 text-xs text-on-brand"
                     title={r.comentarios ?? ''}
                   >
                     {r.comentarios ?? '—'}
                   </td>
                   <td
-                    className="max-w-[140px] truncate px-4 py-3 text-xs text-on-brand"
+                    className="truncate px-2 py-3 text-xs text-on-brand"
                     title={r.evidencias ?? ''}
                   >
                     {r.evidencias ?? '—'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand-faint">
+                  <td className="px-2 py-3 text-xs text-on-brand-faint">
                     {r.proximaAvaliacao
                       ? formatDateNumeric(r.proximaAvaliacao)
                       : '—'}
