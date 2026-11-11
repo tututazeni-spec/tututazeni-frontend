@@ -503,3 +503,16 @@ export const OBJECTIVES_BY_CATEGORY: Record<CompetencyCategory, string[]> = {
     'Analisar indicadores e propor melhorias ao processo',
   ],
 };
+
+// Sugestões de objectivo para o modal "Novo plano de evolução" (aba
+// Desenvolvimento) — o campo também aceita texto livre.
+export const PLAN_GOAL_OPTIONS = asOptions([
+  'Atingir o nível esperado para o cargo actual',
+  'Preparar o colaborador para uma promoção',
+  'Reduzir a lacuna de competências identificada na avaliação',
+  'Desenvolver competências de liderança',
+  'Reforçar competências técnicas da função',
+  'Melhorar a comunicação e o trabalho em equipa',
+  'Preparar a sucessão de uma posição crítica',
+  'Obter uma certificação profissional',
+]);

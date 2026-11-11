@@ -19,8 +19,8 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { Textarea } from '@/components/ui/Textarea';
-import { DEV_ACTION_TYPE_CFG } from './constants';
+import { Combobox } from '@/components/ui/Combobox';
+import { DEV_ACTION_TYPE_CFG, PLAN_GOAL_OPTIONS } from './constants';
 import { useCompetencyOptions, type DirectoryUser } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 
@@ -215,13 +215,13 @@ export function DevelopmentPlanFormModal({
           </FormField>
 
           <FormField label="Objectivo *" htmlFor="dp-goal">
-            <Textarea
-              id="dp-goal"
-              value={goal}
-              onChange={(e) => setField('goal', e.target.value)}
-              placeholder="O que o colaborador deve conseguir no fim do plano"
-              rows={2}
-              className="w-full"
+            <Combobox
+              items={PLAN_GOAL_OPTIONS}
+              value={goal || undefined}
+              onValueChange={(v) => setField('goal', v)}
+              placeholder="Selecionar ou escrever o objectivo"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
 
