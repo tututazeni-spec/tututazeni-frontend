@@ -10,6 +10,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -17,7 +18,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HIERARCHY_LEVEL_CFG, STATUS_CFG } from './constants';
 import { useDepartmentOptions } from './modelFormData';
 import type { CompetencyModel } from './types';
-import { Building2, MapPin } from 'lucide-react';
+import { Building2, MapPin, Plus } from 'lucide-react';
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -28,9 +29,15 @@ const STATUS_ITEMS = [
 
 interface ModelsViewProps {
   onSelect: (id: number) => void;
+  canManage?: boolean;
+  onCreate?: () => void;
 }
 
-export function ModelsView({ onSelect }: ModelsViewProps) {
+export function ModelsView({
+  onSelect,
+  canManage = false,
+  onCreate,
+}: ModelsViewProps) {
   const [departmentId, setDepartmentId] = useState('ALL');
   const [status, setStatus] = useState('ALL');
   const { options: departmentOptions } = useDepartmentOptions();
@@ -52,28 +59,36 @@ export function ModelsView({ onSelect }: ModelsViewProps) {
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select
-          variant="underline"
-          icon={Building2}
-          items={[
-            { value: 'ALL', label: 'Todos os departamentos' },
-            ...departmentOptions,
-          ]}
-          value={departmentId}
-          onValueChange={setDepartmentId}
-          className="min-w-[200px]"
-        />
-        <Select
-          variant="underline"
-          icon={MapPin}
-          items={STATUS_ITEMS}
-          value={status}
-          onValueChange={setStatus}
-        />
-        <span className="font-body text-sm text-ink-faint">
-          {data?.total ?? 0} modelos
-        </span>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
+            value={departmentId}
+            onValueChange={setDepartmentId}
+            className="min-w-[200px]"
+          />
+          <Select
+            variant="underline"
+            icon={MapPin}
+            items={STATUS_ITEMS}
+            value={status}
+            onValueChange={setStatus}
+          />
+          <span className="font-body text-sm text-ink-faint">
+            {data?.total ?? 0} modelos
+          </span>
+        </div>
+        {canManage && onCreate && (
+          <Button onClick={onCreate}>
+            <Plus size={16} strokeWidth={1.75} className="mr-1.5" />
+            Novo modelo
+          </Button>
+        )}
       </div>
 
       {isLoading ? (

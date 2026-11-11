@@ -79,10 +79,6 @@ export default function CompetenciesPage() {
             <Button onClick={() => setForm({ competencyId: null })}>
               + Nova competência
             </Button>
-          ) : view === 'models' && canManage ? (
-            <Button onClick={() => setModelForm({ modelId: null })}>
-              + Novo modelo
-            </Button>
           ) : undefined
         }
       />
@@ -108,7 +104,11 @@ export default function CompetenciesPage() {
         <LevelsView canManage={canManage} />
       )}
       {view === 'models' && visibleNav.some((n) => n.id === 'models') && (
-        <ModelsView onSelect={setModelDetailId} />
+        <ModelsView
+          onSelect={setModelDetailId}
+          canManage={canManage}
+          onCreate={() => setModelForm({ modelId: null })}
+        />
       )}
       {view === 'my-profile' && <MyProfileView />}
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
