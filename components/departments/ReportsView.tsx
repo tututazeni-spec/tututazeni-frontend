@@ -30,6 +30,8 @@ import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
+import { DepartmentExportMenu } from './DepartmentExportMenu';
+
 import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
@@ -153,6 +155,102 @@ export function ReportsView() {
 
   return (
     <div>
+      <div className="mb-3 flex justify-end">
+        <DepartmentExportMenu
+          disabled={!data}
+          build={async () => {
+            if (!data) throw new Error('Relatório ainda a carregar');
+            const rows: (string | number | null | undefined)[][] = [
+              ...data.headcountByDepartment.map((d) => [
+                'Departamento',
+                d.name,
+                d.actual,
+                d.expected,
+                d.max,
+                '',
+              ]),
+              ...data.headcountByUnit.map((u) => [
+                'Unidade',
+                u.name,
+                u.actual,
+                u.expected,
+                u.max,
+                '',
+              ]),
+              ...data.headcountByPosition.map((p) => [
+                'Cargo',
+                p.department ? `${p.name} (${p.department.name})` : p.name,
+                p.occupied,
+                p.planned,
+                '',
+                p.vacancies,
+              ]),
+              [
+                'Resumo',
+                'Colaboradores (total)',
+                data.employeeDistribution.total,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Activos',
+                data.employeeDistribution.active,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Inactivos',
+                data.employeeDistribution.inactive,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Admissões no período',
+                data.admissions.total,
+                '',
+                '',
+                '',
+              ],
+              ['Resumo', 'Saídas no período', data.exits.total, '', '', ''],
+              [
+                'Resumo',
+                'Taxa de rotatividade (%)',
+                data.turnoverRate,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Antiguidade média (anos)',
+                data.seniority.avgYears,
+                '',
+                '',
+                '',
+              ],
+            ];
+            return {
+              title: 'Relatórios de departamentos',
+              headers: [
+                'Secção',
+                'Item',
+                'Actual / Ocupadas',
+                'Previsto',
+                'Máximo',
+                'Vagas',
+              ],
+              rows,
+            };
+          }}
+        />
+      </div>
+
       {/* Filtros */}
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Select

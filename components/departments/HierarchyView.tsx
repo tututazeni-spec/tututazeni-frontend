@@ -28,8 +28,16 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { DepartmentNode, PaginatedHierarchy, PositionRow } from './types';
+import type {
+  DepartmentNode,
+  HierarchyRow,
+  PaginatedHierarchy,
+  PositionRow,
+} from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
+
 import { Briefcase, Building2, Pencil } from 'lucide-react';
+import { HierarchyPreviewPanel } from './HierarchyPreviewPanel';
 import {
   ChangeManagerModal,
   type ChangeManagerTarget,
@@ -50,6 +58,7 @@ export function HierarchyView() {
   const [departmentId, setDepartmentId] = useState('');
   const [positionId, setPositionId] = useState('');
   const [page, setPage] = useState(1);
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const debouncedSearch = useDebounce(search);
   const canManage = useHasRole(ADMIN_ROLES);
   const [editing, setEditing] = useState<ChangeManagerTarget | null>(null);
@@ -97,6 +106,7 @@ export function HierarchyView() {
       enabled: hasFilter,
     },
   );
+  const previewRow = data?.data.find((u) => u.id === previewId) ?? null;
 
   return (
     <div>
@@ -125,6 +135,46 @@ export function HierarchyView() {
             }}
           />
         </div>
+        <DepartmentExportMenu
+          disabled={!hasFilter}
+          build={async () => {
+            const all = await fetchAllRows<HierarchyRow>(
+              '/departments/hierarchy',
+              {
+                search: debouncedSearch || undefined,
+                departmentId: departmentId || undefined,
+                positionId: positionId || undefined,
+              },
+            );
+            return {
+              title: 'Hierarquia',
+              headers: [
+                'Colaborador',
+                'Cargo',
+                'Departamento',
+                'Subdepartamento',
+                'Responsável directo',
+                'Nível',
+                'Subordinados directos',
+                'Subordinados indirectos',
+                'Cadeia de reporte',
+                'Estado',
+              ],
+              rows: all.map((u) => [
+                u.fullName,
+                u.position?.name,
+                u.department?.name,
+                u.subdepartment,
+                u.manager?.fullName,
+                u.level,
+                u.directReportsCount,
+                u.indirectReportsCount,
+                u.reportingChain.join(' → '),
+                u.active ? 'Activo' : 'Inactivo',
+              ]),
+            };
+          }}
+        />
         <div className="min-w-[210px]">
           <Select
             variant="underline"
@@ -186,7 +236,11 @@ export function HierarchyView() {
               </TableRow>
             ) : (
               data?.data.map((u) => (
-                <TableRow key={u.id} className="hover:bg-transparent">
+                <TableRow
+                  key={u.id}
+                  onClick={() => setPreviewId(u.id)}
+                  className={`cursor-pointer ${previewId === u.id ? 'bg-brand-soft' : ''}`}
+                >
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       <Avatar
@@ -218,7 +272,8 @@ export function HierarchyView() {
                           intent="ghost"
                           title="Alterar responsável directo"
                           aria-label={`Alterar o responsável directo de ${u.fullName}`}
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditing({
                               id: u.id,
                               fullName: u.fullName,
@@ -230,8 +285,8 @@ export function HierarchyView() {
                                     fullName: u.manager.fullName,
                                   }
                                 : null,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <Pencil size={13} strokeWidth={1.75} />
                         </Button>
@@ -284,6 +339,27 @@ export function HierarchyView() {
             </Button>
           </div>
         </div>
+      )}
+
+      {previewRow && (
+        <HierarchyPreviewPanel
+          row={previewRow}
+          onChangeManager={
+            canManage
+              ? (u) =>
+                  setEditing({
+                    id: u.id,
+                    fullName: u.fullName,
+                    departmentId: u.department?.id ?? null,
+                    departmentName: u.department?.name ?? null,
+                    manager: u.manager
+                      ? { id: u.manager.id, fullName: u.manager.fullName }
+                      : null,
+                  })
+              : undefined
+          }
+          onClose={() => setPreviewId(null)}
+        />
       )}
 
       {editing && (

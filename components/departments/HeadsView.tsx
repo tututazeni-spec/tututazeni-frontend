@@ -28,6 +28,8 @@ import { ChangeHeadModal } from './ChangeHeadModal';
 import { HeadPreviewPanel } from './HeadPreviewPanel';
 import { departmentIcon } from './departmentIcon';
 import type { HeadHistoryRow, HeadRow } from './types';
+import { DepartmentExportMenu } from './DepartmentExportMenu';
+
 import { formatDateNumeric } from '@/lib/format';
 
 type SubTab = 'current' | 'history';
@@ -38,11 +40,7 @@ const STATUS_LABEL: Record<string, string> = {
   ARCHIVED: 'Arquivado',
 };
 
-interface HeadsViewProps {
-  onSelect: (departmentId: number) => void;
-}
-
-export function HeadsView({ onSelect }: HeadsViewProps) {
+export function HeadsView() {
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [subTab, setSubTab] = useState<SubTab>('current');
   const [changing, setChanging] = useState<HeadRow | null>(null);
@@ -96,6 +94,56 @@ export function HeadsView({ onSelect }: HeadsViewProps) {
             {label}
           </button>
         ))}
+        <DepartmentExportMenu
+          className="ml-auto"
+          build={async () =>
+            subTab === 'current'
+              ? {
+                  title: 'Responsáveis actuais',
+                  headers: [
+                    'Departamento',
+                    'Responsável',
+                    'Cargo',
+                    'Substituto',
+                    'Desde',
+                    'Estado',
+                    'Contacto',
+                    'Colaboradores',
+                    'Subdeptos',
+                  ],
+                  rows: heads.map((r) => [
+                    r.departmentName,
+                    r.head?.fullName ?? 'Por atribuir',
+                    r.position,
+                    r.deputyHead?.fullName,
+                    r.startedAt ? formatDateNumeric(r.startedAt) : '',
+                    STATUS_LABEL[r.status] ?? r.status,
+                    r.contact,
+                    r.usersUnderResponsibility,
+                    r.subdepartmentsUnderResponsibility,
+                  ]),
+                }
+              : {
+                  title: 'Histórico de responsáveis',
+                  headers: [
+                    'Departamento',
+                    'Responsável anterior',
+                    'Novo responsável',
+                    'Data da alteração',
+                    'Motivo',
+                    'Alterado por',
+                  ],
+                  rows: history.map((h) => [
+                    h.department.name,
+                    h.previousHead?.fullName,
+                    h.newHead.fullName,
+                    formatDateNumeric(h.changedAt),
+                    h.reason,
+                    h.changedBy?.fullName,
+                  ]),
+                }
+          }
+        />
       </div>
 
       {subTab === 'current' && (
@@ -109,9 +157,7 @@ export function HeadsView({ onSelect }: HeadsViewProps) {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <div
-              className={`grid gap-4 ${previewRow ? 'lg:grid-cols-[1fr_380px]' : ''}`}
-            >
+            <div className="relative">
               <Table
                 wrapperClassName="overflow-x-visible"
                 className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
@@ -242,7 +288,6 @@ export function HeadsView({ onSelect }: HeadsViewProps) {
               {previewRow && (
                 <HeadPreviewPanel
                   row={previewRow}
-                  onViewDetail={onSelect}
                   onChangeHead={canManage ? setChanging : undefined}
                   onClose={() => setPreviewId(null)}
                 />

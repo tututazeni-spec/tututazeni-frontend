@@ -26,7 +26,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { DepartmentNode, PaginatedHistory } from './types';
+import type { DepartmentNode, HistoryEntry, PaginatedHistory } from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -92,6 +93,44 @@ export function HistoryView() {
     <div>
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-end gap-x-6 gap-y-3">
+        <DepartmentExportMenu
+          className="order-last ml-auto"
+          build={async () => {
+            const all = await fetchAllRows<HistoryEntry>(
+              '/departments/history',
+              {
+                departmentId: departmentId || undefined,
+                from: from || undefined,
+                to: to || undefined,
+              },
+            );
+            return {
+              title: 'Histórico de departamentos',
+              headers: [
+                'Data',
+                'Tipo',
+                'Departamento',
+                'Informação alterada',
+                'Valor anterior',
+                'Novo valor',
+                'Utilizador',
+                'Motivo',
+              ],
+              rows: all.map((e) => [
+                fmtDateTime(e.date),
+                e.type,
+                e.department
+                  ? `${e.department.name}${e.department.code ? ` (${e.department.code})` : ''}`
+                  : '',
+                e.field,
+                fmtValue(e.before),
+                fmtValue(e.after),
+                e.changedBy?.fullName,
+                e.reason,
+              ]),
+            };
+          }}
+        />
         <div className="min-w-[230px]">
           <Select
             variant="underline"

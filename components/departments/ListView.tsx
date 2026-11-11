@@ -17,7 +17,9 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
-import type { PaginatedDepts } from './types';
+import type { Department, PaginatedDepts } from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
+
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -103,6 +105,35 @@ export function ListView({ onSelect }: ListViewProps) {
             }}
           />
         </div>
+        <DepartmentExportMenu
+          build={async () => {
+            const all = await fetchAllRows<Department>('/departments', {
+              search: debouncedSearch,
+              active: activeFilter || undefined,
+            });
+            return {
+              title: 'Departamentos',
+              headers: [
+                'Departamento',
+                'Código',
+                'Departamento superior',
+                'Gestor',
+                'Membros',
+                'Subdepartamentos',
+                'Estado',
+              ],
+              rows: all.map((d) => [
+                d.name,
+                d.code,
+                d.parent?.name,
+                d.head?.fullName,
+                d._count.users,
+                d._count.children,
+                d.active ? 'Activo' : 'Inactivo',
+              ]),
+            };
+          }}
+        />
         <div className="flex gap-1 rounded-[14px] bg-[#EAF1FC] p-1">
           {(
             [

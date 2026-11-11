@@ -39,7 +39,10 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { DepartmentNode, PaginatedEmployees } from './types';
+import type { DepartmentNode, EmployeeRow, PaginatedEmployees } from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
+
+import { EmployeePreviewPanel } from './EmployeePreviewPanel';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateNumeric } from '@/lib/format';
 
@@ -94,6 +97,7 @@ export function EmployeesView() {
   const [contractType, setContractType] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const debouncedSearch = useDebounce(search);
   // A tabela só mostra colaboradores depois de aplicado algum filtro.
   const hasFilter = Boolean(
@@ -131,6 +135,7 @@ export function EmployeesView() {
   );
   const error = queryError?.message ?? null;
   const indicators = data?.indicators;
+  const previewRow = data?.data.find((u) => u.id === previewId) ?? null;
 
   return (
     <div>
@@ -243,6 +248,49 @@ export function EmployeesView() {
             }}
           />
         </div>
+        <DepartmentExportMenu
+          disabled={!hasFilter}
+          build={async () => {
+            const all = await fetchAllRows<EmployeeRow>(
+              '/departments/employees',
+              {
+                search: debouncedSearch || undefined,
+                departmentId: departmentId || undefined,
+                contractType: contractType || undefined,
+                active: activeFilter || undefined,
+              },
+            );
+            return {
+              title: 'Colaboradores por departamento',
+              headers: [
+                'Colaborador',
+                'Nº',
+                'Email',
+                'Cargo',
+                'Departamento',
+                'Subdepartamento',
+                'Responsável directo',
+                'Localização',
+                'Tipo de vínculo',
+                'Admissão',
+                'Estado',
+              ],
+              rows: all.map((u) => [
+                u.fullName,
+                u.employeeNumber,
+                u.email,
+                u.position?.name,
+                u.department?.name,
+                u.subdepartment,
+                u.manager?.fullName,
+                u.location,
+                contractLabel(u.contractType),
+                u.hireDate ? formatDateNumeric(u.hireDate) : '',
+                u.active ? 'Activo' : 'Inactivo',
+              ]),
+            };
+          }}
+        />
         {hasFilter && (
           <span className="text-sm text-ink-faint">
             {data?.total ?? 0} colaboradores
@@ -308,7 +356,11 @@ export function EmployeesView() {
               </TableRow>
             ) : (
               data?.data.map((u) => (
-                <TableRow key={u.id}>
+                <TableRow
+                  key={u.id}
+                  onClick={() => setPreviewId(u.id)}
+                  className={`cursor-pointer ${previewId === u.id ? 'bg-brand-soft' : ''}`}
+                >
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       <Avatar
@@ -358,6 +410,13 @@ export function EmployeesView() {
             )}
           </TableBody>
         </Table>
+      )}
+
+      {previewRow && (
+        <EmployeePreviewPanel
+          row={previewRow}
+          onClose={() => setPreviewId(null)}
+        />
       )}
 
       {hasFilter && data && data.totalPages > 1 && (

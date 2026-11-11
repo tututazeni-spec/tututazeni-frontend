@@ -41,7 +41,9 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { DepartmentNode, PaginatedPositions } from './types';
+import type { DepartmentNode, PaginatedPositions, PositionRow } from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
+
 import { PositionDetailModal } from './PositionDetailModal';
 import { PositionFormModal } from './PositionFormModal';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -236,12 +238,51 @@ export function PositionsView() {
             }}
           />
         </div>
+        <DepartmentExportMenu
+          className="ml-auto"
+          build={async () => {
+            const all = await fetchAllRows<PositionRow>(
+              '/departments/positions',
+              {
+                search: debouncedSearch || undefined,
+                departmentId: departmentId || undefined,
+                level: level || undefined,
+                active: activeFilter || undefined,
+              },
+            );
+            return {
+              title: 'Cargos e funções',
+              headers: [
+                'Cargo',
+                'Código',
+                'Função',
+                'Departamento',
+                'Nível',
+                'Reporta a',
+                'Posições',
+                'Ocupadas',
+                'Vagas',
+                'Estado',
+              ],
+              rows: all.map((p) => [
+                p.name,
+                p.code,
+                p.jobFunction,
+                p.department?.name,
+                p.level
+                  ? (LEVEL_CFG[p.level as PosLevel]?.label ?? p.level)
+                  : '',
+                p.reportsTo?.name,
+                p.headcountPlanned,
+                p.headcountOccupied,
+                p.vacancies,
+                p.active ? 'Activo' : 'Inactivo',
+              ]),
+            };
+          }}
+        />
         {canManage && (
-          <Button
-            size="sm"
-            className="ml-auto"
-            onClick={() => setCreateOpen(true)}
-          >
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Novo cargo
           </Button>
