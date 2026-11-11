@@ -13,7 +13,11 @@ import { X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import { useDirectoryUsers, type DirectoryUser } from './departmentFormData';
+import {
+  useDirectoryUsers,
+  useManagerCandidates,
+  type DirectoryUser,
+} from './departmentFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
 import { VirtualList } from '@/components/ui/VirtualList';
@@ -25,6 +29,11 @@ export interface DepartmentUserPickerProps {
   onChange: (u: DirectoryUser | null) => void;
   /** Não mostrar este utilizador nos resultados. */
   excludeId?: number;
+  /**
+   * Modo "responsável directo": mostra só quem pode sê-lo de um colaborador deste
+   * departamento (do mesmo departamento, ou chefe do superior/subdepartamento).
+   */
+  managerOfDepartmentId?: number;
 }
 
 export function DepartmentUserPicker({
@@ -33,13 +42,29 @@ export function DepartmentUserPicker({
   value,
   onChange,
   excludeId,
+  managerOfDepartmentId,
 }: DepartmentUserPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { users, loading } = useDirectoryUsers(
+  const candidateMode = managerOfDepartmentId != null;
+  const directory = useDirectoryUsers(
     search,
-    open && !value && search.trim().length > 0,
+    open && !value && !candidateMode && search.trim().length > 0,
   );
+  const candidates = useManagerCandidates(
+    managerOfDepartmentId,
+    open && !value && candidateMode,
+  );
+  const term = search.trim().toLowerCase();
+  const users = candidateMode
+    ? candidates.users.filter(
+        (u) =>
+          !term ||
+          u.fullName.toLowerCase().includes(term) ||
+          (u.email ?? '').toLowerCase().includes(term),
+      )
+    : directory.users;
+  const loading = candidateMode ? candidates.loading : directory.loading;
   const results = users.filter((u) => u.id !== excludeId);
 
   const select = (u: DirectoryUser) => {

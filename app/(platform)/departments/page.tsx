@@ -89,6 +89,7 @@ const PANEL_COPY: Record<
     title: 'Hierarquia',
     subtitle: 'Quem reporta a quem',
     icon: Network,
+    showImage: false,
   },
   historico: {
     title: 'Histórico',

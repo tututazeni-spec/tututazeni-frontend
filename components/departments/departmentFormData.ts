@@ -44,6 +44,26 @@ export function useDirectoryUsers(rawSearch: string, enabled = true) {
   return { users, loading: query.isLoading };
 }
 
+/**
+ * Candidatos a responsável directo de um colaborador deste departamento
+ * (GET /departments/:id/manager-candidates): os do mesmo departamento e os
+ * chefes do departamento superior e dos subdepartamentos.
+ */
+export function useManagerCandidates(
+  departmentId: number | undefined,
+  enabled = true,
+) {
+  const query = useApiQuery<DirectoryUser[]>(
+    [...queryKeys.departments.all, 'manager-candidates', departmentId ?? 0],
+    `/departments/${departmentId}/manager-candidates`,
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: enabled && departmentId != null,
+    },
+  );
+  return { users: query.data ?? [], loading: query.isLoading };
+}
+
 /** Lista de unidades/filiais (GET /units) — para o Select "Unidade/empresa". */
 export function useUnits(enabled = true) {
   const query = useApiQuery<UnitOption[]>(
