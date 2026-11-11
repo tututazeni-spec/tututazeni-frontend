@@ -561,7 +561,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                     <span className="text-sm font-medium text-ink">
                       {child.name}
                     </span>
-                    <span className="font-mono text-xs text-ink-faint">
+                    <span className="text-xs text-ink-faint">
                       {child.code}
                     </span>
                     <Badge intent={child.active ? 'success' : 'neutral'}>

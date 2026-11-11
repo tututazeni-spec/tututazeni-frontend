@@ -376,7 +376,7 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
             <div className="break-words text-xl font-bold leading-tight text-white">
               {node.name}
             </div>
-            <div className="mt-0.5 font-mono text-sm tracking-wider text-[#BFDBFF]">
+            <div className="mt-0.5 text-sm tracking-wider text-[#BFDBFF]">
               {node.code}
             </div>
           </div>

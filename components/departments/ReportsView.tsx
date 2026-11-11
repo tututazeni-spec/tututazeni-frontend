@@ -85,7 +85,7 @@ function BarList({
                 <span className="min-w-0 break-words pr-2 text-ink-muted">
                   {item.label}
                 </span>
-                <span className="flex-shrink-0 font-data text-ink-faint">
+                <span className="flex-shrink-0 text-ink-faint">
                   {item.count}
                   {suffix}
                 </span>
@@ -310,7 +310,7 @@ export function ReportsView() {
                   <span className="min-w-0 flex-1 break-words text-ink">
                     {d.name}
                   </span>
-                  <span className="flex-shrink-0 font-mono text-xs text-ink-muted">
+                  <span className="flex-shrink-0 text-xs text-ink-muted">
                     {d.actual} actual · {d.expected ?? '—'} previsto ·{' '}
                     {d.max ?? '—'} limite
                   </span>

@@ -542,7 +542,7 @@ export function CreateDepartmentModal({
                   value={color}
                   onChange={(e) => setField('color', e.target.value)}
                   placeholder="#1a4bb5"
-                  className="max-w-[140px] font-mono"
+                  className="max-w-[140px]"
                 />
               </div>
             </FormField>

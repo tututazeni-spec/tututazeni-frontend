@@ -113,7 +113,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                     color={DEPT_COLORS[i % DEPT_COLORS.length]}
                     className="h-3 flex-1 rounded-control"
                   />
-                  <div className="w-20 text-right font-mono text-xs text-ink-muted">
+                  <div className="w-20 text-right text-xs text-ink-muted">
                     {r.totalMembers} membros
                   </div>
                   <div className="w-24 truncate text-xs text-ink-faint">
