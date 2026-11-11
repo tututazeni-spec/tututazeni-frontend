@@ -36,6 +36,7 @@ import {
   LEVEL_NAME_OPTIONS,
   PROFICIENCY_SCALE_PRESET,
 } from './constants';
+import { LevelMultiField } from './LevelMultiField';
 import { useCompetencyOptions } from './modelFormData';
 import type { ProficiencyLevelWithCompetency } from './types';
 
@@ -298,69 +299,57 @@ export function LevelFormModal({
           </div>
 
           <FormField label="Comportamentos esperados" htmlFor="lf-behaviors">
-            <Combobox
-              items={LEVEL_BEHAVIORS_OPTIONS}
-              value={expectedBehaviors || undefined}
-              onValueChange={(v) => setField('expectedBehaviors', v)}
-              placeholder="Selecionar ou escrever"
-              searchPlaceholder="Escreva para filtrar ou indicar outro…"
-              allowCustom
+            <LevelMultiField
+              id="lf-behaviors"
+              options={LEVEL_BEHAVIORS_OPTIONS}
+              value={expectedBehaviors}
+              onChange={(v) => setField('expectedBehaviors', v)}
             />
           </FormField>
 
           <FormField label="Conhecimentos demonstrados" htmlFor="lf-knowledge">
-            <Combobox
-              items={LEVEL_DEMONSTRATED_OPTIONS}
-              value={knowledgeDemonstrated || undefined}
-              onValueChange={(v) => setField('knowledgeDemonstrated', v)}
-              placeholder="Selecionar ou escrever"
-              searchPlaceholder="Escreva para filtrar ou indicar outro…"
-              allowCustom
+            <LevelMultiField
+              id="lf-knowledge"
+              options={LEVEL_DEMONSTRATED_OPTIONS}
+              value={knowledgeDemonstrated}
+              onChange={(v) => setField('knowledgeDemonstrated', v)}
             />
           </FormField>
 
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Autonomia" htmlFor="lf-autonomy">
-              <Combobox
-                items={LEVEL_AUTONOMY_OPTIONS}
-                value={autonomy || undefined}
-                onValueChange={(v) => setField('autonomy', v)}
-                placeholder="Selecionar ou escrever"
-                searchPlaceholder="Escreva para filtrar ou indicar outro…"
-                allowCustom
+              <LevelMultiField
+                id="lf-autonomy"
+                options={LEVEL_AUTONOMY_OPTIONS}
+                value={autonomy}
+                onChange={(v) => setField('autonomy', v)}
               />
             </FormField>
             <FormField label="Complexidade das tarefas" htmlFor="lf-complexity">
-              <Combobox
-                items={LEVEL_COMPLEXITY_OPTIONS}
-                value={taskComplexity || undefined}
-                onValueChange={(v) => setField('taskComplexity', v)}
-                placeholder="Selecionar ou escrever"
-                searchPlaceholder="Escreva para filtrar ou indicar outro…"
-                allowCustom
+              <LevelMultiField
+                id="lf-complexity"
+                options={LEVEL_COMPLEXITY_OPTIONS}
+                value={taskComplexity}
+                onChange={(v) => setField('taskComplexity', v)}
               />
             </FormField>
           </div>
 
           <FormField label="Evidências observáveis" htmlFor="lf-evidence">
-            <Combobox
-              items={LEVEL_EVIDENCE_OPTIONS}
-              value={observableEvidence || undefined}
-              onValueChange={(v) => setField('observableEvidence', v)}
-              placeholder="Selecionar ou escrever"
-              searchPlaceholder="Escreva para filtrar ou indicar outro…"
-              allowCustom
+            <LevelMultiField
+              id="lf-evidence"
+              options={LEVEL_EVIDENCE_OPTIONS}
+              value={observableEvidence}
+              onChange={(v) => setField('observableEvidence', v)}
             />
           </FormField>
 
           <FormField label="Critérios de avaliação" htmlFor="lf-criteria">
-            <Combobox
-              items={LEVEL_CRITERIA_OPTIONS}
-              value={evaluationCriteria || undefined}
-              onValueChange={(v) => setField('evaluationCriteria', v)}
-              placeholder="Selecionar ou escrever"
-              searchPlaceholder="Escreva para filtrar ou indicar outro…"
-              allowCustom
+            <LevelMultiField
+              id="lf-criteria"
+              options={LEVEL_CRITERIA_OPTIONS}
+              value={evaluationCriteria}
+              onChange={(v) => setField('evaluationCriteria', v)}
             />
           </FormField>
 

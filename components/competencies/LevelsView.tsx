@@ -17,10 +17,12 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button, IconButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CATEGORY_CFG, STATUS_CFG } from './constants';
+import { LevelDetailModal } from './LevelDetailModal';
 import { LevelFormModal } from './LevelFormModal';
 import { useCompetencyOptions } from './modelFormData';
 import type { ProficiencyLevelWithCompetency } from './types';
@@ -35,6 +37,10 @@ export function LevelsView({ canManage }: LevelsViewProps) {
   const { options: competencyOptions } = useCompetencyOptions();
 
   const [competencyId, setCompetencyId] = useState('ALL');
+  const [search, setSearch] = useState('');
+  const [detail, setDetail] = useState<ProficiencyLevelWithCompetency | null>(
+    null,
+  );
   const [form, setForm] = useState<
     | { mode: 'create' }
     | { mode: 'edit'; level: ProficiencyLevelWithCompetency }
@@ -75,23 +81,42 @@ export function LevelsView({ canManage }: LevelsViewProps) {
       list.push(lvl);
       map.set(lvl.competencyId, list);
     }
-    return Array.from(map.values());
-  }, [data]);
+    const norm = (t: string) =>
+      t
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .trim();
+    const q = norm(search);
+    return Array.from(map.values()).filter(
+      (levels) => !q || norm(levels[0].competency.name).includes(q),
+    );
+  }, [data, search]);
 
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <Select
-          variant="underline"
-          icon={Layers}
-          items={[
-            { value: 'ALL', label: 'Todas as competências' },
-            ...competencyOptions,
-          ]}
-          value={competencyId}
-          onValueChange={setCompetencyId}
-          className="min-w-[220px]"
-        />
+        <div className="flex flex-wrap items-center gap-4">
+          <SearchInput
+            variant="underline"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Pesquisar competência…"
+            aria-label="Pesquisar competência"
+            className="min-w-[220px]"
+          />
+          <Select
+            variant="underline"
+            icon={Layers}
+            items={[
+              { value: 'ALL', label: 'Todas as competências' },
+              ...competencyOptions,
+            ]}
+            value={competencyId}
+            onValueChange={setCompetencyId}
+            className="min-w-[220px]"
+          />
+        </div>
         {canManage && (
           <Button onClick={() => setForm({ mode: 'create' })}>
             <Plus size={16} strokeWidth={1.75} className="mr-1.5" />
@@ -125,82 +150,76 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                 .map((lvl) => (
                   <div
                     key={lvl.id}
-                    className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Ver detalhes do nível ${lvl.name}`}
+                    onClick={() => setDetail(lvl)}
+                    onKeyDown={(e) => {
+                      if (e.target !== e.currentTarget) return;
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setDetail(lvl);
+                      }
+                    }}
+                    className="relative flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 overflow-hidden rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] shadow-[0_4px_12px_rgba(21,47,89,0.10)] transition hover:border-brand"
                   >
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <div className="truncate font-body text-sm font-semibold text-brand">
-                        {lvl.name}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <StatusBadge value={lvl.status} map={STATUS_CFG} />
-                        {canManage && (
-                          <div className="flex gap-1">
-                            <IconButton
-                              icon={Pencil}
-                              label="Editar nível"
-                              intent="ghost"
-                              size="xs"
-                              type="button"
-                              onClick={() =>
-                                setForm({ mode: 'edit', level: lvl })
-                              }
-                            />
-                            <IconButton
-                              icon={Trash2}
-                              label="Eliminar nível"
-                              intent="ghostDanger"
-                              size="xs"
-                              type="button"
-                              onClick={() => onDelete(lvl)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-                      <div>
-                        <div className="font-body text-xs text-brand-muted">
-                          Nível
-                        </div>
-                        <div className="font-semibold text-brand">
-                          {lvl.value}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-body text-xs text-brand-muted">
-                          Código
-                        </div>
-                        <div className="truncate font-semibold text-brand">
-                          {lvl.code ?? '—'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-body text-xs text-brand-muted">
-                          Pontuação
-                        </div>
-                        <div className="font-semibold text-brand">
-                          {lvl.minScore != null || lvl.maxScore != null
-                            ? `${lvl.minScore ?? '—'}–${lvl.maxScore ?? '—'} pts`
-                            : '—'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-body text-xs text-brand-muted">
-                          Descrição
-                        </div>
-                        <div
-                          className="truncate font-semibold text-brand"
-                          title={lvl.description ?? undefined}
+                    <span className="w-6 text-center font-data text-sm font-bold text-brand-muted">
+                      {lvl.value}
+                    </span>
+                    <div className="min-w-0 flex-1 truncate font-body text-sm text-brand">
+                      <span className="font-semibold">{lvl.name}</span>
+                      {lvl.code && (
+                        <span className="ml-1.5 text-xs text-brand-muted">
+                          {lvl.code}
+                        </span>
+                      )}
+                      {lvl.description && (
+                        <span
+                          className="ml-2 text-xs text-brand-muted"
+                          title={lvl.description}
                         >
-                          {lvl.description ?? '—'}
-                        </div>
-                      </div>
+                          {lvl.description}
+                        </span>
+                      )}
                     </div>
+                    {(lvl.minScore != null || lvl.maxScore != null) && (
+                      <span className="font-body text-xs font-semibold text-brand">
+                        {lvl.minScore ?? '—'}–{lvl.maxScore ?? '—'} pts
+                      </span>
+                    )}
+                    <StatusBadge value={lvl.status} map={STATUS_CFG} />
+                    {canManage && (
+                      <div
+                        className="flex gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <IconButton
+                          icon={Pencil}
+                          label="Editar nível"
+                          intent="ghost"
+                          size="xs"
+                          type="button"
+                          onClick={() => setForm({ mode: 'edit', level: lvl })}
+                        />
+                        <IconButton
+                          icon={Trash2}
+                          label="Eliminar nível"
+                          intent="ghostDanger"
+                          size="xs"
+                          type="button"
+                          onClick={() => onDelete(lvl)}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
             </div>
           ))}
         </div>
+      )}
+
+      {detail && (
+        <LevelDetailModal level={detail} onClose={() => setDetail(null)} />
       )}
 
       {form && (
