@@ -35,7 +35,14 @@ import { useCompetencyOptions, type DirectoryUser } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyDevelopmentAction } from './types';
 import { formatDateNumeric } from '@/lib/format';
-import { Filter, Layers, MapPin } from 'lucide-react';
+import { Filter, Layers, MapPin, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/providers/ToastProvider';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { DevelopmentPlanFormModal } from './DevelopmentPlanFormModal';
+
+// Mesmo RBAC de POST /development-plans (ADMIN, RH, GESTOR).
+const CREATE_ROLES = ['ADMIN', 'RH', 'GESTOR'] as const;
 
 const ALL = 'ALL';
 
@@ -60,6 +67,9 @@ export function DevelopmentView() {
   const [type, setType] = useState(ALL);
   const [status, setStatus] = useState(ALL);
   const [user, setUser] = useState<DirectoryUser | null>(null);
+  const [creating, setCreating] = useState(false);
+  const canCreate = useHasRole(CREATE_ROLES);
+  const notify = useToast();
 
   const { options: competencyOptions } = useCompetencyOptions();
 
@@ -79,7 +89,7 @@ export function DevelopmentView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           variant="underline"
           icon={Layers}
@@ -90,13 +100,31 @@ export function DevelopmentView() {
           value={competencyId}
           onValueChange={setCompetencyId}
         />
-        <Select variant="underline" icon={Filter} items={TYPE_ITEMS} value={type} onValueChange={setType} />
-        <Select variant="underline" icon={MapPin} items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={Filter}
+          items={TYPE_ITEMS}
+          value={type}
+          onValueChange={setType}
+        />
+        <Select
+          variant="underline"
+          icon={MapPin}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+        />
         <UserFilterSearch
           selected={user}
           onChange={setUser}
           className="w-[220px]"
         />
+        {canCreate && (
+          <Button className="ml-auto" onClick={() => setCreating(true)}>
+            <Plus size={16} strokeWidth={1.75} className="mr-1.5" />
+            Novo plano de evolução
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -188,9 +216,7 @@ export function DevelopmentView() {
                   {r.responsavel ?? '—'}
                 </TableCell>
                 <TableCell className="text-xs text-ink-muted">
-                  {r.dataInicio
-                    ? formatDateNumeric(r.dataInicio)
-                    : '—'}
+                  {r.dataInicio ? formatDateNumeric(r.dataInicio) : '—'}
                 </TableCell>
                 <TableCell className="text-xs text-ink-muted">
                   {r.dataPrevistaConclusao
@@ -216,6 +242,17 @@ export function DevelopmentView() {
             ))}
           </TableBody>
         </Table>
+      )}
+      {creating && (
+        <DevelopmentPlanFormModal
+          onClose={() => setCreating(false)}
+          onSuccess={() =>
+            notify({
+              title: 'Plano de evolução criado e atribuído.',
+              intent: 'success',
+            })
+          }
+        />
       )}
     </div>
   );
