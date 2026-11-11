@@ -1,7 +1,12 @@
 // components/ui/Modal.tsx
 'use client';
 
-import { useEffect, type ComponentProps, type ReactNode } from 'react';
+import {
+  useEffect,
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { Dialog } from 'radix-ui';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -27,6 +32,8 @@ export interface ModalContentProps {
   description?: string;
   children?: ReactNode;
   className?: string;
+  /** Estilo inline do painel (ex.: cor de fundo dinâmica). */
+  style?: CSSProperties;
   /** Cabeçalho do título em #0F1F3D a 60%, com texto e botão de fechar brancos. */
   navyHeader?: boolean;
   /** Título + descrição num bloco #0F1F3D (100%), com texto e botão de fechar brancos. */
@@ -46,6 +53,7 @@ export function ModalContent({
   description,
   children,
   className,
+  style,
   navyHeader,
   navyBanner,
   gradientBanner,
@@ -92,6 +100,7 @@ export function ModalContent({
       />
       <Dialog.Content
         onOpenAutoFocus={onOpenAutoFocus}
+        style={style}
         onPointerDownOutside={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}

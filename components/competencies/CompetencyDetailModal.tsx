@@ -20,6 +20,7 @@
 
 'use client';
 
+import type { CSSProperties } from 'react';
 import {
   AlertCircle,
   FileText,
@@ -46,6 +47,7 @@ import {
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { cardSolidColor } from './cardColors';
 import { CATEGORY_CFG } from './constants';
 import type { CompetencyDetail } from './types';
 
@@ -148,6 +150,16 @@ export function CompetencyDetailModal({
         hideHeading
         navyClose
         className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        // As peças de DetailCardParts pintam o azul marinho com esta variável:
+        // aqui passa a ser a cor do cartão da competência no catálogo.
+        style={
+          {
+            '--color-brand-ink': cardSolidColor(competencyId),
+            '--color-brand': cardSolidColor(competencyId),
+            '--color-brand-hover': cardSolidColor(competencyId),
+            '--color-brand-active': cardSolidColor(competencyId),
+          } as CSSProperties
+        }
       >
         {isLoading ? (
           <div className="mt-5">
