@@ -27,6 +27,7 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { ADMIN_ROLES } from '@/lib/roles';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,16 +49,6 @@ function countDescendants(node: DepartmentNode): number {
 
 function descendantIds(node: DepartmentNode): number[] {
   return node.children.flatMap((c) => [c.id, ...descendantIds(c)]);
-}
-
-function flattenForSelect(
-  nodes: DepartmentNode[],
-  prefix = '',
-): { id: number; label: string }[] {
-  return nodes.flatMap((n) => [
-    { id: n.id, label: prefix + n.name },
-    ...flattenForSelect(n.children, prefix + '— '),
-  ]);
 }
 
 function findNode(nodes: DepartmentNode[], id: number): DepartmentNode | null {
@@ -144,7 +135,7 @@ function DeptCard({
       }}
       className={`${GRID} relative w-full border-b border-brand-line px-2 py-2 text-left transition-colors hover:bg-brand-soft ${
         selected ? 'bg-brand-soft' : ''
-      } ${over ? 'bg-[#DCE8FA] ring-2 ring-inset ring-[#2878E5]' : ''} ${
+      } ${over ? 'before:absolute before:inset-x-0 before:-top-px before:h-[3px] before:rounded-full before:bg-[#2878E5] before:content-[""]' : ''} ${
         drag?.enabled ? 'cursor-grab active:cursor-grabbing' : ''
       } ${drag?.dragId === node.id ? 'opacity-40' : ''}`}
     >
@@ -355,19 +346,11 @@ function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
 
 interface PreviewPanelProps {
   node: DepartmentNode;
-  parentItems?: { value: string; label: string }[];
-  onMove?: (parentId: number | null) => void;
   onViewDetail: (id: number) => void;
   onClose: () => void;
 }
 
-function PreviewPanel({
-  node,
-  parentItems,
-  onMove,
-  onViewDetail,
-  onClose,
-}: PreviewPanelProps) {
+function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
   const descendants = countDescendants(node);
   return (
     <aside
@@ -433,20 +416,6 @@ function PreviewPanel({
           </PreviewField>
         </dl>
 
-        {parentItems && onMove && (
-          <div className="mt-4">
-            <div className="mb-1 text-xs font-medium uppercase tracking-wide text-[#7186A8]">
-              Mover para
-            </div>
-            <Select
-              items={parentItems}
-              value={node.parentId != null ? String(node.parentId) : 'ROOT'}
-              onValueChange={(v) => onMove(v === 'ROOT' ? null : Number(v))}
-              label="Departamento superior"
-            />
-          </div>
-        )}
-
         <button
           type="button"
           onClick={() => onViewDetail(node.id)}
@@ -499,6 +468,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
   const [dragId, setDragId] = useState<number | null>(null);
   const canManage = useHasRole(ADMIN_ROLES);
   const notify = useToast();
+  const confirm = useConfirm();
 
   const {
     data: tree = [],
@@ -511,8 +481,10 @@ export function StructureView({ onSelect }: StructureViewProps) {
   );
 
   const moveMutation = useApiMutation(
-    (v: { id: number; parentId: number | null }) =>
-      apiClient.put(`/departments/${v.id}`, { parentId: v.parentId }),
+    (v: { id: number; beforeId: number }) =>
+      apiClient.post(`/departments/${v.id}/move-before`, {
+        beforeId: v.beforeId,
+      }),
     {
       invalidateKeys: [queryKeys.departments.all],
       onSuccess: () =>
@@ -525,11 +497,21 @@ export function StructureView({ onSelect }: StructureViewProps) {
         }),
     },
   );
-  const move = (id: number, parentId: number | null) => {
-    const current = findNode(tree, id);
-    if (!current || current.parentId === parentId || moveMutation.isPending)
-      return;
-    moveMutation.mutate({ id, parentId });
+  // Pede confirmação antes de efectivar a mudança de posição.
+  const moveBefore = async (id: number, beforeId: number) => {
+    const moved = findNode(tree, id);
+    const target = findNode(tree, beforeId);
+    if (!moved || !target || moveMutation.isPending) return;
+    const ok = await confirm({
+      title: 'Alterar a posição na hierarquia?',
+      message: `«${moved.name}» passa a ficar acima de «${target.name}»${
+        moved.parentId !== target.parentId
+          ? ' e muda para o mesmo nível dele'
+          : ''
+      }.`,
+      confirmLabel: 'Confirmar',
+    });
+    if (ok) moveMutation.mutate({ id, beforeId });
   };
   const dragNode = dragId != null ? findNode(tree, dragId) : null;
   const blocked = new Set<number>(
@@ -542,8 +524,9 @@ export function StructureView({ onSelect }: StructureViewProps) {
     onStart: setDragId,
     onEnd: () => setDragId(null),
     onDrop: (targetId) => {
-      if (dragId != null) move(dragId, targetId);
+      const moving = dragId;
       setDragId(null);
+      if (moving != null) void moveBefore(moving, targetId);
     },
   };
   const q = normalize(search);
@@ -598,24 +581,9 @@ export function StructureView({ onSelect }: StructureViewProps) {
             <span />
           </div>
           {canManage && (
-            <div
-              onDragOver={(e) => {
-                if (dragNode && dragNode.parentId != null) e.preventDefault();
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragId != null) move(dragId, null);
-                setDragId(null);
-              }}
-              className={`mt-2 rounded-[10px] border border-dashed px-3 py-2 text-center text-micro transition-colors ${
-                dragNode && dragNode.parentId != null
-                  ? 'border-[#2878E5] bg-[#EAF1FC] text-brand'
-                  : 'border-transparent text-[#7890AC]'
-              }`}
-            >
-              {dragNode && dragNode.parentId != null
-                ? 'Largue aqui para tornar departamento de topo'
-                : 'Arraste um departamento para cima de outro para o tornar subdepartamento'}
+            <div className="mt-2 px-1 text-micro text-[#7890AC]">
+              Arraste um departamento para cima de outro para o colocar antes
+              dele na hierarquia.
             </div>
           )}
           {visibleTree.length === 0 ? (
@@ -643,21 +611,6 @@ export function StructureView({ onSelect }: StructureViewProps) {
         {previewNode && (
           <PreviewPanel
             node={previewNode}
-            parentItems={
-              canManage
-                ? [
-                    { value: 'ROOT', label: 'Nenhum (topo)' },
-                    ...flattenForSelect(tree).filter(
-                      (d) =>
-                        d.id !== previewNode.id &&
-                        !descendantIds(previewNode).includes(d.id),
-                    ),
-                  ].map((d) =>
-                    'id' in d ? { value: String(d.id), label: d.label } : d,
-                  )
-                : undefined
-            }
-            onMove={canManage ? (pid) => move(previewNode.id, pid) : undefined}
             onViewDetail={onSelect}
             onClose={() => setPreviewId(null)}
           />
