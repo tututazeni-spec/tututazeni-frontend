@@ -95,6 +95,7 @@ const PANEL_COPY: Record<
     title: 'Histórico',
     subtitle: 'Alterações à estrutura',
     icon: History,
+    imagePosition: '77%',
   },
 };
 
