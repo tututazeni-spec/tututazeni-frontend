@@ -43,6 +43,8 @@ import {
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
+import type { TableExportInput } from '@/lib/tableExport';
 
 const ALL = 'ALL';
 
@@ -142,6 +144,58 @@ function ComparisonStat({ title, labelA, labelB, cmp }: ComparisonStatProps) {
   );
 }
 
+// Só agregados — nunca nomes de avaliadores (mesma regra do separador).
+function buildReportExport(d: CycleReportData): TableExportInput {
+  const n = (v: number | null | undefined) =>
+    v === null || v === undefined ? '' : v.toFixed(2);
+  const grp = (
+    section: string,
+    items: { name: string; average: number; count: number }[],
+  ) => items.map((i) => [section, i.name, n(i.average), i.count]);
+  const g = d.byEvaluatorGroup;
+  const rows: (string | number)[][] = [
+    ['Resultado geral', 'Avaliados', d.overall.totalParticipants, ''],
+    ['Resultado geral', 'Média geral', n(d.overall.avgOverall), ''],
+    ['Resultado geral', 'Média ponderada', n(d.overall.avgWeighted), ''],
+    [
+      'Resultado geral',
+      'Elegíveis a promoção',
+      d.overall.eligiblePromotion,
+      '',
+    ],
+    ['Resultado geral', 'Taxa de participação (%)', d.participationRate, ''],
+    ['Resultado geral', 'Taxa de conclusão (%)', d.completionRate, ''],
+    ['Resultado geral', 'Avaliadores pendentes', d.pendingEvaluators.count, ''],
+    ...d.byCompetency.map((c) => ['Por competência', c.name, n(c.average), '']),
+    ...grp('Por departamento', d.byDepartment),
+    ...grp('Por cargo', d.byPosition),
+    ...grp('Por unidade', d.byUnit),
+    ['Por grupo de avaliador', 'Autoavaliação', n(g.self), ''],
+    ['Por grupo de avaliador', 'Gestor', n(g.manager), ''],
+    ['Por grupo de avaliador', 'Pares', n(g.peer), ''],
+    ['Por grupo de avaliador', 'Subordinados', n(g.subordinate), ''],
+    ['Por grupo de avaliador', 'Outras', n(g.external), ''],
+    ...d.topStrengths.map((c) => [
+      'Pontos fortes',
+      c.name,
+      n(c.avgScore),
+      c.occurrences,
+    ]),
+    ...d.topGaps.map((c) => [
+      'Pontos a melhorar',
+      c.name,
+      n(c.avgScore),
+      c.occurrences,
+    ]),
+  ];
+  return {
+    title: `Avaliação 360° — Relatório: ${d.cycle.name}`,
+    filename: 'relatorio-avaliacao-360',
+    headers: ['Secção', 'Item', 'Valor (média)', 'Nº'],
+    rows,
+  };
+}
+
 export function RelatoriosTab() {
   const {
     cycles,
@@ -195,12 +249,18 @@ export function RelatoriosTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h2 className="m-0 text-lg font-bold text-ink">Relatórios</h2>
-        <p className="m-0 mt-1 text-sm text-ink-muted">
-          Relatórios agregados de um ciclo de avaliação 360° — nunca identifica
-          um avaliador individual.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="m-0 text-lg font-bold text-ink">Relatórios</h2>
+          <p className="m-0 mt-1 text-sm text-ink-muted">
+            Relatórios agregados de um ciclo de avaliação 360° — nunca
+            identifica um avaliador individual.
+          </p>
+        </div>
+        <CompetencyExportMenu
+          disabled={!data}
+          build={() => buildReportExport(data as CycleReportData)}
+        />
       </div>
 
       <FilterPanelCard>

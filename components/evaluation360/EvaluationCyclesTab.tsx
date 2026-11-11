@@ -44,6 +44,7 @@ import {
   usePositionOptions,
 } from './cycleData';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 interface RawCycleRow {
   id: string;
@@ -194,15 +195,50 @@ export function EvaluationCyclesTab() {
             {data ? `${data.total} avaliação(ões) 360°` : 'A carregar…'}
           </p>
         </div>
-        {canCreateCycle && (
-          <Button
-            intent="primary"
-            size="sm"
-            onClick={() => setCycleModalOpen(true)}
-          >
-            + Novo Ciclo
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <CompetencyExportMenu
+            disabled={isLoading}
+            build={() => ({
+              title: 'Avaliações 360°',
+              filename: 'avaliacoes-360',
+              headers: [
+                'Código',
+                'Nome',
+                'Tipo',
+                'Estado',
+                'Início',
+                'Fim',
+                'Responsável',
+                'Avaliados',
+                'Avaliadores',
+                'Concluídos',
+                'Participação (%)',
+              ],
+              rows: cycles.map((c) => [
+                c.code,
+                c.name,
+                c.type,
+                c.status,
+                c.startDate?.slice(0, 10),
+                c.endDate?.slice(0, 10),
+                c.createdByName,
+                c._count.participants,
+                c.evaluatorsCount,
+                c.completedParticipants,
+                Math.round(c.participationRate),
+              ]),
+            })}
+          />
+          {canCreateCycle && (
+            <Button
+              intent="primary"
+              size="sm"
+              onClick={() => setCycleModalOpen(true)}
+            >
+              + Novo Ciclo
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filtros: Estado, Tipo, Departamento, Unidade, Cargo, Responsável, Data — docs/evaluation360.md §2 */}

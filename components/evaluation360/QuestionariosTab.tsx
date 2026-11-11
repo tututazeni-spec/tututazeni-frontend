@@ -18,6 +18,7 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 const ALL = 'ALL';
 
@@ -89,6 +90,33 @@ export function QuestionariosTab() {
             Banco de questionários utilizados nas avaliações 360°.
           </p>
         </div>
+        <CompetencyExportMenu
+          disabled={isLoading}
+          build={() => ({
+            title: 'Avaliação 360° — Questionários',
+            filename: 'questionarios-360',
+            headers: [
+              'Nome',
+              'Código',
+              'Versão',
+              'Perguntas',
+              'Competências',
+              'Escala',
+              'Estado',
+              'Actualizado',
+            ],
+            rows: rows.map((q) => [
+              q.name,
+              q.code,
+              `v${q.version}`,
+              q.questionCount,
+              q.competencyCount,
+              `${q.scaleMin}–${q.scaleMax}`,
+              STATUS_LABEL[q.status],
+              q.updatedAt.slice(0, 10),
+            ]),
+          })}
+        />
       </div>
 
       <FilterPanelCard>
