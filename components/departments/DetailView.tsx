@@ -285,8 +285,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       )}
 
       {/* Header */}
-      <Card className="mb-5 p-5">
-        <div className="flex items-start justify-between gap-4">
+      <div className="mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="flex items-start justify-between gap-4 border-b border-brand-line px-5 py-4">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
               <HeaderIcon
@@ -346,28 +346,30 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
         {/* Gestor */}
         {dept.head && (
-          <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
-            <Avatar name={dept.head.fullName} size="md" />
-            <div>
-              <div className="text-sm font-medium text-ink">
+          <div className="flex w-full flex-wrap items-center gap-3 bg-surface px-5 py-3">
+            <Avatar name={dept.head.fullName} size="sm" />
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-body text-sm font-semibold text-brand">
                 {dept.head.fullName}
               </div>
-              <div className="text-xs text-ink-faint">
+              <div className="truncate font-body text-xs text-brand-muted">
                 {dept.head.email} · Responsável
               </div>
             </div>
           </div>
         )}
         {!dept.head && (
-          <AlertCard
-            compact
-            variant="warning"
-            title="Atenção"
-            message="Departamento sem gestor definido"
-            className="mt-4 [&_p]:text-brand"
-          />
+          <div className="px-5 py-3">
+            <AlertCard
+              compact
+              variant="warning"
+              title="Atenção"
+              message="Departamento sem gestor definido"
+              className="[&_p]:text-brand"
+            />
+          </div>
         )}
-      </Card>
+      </div>
 
       {metrics && (
         <div className="mb-5">
@@ -402,7 +404,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <div>
           {/* Add member form */}
           <Card className="mb-4 border-success bg-success-subtle p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D] px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Adicionar colaborador ao departamento
             </div>
             <div className="flex flex-wrap gap-3">
@@ -425,6 +427,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 onClick={handleAddMember}
                 disabled={!canAddMember || addMemberLoading}
                 loading={addMemberLoading}
+                className="bg-[#0F1F3D] text-white hover:bg-[#0F1F3D]/90"
               >
                 Adicionar
               </Button>
@@ -433,7 +436,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
           {/* Transfer form */}
           <Card className="mb-4 border-info bg-info-subtle p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D] px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
@@ -463,6 +466,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 onClick={handleTransfer}
                 disabled={!canTransfer || transferLoading}
                 loading={transferLoading}
+                className="bg-[#0F1F3D] text-white hover:bg-[#0F1F3D]/90"
               >
                 Transferir
               </Button>
@@ -470,57 +474,36 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           </Card>
 
           {/* Members list */}
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell className="bg-brand/60 text-white">
-                  Colaborador
-                </TableHeaderCell>
-                <TableHeaderCell className="bg-brand/60 text-white">
-                  Cargo
-                </TableHeaderCell>
-                <TableHeaderCell className="bg-brand/60 text-white">
-                  Estado
-                </TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(dept.users as Member[]).length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    className="py-8 text-center text-ink-faint"
-                  >
-                    Sem membros neste departamento
-                  </TableCell>
-                </TableRow>
-              ) : (
-                (dept.users as Member[]).map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar name={u.fullName} size="sm" />
-                        <div>
-                          <div className="text-sm text-ink">{u.fullName}</div>
-                          <div className="text-xs text-ink-faint">
-                            {u.email}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs text-ink-muted">
-                      {u.position?.name ?? '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge intent={u.active ? 'success' : 'neutral'}>
-                        {u.active ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          {(dept.users as Member[]).length === 0 ? (
+            <div className="rounded-[24px] border border-brand-line bg-surface px-5 py-8 text-center font-body text-sm text-ink-faint shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              Sem membros neste departamento
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              {(dept.users as Member[]).map((u) => (
+                <div
+                  key={u.id}
+                  className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
+                >
+                  <Avatar name={u.fullName} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-sm font-semibold text-brand">
+                      {u.fullName}
+                    </div>
+                    <div className="truncate font-body text-xs text-brand-muted">
+                      {u.email}
+                    </div>
+                  </div>
+                  <div className="hidden w-48 shrink-0 truncate font-body text-xs text-brand-muted sm:block">
+                    {u.position?.name ?? '—'}
+                  </div>
+                  <Badge intent={u.active ? 'success' : 'neutral'}>
+                    {u.active ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
