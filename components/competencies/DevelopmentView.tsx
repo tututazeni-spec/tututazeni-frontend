@@ -68,11 +68,15 @@ export function DevelopmentView() {
     userId: user?.id,
   };
 
+  // Sem nenhum filtro seleccionado não se mostram planos (como em Avaliações).
+  const hasFilter = Object.values(params).some((v) => v !== undefined);
+
   const { data: rows, isLoading: loading } = useApiQuery<
     CompetencyDevelopmentAction[]
   >(queryKeys.competencies.development(params), '/competencies/development', {
     params,
     staleTime: STALE_TIME.DYNAMIC,
+    enabled: hasFilter,
   });
 
   return (
@@ -115,7 +119,12 @@ export function DevelopmentView() {
         )}
       </div>
 
-      {loading ? (
+      {!hasFilter ? (
+        <EmptyState
+          title="Seleccione um filtro"
+          description="Escolha uma competência, tipo, estado ou colaborador para ver os planos de evolução."
+        />
+      ) : loading ? (
         <Skeleton rows={6} />
       ) : !rows || rows.length === 0 ? (
         <EmptyState

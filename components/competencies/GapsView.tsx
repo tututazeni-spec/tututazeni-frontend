@@ -8,6 +8,14 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Briefcase,
+  Building2,
+  CalendarCheck,
+  Flag,
+  Layers,
+  Target,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -128,37 +136,59 @@ export function GapsView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Building2}
           items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
           value={departmentId}
           onValueChange={setDepartmentId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Briefcase}
           items={[{ value: ALL, label: 'Cargo' }, ...positionOptions]}
           value={positionId}
           onValueChange={setPositionId}
+          className="w-[160px]"
         />
         <Select
+          variant="underline"
+          icon={Target}
           items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
           value={competencyId}
           onValueChange={setCompetencyId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={HIERARCHY_LEVEL_ITEMS}
           value={hierarchyLevel}
           onValueChange={setHierarchyLevel}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Flag}
           items={PRIORITY_ITEMS}
           value={priority}
           onValueChange={setPriority}
+          className="w-[150px]"
         />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={CalendarCheck}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+          className="w-[140px]"
+        />
         <UserFilterSearch
           selected={user}
           onChange={setUser}
-          className="w-[220px]"
+          className="w-[240px]"
         />
         <CompetencyExportMenu
           className="ml-auto"
