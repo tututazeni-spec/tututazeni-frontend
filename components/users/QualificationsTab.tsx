@@ -69,7 +69,7 @@ const CEFR_ITEMS = CEFR_LEVELS.map((l) => ({ value: l, label: l }));
 const card =
   'overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]';
 const cardHead =
-  'flex items-center justify-between gap-2.5 bg-brand/60 px-5 py-3 text-white';
+  'flex items-center justify-between gap-2.5 bg-brand-dark px-5 py-3 text-white';
 const row =
   'flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2';
 const trash =

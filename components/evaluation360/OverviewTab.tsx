@@ -76,7 +76,7 @@ export function OverviewTab({
 
       {!result && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Resultados
           </h3>
           {cycle
@@ -126,7 +126,7 @@ export function OverviewTab({
           {/* Strengths & Gaps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
                 Pontos Fortes
               </h3>
               {result.strengths.length === 0 && (
@@ -155,7 +155,7 @@ export function OverviewTab({
               ))}
             </div>
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
                 Oportunidades de Desenvolvimento
               </h3>
               {result.gaps.length === 0 && (

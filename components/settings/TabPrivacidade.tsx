@@ -253,7 +253,7 @@ export function TabPrivacidade() {
 
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Encarregado de protecção de dados
           </div>
           <CardBody>
@@ -288,7 +288,7 @@ export function TabPrivacidade() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Retenção e tratamento de dados
           </div>
           <CardBody>
@@ -339,7 +339,7 @@ export function TabPrivacidade() {
       </form>
 
       <Card className="overflow-hidden rounded-[24px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Texto de consentimento
           <div className="flex gap-2">
             <Button
@@ -397,7 +397,7 @@ export function TabPrivacidade() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Pedidos de direitos dos titulares
           <div className="flex items-center gap-2">
             <Select

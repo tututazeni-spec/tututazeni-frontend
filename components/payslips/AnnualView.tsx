@@ -166,7 +166,7 @@ export function AnnualView() {
 
           {/* Evolução mensal simples */}
           <div className="overflow-hidden rounded-card border border-border bg-surface">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
               Evolução mensal {year}
             </div>
             {data.monthlySeries.map((m) => {

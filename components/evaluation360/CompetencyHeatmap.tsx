@@ -24,7 +24,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
               (h) => (
                 <th
                   key={h}
-                  className="text-center px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border whitespace-nowrap"
+                  className="text-center px-3 py-2.5 text-xs font-bold text-white uppercase tracking-wider border-b border-border bg-brand-dark whitespace-nowrap"
                 >
                   {h}
                 </th>

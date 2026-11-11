@@ -77,7 +77,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
 
         {competencies.length === 0 ? (
           <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-            <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+            <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
               Resultados
             </h3>
             Ainda sem competências pontuadas para ti.
@@ -86,7 +86,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
           <>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
               <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-                <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+                <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
                   Radar de competências
                 </h3>
                 <div className="flex justify-center">
@@ -150,7 +150,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
             <div className="rounded-card border border-border bg-surface overflow-x-auto">
               <table className="w-full text-sm border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+                  <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                     <th className="px-4 py-3">Competência</th>
                     <th className="px-4 py-3 text-right">Auto</th>
                     <th className="px-4 py-3 text-right">Gestor</th>
@@ -257,7 +257,7 @@ function CycleResultsMatrix() {
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Resultados
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -266,7 +266,7 @@ function CycleResultsMatrix() {
       {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Resultados
           </h3>
           Este ciclo ainda não tem resultados calculados.
@@ -277,7 +277,7 @@ function CycleResultsMatrix() {
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1100px]">
             <thead>
-              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Avaliado</th>
                 <th className="px-4 py-3">Competência</th>
                 <th className="px-4 py-3 text-right">Auto</th>

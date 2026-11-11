@@ -283,7 +283,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
 
       {/* Formações previstas */}
       <Card className="overflow-hidden p-0">
-        <div className="flex items-center justify-between bg-brand/60 px-4 py-3">
+        <div className="flex items-center justify-between bg-brand-dark px-4 py-3">
           <span className="font-body text-xs font-medium uppercase tracking-wide text-white">
             Formações previstas
           </span>

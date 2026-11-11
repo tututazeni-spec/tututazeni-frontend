@@ -81,7 +81,7 @@ function SectionCard({
 }) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+      <h4 className="-mx-5 -mt-5 mb-4 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
         {title}
       </h4>
       {children}
@@ -540,7 +540,7 @@ export function MyPlanView() {
               </Card>
             ) : (
               <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-                <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+                <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
                   Pesquisas de satisfação
                 </h3>
                 {answeredCount >= SURVEY_MILESTONES.length

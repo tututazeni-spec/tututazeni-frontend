@@ -23,7 +23,7 @@ export function SectionTables({ sections, omitted = [] }: SectionTablesProps) {
     <div className="space-y-4">
       {sections.map((s) => (
         <Card key={s.key} className="overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+          <div className="bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
             {s.title}
           </div>
           <div className="p-4">

@@ -336,7 +336,7 @@ export function CriticalPositionsView() {
                     </p>
                   )}
 
-                  <div className="mt-5 flex items-center justify-between gap-2.5 rounded-t-[14px] bg-brand/60 px-4 py-2.5 text-white">
+                  <div className="mt-5 flex items-center justify-between gap-2.5 rounded-t-[14px] bg-brand-dark px-4 py-2.5 text-white">
                     <span className="font-body text-sm font-semibold uppercase tracking-wider">
                       Pipeline de Sucessão
                     </span>
@@ -361,7 +361,7 @@ export function CriticalPositionsView() {
                           key={sp.id}
                           className="overflow-hidden rounded-[14px] border border-brand-line bg-surface"
                         >
-                          <div className="flex items-center gap-3 bg-brand/60 px-4 py-2.5 text-white">
+                          <div className="flex items-center gap-3 bg-brand-dark px-4 py-2.5 text-white">
                             <Avatar
                               name={sp.candidate.fullName}
                               url={sp.candidate.avatarUrl ?? undefined}

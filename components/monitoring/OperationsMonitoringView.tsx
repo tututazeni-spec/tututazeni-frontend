@@ -109,7 +109,7 @@ interface JobTableProps {
 function JobTable({ title, rows, state }: JobTableProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
@@ -248,7 +248,7 @@ export function JobsTab({ data }: { data: JobsData }) {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Filas
         </div>
         <CardBody>
@@ -298,7 +298,7 @@ export function JobsTab({ data }: { data: JobsData }) {
       ))}
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Tarefas periódicas (esta instância)
         </div>
         <CardBody>
@@ -430,7 +430,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
 
       {data.atRisk.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Serviços em risco
           </div>
           <CardBody>
@@ -448,7 +448,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       )}
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Cumprimento por serviço
         </div>
         <CardBody>
@@ -492,7 +492,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Indisponibilidade por componente
         </div>
         <CardBody>
@@ -521,7 +521,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Violações de SLA
         </div>
         <CardBody>
@@ -655,7 +655,7 @@ export function HistoryTab({
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Linha do tempo
         </div>
         <CardBody>
@@ -696,7 +696,7 @@ export function HistoryTab({
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Plataforma por dia
         </div>
         <CardBody>
@@ -745,7 +745,7 @@ export function HistoryTab({
 
       {data.queues.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Filas por dia (picos)
           </div>
           <CardBody>

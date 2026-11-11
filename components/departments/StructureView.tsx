@@ -577,7 +577,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
             </div>
           </div>
           <div
-            className={`${GRID} rounded-[10px] bg-[#DCE8FA] px-2 py-2 text-[11px] font-bold uppercase text-brand`}
+            className={`${GRID} rounded-[10px] bg-brand-dark px-2 py-2 text-[11px] font-bold uppercase text-white`}
           >
             <span>Departamentos</span>
             <span>Cargos</span>

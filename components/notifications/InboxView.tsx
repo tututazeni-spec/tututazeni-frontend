@@ -140,7 +140,7 @@ export function InboxView({
     if (!items.length) return null;
     return (
       <div key={label}>
-        <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+        <div className="border-b border-border bg-brand-dark px-4 py-2 font-body text-xs font-semibold uppercase tracking-wide text-white">
           {label}
         </div>
         {items.map((n) => (

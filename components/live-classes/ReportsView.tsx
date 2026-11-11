@@ -46,7 +46,7 @@ const YEAR_ITEMS = [
 
 // Cabeçalho dos cartões de ranking: #0F1F3D a 60%.
 const REPORT_CARD_HEADER =
-  'bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+  'bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
 
 function RankedList({
   rows,

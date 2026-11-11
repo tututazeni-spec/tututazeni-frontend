@@ -46,7 +46,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
 
       {data.authorizedModules.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             Módulos autorizados
           </div>
           <div className="flex flex-wrap gap-1.5 p-5">
@@ -60,7 +60,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
       )}
 
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Permissões do perfil ({data.permissions.length})
         </div>
         {data.permissions.length === 0 ? (
@@ -94,7 +94,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Permissões especiais ({data.specialPermissions.length})
         </div>
         {data.specialPermissions.length === 0 ? (

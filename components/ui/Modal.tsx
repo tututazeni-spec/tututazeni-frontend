@@ -68,7 +68,7 @@ export function ModalContent({
         className={cn(
           'pr-8 font-display text-lg font-bold text-ink',
           navyHeader &&
-            '-mx-6 -mt-6 mb-4 bg-brand/60 px-6 py-4 pr-14 text-white',
+            '-mx-6 -mt-6 mb-4 bg-brand-dark px-6 py-4 pr-14 text-white',
           navyBanner && 'pr-0 text-white',
           gradientBanner &&
             'pr-0 font-body text-xl font-extrabold uppercase tracking-wide text-white',

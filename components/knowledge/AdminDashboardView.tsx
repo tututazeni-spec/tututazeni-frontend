@@ -79,7 +79,7 @@ export function AdminDashboardView() {
       {/* Top artigos */}
       <div className="grid grid-cols-2 gap-5">
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Mais vistos
           </div>
           {data.topArticles.map((a, idx) => (
@@ -111,7 +111,7 @@ export function AdminDashboardView() {
         </div>
 
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Actualizados recentemente
           </div>
           {data.recentlyUpdated.map((a) => (

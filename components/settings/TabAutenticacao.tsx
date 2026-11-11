@@ -148,7 +148,7 @@ export function TabAutenticacao() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Login único (SSO)
           <Badge intent={form.ssoEnabled ? 'success' : 'neutral'}>
             {form.ssoEnabled ? 'Activo' : 'Inactivo'}
@@ -275,7 +275,7 @@ export function TabAutenticacao() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           LDAP / Active Directory
           <Badge intent={form.ldap.enabled ? 'success' : 'neutral'}>
             {form.ldap.enabled ? 'Activo' : 'Inactivo'}
@@ -448,7 +448,7 @@ export function TabAutenticacao() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Domínio autorizado
         </div>
         <CardBody>

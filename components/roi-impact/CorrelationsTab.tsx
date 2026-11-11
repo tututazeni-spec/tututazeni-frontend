@@ -100,7 +100,7 @@ export function CorrelationsTab() {
       />
 
       <Card>
-        <div className="rounded-t-panel bg-brand/60 px-5 py-3">
+        <div className="rounded-t-panel bg-brand-dark px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Análises disponíveis
           </h4>

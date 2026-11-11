@@ -76,7 +76,7 @@ const ALL = 'ALL';
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 // Cabeçalho azul-marinho, igual ao calendário de eventos.
 const NAVY_HEADER =
-  'cursor-default select-none bg-brand/60 font-body text-xs font-medium capitalize text-white';
+  'cursor-default select-none bg-brand-dark font-body text-xs font-medium capitalize text-white';
 const MODES: Array<{ id: CalendarMode; label: string }> = [
   { id: 'day', label: 'Dia' },
   { id: 'week', label: 'Semana' },

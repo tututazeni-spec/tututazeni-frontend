@@ -154,7 +154,7 @@ export function CalibrationTab() {
 
       {showHistory && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Histórico de Alterações
           </div>
           <div className="divide-y divide-border max-h-64 overflow-y-auto">
@@ -239,7 +239,7 @@ export function CalibrationTab() {
           {(data.byDepartment?.length ?? 0) > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
                   Comparar Equipas
                 </div>
                 <CardBody>
@@ -262,7 +262,7 @@ export function CalibrationTab() {
               </Card>
               {data.distribution && (
                 <Card className="overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+                  <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
                     Distribuição de Resultados
                   </div>
                   <CardBody>

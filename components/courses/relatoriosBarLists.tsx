@@ -20,7 +20,7 @@ const BAR_COLORS = [
 /** Cabeçalho dos cards: #0F1F3D a 60% de opacidade, sangrando até às margens do card. */
 function CardHeader({ title }: { title: string }) {
   return (
-    <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-white">
+    <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand-dark px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-white">
       {title}
     </div>
   );

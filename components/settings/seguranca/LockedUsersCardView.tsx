@@ -14,7 +14,7 @@ export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Contas bloqueadas
         {total !== undefined && (
           <Badge intent={total ? 'danger' : 'success'}>{total}</Badge>

@@ -446,7 +446,7 @@ export function ReportsTab() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="overflow-hidden p-0">
-              <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+              <div className="cursor-default select-none border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por unidade
               </div>
               <RankedList
@@ -458,7 +458,7 @@ export function ReportsTab() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+              <div className="cursor-default select-none border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por departamento
               </div>
               <RankedList
@@ -470,7 +470,7 @@ export function ReportsTab() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+              <div className="cursor-default select-none border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Presencial / online / híbrido
               </div>
               <RankedList
@@ -486,7 +486,7 @@ export function ReportsTab() {
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+            <div className="cursor-default select-none border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
               Participantes por evento
             </div>
             <RankedList

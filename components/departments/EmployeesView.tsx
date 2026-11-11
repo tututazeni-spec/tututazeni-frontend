@@ -71,7 +71,7 @@ function BreakdownCard({
   const top = [...buckets].sort((a, b) => b.count - a.count).slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand-dark px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">

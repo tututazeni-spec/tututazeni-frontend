@@ -305,7 +305,7 @@ export function SettingsView({
                   onClick={() => setOpen(s.key)}
                   className="group cursor-pointer overflow-hidden rounded-card border border-border bg-surface text-left"
                 >
-                  <div className="flex items-start justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3">
+                  <div className="flex items-start justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3">
                     <div className="font-body text-sm font-semibold text-white">
                       {s.title}
                     </div>

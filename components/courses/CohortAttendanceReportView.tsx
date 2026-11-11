@@ -165,7 +165,7 @@ export function CohortAttendanceReportView({
 
       <div className="overflow-hidden rounded-card border border-border">
         {/* Cabeçalho no padrão das tabelas da plataforma */}
-        <h4 className="bg-brand/60 px-4 py-2.5 text-sm font-semibold text-white">
+        <h4 className="bg-brand-dark px-4 py-2.5 text-sm font-semibold text-white">
           Critério de assiduidade
         </h4>
         <div className="space-y-3 p-4">

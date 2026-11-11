@@ -166,7 +166,7 @@ export function ManagerDashboard() {
 
       {/* Team table */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="flex items-center justify-between border-b border-border bg-brand/60 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border bg-brand-dark px-5 py-4">
           <h3 className="font-body font-semibold text-white">Equipa</h3>
           <span className="font-body text-xs text-white">
             {data?.teamSize ?? 0} colaboradores

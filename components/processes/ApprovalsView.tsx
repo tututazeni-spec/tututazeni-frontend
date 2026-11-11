@@ -207,7 +207,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
         <div className="min-w-[900px] xl:min-w-0">
-          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] gap-2 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
+          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] gap-2 border-b border-border bg-brand-dark px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Pedido</div>
             <div>Processo / etapa</div>
             <div>Solicitante / aprovador</div>

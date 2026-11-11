@@ -68,7 +68,7 @@ export function PerformanceView({ data, isLoading }: QueryData<EvalResults>) {
         <div className="grid grid-cols-3 gap-3">
           {QUALITATIVE_KEYS.map((key) => (
             <Card key={key} className="overflow-hidden">
-              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 {qualitativeTitle(key)}
               </div>
               <div className="p-4">
@@ -198,7 +198,7 @@ export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
     <div className="space-y-4">
       <InfoCard title="Plano de carreira activo" rows={careerPlanRows(data)} />
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Histórico de cargos
         </div>
         {data.careerHistory.length === 0 ? (

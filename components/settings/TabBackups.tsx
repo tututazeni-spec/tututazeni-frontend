@@ -172,7 +172,7 @@ export function TabBackups() {
     <div className="space-y-4">
       {/* Cartão claro, o mesmo desenho da lista de sessões dos eventos */}
       <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand-dark px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Estado
           </h3>
@@ -242,7 +242,7 @@ export function TabBackups() {
 
       <form onSubmit={submit}>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Configuração
           </div>
           <CardBody>
@@ -361,7 +361,7 @@ export function TabBackups() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Histórico
         </div>
         <CardBody>

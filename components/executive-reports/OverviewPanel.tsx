@@ -239,7 +239,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
 
       {/* Pendências críticas */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand-dark px-5 py-3 font-body font-semibold text-white">
           Pendências críticas
         </h3>
         <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
@@ -269,7 +269,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       {/* Distribuição e composição (§6.2/6.3) */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Colaboradores por departamento
           </h3>
           <div className="p-5">
@@ -290,7 +290,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
           </div>
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Tipo de vínculo
           </h3>
           <div className="p-5">

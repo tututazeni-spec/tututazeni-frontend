@@ -126,7 +126,7 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand-dark px-4 py-3 text-sm font-semibold text-white">
           Filtros
         </h3>
         <div className="flex flex-wrap gap-1 mb-3">

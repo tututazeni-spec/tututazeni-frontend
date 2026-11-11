@@ -185,7 +185,7 @@ interface SectionProps {
 function Section({ title, icon: Icon, children, footer }: SectionProps) {
   return (
     <Card className={NAVY_CARD}>
-      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-brand/60 px-6 py-4 text-white">
+      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-brand-dark px-6 py-4 text-white">
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
           <Icon size={16} strokeWidth={1.75} />
         </span>

@@ -74,7 +74,7 @@ function EventRow({ log }: { log: AuditLog }) {
 // Cabeçalho dos cards do painel: navy #0F1F3D a 60%, letra branca, sem
 // qualquer efeito de cursor/hover (é só um rótulo).
 const PANEL_HEADER =
-  'cursor-default select-none bg-brand/60 px-4 py-3 font-body text-xs font-semibold text-white';
+  'cursor-default select-none bg-brand-dark px-4 py-3 font-body text-xs font-semibold text-white';
 
 function Panel({
   title,

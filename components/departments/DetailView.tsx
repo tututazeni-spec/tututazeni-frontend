@@ -633,7 +633,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             />
           </div>
           <Card className="p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Hierarquia organizacional
             </div>
             <Breadcrumb items={metrics.breadcrumb} />
@@ -646,13 +646,13 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell className="bg-brand/60 text-white">
+              <TableHeaderCell className="bg-brand-dark text-white">
                 Gestor
               </TableHeaderCell>
-              <TableHeaderCell className="bg-brand/60 text-white">
+              <TableHeaderCell className="bg-brand-dark text-white">
                 Início
               </TableHeaderCell>
-              <TableHeaderCell className="bg-brand/60 text-white">
+              <TableHeaderCell className="bg-brand-dark text-white">
                 Fim
               </TableHeaderCell>
             </TableRow>

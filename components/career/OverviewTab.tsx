@@ -39,7 +39,7 @@ function EvolutionList({ title, items, variant }: EvolutionListProps) {
   const top = items.slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+      <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
         {title}
       </div>
       <div className="p-4">
@@ -159,7 +159,7 @@ export function OverviewTab() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
           Movimentações Internas (últimos 90 dias)
         </div>
         {overview.internalMovements.length === 0 ? (

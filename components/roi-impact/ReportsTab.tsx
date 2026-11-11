@@ -257,7 +257,7 @@ function ReportBody({
           />
           <RoiDonutStat zoom label="ROI médio" roi={d.avgRoi} />
           <div className="col-span-2 overflow-hidden rounded-panel bg-surface text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] md:col-span-4">
-            <div className="bg-brand/60 px-5 py-3">
+            <div className="bg-brand-dark px-5 py-3">
               <h4 className="font-display text-sm font-semibold text-white">
                 Por estado
               </h4>

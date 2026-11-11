@@ -270,7 +270,7 @@ export function ReportsView() {
           <section aria-labelledby="rep-sec-period" className="space-y-3">
             <h3
               id="rep-sec-period"
-              className="pointer-events-none cursor-default select-none rounded-control bg-brand/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
+              className="pointer-events-none cursor-default select-none rounded-control bg-brand-dark px-4 py-2.5 font-body text-sm font-semibold text-white"
             >
               Relatório e período
             </h3>
@@ -312,7 +312,7 @@ export function ReportsView() {
           >
             <h3
               id="rep-sec-criteria"
-              className="pointer-events-none cursor-default select-none rounded-control bg-brand/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
+              className="pointer-events-none cursor-default select-none rounded-control bg-brand-dark px-4 py-2.5 font-body text-sm font-semibold text-white"
             >
               Critérios
             </h3>

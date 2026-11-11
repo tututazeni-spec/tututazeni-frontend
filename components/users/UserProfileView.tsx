@@ -279,7 +279,7 @@ export function UserProfileView({
 
           <div className="grid grid-cols-2 gap-5">
             <Card className="overflow-hidden">
-              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Dados pessoais
               </div>
               <div className="p-5">
@@ -301,7 +301,7 @@ export function UserProfileView({
               </div>
             </Card>
             <Card className="overflow-hidden">
-              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Organização
               </div>
               <div className="p-5">
@@ -326,7 +326,7 @@ export function UserProfileView({
 
           {stats.recentActivity.length > 0 && (
             <Card className="overflow-hidden">
-              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Actividade recente
               </div>
               {stats.recentActivity.map((e) => (

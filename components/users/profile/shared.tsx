@@ -16,7 +16,7 @@ export function InfoCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-5">
@@ -77,7 +77,7 @@ export function SectionCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       {children}

@@ -83,7 +83,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand-dark px-4 py-3 text-sm font-semibold text-white">
           Filtros
         </h3>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">

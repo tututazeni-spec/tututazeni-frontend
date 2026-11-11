@@ -176,7 +176,7 @@ export function ListView({ onSelect }: ListViewProps) {
       {!loading && layout === 'list' && rows.length > 0 && (
         <div>
           <div
-            className={`${GRID} hidden rounded-[10px] bg-[#DCE8FA] px-2 py-2 text-[11px] font-bold uppercase text-brand md:grid`}
+            className={`${GRID} hidden rounded-[10px] bg-brand-dark px-2 py-2 text-[11px] font-bold uppercase text-white md:grid`}
           >
             <span>Departamento</span>
             <span>Código</span>

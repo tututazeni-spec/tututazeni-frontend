@@ -95,7 +95,7 @@ export function ActivityView({
         />
       </div>
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Actividade por categoria
         </div>
         <div className="p-5">
