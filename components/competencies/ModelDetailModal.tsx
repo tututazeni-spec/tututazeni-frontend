@@ -193,7 +193,7 @@ export function ModelDetailModal({
                             map={CATEGORY_CFG}
                           />
                         </div>
-                        <span className="font-data text-xs text-ink-muted">
+                        <span className="font-body text-xs text-ink-muted">
                           nível {item.expectedLevel} · peso {item.weight}
                         </span>
                         {item.isMandatory && (

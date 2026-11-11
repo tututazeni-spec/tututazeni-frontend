@@ -149,7 +149,7 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                       )}
                     </div>
                     {(lvl.minScore != null || lvl.maxScore != null) && (
-                      <span className="font-data text-xs text-ink-muted">
+                      <span className="font-body text-xs text-ink-muted">
                         {lvl.minScore ?? '—'}–{lvl.maxScore ?? '—'} pts
                       </span>
                     )}

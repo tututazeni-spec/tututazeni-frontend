@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   AlertTriangle,
   Award,
@@ -31,9 +32,14 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG } from './constants';
+import { OverviewUsersModal } from './OverviewUsersModal';
 import type { CompetencyCategory, CompetencyOverview } from './types';
 
 export function OverviewView() {
+  const [selected, setSelected] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const { data, isLoading } = useApiQuery<CompetencyOverview>(
     queryKeys.competencies.overview(),
     '/competencies/overview',
@@ -188,9 +194,11 @@ export function OverviewView() {
           </div>
         ) : (
           data.biggestGaps.map((c) => (
-            <div
+            <button
+              type="button"
               key={c.id}
-              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              onClick={() => setSelected({ id: c.id, name: c.name })}
+              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="flex-1">
                 <div className="font-body text-sm font-medium text-ink">
@@ -201,10 +209,10 @@ export function OverviewView() {
                   map={CATEGORY_CFG}
                 />
               </div>
-              <span className="font-data text-sm text-ink-muted">
+              <span className="font-body text-sm text-ink-muted">
                 {c.usersWithGap} utilizadores com lacuna
               </span>
-            </div>
+            </button>
           ))
         )}
       </div>
@@ -216,9 +224,16 @@ export function OverviewView() {
             Top competências da organização
           </div>
           {data.topCompetencies.map((t, idx) => (
-            <div
+            <button
+              type="button"
               key={t.competencyId}
-              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              onClick={() =>
+                setSelected({
+                  id: t.competencyId,
+                  name: t.competency?.name ?? 'Competência',
+                })
+              }
+              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className="w-6 text-center font-data text-lg font-bold text-ink-faint">
                 {idx + 1}
@@ -236,16 +251,24 @@ export function OverviewView() {
                 />
               </div>
               <div className="text-right">
-                <div className="font-data text-sm text-ink-muted">
+                <div className="font-body text-sm text-ink-muted">
                   {t._count.competencyId} utilizadores
                 </div>
                 <div className="font-body text-xs text-ink-faint">
                   Nível médio: {t.avgLevel}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
+      )}
+
+      {selected && (
+        <OverviewUsersModal
+          competencyId={selected.id}
+          competencyName={selected.name}
+          onClose={() => setSelected(null)}
+        />
       )}
     </div>
   );
