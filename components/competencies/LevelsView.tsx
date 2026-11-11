@@ -110,12 +110,9 @@ export function LevelsView({ canManage }: LevelsViewProps) {
       ) : (
         <div className="space-y-4">
           {grouped.map((levels) => (
-            <div
-              key={levels[0].competencyId}
-              className="overflow-hidden rounded-card border border-border bg-surface"
-            >
-              <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                <div className="font-body text-sm font-semibold text-ink">
+            <div key={levels[0].competencyId} className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <div className="font-body text-sm font-semibold text-brand">
                   {levels[0].competency.name}
                 </div>
                 <StatusBadge
@@ -123,57 +120,82 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                   map={CATEGORY_CFG}
                 />
               </div>
-              {levels
+              {[...levels]
                 .sort((a, b) => a.value - b.value)
                 .map((lvl) => (
                   <div
                     key={lvl.id}
-                    className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+                    className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand"
                   >
-                    <span className="w-6 text-center font-data text-sm font-bold text-ink-faint">
-                      {lvl.value}
-                    </span>
-                    <div className="flex-1">
-                      <div className="font-body text-sm font-medium text-ink">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <div className="truncate font-body text-sm font-semibold text-brand">
                         {lvl.name}
-                        {lvl.code && (
-                          <span className="ml-1.5 font-body text-xs font-normal text-ink-faint">
-                            {lvl.code}
-                          </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge value={lvl.status} map={STATUS_CFG} />
+                        {canManage && (
+                          <div className="flex gap-1">
+                            <IconButton
+                              icon={Pencil}
+                              label="Editar nível"
+                              intent="ghost"
+                              size="xs"
+                              type="button"
+                              onClick={() =>
+                                setForm({ mode: 'edit', level: lvl })
+                              }
+                            />
+                            <IconButton
+                              icon={Trash2}
+                              label="Eliminar nível"
+                              intent="ghostDanger"
+                              size="xs"
+                              type="button"
+                              onClick={() => onDelete(lvl)}
+                            />
+                          </div>
                         )}
                       </div>
-                      {lvl.description && (
-                        <div className="font-body text-xs text-ink-faint">
-                          {lvl.description}
-                        </div>
-                      )}
                     </div>
-                    {(lvl.minScore != null || lvl.maxScore != null) && (
-                      <span className="font-body text-xs text-ink-muted">
-                        {lvl.minScore ?? '—'}–{lvl.maxScore ?? '—'} pts
-                      </span>
-                    )}
-                    <StatusBadge value={lvl.status} map={STATUS_CFG} />
-                    {canManage && (
-                      <div className="flex gap-1">
-                        <IconButton
-                          icon={Pencil}
-                          label="Editar nível"
-                          intent="ghost"
-                          size="xs"
-                          type="button"
-                          onClick={() => setForm({ mode: 'edit', level: lvl })}
-                        />
-                        <IconButton
-                          icon={Trash2}
-                          label="Eliminar nível"
-                          intent="ghostDanger"
-                          size="xs"
-                          type="button"
-                          onClick={() => onDelete(lvl)}
-                        />
+                    <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                      <div>
+                        <div className="font-body text-xs text-brand-muted">
+                          Nível
+                        </div>
+                        <div className="font-semibold text-brand">
+                          {lvl.value}
+                        </div>
                       </div>
-                    )}
+                      <div>
+                        <div className="font-body text-xs text-brand-muted">
+                          Código
+                        </div>
+                        <div className="truncate font-semibold text-brand">
+                          {lvl.code ?? '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-body text-xs text-brand-muted">
+                          Pontuação
+                        </div>
+                        <div className="font-semibold text-brand">
+                          {lvl.minScore != null || lvl.maxScore != null
+                            ? `${lvl.minScore ?? '—'}–${lvl.maxScore ?? '—'} pts`
+                            : '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-body text-xs text-brand-muted">
+                          Descrição
+                        </div>
+                        <div
+                          className="truncate font-semibold text-brand"
+                          title={lvl.description ?? undefined}
+                        >
+                          {lvl.description ?? '—'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>
