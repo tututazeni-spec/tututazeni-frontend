@@ -39,6 +39,7 @@ export function OverviewView() {
   const [selected, setSelected] = useState<{
     id: number;
     name: string;
+    mode: 'gap' | 'top';
   } | null>(null);
   const { data, isLoading } = useApiQuery<CompetencyOverview>(
     queryKeys.competencies.overview(),
@@ -197,7 +198,9 @@ export function OverviewView() {
             <button
               type="button"
               key={c.id}
-              onClick={() => setSelected({ id: c.id, name: c.name })}
+              onClick={() =>
+                setSelected({ id: c.id, name: c.name, mode: 'gap' })
+              }
               className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="flex-1">
@@ -231,6 +234,7 @@ export function OverviewView() {
                 setSelected({
                   id: t.competencyId,
                   name: t.competency?.name ?? 'Competência',
+                  mode: 'top',
                 })
               }
               className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -267,6 +271,7 @@ export function OverviewView() {
         <OverviewUsersModal
           competencyId={selected.id}
           competencyName={selected.name}
+          mode={selected.mode}
           onClose={() => setSelected(null)}
         />
       )}

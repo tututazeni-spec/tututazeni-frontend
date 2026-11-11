@@ -5,11 +5,13 @@
 
 'use client';
 
+import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { LEVEL_LABELS } from './constants';
@@ -18,6 +20,8 @@ import type { OverviewCompetencyUser, OverviewCompetencyUsers } from './types';
 export interface OverviewUsersModalProps {
   competencyId: number;
   competencyName: string;
+  /** 'gap' = só utilizadores com lacuna; 'top' = só utilizadores com a competência. */
+  mode: 'gap' | 'top';
   onClose: () => void;
 }
 
@@ -77,19 +81,48 @@ function UserList({
 export function OverviewUsersModal({
   competencyId,
   competencyName,
+  mode,
   onClose,
 }: OverviewUsersModalProps) {
+  const [department, setDepartment] = useState('');
+  const deptParams = { limit: 200 };
+  const allDepartments = useApiQuery<{ data: { id: number; name: string }[] }>(
+    queryKeys.departments.list(deptParams),
+    '/departments',
+    { params: deptParams, staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const { data, isLoading, error } = useApiQuery<OverviewCompetencyUsers>(
     queryKeys.competencies.overviewUsers(competencyId),
     `/competencies/overview/${competencyId}/users`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const source = data
+    ? mode === 'gap'
+      ? data.withGap
+      : data.withCompetency
+    : [];
+  // Todos os departamentos da organização; os dos utilizadores listados
+  // entram também (caso o perfil não tenha acesso a GET /departments).
+  const departments = Array.from(
+    new Set([
+      ...(allDepartments.data?.data ?? []).map((d) => d.name),
+      ...source.map((u) => u.department).filter((d): d is string => !!d),
+    ]),
+  ).sort((a, b) => a.localeCompare(b, 'pt'));
+  const visible = department
+    ? source.filter((u) => u.department === department)
+    : source;
+
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={competencyName}
-        description="Utilizadores com lacuna e utilizadores com esta competência"
+        description={
+          mode === 'gap'
+            ? 'Utilizadores com lacuna nesta competência'
+            : 'Utilizadores com esta competência'
+        }
         className="max-h-[90vh] max-w-xl overflow-y-auto"
       >
         {isLoading ? (
@@ -103,17 +136,33 @@ export function OverviewUsersModal({
           </div>
         ) : (
           <>
+            <NativeSelect
+              aria-label="Filtrar por departamento"
+              density="sm"
+              className="mt-4"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+            >
+              <option value="">Todos os departamentos</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </NativeSelect>
             <UserList
-              title="Utilizadores com lacuna"
-              users={data.withGap}
-              emptyText="Nenhum utilizador abaixo do nível alvo."
-              showGap
-            />
-            <UserList
-              title="Utilizadores com a competência"
-              users={data.withCompetency}
-              emptyText="Nenhum utilizador tem esta competência avaliada."
-              showGap={false}
+              title={
+                mode === 'gap'
+                  ? 'Utilizadores com lacuna'
+                  : 'Utilizadores com a competência'
+              }
+              users={visible}
+              emptyText={
+                mode === 'gap'
+                  ? 'Nenhum utilizador abaixo do nível alvo.'
+                  : 'Nenhum utilizador tem esta competência avaliada.'
+              }
+              showGap={mode === 'gap'}
             />
           </>
         )}
