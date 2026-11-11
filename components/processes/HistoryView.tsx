@@ -288,7 +288,7 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
           {data && data.data.length > 0 && (
             <>
               <Table>
-                <TableHead className="bg-brand/60">
+                <TableHead className="bg-brand-dark">
                   <TableRow className="hover:bg-transparent">
                     <TableHeaderCell className="text-white">
                       Data e hora

@@ -234,7 +234,7 @@ export function CohortAttendanceReportView({
         </div>
         <div className="overflow-x-auto">
           <Table>
-            <TableHead className="bg-brand/60">
+            <TableHead className="bg-brand-dark">
               <TableRow className="hover:bg-transparent">
                 <TableHeaderCell className="text-white">
                   Participante

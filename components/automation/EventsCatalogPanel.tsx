@@ -363,7 +363,7 @@ export function EventsCatalogPanel() {
         {recent?.data?.length ? (
           <div className="overflow-x-auto rounded-card border border-border">
             <table className="w-full text-left text-sm">
-              <thead className="bg-surface-sunken text-xs uppercase text-ink-faint">
+              <thead className="bg-brand-dark text-xs uppercase text-white">
                 <tr>
                   <th className="px-3 py-2">Quando</th>
                   <th className="px-3 py-2">Módulo</th>

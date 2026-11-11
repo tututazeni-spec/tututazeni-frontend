@@ -34,7 +34,7 @@ export function TableHead({
   className,
   ...props
 }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn('bg-surface-sunken', className)} {...props} />;
+  return <thead className={cn('bg-brand-dark', className)} {...props} />;
 }
 
 export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
@@ -63,7 +63,7 @@ export function TableHeaderCell({
   return (
     <th
       className={cn(
-        'px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-ink-muted',
+        'px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-white',
         className,
       )}
       {...props}

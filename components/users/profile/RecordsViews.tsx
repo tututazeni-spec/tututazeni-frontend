@@ -47,7 +47,7 @@ export function DocumentsView({
   return (
     <SectionCard title="Documentos">
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Documento</TableHeaderCell>
             <TableHeaderCell>Categoria</TableHeaderCell>
@@ -112,7 +112,7 @@ export function LeaveView({
       ) : (
         <SectionCard title="Pedidos de férias e licenças">
           <Table>
-            <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableHead className="bg-brand-dark [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Tipo</TableHeaderCell>
                 <TableHeaderCell>Período</TableHeaderCell>
@@ -180,7 +180,7 @@ export function AttendanceView({
         />
       </div>
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Data</TableHeaderCell>
             <TableHeaderCell>Entrada</TableHeaderCell>

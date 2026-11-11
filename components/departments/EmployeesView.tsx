@@ -314,7 +314,7 @@ export function EmployeesView() {
           wrapperClassName="overflow-x-visible"
           className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
         >
-          <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
+          <TableHead className="bg-brand-dark [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-[17%]">Colaborador</TableHeaderCell>
               <TableHeaderCell className="w-[11%]">Cargo</TableHeaderCell>

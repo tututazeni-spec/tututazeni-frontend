@@ -373,7 +373,7 @@ export function TabBackups() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">
-                <thead className="text-xs text-ink-faint">
+                <thead className="text-xs text-white">
                   <tr>
                     <th className="py-2 pr-3">Início</th>
                     <th className="pr-3">Origem</th>

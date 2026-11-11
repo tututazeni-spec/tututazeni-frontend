@@ -167,7 +167,7 @@ export function OverviewTab() {
         ) : (
           <div className="overflow-x-auto bg-brand-deep">
             <table className="w-full border-collapse font-body text-sm text-white">
-              <thead className="bg-brand/60">
+              <thead className="bg-brand-dark">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase leading-tight tracking-wide text-white">
                     Tipo de movimentação

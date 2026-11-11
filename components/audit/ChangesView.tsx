@@ -48,7 +48,7 @@ import { LinkButton } from '@/components/ui/LinkButton';
 
 const PERIODS = [7, 30, 90];
 
-const HEADER_BG = 'cursor-default select-none bg-brand/60 text-white';
+const HEADER_BG = 'cursor-default select-none bg-brand-dark text-white';
 
 // Uma cor por entidade (o BarChart partilhado só tem 4 tons categóricos).
 const ENTITY_COLORS = [

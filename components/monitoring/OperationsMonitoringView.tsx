@@ -118,7 +118,7 @@ function JobTable({ title, rows, state }: JobTableProps) {
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Tarefa</th>
                   <th className="pr-3">Fila</th>
@@ -254,7 +254,7 @@ export function JobsTab({ data }: { data: JobsData }) {
         <CardBody>
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
                   <th className="pr-3">Activos</th>
@@ -310,7 +310,7 @@ export function JobsTab({ data }: { data: JobsData }) {
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-                <thead className="text-xs uppercase text-ink-muted">
+                <thead className="text-xs uppercase text-white">
                   <tr>
                     <th className="py-2 pr-3">Nome</th>
                     <th className="pr-3">Estado</th>
@@ -454,7 +454,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
         <CardBody>
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Serviço</th>
                   <th className="pr-3">Estado</th>
@@ -705,7 +705,7 @@ export function HistoryTab({
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-                <thead className="text-xs uppercase text-ink-muted">
+                <thead className="text-xs uppercase text-white">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>
                     <th className="pr-3">Latência média</th>
@@ -751,7 +751,7 @@ export function HistoryTab({
           <CardBody>
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-                <thead className="text-xs uppercase text-ink-muted">
+                <thead className="text-xs uppercase text-white">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>
                     <th className="pr-3">Fila</th>

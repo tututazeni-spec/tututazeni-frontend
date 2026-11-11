@@ -312,7 +312,7 @@ export function LogsView() {
       ) : (
         <>
           <Table className="table-fixed" wrapperClassName="overflow-x-hidden">
-            <TableHead className="bg-brand/60">
+            <TableHead className="bg-brand-dark">
               <TableRow className="hover:bg-transparent">
                 {HEADERS.map((h, i) => (
                   <TableHeaderCell

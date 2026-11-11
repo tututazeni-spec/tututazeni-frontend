@@ -581,7 +581,7 @@ export function PoliciesView() {
             </div>
             <div className="overflow-x-auto rounded-card">
               <Table>
-                <TableHead className="pointer-events-none cursor-default select-none bg-brand/60">
+                <TableHead className="pointer-events-none cursor-default select-none bg-brand-dark">
                   <TableRow className="hover:bg-transparent">
                     {['Categoria', 'Retenção', 'Total', 'Fora do prazo'].map(
                       (h) => (

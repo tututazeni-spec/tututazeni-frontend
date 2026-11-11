@@ -219,7 +219,7 @@ export function RoiEvaluationModelModal({
             </p>
             <div className="overflow-hidden rounded-card border border-border">
               <table className="w-full text-sm">
-                <thead className="bg-surface-sunken text-xs text-ink-faint">
+                <thead className="bg-brand-dark text-xs text-white">
                   <tr>
                     <th className="px-3 py-2 text-left">Incluído</th>
                     <th className="px-3 py-2 text-left">Nível</th>

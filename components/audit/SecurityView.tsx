@@ -697,7 +697,7 @@ export function SecurityView() {
         ) : (
           <>
             <Table>
-              <TableHead className="bg-brand/60">
+              <TableHead className="bg-brand-dark">
                 <TableRow className="hover:bg-transparent">
                   {[
                     'Código',

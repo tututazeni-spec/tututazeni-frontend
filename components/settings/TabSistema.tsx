@@ -204,7 +204,7 @@ export function TabSistema() {
         <CardBody>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-ink">
-              <thead className="text-xs text-ink-faint">
+              <thead className="text-xs text-white">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
                   <th className="pr-3">Estado</th>

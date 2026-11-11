@@ -101,7 +101,7 @@ export function EvaluationsView({
   return (
     <SectionCard title="Avaliações 360°">
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Ciclo</TableHeaderCell>
             <TableHeaderCell>Período</TableHeaderCell>
@@ -148,7 +148,7 @@ export function PdiView({
   return (
     <SectionCard title="Planos de desenvolvimento (PDI)">
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Plano</TableHeaderCell>
             <TableHeaderCell>Prioridade</TableHeaderCell>
@@ -205,7 +205,7 @@ export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
           <EmptyState title="Sem histórico de cargos" />
         ) : (
           <Table>
-            <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableHead className="bg-brand-dark [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Cargo</TableHeaderCell>
                 <TableHeaderCell>Início</TableHeaderCell>

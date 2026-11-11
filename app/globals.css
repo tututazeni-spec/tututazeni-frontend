@@ -75,6 +75,16 @@ body {
   border-radius: 4px;
 }
 
+/* Cabeçalhos de tabela: azul escuro com letra branca em toda a plataforma.
+   Cobre as tabelas feitas à mão (<thead> simples); o componente ui/Table já
+   traz as mesmas cores. Classes utilitárias na própria célula têm prioridade. */
+table > thead {
+  background-color: var(--color-brand-dark);
+}
+table > thead th {
+  color: #fff;
+}
+
 /* Firefox não suporta ::-webkit-scrollbar: todas as barras em azul marinho. */
 @supports not selector(::-webkit-scrollbar) {
   * {

@@ -30,7 +30,7 @@ export function HistoryView({
 
   return (
     <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
+      <TableHead className="bg-brand-dark [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Evento</TableHeaderCell>
           <TableHeaderCell>Módulo</TableHeaderCell>

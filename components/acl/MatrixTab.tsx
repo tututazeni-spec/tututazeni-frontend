@@ -54,9 +54,9 @@ export function MatrixTab() {
       {/* Matrix table */}
       <Card className="overflow-x-auto">
         <table className="min-w-full text-xs">
-          <thead className="sticky top-0 bg-surface-sunken">
+          <thead className="sticky top-0 bg-brand-dark">
             <tr>
-              <th className="px-3 py-2 font-medium text-left text-ink-muted whitespace-nowrap">
+              <th className="px-3 py-2 font-medium text-left text-white whitespace-nowrap">
                 Permissão
               </th>
               {(data?.roles ?? []).map((r) => (

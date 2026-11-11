@@ -34,7 +34,7 @@ export function SectionTables({ sections, omitted = [] }: SectionTablesProps) {
             ) : (
               <>
                 <Table>
-                  <TableHead className="bg-brand/60 [&_th]:text-white">
+                  <TableHead className="bg-brand-dark [&_th]:text-white">
                     <TableRow className="hover:bg-transparent">
                       {s.columns.map((c) => (
                         <TableHeaderCell key={c.key}>{c.label}</TableHeaderCell>

@@ -67,7 +67,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
           <EmptyState title="Sem permissões atribuídas ao perfil" />
         ) : (
           <Table>
-            <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableHead className="bg-brand-dark [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Permissão</TableHeaderCell>
                 <TableHeaderCell>Acção</TableHeaderCell>
@@ -101,7 +101,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
           <EmptyState title="Sem permissões especiais concedidas" />
         ) : (
           <Table>
-            <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableHead className="bg-brand-dark [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Permissão</TableHeaderCell>
                 <TableHeaderCell>Concedida em</TableHeaderCell>

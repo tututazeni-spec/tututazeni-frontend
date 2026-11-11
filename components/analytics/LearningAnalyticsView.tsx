@@ -105,7 +105,7 @@ export function LearningAnalyticsView() {
             Top cursos por conclusões
           </div>
           <Table>
-            <TableHead className="bg-brand">
+            <TableHead className="bg-brand-dark">
               <TableRow className="hover:bg-transparent">
                 <TableHeaderCell className="text-white">Curso</TableHeaderCell>
                 <TableHeaderCell className="text-white">

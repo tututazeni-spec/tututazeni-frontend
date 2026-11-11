@@ -217,7 +217,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
       {hasFilter && !loading && (
         <Table>
-          <TableHead className="bg-brand/60">
+          <TableHead className="bg-brand-dark">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-8 text-white" />
               <TableHeaderCell className="text-white">

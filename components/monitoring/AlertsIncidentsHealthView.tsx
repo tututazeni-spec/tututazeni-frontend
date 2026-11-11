@@ -801,7 +801,7 @@ export function IncidentsTab({
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-                <thead className="text-xs uppercase text-ink-muted">
+                <thead className="text-xs uppercase text-white">
                   <tr>
                     <th className="py-2 pr-3">Incidente</th>
                     <th className="pr-3">Severidade</th>

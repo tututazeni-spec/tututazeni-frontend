@@ -112,7 +112,7 @@ function ReportView({ type, period }: { type: string; period: Period }) {
       ) : (
         <div className="overflow-x-auto rounded-card border border-border bg-surface">
           <table className="w-full text-left font-body text-sm">
-            <thead className="bg-brand text-xs uppercase tracking-wide text-white">
+            <thead className="bg-brand-dark text-xs uppercase tracking-wide text-white">
               <tr>
                 {columns.map((c) => (
                   <th key={c} className="px-3 py-2">
