@@ -38,6 +38,8 @@ import {
   type DirectoryUser,
 } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+
 import type { CompetencyEvaluation } from './types';
 import { getInitials, formatDateNumeric } from '@/lib/format';
 
@@ -124,6 +126,26 @@ export function EvaluationsView() {
     enabled: hasFilter,
   });
 
+  const buildExport = () => ({
+    title: 'Avaliações de competências',
+    filename: 'avaliacoes-de-competencias',
+    headers: COLUMNS.map((c) => c.label),
+    rows: (rows ?? []).map((r) => [
+      r.colaborador,
+      r.avaliador ?? '',
+      r.competencia,
+      r.tipoAvaliacao,
+      r.nivelObtido,
+      r.nivelEsperado,
+      r.gap,
+      formatDateNumeric(r.data),
+      EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado,
+      r.comentarios,
+      r.evidencias,
+      r.proximaAvaliacao ? formatDateNumeric(r.proximaAvaliacao) : '',
+    ]),
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -179,6 +201,11 @@ export function EvaluationsView() {
           selected={user}
           onChange={setUser}
           className="w-[240px]"
+        />
+        <CompetencyExportMenu
+          className="ml-auto"
+          build={buildExport}
+          disabled={!hasFilter || !rows}
         />
       </div>
 

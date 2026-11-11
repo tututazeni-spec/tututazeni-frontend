@@ -44,6 +44,8 @@ import {
 } from './modelFormData';
 import { POSITION_LEVEL_CFG } from './constants';
 import { UserFilterSearch } from './UserFilterSearch';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+
 import type { SkillMatrix } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -119,6 +121,21 @@ export function SkillMatrixView() {
     },
   );
 
+  const buildExport = () => ({
+    title: 'Matriz de competências',
+    filename: 'matriz-de-competencias',
+    headers: [
+      'Colaborador',
+      'Cargo',
+      ...(matrix?.competencies.map((c) => c.name) ?? []),
+    ],
+    rows: (matrix?.matrix ?? []).map((row) => [
+      row.user.fullName,
+      row.user.position?.name ?? '',
+      ...row.levels.map((lv) => lv.level),
+    ]),
+  });
+
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -181,6 +198,11 @@ export function SkillMatrixView() {
           selected={user}
           onChange={setUser}
           className="w-[220px]"
+        />
+        <CompetencyExportMenu
+          className="ml-auto"
+          build={buildExport}
+          disabled={!matrix}
         />
       </div>
 

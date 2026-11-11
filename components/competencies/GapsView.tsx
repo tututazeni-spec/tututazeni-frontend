@@ -30,6 +30,8 @@ import {
 } from './modelFormData';
 import { avatarColor } from './EvaluationsView';
 import { UserFilterSearch } from './UserFilterSearch';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+
 import type { CompetencyGap } from './types';
 import { getInitials, formatDateNumeric } from '@/lib/format';
 
@@ -105,14 +107,30 @@ export function GapsView() {
     { params, staleTime: STALE_TIME.DYNAMIC, enabled: hasFilter },
   );
 
+  const buildExport = () => ({
+    title: 'Lacunas de competências',
+    filename: 'lacunas-de-competencias',
+    headers: COLUMNS.map((c) => c.label),
+    rows: (rows ?? []).map((r) => [
+      `${r.colaborador} (${r.departamento ?? '—'} · ${r.cargo ?? '—'})`,
+      r.competencia,
+      r.nivelAtual,
+      r.nivelEsperado,
+      r.gap,
+      GAP_PRIORITY_CFG[r.prioridade]?.label ?? r.prioridade,
+      r.competenciaCritica ? 'Sim' : 'Não',
+      GAP_IMPACT_CFG[r.impacto]?.label ?? r.impacto,
+      formatDateNumeric(r.dataIdentificacao),
+      r.planoDesenvolvimentoAssociado?.name ?? '',
+      GAP_STATUS_CFG[r.estado]?.label ?? r.estado,
+    ]),
+  });
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Select
-          items={[
-            { value: ALL, label: 'Departamento' },
-            ...departmentOptions,
-          ]}
+          items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
@@ -122,10 +140,7 @@ export function GapsView() {
           onValueChange={setPositionId}
         />
         <Select
-          items={[
-            { value: ALL, label: 'Competência' },
-            ...competencyOptions,
-          ]}
+          items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
           value={competencyId}
           onValueChange={setCompetencyId}
         />
@@ -144,6 +159,11 @@ export function GapsView() {
           selected={user}
           onChange={setUser}
           className="w-[220px]"
+        />
+        <CompetencyExportMenu
+          className="ml-auto"
+          build={buildExport}
+          disabled={!hasFilter || !rows}
         />
       </div>
 
@@ -179,7 +199,9 @@ export function GapsView() {
                     <div className="flex items-center gap-3">
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img loading="lazy" decoding="async"
+                        <img
+                          loading="lazy"
+                          decoding="async"
                           src={r.colaboradorAvatarUrl}
                           alt={r.colaborador}
                           className="h-9 w-9 shrink-0 rounded-full object-cover"
@@ -188,7 +210,9 @@ export function GapsView() {
                         <span
                           aria-hidden
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                          style={{ backgroundColor: avatarColor(r.colaborador) }}
+                          style={{
+                            backgroundColor: avatarColor(r.colaborador),
+                          }}
                         >
                           {getInitials(r.colaborador, '?')}
                         </span>

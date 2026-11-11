@@ -34,6 +34,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG } from './constants';
 import { OverviewUsersModal } from './OverviewUsersModal';
 import type { CompetencyCategory, CompetencyOverview } from './types';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+import { CATEGORY_CFG as CATEGORY_LABELS } from './constants';
 
 export function OverviewView() {
   const [selected, setSelected] = useState<{
@@ -49,8 +51,56 @@ export function OverviewView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
+  const buildExport = () => {
+    const cat = (c: string) =>
+      CATEGORY_LABELS[c as CompetencyCategory]?.label ?? c;
+    const rows: (string | number)[][] = [
+      ['Indicadores', 'Total de competências', data.total, ''],
+      ['Indicadores', 'Competências activas', data.active, ''],
+      ['Indicadores', 'Em revisão', data.inReview, ''],
+      ['Indicadores', 'Competências críticas', data.critical, ''],
+      ['Indicadores', 'Competências estratégicas', data.strategic, ''],
+      ['Indicadores', 'Colaboradores avaliados', data.evaluatedUsers, ''],
+      ['Indicadores', 'Média global de proficiência', data.avgProficiency, ''],
+      ['Indicadores', 'Avaliações pendentes', data.pendingEvaluations, ''],
+      ['Por categoria', 'Técnicas', data.byCategory.technical, ''],
+      ['Por categoria', 'Comportamentais', data.byCategory.behavioral, ''],
+      ['Por categoria', 'Liderança', data.byCategory.leadership, ''],
+      ['Por categoria', 'Funcionais', data.byCategory.functional, ''],
+      ['Por categoria', 'Idiomas', data.byCategory.language, ''],
+      ['Por categoria', 'Ferramentas', data.byCategory.tool, ''],
+      ...data.criticalAlerts.map((c) => [
+        'Alertas críticos',
+        c.name,
+        c.usersWithGap,
+        cat(c.category),
+      ]),
+      ...data.biggestGaps.map((c) => [
+        'Maior lacuna',
+        c.name,
+        c.usersWithGap,
+        cat(c.category),
+      ]),
+      ...data.topCompetencies.map((c) => [
+        'Mais fortes',
+        c.competency?.name ?? String(c.competencyId),
+        c.avgLevel,
+        c.competency ? cat(c.competency.category) : '',
+      ]),
+    ];
+    return {
+      title: 'Competências — Visão geral',
+      filename: 'competencias-visao-geral',
+      headers: ['Secção', 'Indicador', 'Valor', 'Detalhe'],
+      rows,
+    };
+  };
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <CompetencyExportMenu build={buildExport} />
+      </div>
       {/* KPIs gerais */}
       <div className="grid grid-cols-4 gap-4">
         <NavyStatCard
