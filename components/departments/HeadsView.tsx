@@ -25,6 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { ChangeHeadModal } from './ChangeHeadModal';
+import { HeadPreviewPanel } from './HeadPreviewPanel';
 import { departmentIcon } from './departmentIcon';
 import type { HeadHistoryRow, HeadRow } from './types';
 import { formatDateNumeric } from '@/lib/format';
@@ -37,7 +38,12 @@ const STATUS_LABEL: Record<string, string> = {
   ARCHIVED: 'Arquivado',
 };
 
-export function HeadsView() {
+interface HeadsViewProps {
+  onSelect: (departmentId: number) => void;
+}
+
+export function HeadsView({ onSelect }: HeadsViewProps) {
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const [subTab, setSubTab] = useState<SubTab>('current');
   const [changing, setChanging] = useState<HeadRow | null>(null);
   const canManage = useHasRole(ADMIN_ROLES);
@@ -64,6 +70,8 @@ export function HeadsView() {
     '/departments/heads/history',
     { staleTime: STALE_TIME.DYNAMIC, enabled: subTab === 'history' },
   );
+
+  const previewRow = heads.find((h) => h.departmentId === previewId) ?? null;
 
   return (
     <div>
@@ -101,124 +109,145 @@ export function HeadsView() {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <Table
-              wrapperClassName="overflow-x-visible"
-              className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+            <div
+              className={`grid gap-4 ${previewRow ? 'lg:grid-cols-[1fr_380px]' : ''}`}
             >
-              <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
-                <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell className="w-[13%]">
-                    Departamento
-                  </TableHeaderCell>
-                  <TableHeaderCell className="w-[14%] !pl-5">
-                    Responsável
-                  </TableHeaderCell>
-                  <TableHeaderCell className="w-[10%]">Cargo</TableHeaderCell>
-                  <TableHeaderCell className="w-[11%]">
-                    Substituto
-                  </TableHeaderCell>
-                  <TableHeaderCell className="w-[8%]">Desde</TableHeaderCell>
-                  <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
-                  <TableHeaderCell className="w-[10%]">
-                    Contacto
-                  </TableHeaderCell>
-                  <TableHeaderCell className="w-[11%]">
-                    Colaboradores
-                  </TableHeaderCell>
-                  <TableHeaderCell className="w-[9%]">
-                    Subdeptos
-                  </TableHeaderCell>
-                  {canManage && (
-                    <TableHeaderCell className="w-[6%] whitespace-nowrap">
-                      Acções
+              <Table
+                wrapperClassName="overflow-x-visible"
+                className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+              >
+                <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHeaderCell className="w-[13%]">
+                      Departamento
                     </TableHeaderCell>
-                  )}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {heads.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={canManage ? 10 : 9}
-                      className="py-8 text-center text-ink-faint"
-                    >
-                      Sem departamentos activos
-                    </TableCell>
+                    <TableHeaderCell className="w-[14%] !pl-5">
+                      Responsável
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[10%]">Cargo</TableHeaderCell>
+                    <TableHeaderCell className="w-[11%]">
+                      Substituto
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[8%]">Desde</TableHeaderCell>
+                    <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
+                    <TableHeaderCell className="w-[10%]">
+                      Contacto
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[11%]">
+                      Colaboradores
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[9%]">
+                      Subdeptos
+                    </TableHeaderCell>
+                    {canManage && (
+                      <TableHeaderCell className="w-[6%] whitespace-nowrap">
+                        Acções
+                      </TableHeaderCell>
+                    )}
                   </TableRow>
-                ) : (
-                  heads.map((row) => (
-                    <TableRow key={row.departmentId}>
-                      <TableCell>
-                        <span className="flex items-center gap-1.5">
-                          <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
-                            {(() => {
-                              const Icon = departmentIcon(
-                                row.departmentName,
-                                row.subdepartmentsUnderResponsibility > 0,
-                              );
-                              return <Icon size={13} strokeWidth={1.75} />;
-                            })()}
-                          </span>
-                          <span className="text-[11px] font-bold leading-tight text-brand">
-                            {row.departmentName}
-                          </span>
-                        </span>
+                </TableHead>
+                <TableBody>
+                  {heads.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={canManage ? 10 : 9}
+                        className="py-8 text-center text-ink-faint"
+                      >
+                        Sem departamentos activos
                       </TableCell>
-                      <TableCell className="!pl-5">
-                        {row.head ? (
-                          <span className="flex items-center gap-1">
-                            <Avatar name={row.head.fullName} size="sm" />
-                            <span className="text-[11px] leading-tight text-ink">
-                              {row.head.fullName}
+                    </TableRow>
+                  ) : (
+                    heads.map((row) => (
+                      <TableRow
+                        key={row.departmentId}
+                        onClick={() => setPreviewId(row.departmentId)}
+                        className={`cursor-pointer ${previewId === row.departmentId ? 'bg-brand-soft' : ''}`}
+                      >
+                        <TableCell>
+                          <span className="flex items-center gap-1.5">
+                            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                              {(() => {
+                                const Icon = departmentIcon(
+                                  row.departmentName,
+                                  row.subdepartmentsUnderResponsibility > 0,
+                                );
+                                return <Icon size={13} strokeWidth={1.75} />;
+                              })()}
+                            </span>
+                            <span className="text-[11px] font-bold leading-tight text-brand">
+                              {row.departmentName}
                             </span>
                           </span>
-                        ) : (
-                          <span className="text-xs text-ink-faint">
-                            Por atribuir
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {row.position ?? '—'}
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {row.deputyHead?.fullName ?? '—'}
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {formatDateNumeric(row.startedAt)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge intent={row.active ? 'success' : 'neutral'}>
-                          {STATUS_LABEL[row.status] ?? row.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        <span className="break-all">{row.contact ?? '—'}</span>
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {row.usersUnderResponsibility}
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {row.subdepartmentsUnderResponsibility}
-                      </TableCell>
-                      {canManage && (
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            intent="ghost"
-                            title="Alterar responsável"
-                            aria-label="Alterar responsável"
-                            onClick={() => setChanging(row)}
-                          >
-                            <UserCog size={14} strokeWidth={1.75} />
-                          </Button>
                         </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                        <TableCell className="!pl-5">
+                          {row.head ? (
+                            <span className="flex items-center gap-1">
+                              <Avatar name={row.head.fullName} size="sm" />
+                              <span className="text-[11px] leading-tight text-ink">
+                                {row.head.fullName}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-xs text-ink-faint">
+                              Por atribuir
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.position ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.deputyHead?.fullName ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {formatDateNumeric(row.startedAt)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge intent={row.active ? 'success' : 'neutral'}>
+                            {STATUS_LABEL[row.status] ?? row.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          <span className="break-all">
+                            {row.contact ?? '—'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.usersUnderResponsibility}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.subdepartmentsUnderResponsibility}
+                        </TableCell>
+                        {canManage && (
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              intent="ghost"
+                              title="Alterar responsável"
+                              aria-label="Alterar responsável"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setChanging(row);
+                              }}
+                            >
+                              <UserCog size={14} strokeWidth={1.75} />
+                            </Button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              {previewRow && (
+                <HeadPreviewPanel
+                  row={previewRow}
+                  onViewDetail={onSelect}
+                  onChangeHead={canManage ? setChanging : undefined}
+                  onClose={() => setPreviewId(null)}
+                />
+              )}
+            </div>
           )}
         </>
       )}

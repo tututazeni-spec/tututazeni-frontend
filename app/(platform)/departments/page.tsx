@@ -149,7 +149,7 @@ export default function DepartmentsPage() {
           {nav.view === 'structure' && (
             <StructureView onSelect={handleSelect} />
           )}
-          {nav.view === 'heads' && <HeadsView />}
+          {nav.view === 'heads' && <HeadsView onSelect={handleSelect} />}
           {nav.view === 'employees' && <EmployeesView />}
           {nav.view === 'positions' && <PositionsView />}
           {nav.view === 'hierarquia' && <HierarchyView />}

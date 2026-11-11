@@ -247,7 +247,7 @@ function TreeRow({
   );
 }
 
-function HeaderIllustration() {
+export function HeaderIllustration() {
   return (
     <svg
       viewBox="0 0 160 130"
@@ -326,7 +326,11 @@ interface PreviewFieldProps {
   children: ReactNode;
 }
 
-function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
+export function PreviewField({
+  icon: Icon,
+  label,
+  children,
+}: PreviewFieldProps) {
   return (
     <div className="flex items-center gap-3 border-b border-brand-line py-3 last:border-b-0">
       <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand">
