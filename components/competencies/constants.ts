@@ -457,3 +457,49 @@ export const MODEL_POSITION_FAMILY_OPTIONS = asOptions([
   'Finanças e Contabilidade',
   'Recursos Humanos',
 ]);
+
+/** Objetivos sugeridos por categoria; no formulário também se pode escrever outro à mão. */
+export const OBJECTIVES_BY_CATEGORY: Record<CompetencyCategory, string[]> = {
+  HARD_SKILL: [
+    'Dominar os conhecimentos técnicos necessários à função',
+    'Aplicar métodos e procedimentos técnicos com rigor e qualidade',
+    'Manter-se atualizado face à evolução técnica da área',
+    'Resolver problemas técnicos de forma autónoma e eficaz',
+    'Cumprir normas, padrões e boas práticas da especialidade',
+  ],
+  SOFT_SKILL: [
+    'Comunicar com clareza e assertividade em todos os níveis',
+    'Trabalhar em equipa e contribuir para um bom ambiente de trabalho',
+    'Gerir emoções e relações interpessoais em situações de pressão',
+    'Adaptar-se à mudança e a novos contextos com flexibilidade',
+    'Demonstrar iniciativa, responsabilidade e sentido de compromisso',
+  ],
+  LANGUAGE: [
+    'Comunicar oralmente com fluência no contexto profissional',
+    'Redigir documentos e correspondência com correção e clareza',
+    'Compreender textos e conversas técnicas no idioma',
+    'Atingir o nível de proficiência exigido pela função',
+    'Atender e negociar com clientes e parceiros no idioma',
+  ],
+  TOOL: [
+    'Utilizar a ferramenta com autonomia nas tarefas do dia a dia',
+    'Explorar funcionalidades avançadas para aumentar a produtividade',
+    'Garantir o uso correto e seguro da ferramenta e dos dados',
+    'Automatizar tarefas repetitivas com a ferramenta',
+    'Formar e apoiar colegas na utilização da ferramenta',
+  ],
+  LEADERSHIP: [
+    'Inspirar, motivar e orientar a equipa para os resultados',
+    'Tomar decisões com visão estratégica e responsabilidade',
+    'Desenvolver talentos através de feedback e acompanhamento',
+    'Delegar com clareza e gerir o desempenho da equipa',
+    'Liderar a mudança e promover uma cultura de melhoria contínua',
+  ],
+  FUNCTIONAL: [
+    'Executar os processos da função com eficiência e qualidade',
+    'Planear e organizar o trabalho cumprindo prazos e prioridades',
+    'Cumprir os procedimentos e requisitos legais da área',
+    'Colaborar com outras áreas para alcançar os objetivos da organização',
+    'Analisar indicadores e propor melhorias ao processo',
+  ],
+};
