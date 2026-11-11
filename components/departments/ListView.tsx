@@ -1,12 +1,13 @@
 // components/departments/ListView.tsx
-// Separador "Lista" — tabela paginada de departamentos. Dados próprios
-// + apresentação. Extraído de app/(platform)/departments/page.tsx.
+// Separador "Lista" — painel com imagem à esquerda (departamentoscard.jpeg) e
+// lista/cartões de departamentos à direita, conforme departamentoslayout.jpeg.
+// Dados próprios + apresentação. Extraído de app/(platform)/departments/page.tsx.
 
 'use client';
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Filter, LayoutGrid, List } from 'lucide-react';
 import { departmentIcon } from './departmentIcon';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -15,15 +16,15 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { PaginatedDepts } from './types';
-import { NativeSelect } from '@/components/ui/NativeSelect';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-// Mesma grelha no cabeçalho e nos cartões para as colunas alinharem.
+// Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
 const GRID =
-  'grid items-center gap-3 grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[minmax(0,2fr)_90px_minmax(0,1.4fr)_70px_90px_90px_20px]';
+  'grid items-center gap-1.5 grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[minmax(0,1.5fr)_72px_minmax(0,1.1fr)_52px_92px_56px_14px]';
 
 function DeptIcon({
   name,
@@ -36,6 +37,12 @@ function DeptIcon({
   return <Icon size={20} strokeWidth={1.75} />;
 }
 
+const STATUS_ITEMS = [
+  { value: 'ALL', label: 'Todos os estados' },
+  { value: 'true', label: 'Activos' },
+  { value: 'false', label: 'Inactivos' },
+];
+
 interface ListViewProps {
   onSelect: (id: number) => void;
 }
@@ -44,6 +51,7 @@ export function ListView({ onSelect }: ListViewProps) {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [layout, setLayout] = useState<'grid' | 'list'>('list');
   const debouncedSearch = useDebounce(search);
   const params = {
     page,
@@ -66,117 +74,181 @@ export function ListView({ onSelect }: ListViewProps) {
     },
   );
   const error = queryError?.message ?? null;
+  const rows = data?.data ?? [];
 
   return (
     <div>
       {/* Filtros */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
-          variant="underline"
-          type="text"
-          placeholder="Pesquisar por nome, código ou gestor…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[160px] flex-1"
-        />
-        <NativeSelect
-          value={activeFilter}
-          onChange={(e) => {
-            setActiveFilter(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Todos os estados</option>
-          <option value="true">Activos</option>
-          <option value="false">Inactivos</option>
-        </NativeSelect>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="min-w-[200px] flex-1">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar por nome, código ou gestor…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="min-w-[180px]">
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={STATUS_ITEMS}
+            value={activeFilter || 'ALL'}
+            onValueChange={(v) => {
+              setActiveFilter(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="flex gap-1 rounded-[14px] bg-[#EAF1FC] p-1">
+          {(
+            [
+              ['grid', LayoutGrid, 'Ver em cartões'],
+              ['list', List, 'Ver em lista'],
+            ] as const
+          ).map(([mode, Icon, label]) => (
+            <button
+              key={mode}
+              type="button"
+              aria-label={label}
+              aria-pressed={layout === mode}
+              onClick={() => setLayout(mode)}
+              className={`flex h-9 w-9 items-center justify-center rounded-[10px] transition-colors ${
+                layout === mode
+                  ? 'bg-brand text-white'
+                  : 'text-brand hover:bg-white'
+              }`}
+            >
+              <Icon size={18} strokeWidth={1.75} />
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Tabela */}
       {loading && (
         <Skeleton
           rows={5}
           wrapperClassName="space-y-2"
-          itemClassName="h-14 rounded-card bg-surface-sunken"
+          itemClassName="h-12 rounded-card bg-surface-sunken"
         />
       )}
       {error && (
         <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
-      {!loading && (
+      {!loading && rows.length === 0 && (
+        <EmptyState variant="inline" title="Nenhum departamento encontrado" />
+      )}
+
+      {!loading && layout === 'list' && rows.length > 0 && (
         <div>
           <div
-            className={`${GRID} hidden rounded-t-panel bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white md:grid`}
+            className={`${GRID} hidden rounded-[10px] bg-[#DCE8FA] px-2 py-2 text-[11px] font-bold uppercase text-brand md:grid`}
           >
             <span>Departamento</span>
             <span>Código</span>
             <span>Gestor</span>
             <span>Membros</span>
-            <span>Estado</span>
-            <span>Sub-deptos</span>
+            <span className="pl-4">Estado</span>
+            <span>Sub-dep.</span>
             <span />
           </div>
-          <div className="md:mt-1.5">
-            {data?.data.length === 0 && (
-              <EmptyState
-                variant="inline"
-                title="Nenhum departamento encontrado"
-              />
-            )}
-            {data?.data.map((d) => (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => onSelect(d.id)}
-                className={`${GRID} mb-1.5 w-full rounded-[14px] border border-brand-line bg-brand-soft px-4 py-3 text-left transition-colors hover:bg-brand-soft`}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
-                    <DeptIcon
-                      name={d.name}
-                      hasChildren={d._count.children > 0}
-                    />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-bold text-brand">
-                      {d.name}
-                    </div>
-                    {d.parent && (
-                      <div className="truncate text-micro text-[#7890AC]">
-                        ↳ {d.parent.name}
-                      </div>
-                    )}
+          {rows.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => onSelect(d.id)}
+              className={`${GRID} w-full border-b border-brand-line px-2 py-2 text-left transition-colors hover:bg-brand-soft`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                  <DeptIcon name={d.name} hasChildren={d._count.children > 0} />
+                </span>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold text-brand">
+                    {d.name}
                   </div>
-                </div>
-                <span className="text-micro text-brand">{d.code}</span>
-                <div className="min-w-0 text-micro text-brand">
-                  {d.head ? (
-                    <span className="flex items-center gap-1.5">
-                      <Avatar name={d.head.fullName} size="sm" />
-                      <span className="truncate">{d.head.fullName}</span>
-                    </span>
-                  ) : (
-                    '—'
+                  {d.parent && (
+                    <div className="truncate text-micro text-[#7890AC]">
+                      ↳ {d.parent.name}
+                    </div>
                   )}
                 </div>
-                <span className="text-xs text-brand">{d._count.users}</span>
-                <span>
-                  <Badge intent={d.active ? 'success' : 'neutral'}>
-                    {d.active ? 'Activo' : 'Inactivo'}
-                  </Badge>
+              </div>
+              <span className="break-words text-xs font-semibold text-brand">
+                {d.code}
+              </span>
+              <div className="min-w-0 text-xs font-semibold text-brand">
+                {d.head ? (
+                  <span className="flex items-center gap-1.5">
+                    <Avatar name={d.head.fullName} size="sm" />
+                    <span className="truncate">{d.head.fullName}</span>
+                  </span>
+                ) : (
+                  <span className="text-brand-muted">—</span>
+                )}
+              </div>
+              <span className="text-xs font-semibold text-brand">
+                {d._count.users}
+              </span>
+              <span className="pl-4">
+                <Badge intent={d.active ? 'success' : 'neutral'}>
+                  {d.active ? 'Activo' : 'Inactivo'}
+                </Badge>
+              </span>
+              <span className="text-xs font-semibold text-brand">
+                {d._count.children}
+              </span>
+              <ChevronRight
+                size={18}
+                strokeWidth={1.75}
+                className="flex-shrink-0 text-brand"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!loading && layout === 'grid' && rows.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {rows.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => onSelect(d.id)}
+              className="rounded-[14px] border border-brand-line bg-white p-4 text-left transition-colors hover:bg-brand-soft"
+            >
+              <div className="mb-3 flex items-center gap-3">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                  <DeptIcon name={d.name} hasChildren={d._count.children > 0} />
                 </span>
-                <span className="text-xs text-brand">{d._count.children}</span>
-                <ChevronRight
-                  size={18}
-                  strokeWidth={1.75}
-                  className="flex-shrink-0 text-brand-muted"
-                />
-              </button>
-            ))}
-          </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-bold text-brand">
+                    {d.name}
+                  </div>
+                  <div className="text-micro font-semibold text-brand-muted">
+                    {d.code}
+                  </div>
+                </div>
+                <Badge intent={d.active ? 'success' : 'neutral'}>
+                  {d.active ? 'Activo' : 'Inactivo'}
+                </Badge>
+              </div>
+              <div className="mb-2 truncate text-xs text-brand">
+                {d.head ? d.head.fullName : 'Sem gestor'}
+              </div>
+              <div className="flex gap-4 text-xs text-brand-muted">
+                <span>
+                  <b className="text-brand">{d._count.users}</b> membros
+                </span>
+                <span>
+                  <b className="text-brand">{d._count.children}</b> sub-deptos
+                </span>
+              </div>
+            </button>
+          ))}
         </div>
       )}
 

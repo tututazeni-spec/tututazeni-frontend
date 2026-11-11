@@ -67,7 +67,7 @@ export function HeadsView() {
 
   return (
     <div>
-      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-panel bg-brand/60 px-4">
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-[14px] bg-[#EAF1FC] px-3">
         {(
           [
             ['current', ListIcon, 'Responsáveis actuais'],
@@ -78,8 +78,10 @@ export function HeadsView() {
             key={tab}
             type="button"
             onClick={() => setSubTab(tab)}
-            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
-              subTab === tab ? 'bg-brand' : 'bg-white/10 hover:bg-white/20'
+            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase transition-colors ${
+              subTab === tab
+                ? 'bg-brand text-white'
+                : 'text-brand hover:bg-white'
             }`}
           >
             <Icon size={14} strokeWidth={1.75} />
@@ -100,7 +102,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
             <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
-              <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável</TableHeaderCell>
@@ -214,7 +216,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{historyError.message}</div>
           ) : (
             <Table>
-              <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável anterior</TableHeaderCell>

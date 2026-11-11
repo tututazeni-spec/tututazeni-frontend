@@ -123,7 +123,7 @@ export function HistoryView() {
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <Table>
-          <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Data/Hora</TableHeaderCell>
               <TableHeaderCell>Tipo de alteração</TableHeaderCell>

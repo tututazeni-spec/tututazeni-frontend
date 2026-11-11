@@ -240,7 +240,7 @@ export function PositionsView() {
       )}
       {!loading && !error && (
         <Table>
-          <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
             <TableRow>
               <TableHeaderCell>Cargo</TableHeaderCell>
               <TableHeaderCell>Função</TableHeaderCell>

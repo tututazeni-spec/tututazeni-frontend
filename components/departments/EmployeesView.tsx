@@ -237,7 +237,7 @@ export function EmployeesView() {
       )}
       {!loading && !error && (
         <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
-          <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableHead className="bg-[#DCE8FA] [&_th]:text-brand">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
               <TableHeaderCell>Cargo</TableHeaderCell>

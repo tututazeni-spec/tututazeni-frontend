@@ -2,8 +2,8 @@
 // Separador "Estrutura Organizacional" (docs/modulo_departments.md Ponto 3).
 // Aqui mostram-se os campos
 // pedidos pela spec (unidade, departamento superior, nível, responsável,
-// colaboradores, cargos, localização) com duas visualizações — Árvore e
-// Lista hierárquica — e um painel de pré-visualização ao clicar num
+// colaboradores, cargos, localização) numa Árvore organizacional — e um
+// painel de pré-visualização ao clicar num
 // departamento (sem navegar logo para o detalhe completo).
 
 'use client';
@@ -14,16 +14,20 @@ import {
   Briefcase,
   ChevronDown,
   ChevronRight,
+  Filter,
   GitBranch,
   GraduationCap,
-  List,
   Network,
   User,
   Users,
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { apiClient } from '@/lib/apiClient';
+import { ADMIN_ROLES } from '@/lib/roles';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
@@ -31,30 +35,29 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode } from './types';
 import { departmentIcon } from './departmentIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 
 interface StructureViewProps {
   onSelect: (id: number) => void;
 }
 
-type VizMode = 'tree' | 'list';
-
-interface FlatRow {
-  node: DepartmentNode;
-  parentName: string | null;
-}
-
-function flatten(
-  nodes: DepartmentNode[],
-  parentName: string | null = null,
-): FlatRow[] {
-  return nodes.flatMap((n) => [
-    { node: n, parentName },
-    ...flatten(n.children, n.name),
-  ]);
-}
-
 function countDescendants(node: DepartmentNode): number {
   return node.children.reduce((sum, c) => sum + 1 + countDescendants(c), 0);
+}
+
+function descendantIds(node: DepartmentNode): number[] {
+  return node.children.flatMap((c) => [c.id, ...descendantIds(c)]);
+}
+
+function flattenForSelect(
+  nodes: DepartmentNode[],
+  prefix = '',
+): { id: number; label: string }[] {
+  return nodes.flatMap((n) => [
+    { id: n.id, label: prefix + n.name },
+    ...flattenForSelect(n.children, prefix + '— '),
+  ]);
 }
 
 function findNode(nodes: DepartmentNode[], id: number): DepartmentNode | null {
@@ -66,6 +69,17 @@ function findNode(nodes: DepartmentNode[], id: number): DepartmentNode | null {
   return null;
 }
 
+/** Arrastar e largar para reorganizar a hierarquia (só ADMIN/RH). */
+interface DragApi {
+  enabled: boolean;
+  dragId: number | null;
+  /** Pode `dragId` ser largado em `targetId`? (não em si próprio nem nos descendentes) */
+  canDrop: (targetId: number) => boolean;
+  onStart: (id: number) => void;
+  onEnd: () => void;
+  onDrop: (targetId: number) => void;
+}
+
 interface DeptCardProps {
   node: DepartmentNode;
   parentName: string | null;
@@ -73,7 +87,12 @@ interface DeptCardProps {
   onPreview: (id: number) => void;
   indent?: number;
   toggle?: ReactNode;
+  drag?: DragApi;
 }
+
+// Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
+const GRID =
+  'grid items-center gap-1.5 grid-cols-[minmax(0,1fr)_56px_56px_16px] sm:grid-cols-[minmax(0,1fr)_72px_72px_16px]';
 
 function DeptCard({
   node,
@@ -82,69 +101,84 @@ function DeptCard({
   onPreview,
   indent = 0,
   toggle,
+  drag,
 }: DeptCardProps) {
-  const Icon = departmentIcon(node.name, node.children.length > 0);
-  const stats = [
-    `${node._count.users} Colaboradores`,
-    `${node.positionsCount} Cargos`,
-    `Nível ${node.level + 1}`,
-  ];
-  const extras = [node.unit?.name, node.location, node.head?.fullName].filter(
-    Boolean,
+  const [over, setOver] = useState(false);
+  const droppable = Boolean(
+    drag?.enabled && drag.dragId != null && drag.canDrop(node.id),
   );
+  const Icon = departmentIcon(node.name, node.children.length > 0);
+  const extras = [
+    parentName ? `sob ${parentName}` : null,
+    `${node._count.users} colaboradores`,
+    node.unit?.name,
+    node.location,
+    node.head?.fullName,
+  ].filter(Boolean);
 
   return (
     <button
       type="button"
       onClick={() => onPreview(node.id)}
-      style={{ marginLeft: indent, width: `calc(100% - ${indent}px)` }}
-      className={`relative mb-1.5 flex items-center gap-3 rounded-[14px] border px-4 py-3 text-left transition-colors ${
-        selected
-          ? 'border-brand-line bg-brand-soft'
-          : 'border-brand-line bg-brand-soft hover:bg-brand-soft'
-      }`}
+      draggable={drag?.enabled || undefined}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(node.id));
+        drag?.onStart(node.id);
+      }}
+      onDragEnd={() => {
+        setOver(false);
+        drag?.onEnd();
+      }}
+      onDragOver={(e) => {
+        if (!droppable) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        if (droppable) drag?.onDrop(node.id);
+      }}
+      className={`${GRID} relative w-full border-b border-brand-line px-2 py-2 text-left transition-colors hover:bg-brand-soft ${
+        selected ? 'bg-brand-soft' : ''
+      } ${over ? 'bg-[#DCE8FA] ring-2 ring-inset ring-[#2878E5]' : ''} ${
+        drag?.enabled ? 'cursor-grab active:cursor-grabbing' : ''
+      } ${drag?.dragId === node.id ? 'opacity-40' : ''}`}
     >
       {selected && (
         <span
           aria-hidden="true"
-          className="absolute left-0 top-1/2 h-[85%] w-[5px] -translate-y-1/2 rounded-full bg-[#2878E5]"
+          className="absolute left-0 top-1/2 h-[85%] w-[4px] -translate-y-1/2 rounded-full bg-[#2878E5]"
         />
       )}
-      {toggle}
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
-        <Icon size={20} strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2">
-          <span className="truncate text-sm font-bold text-brand">
+      <div
+        className="flex min-w-0 items-center gap-2"
+        style={{ paddingLeft: indent }}
+      >
+        {toggle}
+        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+          <Icon size={18} strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0">
+          <div className="truncate text-xs font-bold text-brand">
             {node.name}
-          </span>
-        </div>
-        <div className="mt-0.5 flex flex-wrap items-center text-micro text-ink-muted">
-          {stats.map((t, i) => (
-            <span key={t} className="flex items-center">
-              {i > 0 && (
-                <span
-                  className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-brand-soft"
-                  aria-hidden="true"
-                />
-              )}
-              {t}
-            </span>
-          ))}
-        </div>
-        {(parentName || extras.length > 0) && (
-          <div className="mt-0.5 truncate text-micro text-[#7890AC]">
-            {[parentName ? `sob ${parentName}` : null, ...extras]
-              .filter(Boolean)
-              .join(' · ')}
           </div>
-        )}
+          <div className="truncate text-micro text-[#7890AC]">
+            {extras.join(' · ')}
+          </div>
+        </div>
       </div>
+      <span className="text-xs font-semibold text-brand">
+        {node.positionsCount}
+      </span>
+      <span className="text-xs font-semibold text-brand">{node.level + 1}</span>
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className={`flex-shrink-0 ${selected ? 'text-brand-ink' : 'text-brand-muted'}`}
+        className="flex-shrink-0 text-brand"
       />
     </button>
   );
@@ -152,13 +186,23 @@ function DeptCard({
 
 interface TreeRowProps {
   node: DepartmentNode;
+  forceExpand?: boolean;
+  drag?: DragApi;
   parentName: string | null;
   selectedId: number | null;
   onPreview: (id: number) => void;
 }
 
-function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
-  const [expanded, setExpanded] = useState(node.level < 1);
+function TreeRow({
+  node,
+  forceExpand,
+  drag,
+  parentName,
+  selectedId,
+  onPreview,
+}: TreeRowProps) {
+  const [open, setOpen] = useState(node.level < 1);
+  const expanded = forceExpand || open;
   const hasChildren = node.children.length > 0;
 
   return (
@@ -169,6 +213,7 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
         selected={selectedId === node.id}
         onPreview={onPreview}
         indent={node.level * 24}
+        drag={drag}
         toggle={
           hasChildren ? (
             <span
@@ -176,7 +221,7 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
               tabIndex={-1}
               onClick={(e) => {
                 e.stopPropagation();
-                setExpanded((v) => !v);
+                setOpen((v) => !v);
               }}
               className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-brand-muted hover:text-brand-ink"
             >
@@ -198,6 +243,8 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
             <TreeRow
               key={child.id}
               node={child}
+              forceExpand={forceExpand}
+              drag={drag}
               parentName={node.name}
               selectedId={selectedId}
               onPreview={onPreview}
@@ -308,11 +355,19 @@ function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
 
 interface PreviewPanelProps {
   node: DepartmentNode;
+  parentItems?: { value: string; label: string }[];
+  onMove?: (parentId: number | null) => void;
   onViewDetail: (id: number) => void;
   onClose: () => void;
 }
 
-function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
+function PreviewPanel({
+  node,
+  parentItems,
+  onMove,
+  onViewDetail,
+  onClose,
+}: PreviewPanelProps) {
   const descendants = countDescendants(node);
   return (
     <aside
@@ -378,6 +433,20 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
           </PreviewField>
         </dl>
 
+        {parentItems && onMove && (
+          <div className="mt-4">
+            <div className="mb-1 text-xs font-medium uppercase tracking-wide text-[#7186A8]">
+              Mover para
+            </div>
+            <Select
+              items={parentItems}
+              value={node.parentId != null ? String(node.parentId) : 'ROOT'}
+              onValueChange={(v) => onMove(v === 'ROOT' ? null : Number(v))}
+              label="Departamento superior"
+            />
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => onViewDetail(node.id)}
@@ -391,9 +460,45 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
   );
 }
 
+const STATUS_ITEMS = [
+  { value: 'ALL', label: 'Todos os estados' },
+  { value: 'true', label: 'Activos' },
+  { value: 'false', label: 'Inactivos' },
+];
+
+function normalize(t: string): string {
+  return t
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+}
+
+// Mantém os departamentos que cumprem os filtros e os seus antepassados.
+function filterTree(
+  nodes: DepartmentNode[],
+  q: string,
+  active: string,
+): DepartmentNode[] {
+  return nodes.flatMap((n) => {
+    const children = filterTree(n.children, q, active);
+    const matches =
+      (!q ||
+        normalize(`${n.name} ${n.code} ${n.head?.fullName ?? ''}`).includes(
+          q,
+        )) &&
+      (!active || String(n.active) === active);
+    return matches || children.length > 0 ? [{ ...n, children }] : [];
+  });
+}
+
 export function StructureView({ onSelect }: StructureViewProps) {
-  const [viz, setViz] = useState<VizMode>('tree');
   const [previewId, setPreviewId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+  const [activeFilter, setActiveFilter] = useState('');
+  const [dragId, setDragId] = useState<number | null>(null);
+  const canManage = useHasRole(ADMIN_ROLES);
+  const notify = useToast();
 
   const {
     data: tree = [],
@@ -405,7 +510,47 @@ export function StructureView({ onSelect }: StructureViewProps) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const flatRows = useMemo(() => flatten(tree), [tree]);
+  const moveMutation = useApiMutation(
+    (v: { id: number; parentId: number | null }) =>
+      apiClient.put(`/departments/${v.id}`, { parentId: v.parentId }),
+    {
+      invalidateKeys: [queryKeys.departments.all],
+      onSuccess: () =>
+        notify({ title: 'Hierarquia actualizada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Não foi possível mover o departamento',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+  const move = (id: number, parentId: number | null) => {
+    const current = findNode(tree, id);
+    if (!current || current.parentId === parentId || moveMutation.isPending)
+      return;
+    moveMutation.mutate({ id, parentId });
+  };
+  const dragNode = dragId != null ? findNode(tree, dragId) : null;
+  const blocked = new Set<number>(
+    dragNode ? [dragNode.id, ...descendantIds(dragNode)] : [],
+  );
+  const drag: DragApi = {
+    enabled: canManage,
+    dragId,
+    canDrop: (targetId) => !blocked.has(targetId),
+    onStart: setDragId,
+    onEnd: () => setDragId(null),
+    onDrop: (targetId) => {
+      if (dragId != null) move(dragId, targetId);
+      setDragId(null);
+    },
+  };
+  const q = normalize(search);
+  const visibleTree = useMemo(
+    () => filterTree(tree, q, activeFilter),
+    [tree, q, activeFilter],
+  );
   const previewNode = previewId != null ? findNode(tree, previewId) : null;
 
   if (loading)
@@ -421,56 +566,73 @@ export function StructureView({ onSelect }: StructureViewProps) {
 
   return (
     <div>
-      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-panel bg-brand/60 px-4">
-        {(
-          [
-            ['tree', Network, 'Árvore organizacional'],
-            ['list', List, 'Lista hierárquica'],
-          ] as const
-        ).map(([mode, Icon, label]) => (
-          <button
-            key={mode}
-            type="button"
-            onClick={() => setViz(mode)}
-            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
-              viz === mode ? 'bg-brand' : 'bg-white/10 hover:bg-white/20'
-            }`}
-          >
-            <Icon size={14} strokeWidth={1.75} />
-            {label}
-          </button>
-        ))}
-      </div>
-
       <div
         className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_380px]' : ''}`}
       >
         <div>
-          {tree.length === 0 ? (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <div className="min-w-[200px] flex-1">
+              <SearchInput
+                variant="underline"
+                placeholder="Pesquisar por nome, código ou gestor…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="min-w-[180px]">
+              <Select
+                variant="underline"
+                icon={Filter}
+                items={STATUS_ITEMS}
+                value={activeFilter || 'ALL'}
+                onValueChange={(v) => setActiveFilter(v === 'ALL' ? '' : v)}
+              />
+            </div>
+          </div>
+          <div
+            className={`${GRID} rounded-[10px] bg-[#DCE8FA] px-2 py-2 text-[11px] font-bold uppercase text-brand`}
+          >
+            <span>Departamentos</span>
+            <span>Cargos</span>
+            <span>Níveis</span>
+            <span />
+          </div>
+          {canManage && (
+            <div
+              onDragOver={(e) => {
+                if (dragNode && dragNode.parentId != null) e.preventDefault();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragId != null) move(dragId, null);
+                setDragId(null);
+              }}
+              className={`mt-2 rounded-[10px] border border-dashed px-3 py-2 text-center text-micro transition-colors ${
+                dragNode && dragNode.parentId != null
+                  ? 'border-[#2878E5] bg-[#EAF1FC] text-brand'
+                  : 'border-transparent text-[#7890AC]'
+              }`}
+            >
+              {dragNode && dragNode.parentId != null
+                ? 'Largue aqui para tornar departamento de topo'
+                : 'Arraste um departamento para cima de outro para o tornar subdepartamento'}
+            </div>
+          )}
+          {visibleTree.length === 0 ? (
             <EmptyState
               variant="inline"
               title="Sem departamentos na hierarquia"
             />
-          ) : viz === 'tree' ? (
+          ) : (
             <div>
-              {tree.map((node) => (
+              {visibleTree.map((node) => (
                 <TreeRow
                   key={node.id}
                   node={node}
+                  forceExpand={Boolean(q || activeFilter)}
+                  drag={drag}
                   parentName={null}
                   selectedId={previewId}
-                  onPreview={setPreviewId}
-                />
-              ))}
-            </div>
-          ) : (
-            <div>
-              {flatRows.map(({ node, parentName }) => (
-                <DeptCard
-                  key={node.id}
-                  node={node}
-                  parentName={parentName}
-                  selected={previewId === node.id}
                   onPreview={setPreviewId}
                 />
               ))}
@@ -481,6 +643,21 @@ export function StructureView({ onSelect }: StructureViewProps) {
         {previewNode && (
           <PreviewPanel
             node={previewNode}
+            parentItems={
+              canManage
+                ? [
+                    { value: 'ROOT', label: 'Nenhum (topo)' },
+                    ...flattenForSelect(tree).filter(
+                      (d) =>
+                        d.id !== previewNode.id &&
+                        !descendantIds(previewNode).includes(d.id),
+                    ),
+                  ].map((d) =>
+                    'id' in d ? { value: String(d.id), label: d.label } : d,
+                  )
+                : undefined
+            }
+            onMove={canManage ? (pid) => move(previewNode.id, pid) : undefined}
             onViewDetail={onSelect}
             onClose={() => setPreviewId(null)}
           />
