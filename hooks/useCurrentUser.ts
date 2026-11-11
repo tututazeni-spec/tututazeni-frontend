@@ -33,8 +33,12 @@ export interface CurrentUser {
   }[];
 }
 
-export function useCurrentUser() {
+export function useCurrentUser(options?: { fresh?: boolean }) {
   return useApiQuery<CurrentUser>(queryKeys.auth.me(), '/auth/me', {
     staleTime: STALE_TIME.SEMI_STATIC,
+    // `fresh`: revalida ao montar o ecrã mesmo dentro dos 5 min de cache —
+    // para cabeçalhos que mostram cargo/departamento, que o RH pode ter
+    // alterado entretanto (nada invalida auth.me ao editar um utilizador).
+    ...(options?.fresh ? { refetchOnMount: 'always' as const } : {}),
   });
 }
