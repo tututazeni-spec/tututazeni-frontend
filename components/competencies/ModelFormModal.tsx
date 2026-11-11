@@ -7,6 +7,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -153,6 +154,11 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         : null,
       submitError: '',
     });
+  const [manualObjective, setManualObjective] = useState(
+    () =>
+      !!initial?.objective &&
+      !MODEL_OBJECTIVE_OPTIONS.some((o) => o.value === initial.objective),
+  );
   const {
     name,
     code,
@@ -268,14 +274,32 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         </FormField>
 
         <FormField label="Objetivo" htmlFor="mf-objective">
-          <Combobox
-            items={MODEL_OBJECTIVE_OPTIONS}
-            value={objective || undefined}
-            onValueChange={(v) => setField('objective', v)}
-            placeholder="Selecionar objetivo"
-            searchPlaceholder="Escreva para filtrar ou indicar outro…"
-            allowCustom
-          />
+          {manualObjective ? (
+            <Textarea
+              id="mf-objective"
+              value={objective}
+              onChange={(e) => setField('objective', e.target.value)}
+              placeholder="Escreva o objetivo do modelo"
+              rows={2}
+              className="w-full"
+            />
+          ) : (
+            <Combobox
+              items={MODEL_OBJECTIVE_OPTIONS}
+              value={objective || undefined}
+              onValueChange={(v) => setField('objective', v)}
+              placeholder="Selecionar objetivo"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
+            />
+          )}
+          <button
+            type="button"
+            onClick={() => setManualObjective((m) => !m)}
+            className="mt-1 text-xs font-medium text-[#0F1F3D] underline underline-offset-2"
+          >
+            {manualObjective ? 'Escolher da lista' : 'Escrever manualmente'}
+          </button>
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">

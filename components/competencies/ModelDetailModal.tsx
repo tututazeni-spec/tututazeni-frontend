@@ -8,7 +8,23 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Trash2 } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import {
+  AlertCircle,
+  Activity,
+  Briefcase,
+  Building2,
+  CalendarRange,
+  FileText,
+  Hash,
+  Layers,
+  GitBranch,
+  Shapes,
+  TrendingUp,
+  Target,
+  Trash2,
+  UserCog,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -18,6 +34,12 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import {
+  DetailDivider,
+  DetailHeader,
+  DetailInfoRow,
+  DetailSectionRow,
+} from '@/components/ui/DetailCardParts';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -27,6 +49,12 @@ import { useCompetencyOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { EmptyState } from '@/components/ui/EmptyState';
+
+// Botões do card: letra branca, sem efeito ao passar o cursor.
+const NAVY_BTN =
+  'border border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white';
+const RED_BTN =
+  'border border-[#DC2626] bg-[#DC2626] text-white hover:bg-[#DC2626] hover:text-white disabled:opacity-100';
 
 export interface ModelDetailModalProps {
   modelId: number;
@@ -104,7 +132,18 @@ export function ModelDetailModal({
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={data?.name ?? 'Modelo de competências'}
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        hideHeading
+        navyClose
+        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        style={
+          {
+            '--detail-label': '#0F1F3D',
+            '--color-brand-ink': '#0F1F3D',
+            '--color-brand': '#0F1F3D',
+            '--color-brand-hover': '#0F1F3D',
+            '--color-brand-active': '#0F1F3D',
+          } as CSSProperties
+        }
       >
         {isLoading ? (
           <div className="mt-5">
@@ -117,57 +156,68 @@ export function ModelDetailModal({
           </div>
         ) : (
           <>
-            <div className="mt-4 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge value={data.status} map={STATUS_CFG} />
-                {data.hierarchyLevel && (
-                  <StatusBadge
-                    value={data.hierarchyLevel}
-                    map={HIERARCHY_LEVEL_CFG}
-                  />
-                )}
-                <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
+            <DetailHeader name={data.name} icon={Layers} />
+
+            <div className="mt-6 grid gap-6 md:grid-cols-[1fr_auto_1fr]">
+              <div className="space-y-4">
+                <DetailInfoRow icon={Hash} label="Código">
+                  {data.code || '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={Shapes} label="Tipo">
+                  {data.type || '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={Building2} label="Departamento">
+                  {data.department?.name ?? '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={TrendingUp} label="Nível hierárquico">
+                  {data.hierarchyLevel ? (
+                    <StatusBadge
+                      value={data.hierarchyLevel}
+                      map={HIERARCHY_LEVEL_CFG}
+                    />
+                  ) : (
+                    '—'
+                  )}
+                </DetailInfoRow>
+                <DetailInfoRow
+                  icon={Briefcase}
+                  label="Cargo / família profissional"
+                >
+                  {data.positionFamily || '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={UserCog} label="Responsável pelo modelo">
+                  {data.owner?.fullName ?? '—'}
+                </DetailInfoRow>
+              </div>
+
+              <DetailDivider />
+
+              <div className="space-y-4">
+                <DetailSectionRow icon={FileText} label="Descrição">
+                  <span className="whitespace-pre-wrap">
+                    {data.description || '—'}
+                  </span>
+                </DetailSectionRow>
+                <DetailSectionRow icon={Target} label="Objetivo">
+                  <span className="whitespace-pre-wrap">
+                    {data.objective || '—'}
+                  </span>
+                </DetailSectionRow>
+                <DetailInfoRow icon={GitBranch} label="Versão">
                   v{data.version}
-                </span>
+                </DetailInfoRow>
+                <DetailInfoRow icon={CalendarRange} label="Vigência">
+                  {data.effectiveDate || data.endDate
+                    ? `${data.effectiveDate?.slice(0, 10) ?? '—'} a ${data.endDate?.slice(0, 10) ?? '—'}`
+                    : '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={Activity} label="Estado">
+                  <StatusBadge value={data.status} map={STATUS_CFG} />
+                </DetailInfoRow>
               </div>
+            </div>
 
-              <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
-                {data.code && <span>Código: {data.code}</span>}
-                {data.type && <span>Tipo: {data.type}</span>}
-                {data.department && (
-                  <span>Departamento: {data.department.name}</span>
-                )}
-                {data.positionFamily && (
-                  <span>Família: {data.positionFamily}</span>
-                )}
-              </div>
-
-              {data.description && (
-                <p className="font-body text-sm text-ink-muted">
-                  {data.description}
-                </p>
-              )}
-
-              {data.objective && (
-                <p className="font-body text-sm text-ink-muted">
-                  <span className="font-semibold text-ink">Objetivo: </span>
-                  {data.objective}
-                </p>
-              )}
-
-              {(data.effectiveDate || data.endDate) && (
-                <p className="font-body text-xs text-ink-faint">
-                  Vigência: {data.effectiveDate?.slice(0, 10) ?? '—'} a{' '}
-                  {data.endDate?.slice(0, 10) ?? '—'}
-                </p>
-              )}
-
-              {data.owner && (
-                <p className="font-body text-xs text-ink-faint">
-                  Responsável: {data.owner.fullName}
-                </p>
-              )}
-
+            <div className="mt-6 space-y-4 border-t border-border pt-4">
               <div>
                 <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
                   Competências incluídas ({data.items.length})
@@ -235,21 +285,35 @@ export function ModelDetailModal({
               </div>
             </div>
 
-            {canManage && (
-              <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
-                <Button
-                  intent="danger"
-                  onClick={onDeleteModel}
-                  loading={removeModel.isPending}
-                  disabled={data.items.length > 0}
-                >
-                  Eliminar
-                </Button>
-                <Button intent="ghost" onClick={onEdit}>
-                  Editar
-                </Button>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+              <div>
+                {canManage && (
+                  <Button
+                    intent="secondary"
+                    className={RED_BTN}
+                    onClick={onDeleteModel}
+                    loading={removeModel.isPending}
+                    disabled={data.items.length > 0}
+                  >
+                    Apagar
+                  </Button>
+                )}
               </div>
-            )}
+              <div className="flex gap-3">
+                <Button
+                  intent="secondary"
+                  className={NAVY_BTN}
+                  onClick={onClose}
+                >
+                  Fechar
+                </Button>
+                {canManage && (
+                  <Button className={NAVY_BTN} onClick={onEdit}>
+                    Editar
+                  </Button>
+                )}
+              </div>
+            </div>
           </>
         )}
       </ModalContent>
@@ -304,7 +368,10 @@ function AddItemForm({
   const canAdd = competencyId.length > 0 && expectedLevel.length > 0;
 
   return (
-    <div className="mt-3 rounded-card border border-dashed border-border p-3">
+    <div className="mt-3 rounded-card border border-dashed border-border p-4">
+      <div className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+        Adicionar competência
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Competência" htmlFor="mi-competency">
           <Select
@@ -328,7 +395,7 @@ function AddItemForm({
           />
         </FormField>
       </div>
-      <div className="mt-3 flex items-center gap-4">
+      <div className="mt-3 flex flex-wrap items-center gap-4">
         <FormField label="Peso" htmlFor="mi-weight">
           <Input
             id="mi-weight"

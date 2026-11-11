@@ -94,68 +94,69 @@ export function ModelsView({
       {isLoading ? (
         <Skeleton rows={6} />
       ) : (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-3">
           {data?.data.map((model) => (
             <div
               key={model.id}
               onClick={() => onSelect(model.id)}
               role="button"
               tabIndex={0}
+              aria-label={`Ver detalhes do modelo ${model.name}`}
               onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   onSelect(model.id);
                 }
               }}
-              className="cursor-pointer rounded-card border border-border bg-surface p-4 shadow-resting transition-shadow duration-150 hover:shadow-hover"
+              className="relative flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 overflow-hidden rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] shadow-[0_4px_12px_rgba(21,47,89,0.10)] transition hover:border-brand"
             >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <div className="mb-1 font-body text-sm font-semibold text-ink">
-                    {model.name}
-                    {model.code && (
-                      <span className="ml-1.5 font-body text-xs font-normal text-ink-faint">
-                        {model.code}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <StatusBadge value={model.status} map={STATUS_CFG} />
-                    {model.hierarchyLevel && (
-                      <StatusBadge
-                        value={model.hierarchyLevel}
-                        map={HIERARCHY_LEVEL_CFG}
-                      />
-                    )}
-                    <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
-                      v{model.version}
-                    </span>
-                  </div>
-                </div>
+              <div className="min-w-0 flex-1 truncate font-body text-sm text-brand">
+                <span className="font-semibold">{model.name}</span>
+                {model.code && (
+                  <span className="ml-1.5 text-xs text-brand-muted">
+                    {model.code}
+                  </span>
+                )}
+                {model.description && (
+                  <span
+                    className="ml-2 text-xs text-brand-muted"
+                    title={model.description}
+                  >
+                    {model.description}
+                  </span>
+                )}
               </div>
-              {model.description && (
-                <p className="mb-2 line-clamp-2 font-body text-xs text-ink-muted">
-                  {model.description}
-                </p>
+              {model.department && (
+                <span className="font-body text-xs text-brand-muted">
+                  {model.department.name}
+                </span>
               )}
-              <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
-                {model.department && <span>{model.department.name}</span>}
-                <span>{model._count.items} competências</span>
-              </div>
               {model.owner && (
-                <div className="mt-2 font-body text-xs text-ink-faint">
-                  Responsável: {model.owner.fullName}
-                </div>
+                <span className="font-body text-xs text-brand-muted">
+                  {model.owner.fullName}
+                </span>
               )}
+              <span className="font-body text-xs font-semibold text-brand">
+                {model._count.items} competências
+              </span>
+              <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
+                v{model.version}
+              </span>
+              {model.hierarchyLevel && (
+                <StatusBadge
+                  value={model.hierarchyLevel}
+                  map={HIERARCHY_LEVEL_CFG}
+                />
+              )}
+              <StatusBadge value={model.status} map={STATUS_CFG} />
             </div>
           ))}
           {data?.data.length === 0 && (
-            <div className="col-span-3">
-              <EmptyState
-                title="Nenhum modelo de competências encontrado"
-                description="Ajusta os filtros ou cria um novo modelo."
-              />
-            </div>
+            <EmptyState
+              title="Nenhum modelo de competências encontrado"
+              description="Ajusta os filtros ou cria um novo modelo."
+            />
           )}
         </div>
       )}
