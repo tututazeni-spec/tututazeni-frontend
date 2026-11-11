@@ -28,6 +28,7 @@ import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode, PositionRow } from './types';
+import { MultiCombobox } from '@/components/ui/MultiCombobox';
 import { ChoiceOrManualField, ItemListPicker } from './PositionFormFields';
 import {
   JOB_FAMILIES,
@@ -84,14 +85,14 @@ function Section({
 interface PositionFormModalFormValues {
   name: string;
   code: string;
-  jobFunction: string;
+  jobFunctions: string[];
   jobFamily: string;
   level: PosLevel | '';
   departmentId: string;
   reportsToPositionId: string;
   description: string;
-  responsibilityItems: string[];
-  requirementItems: string[];
+  responsibilityItems: Record<string, string[]>;
+  requirementItems: Record<string, string[]>;
   requiredTraining: string;
   requiredExperience: string;
   salaryMin: string;
@@ -108,14 +109,14 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
     useFormState<PositionFormModalFormValues>({
       name: '',
       code: '',
-      jobFunction: '',
+      jobFunctions: [],
       jobFamily: '',
       level: '',
       departmentId: NO_DEPT,
       reportsToPositionId: NO_REPORTS_TO,
       description: '',
-      responsibilityItems: [],
-      requirementItems: [],
+      responsibilityItems: {},
+      requirementItems: {},
       requiredTraining: '',
       requiredExperience: '',
       salaryMin: '',
@@ -127,7 +128,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
   const {
     name,
     code,
-    jobFunction,
+    jobFunctions,
     jobFamily,
     level,
     departmentId,
@@ -167,27 +168,38 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
     })),
   ];
 
-  const template = findJobFunction(jobFunction);
-  // Ao mudar de função: retira as sugestões da anterior (mantém as escritas à
-  // mão) e, se a família estiver vazia, usa a habitual da nova função.
-  const handleFunctionChange = (next: string) => {
-    const previous = findJobFunction(jobFunction);
-    const incoming = findJobFunction(next);
-    if (previous) {
-      setField(
-        'responsibilityItems',
-        responsibilityItems.filter(
-          (r) => !previous.responsibilities.includes(r),
-        ),
-      );
-      setField(
-        'requirementItems',
-        requirementItems.filter((r) => !previous.requirements.includes(r)),
-      );
-    }
-    setField('jobFunction', next);
-    if (incoming && !jobFamily.trim()) setField('jobFamily', incoming.family);
+  // Ao mudar as funções: se a família estiver vazia, usa a habitual da
+  // primeira função escolhida. As listas de cada função são independentes.
+  const handleFunctionsChange = (next: string[]) => {
+    setField('jobFunctions', next);
+    const first = next.length ? findJobFunction(next[0]) : undefined;
+    if (first && !jobFamily.trim()) setField('jobFamily', first.family);
   };
+
+  const setItems = (
+    key: 'responsibilityItems' | 'requirementItems',
+    fn: string,
+    items: string[],
+  ) =>
+    setField(key, {
+      ...(key === 'responsibilityItems'
+        ? responsibilityItems
+        : requirementItems),
+      [fn]: items,
+    });
+
+  // Com uma só função guarda-se uma linha por item; com várias, agrupa-se
+  // por função ("Função:" + itens com traço).
+  const NL = String.fromCharCode(10);
+  const joinByFunction = (byFn: Record<string, string[]>) => {
+    const used = jobFunctions.filter((f) => (byFn[f] ?? []).length > 0);
+    if (jobFunctions.length <= 1) return used.flatMap((f) => byFn[f]).join(NL);
+    return used
+      .map((f) => `${f}:${NL}${byFn[f].map((i) => `- ${i}`).join(NL)}`)
+      .join(NL + NL);
+  };
+  const responsibilitiesText = joinByFunction(responsibilityItems);
+  const requirementsText = joinByFunction(requirementItems);
 
   const min = salaryMin.trim() ? Number(salaryMin) : null;
   const max = salaryMax.trim() ? Number(salaryMax) : null;
@@ -223,7 +235,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
     createPos.mutate({
       name: name.trim(),
       ...(code.trim() ? { code: code.trim() } : {}),
-      ...(jobFunction.trim() ? { jobFunction: jobFunction.trim() } : {}),
+      ...(jobFunctions.length ? { jobFunction: jobFunctions.join(', ') } : {}),
       ...(jobFamily.trim() ? { jobFamily: jobFamily.trim() } : {}),
       ...(level ? { level } : {}),
       ...(departmentId !== NO_DEPT
@@ -233,12 +245,10 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
         ? { reportsToPositionId: Number(reportsToPositionId) }
         : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
-      ...(responsibilityItems.length
-        ? { responsibilities: responsibilityItems.join('\n') }
+      ...(responsibilitiesText
+        ? { responsibilities: responsibilitiesText }
         : {}),
-      ...(requirementItems.length
-        ? { requirements: requirementItems.join('\n') }
-        : {}),
+      ...(requirementsText ? { requirements: requirementsText } : {}),
       ...(requiredTraining.trim()
         ? { requiredTraining: requiredTraining.trim() }
         : {}),
@@ -290,15 +300,17 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               />
             </FormField>
 
-            <FormField label="Função" htmlFor="pf-function">
-              <ChoiceOrManualField
-                id="pf-function"
-                options={JOB_FUNCTION_NAMES}
-                value={jobFunction}
-                onChange={handleFunctionChange}
-                placeholder="Seleccionar função…"
-                manualPlaceholder="Ex.: Gestão administrativa de pessoal"
-                maxLength={150}
+            <FormField
+              label="Funções"
+              htmlFor="pf-function"
+              hint="Podes escolher várias."
+            >
+              <MultiCombobox
+                items={JOB_FUNCTION_NAMES.map((n) => ({ value: n, label: n }))}
+                value={jobFunctions}
+                onValueChange={handleFunctionsChange}
+                label="Seleccionar funções"
+                searchPlaceholder="Escreva para filtrar…"
               />
             </FormField>
 
@@ -371,31 +383,46 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
           </Section>
 
           <Section title="Responsabilidades e requisitos">
-            <div className="sm:col-span-2">
-              <FormField
-                label="Responsabilidades"
-                htmlFor="pf-responsibilities"
-              >
-                <ItemListPicker
-                  suggestions={template?.responsibilities ?? []}
-                  value={responsibilityItems}
-                  onChange={(v) => setField('responsibilityItems', v)}
-                  addPlaceholder="Escrever uma responsabilidade e adicionar"
-                  emptyHint="Escolha uma função da lista para ver as responsabilidades sugeridas, ou escreva as suas."
-                />
-              </FormField>
-            </div>
-            <div className="sm:col-span-2">
-              <FormField label="Requisitos" htmlFor="pf-requirements">
-                <ItemListPicker
-                  suggestions={template?.requirements ?? []}
-                  value={requirementItems}
-                  onChange={(v) => setField('requirementItems', v)}
-                  addPlaceholder="Escrever um requisito e adicionar"
-                  emptyHint="Escolha uma função da lista para ver os requisitos sugeridos, ou escreva os seus."
-                />
-              </FormField>
-            </div>
+            {jobFunctions.length === 0 && (
+              <p className="text-xs text-ink-faint sm:col-span-2">
+                Escolha primeiro as funções para ver as responsabilidades e os
+                requisitos sugeridos de cada uma.
+              </p>
+            )}
+            {jobFunctions.map((fn) => {
+              const template = findJobFunction(fn);
+              return (
+                <div
+                  key={fn}
+                  className="flex flex-col gap-4 rounded-card border border-border p-4 sm:col-span-2"
+                >
+                  <h4 className="font-body text-sm font-semibold text-ink">
+                    {fn}
+                  </h4>
+                  <FormField
+                    label="Responsabilidades"
+                    htmlFor={`pf-resp-${fn}`}
+                  >
+                    <ItemListPicker
+                      suggestions={template?.responsibilities ?? []}
+                      value={responsibilityItems[fn] ?? []}
+                      onChange={(v) => setItems('responsibilityItems', fn, v)}
+                      addPlaceholder="Escrever uma responsabilidade e adicionar"
+                      emptyHint="Sem sugestões para esta função — escreva as suas."
+                    />
+                  </FormField>
+                  <FormField label="Requisitos" htmlFor={`pf-req-${fn}`}>
+                    <ItemListPicker
+                      suggestions={template?.requirements ?? []}
+                      value={requirementItems[fn] ?? []}
+                      onChange={(v) => setItems('requirementItems', fn, v)}
+                      addPlaceholder="Escrever um requisito e adicionar"
+                      emptyHint="Sem sugestões para esta função — escreva os seus."
+                    />
+                  </FormField>
+                </div>
+              );
+            })}
             <FormField label="Formação necessária" htmlFor="pf-training">
               <Input
                 id="pf-training"
