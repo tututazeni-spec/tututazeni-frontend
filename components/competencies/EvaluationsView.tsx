@@ -217,7 +217,7 @@ export function EvaluationsView() {
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-border bg-surface shadow-elevated">
+        <div className="scroll-navy overflow-x-auto rounded-[14px] border border-border bg-surface shadow-elevated">
           <table className="w-full min-w-[1500px] border-collapse font-body text-sm text-ink [&_td:not(:first-child)]:border-l [&_td:not(:first-child)]:border-border [&_th:not(:first-child)]:border-l [&_th:not(:first-child)]:border-[#6F8FB8]/30">
             <thead className="bg-brand-dark">
               <tr>
