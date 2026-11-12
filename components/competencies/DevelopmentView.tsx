@@ -23,11 +23,11 @@ import { Filter, Layers, MapPin, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/providers/ToastProvider';
 import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 import { DevelopmentDetailModal } from './DevelopmentDetailModal';
 import { DevelopmentPlanFormModal } from './DevelopmentPlanFormModal';
 
 // Mesmo RBAC de POST /development-plans (ADMIN, RH, GESTOR).
-const CREATE_ROLES = ['ADMIN', 'RH', 'GESTOR'] as const;
 
 const ALL = 'ALL';
 
@@ -56,7 +56,7 @@ export function DevelopmentView() {
   const [selected, setSelected] = useState<CompetencyDevelopmentAction | null>(
     null,
   );
-  const canCreate = useHasRole(CREATE_ROLES);
+  const canCreate = useHasRole(ADMIN_RH_GESTOR_ROLES);
   const notify = useToast();
 
   const { options: competencyOptions } = useCompetencyOptions();

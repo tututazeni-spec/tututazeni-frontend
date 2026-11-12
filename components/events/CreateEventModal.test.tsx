@@ -70,6 +70,7 @@ vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 vi.mock('@/components/departments/departmentFormData', () => ({
   useUnits: () => ({ units: [], loading: false }),
   useDirectoryUsers: () => ({ users: [], loading: false }),
+  useManagerCandidates: () => ({ users: [], loading: false }),
 }));
 
 vi.mock('./eventFormData', () => ({
