@@ -195,7 +195,7 @@ export function KpisTab() {
         </div>
         <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_table]:w-full [&_table]:table-fixed [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           <DataTable
-            headerClassName="bg-brand/60 text-white"
+            headerClassName="bg-brand-dark text-white"
             data={kpis}
             rowKey={(k) => k.id}
             searchKeys={['name', 'code']}

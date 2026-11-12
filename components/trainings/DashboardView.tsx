@@ -26,7 +26,7 @@ import {
   UsersRound,
   XCircle,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -42,9 +42,14 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
+import { TrainingEnrolleesModal } from './TrainingEnrolleesModal';
 import type { Dashboard } from './types';
 
 export function DashboardView() {
+  const [enrolleesOf, setEnrolleesOf] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
   const { data, isLoading } = useApiQuery<Dashboard>(
     queryKeys.trainings.adminDashboard(),
     '/trainings/admin/dashboard',
@@ -233,7 +238,7 @@ export function DashboardView() {
       {/* Próximas sessões */}
       {data.upcomingSessions.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Próximas sessões
           </div>
           {data.upcomingSessions.map((s) => (
@@ -258,13 +263,15 @@ export function DashboardView() {
       {/* Top */}
       {data.topTrainings.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Mais populares
           </div>
           {data.topTrainings.map((t, idx) => (
-            <div
+            <button
+              type="button"
               key={t.id}
-              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              onClick={() => setEnrolleesOf({ id: t.id, title: t.title })}
+              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-surface-sunken"
             >
               <span className="w-6 text-center font-mono text-lg font-bold text-ink-faint">
                 {idx + 1}
@@ -280,9 +287,17 @@ export function DashboardView() {
                   <span>{t._count.participants} inscritos</span>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </Card>
+      )}
+
+      {enrolleesOf && (
+        <TrainingEnrolleesModal
+          trainingId={enrolleesOf.id}
+          title={enrolleesOf.title}
+          onClose={() => setEnrolleesOf(null)}
+        />
       )}
     </div>
   );

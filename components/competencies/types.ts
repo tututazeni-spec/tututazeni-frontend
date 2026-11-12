@@ -185,6 +185,22 @@ export interface TopCompetency {
   avgLevel: number;
 }
 
+// GET /competencies/overview/:id/users (getOverviewCompetencyUsers).
+export interface OverviewCompetencyUser {
+  userId: number;
+  fullName: string;
+  avatarUrl: string | null;
+  department: string | null;
+  position: string | null;
+  currentLevel: number;
+  targetLevel: number | null;
+}
+export interface OverviewCompetencyUsers {
+  competency: { id: number; name: string; category: CompetencyCategory };
+  withGap: OverviewCompetencyUser[];
+  withCompetency: OverviewCompetencyUser[];
+}
+
 // Forma devolvida por GET /competencies/overview (competencies.service.ts#getOverview).
 export interface CompetencyOverview {
   total: number;

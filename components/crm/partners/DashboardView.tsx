@@ -109,7 +109,7 @@ export function DashboardView({
         </div>
         <div className="overflow-hidden">
           <table className="w-full font-body text-sm">
-            <thead className="bg-brand text-white uppercase">
+            <thead className="bg-brand-dark text-white uppercase">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-xs">
                   Assunto

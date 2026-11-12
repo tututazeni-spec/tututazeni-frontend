@@ -269,7 +269,7 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
       <div className="grid grid-cols-1 gap-5 md:grid-cols-[280px_1fr]">
         {/* Timeline */}
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Etapas
           </div>
           {instance.stepProgress.map((sp, idx) => {

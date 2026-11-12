@@ -17,7 +17,7 @@ import { RECOMMENDATION_PRIORITY_LABELS } from './types';
 const HIDDEN = 'Oculto por privacidade: há poucas avaliações neste filtro.';
 
 const HEAD =
-  'px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide';
+  'px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide';
 
 function CompetencyList({
   title,

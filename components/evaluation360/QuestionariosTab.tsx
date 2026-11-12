@@ -18,6 +18,7 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 const ALL = 'ALL';
 
@@ -89,6 +90,33 @@ export function QuestionariosTab() {
             Banco de questionários utilizados nas avaliações 360°.
           </p>
         </div>
+        <CompetencyExportMenu
+          disabled={isLoading}
+          build={() => ({
+            title: 'Avaliação 360° — Questionários',
+            filename: 'questionarios-360',
+            headers: [
+              'Nome',
+              'Código',
+              'Versão',
+              'Perguntas',
+              'Competências',
+              'Escala',
+              'Estado',
+              'Actualizado',
+            ],
+            rows: rows.map((q) => [
+              q.name,
+              q.code,
+              `v${q.version}`,
+              q.questionCount,
+              q.competencyCount,
+              `${q.scaleMin}–${q.scaleMax}`,
+              STATUS_LABEL[q.status],
+              q.updatedAt.slice(0, 10),
+            ]),
+          })}
+        />
       </div>
 
       <FilterPanelCard>
@@ -109,7 +137,7 @@ export function QuestionariosTab() {
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && rows.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Questionários
           </h3>
           Nenhum questionário encontrado com estes filtros.
@@ -120,7 +148,7 @@ export function QuestionariosTab() {
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">Código</th>
                 <th className="px-4 py-3 text-right">Versão</th>

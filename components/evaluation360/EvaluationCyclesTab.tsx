@@ -44,6 +44,7 @@ import {
   usePositionOptions,
 } from './cycleData';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 interface RawCycleRow {
   id: string;
@@ -194,15 +195,50 @@ export function EvaluationCyclesTab() {
             {data ? `${data.total} avaliação(ões) 360°` : 'A carregar…'}
           </p>
         </div>
-        {canCreateCycle && (
-          <Button
-            intent="primary"
-            size="sm"
-            onClick={() => setCycleModalOpen(true)}
-          >
-            + Novo Ciclo
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <CompetencyExportMenu
+            disabled={isLoading}
+            build={() => ({
+              title: 'Avaliações 360°',
+              filename: 'avaliacoes-360',
+              headers: [
+                'Código',
+                'Nome',
+                'Tipo',
+                'Estado',
+                'Início',
+                'Fim',
+                'Responsável',
+                'Avaliados',
+                'Avaliadores',
+                'Concluídos',
+                'Participação (%)',
+              ],
+              rows: cycles.map((c) => [
+                c.code,
+                c.name,
+                c.type,
+                c.status,
+                c.startDate?.slice(0, 10),
+                c.endDate?.slice(0, 10),
+                c.createdByName,
+                c._count.participants,
+                c.evaluatorsCount,
+                c.completedParticipants,
+                Math.round(c.participationRate),
+              ]),
+            })}
+          />
+          {canCreateCycle && (
+            <Button
+              intent="primary"
+              size="sm"
+              onClick={() => setCycleModalOpen(true)}
+            >
+              + Novo Ciclo
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filtros: Estado, Tipo, Departamento, Unidade, Cargo, Responsável, Data — docs/evaluation360.md §2 */}
@@ -296,7 +332,7 @@ export function EvaluationCyclesTab() {
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && cycles.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Avaliações 360°
           </h3>
           Nenhuma avaliação 360° encontrada com estes filtros.
@@ -307,7 +343,7 @@ export function EvaluationCyclesTab() {
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">Código</th>
                 <th className="px-4 py-3">Tipo</th>

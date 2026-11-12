@@ -35,7 +35,8 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
-import { CATEGORY_CFG } from './constants';
+import { CATEGORY_CFG, OBJECTIVES_BY_CATEGORY } from './constants';
+import type { CompetencyCategory } from './types';
 import type { CompetencyDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -194,6 +195,9 @@ function CompetencyForm({
   } = formValues;
   // docs/módulo_competencies.md §2 — Informações gerais + Configuração.
 
+  const objectiveItems = (
+    OBJECTIVES_BY_CATEGORY[category as CompetencyCategory] ?? []
+  ).map((label) => ({ value: label, label }));
   const canSubmit = name.trim().length > 0 && category.length > 0;
 
   const save = useApiMutation(
@@ -319,14 +323,22 @@ function CompetencyForm({
           </FormField>
         </div>
 
-        <FormField label="Objetivo" htmlFor="cf-objective">
-          <Textarea
-            id="cf-objective"
-            value={objective}
-            onChange={(e) => setField('objective', e.target.value)}
-            rows={2}
-            placeholder="Opcional — o que se pretende alcançar com esta competência."
-            className="w-full"
+        <FormField
+          label="Objetivo"
+          htmlFor="cf-objective"
+          hint="Escolha uma sugestão da categoria ou escreva o seu."
+        >
+          <Combobox
+            items={objectiveItems}
+            value={objective || undefined}
+            onValueChange={(v) => setField('objective', v)}
+            placeholder={
+              category
+                ? 'Selecionar ou escrever o objetivo'
+                : 'Escolha primeiro a categoria ou escreva o objetivo'
+            }
+            searchPlaceholder="Escreva para filtrar ou indicar outro…"
+            allowCustom
           />
         </FormField>
 

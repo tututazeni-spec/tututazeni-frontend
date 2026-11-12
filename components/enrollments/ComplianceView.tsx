@@ -124,7 +124,7 @@ export function ComplianceView() {
       {/* Top cursos com mais atrasos */}
       {data.topOverdueCourses.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             Cursos com mais atrasos
           </div>
           {data.topOverdueCourses.map((c, idx) => (
@@ -147,7 +147,7 @@ export function ComplianceView() {
       {/* Top cursos por matrículas */}
       {dashboard.topCourses.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             Cursos mais populares
           </div>
           {dashboard.topCourses.map((c, idx) => (

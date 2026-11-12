@@ -219,7 +219,7 @@ function ColaboradorDashboardContent({ data }: { data: MyDashboardData }) {
       {/* Competencies radar */}
       {(data?.skills?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Evolução de Competências
           </h3>
           <div className="space-y-2">

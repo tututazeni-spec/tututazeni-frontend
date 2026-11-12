@@ -15,6 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -25,7 +26,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { DepartmentNode, PaginatedHistory } from './types';
+import type { DepartmentNode, HistoryEntry, PaginatedHistory } from './types';
+import { DepartmentExportMenu, fetchAllRows } from './DepartmentExportMenu';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -55,12 +57,16 @@ function fmtDateTime(iso: string): string {
 
 export function HistoryView() {
   const [departmentId, setDepartmentId] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
 
   const params = {
     page,
     limit: 25,
     departmentId: departmentId || undefined,
+    from: from || undefined,
+    to: to || undefined,
   };
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
@@ -86,18 +92,101 @@ export function HistoryView() {
   return (
     <div>
       {/* Filtros */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select
-          variant="underline"
-          icon={Building2}
-          items={deptItems}
-          value={departmentId || 'ALL'}
-          onValueChange={(v) => {
-            setDepartmentId(v === 'ALL' ? '' : v);
-            setPage(1);
+      <div className="mb-5 flex flex-wrap items-end gap-x-6 gap-y-3">
+        <DepartmentExportMenu
+          className="order-last ml-auto"
+          build={async () => {
+            const all = await fetchAllRows<HistoryEntry>(
+              '/departments/history',
+              {
+                departmentId: departmentId || undefined,
+                from: from || undefined,
+                to: to || undefined,
+              },
+            );
+            return {
+              title: 'Histórico de departamentos',
+              headers: [
+                'Data',
+                'Tipo',
+                'Departamento',
+                'Informação alterada',
+                'Valor anterior',
+                'Novo valor',
+                'Utilizador',
+                'Motivo',
+              ],
+              rows: all.map((e) => [
+                fmtDateTime(e.date),
+                e.type,
+                e.department
+                  ? `${e.department.name}${e.department.code ? ` (${e.department.code})` : ''}`
+                  : '',
+                e.field,
+                fmtValue(e.before),
+                fmtValue(e.after),
+                e.changedBy?.fullName,
+                e.reason,
+              ]),
+            };
           }}
-          className="w-64"
         />
+        <div className="min-w-[230px]">
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={deptItems}
+            value={departmentId || 'ALL'}
+            onValueChange={(v) => {
+              setDepartmentId(v === 'ALL' ? '' : v);
+              setPage(1);
+            }}
+            className="w-full"
+          />
+        </div>
+        <label className="flex items-center gap-2 text-xs font-medium text-ink-muted">
+          De
+          <Input
+            type="date"
+            variant="underline"
+            aria-label="Data inicial"
+            max={to || undefined}
+            value={from}
+            onChange={(e) => {
+              setFrom(e.target.value);
+              setPage(1);
+            }}
+            className="w-[150px]"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-xs font-medium text-ink-muted">
+          Até
+          <Input
+            type="date"
+            variant="underline"
+            aria-label="Data final"
+            min={from || undefined}
+            value={to}
+            onChange={(e) => {
+              setTo(e.target.value);
+              setPage(1);
+            }}
+            className="w-[150px]"
+          />
+        </label>
+        {(from || to) && (
+          <Button
+            size="sm"
+            intent="ghost"
+            onClick={() => {
+              setFrom('');
+              setTo('');
+              setPage(1);
+            }}
+          >
+            Limpar datas
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -122,53 +211,53 @@ export function HistoryView() {
       )}
 
       {!isLoading && !error && data && data.data.length > 0 && (
-        <Table>
-          <TableHead className="bg-brand/60 [&_th]:text-white">
+        <Table
+          wrapperClassName="overflow-x-visible"
+          className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-top [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+        >
+          <TableHead className="bg-brand-dark [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
-              <TableHeaderCell>Data/Hora</TableHeaderCell>
-              <TableHeaderCell>Tipo de alteração</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Informação alterada</TableHeaderCell>
-              <TableHeaderCell>Valor anterior</TableHeaderCell>
-              <TableHeaderCell>Novo valor</TableHeaderCell>
-              <TableHeaderCell>Utilizador</TableHeaderCell>
-              <TableHeaderCell>Motivo</TableHeaderCell>
+              <TableHeaderCell className="w-[11%]">Data/Hora</TableHeaderCell>
+              <TableHeaderCell className="w-[11%]">
+                Tipo de alteração
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[13%]">
+                Departamento
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[12%]">
+                Informação alterada
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[13%]">
+                Valor anterior
+              </TableHeaderCell>
+              <TableHeaderCell className="w-[13%]">Novo valor</TableHeaderCell>
+              <TableHeaderCell className="w-[12%]">Utilizador</TableHeaderCell>
+              <TableHeaderCell className="w-[15%]">Motivo</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.data.map((e) => (
               <TableRow key={e.id}>
-                <TableCell className="whitespace-nowrap text-xs text-ink-faint">
+                <TableCell className="text-ink-faint">
                   {fmtDateTime(e.date)}
                 </TableCell>
-                <TableCell className="text-sm text-ink">{e.type}</TableCell>
-                <TableCell className="text-sm text-ink-muted">
+                <TableCell className="text-ink">{e.type}</TableCell>
+                <TableCell className="text-ink-muted">
                   {e.department
                     ? `${e.department.name}${e.department.code ? ` (${e.department.code})` : ''}`
                     : '—'}
                 </TableCell>
-                <TableCell className="text-sm text-ink-muted">
+                <TableCell className="text-ink-muted">
                   {e.field ?? '—'}
                 </TableCell>
-                <TableCell
-                  className="max-w-[160px] truncate text-xs text-ink-faint"
-                  title={fmtValue(e.before)}
-                >
+                <TableCell className="text-ink-faint">
                   {fmtValue(e.before)}
                 </TableCell>
-                <TableCell
-                  className="max-w-[160px] truncate text-xs text-ink"
-                  title={fmtValue(e.after)}
-                >
-                  {fmtValue(e.after)}
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
+                <TableCell className="text-ink">{fmtValue(e.after)}</TableCell>
+                <TableCell className="text-ink-muted">
                   {e.changedBy?.fullName ?? '—'}
                 </TableCell>
-                <TableCell
-                  className="max-w-[160px] truncate text-xs text-ink-faint"
-                  title={e.reason ?? ''}
-                >
+                <TableCell className="text-ink-faint">
                   {e.reason ?? '—'}
                 </TableCell>
               </TableRow>

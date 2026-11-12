@@ -196,7 +196,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Pendências críticas
         </div>
         <CardBody>
@@ -234,7 +234,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Últimas ocorrências
         </div>
         <CardBody>
@@ -305,7 +305,7 @@ export function ModulesTab({ data }: { data: ModulesData }) {
         </div>
         <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_td]:align-top [&_th]:px-2 [&_th]:text-micro">
           <Table>
-            <TableHead className="bg-brand/60">
+            <TableHead className="bg-brand-dark">
               <TableRow className="hover:bg-transparent">
                 {[
                   'Módulo',
@@ -419,7 +419,7 @@ function InstanceTable({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
@@ -428,7 +428,7 @@ function InstanceTable({
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Processo</th>
                   <th className="pr-3">Responsável</th>
@@ -541,7 +541,7 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
 
       {data.overdueByResponsible.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Responsáveis com mais atrasos
           </div>
           <CardBody>

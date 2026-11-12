@@ -25,8 +25,11 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { ChangeHeadModal } from './ChangeHeadModal';
+import { HeadPreviewPanel } from './HeadPreviewPanel';
 import { departmentIcon } from './departmentIcon';
 import type { HeadHistoryRow, HeadRow } from './types';
+import { DepartmentExportMenu } from './DepartmentExportMenu';
+
 import { formatDateNumeric } from '@/lib/format';
 
 type SubTab = 'current' | 'history';
@@ -38,6 +41,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export function HeadsView() {
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const [subTab, setSubTab] = useState<SubTab>('current');
   const [changing, setChanging] = useState<HeadRow | null>(null);
   const canManage = useHasRole(ADMIN_ROLES);
@@ -65,9 +69,11 @@ export function HeadsView() {
     { staleTime: STALE_TIME.DYNAMIC, enabled: subTab === 'history' },
   );
 
+  const previewRow = heads.find((h) => h.departmentId === previewId) ?? null;
+
   return (
     <div>
-      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-panel bg-brand/60 px-4">
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-[14px] bg-[#EAF1FC] px-3">
         {(
           [
             ['current', ListIcon, 'Responsáveis actuais'],
@@ -78,14 +84,66 @@ export function HeadsView() {
             key={tab}
             type="button"
             onClick={() => setSubTab(tab)}
-            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
-              subTab === tab ? 'bg-brand' : 'bg-white/10 hover:bg-white/20'
+            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase transition-colors ${
+              subTab === tab
+                ? 'bg-brand text-white'
+                : 'text-brand hover:bg-white'
             }`}
           >
             <Icon size={14} strokeWidth={1.75} />
             {label}
           </button>
         ))}
+        <DepartmentExportMenu
+          className="ml-auto"
+          build={async () =>
+            subTab === 'current'
+              ? {
+                  title: 'Responsáveis actuais',
+                  headers: [
+                    'Departamento',
+                    'Responsável',
+                    'Cargo',
+                    'Substituto',
+                    'Desde',
+                    'Estado',
+                    'Contacto',
+                    'Colaboradores',
+                    'Subdeptos',
+                  ],
+                  rows: heads.map((r) => [
+                    r.departmentName,
+                    r.head?.fullName ?? 'Por atribuir',
+                    r.position,
+                    r.deputyHead?.fullName,
+                    r.startedAt ? formatDateNumeric(r.startedAt) : '',
+                    STATUS_LABEL[r.status] ?? r.status,
+                    r.contact,
+                    r.usersUnderResponsibility,
+                    r.subdepartmentsUnderResponsibility,
+                  ]),
+                }
+              : {
+                  title: 'Histórico de responsáveis',
+                  headers: [
+                    'Departamento',
+                    'Responsável anterior',
+                    'Novo responsável',
+                    'Data da alteração',
+                    'Motivo',
+                    'Alterado por',
+                  ],
+                  rows: history.map((h) => [
+                    h.department.name,
+                    h.previousHead?.fullName,
+                    h.newHead.fullName,
+                    formatDateNumeric(h.changedAt),
+                    h.reason,
+                    h.changedBy?.fullName,
+                  ]),
+                }
+          }
+        />
       </div>
 
       {subTab === 'current' && (
@@ -99,105 +157,142 @@ export function HeadsView() {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
-              <TableHead className="bg-brand/60 [&_th]:text-white">
-                <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell>Departamento</TableHeaderCell>
-                  <TableHeaderCell>Responsável</TableHeaderCell>
-                  <TableHeaderCell>Cargo</TableHeaderCell>
-                  <TableHeaderCell>Substituto</TableHeaderCell>
-                  <TableHeaderCell>Desde</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell>Contacto</TableHeaderCell>
-                  <TableHeaderCell>Colaboradores</TableHeaderCell>
-                  <TableHeaderCell>Subdeptos</TableHeaderCell>
-                  {canManage && <TableHeaderCell>Acções</TableHeaderCell>}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {heads.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={canManage ? 10 : 9}
-                      className="py-8 text-center text-ink-faint"
-                    >
-                      Sem departamentos activos
-                    </TableCell>
+            <div className="relative">
+              <Table
+                wrapperClassName="overflow-x-visible"
+                className="table-fixed [&_td]:break-words [&_td]:px-1.5 [&_td]:py-2 [&_td]:align-middle [&_td]:text-[11px] [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:leading-tight [&_th]:[overflow-wrap:anywhere]"
+              >
+                <TableHead className="bg-brand-dark [&_th]:text-white">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHeaderCell className="w-[13%]">
+                      Departamento
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[14%] !pl-5">
+                      Responsável
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[10%]">Cargo</TableHeaderCell>
+                    <TableHeaderCell className="w-[11%]">
+                      Substituto
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[8%]">Desde</TableHeaderCell>
+                    <TableHeaderCell className="w-[8%]">Estado</TableHeaderCell>
+                    <TableHeaderCell className="w-[10%]">
+                      Contacto
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[11%]">
+                      Colaboradores
+                    </TableHeaderCell>
+                    <TableHeaderCell className="w-[9%]">
+                      Subdeptos
+                    </TableHeaderCell>
+                    {canManage && (
+                      <TableHeaderCell className="w-[6%] whitespace-nowrap">
+                        Acções
+                      </TableHeaderCell>
+                    )}
                   </TableRow>
-                ) : (
-                  heads.map((row) => (
-                    <TableRow key={row.departmentId}>
-                      <TableCell>
-                        <span className="flex items-center gap-2">
-                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
-                            {(() => {
-                              const Icon = departmentIcon(
-                                row.departmentName,
-                                row.subdepartmentsUnderResponsibility > 0,
-                              );
-                              return <Icon size={16} strokeWidth={1.75} />;
-                            })()}
-                          </span>
-                          <span className="text-xs font-bold text-brand">
-                            {row.departmentName}
-                          </span>
-                        </span>
+                </TableHead>
+                <TableBody>
+                  {heads.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={canManage ? 10 : 9}
+                        className="py-8 text-center text-ink-faint"
+                      >
+                        Sem departamentos activos
                       </TableCell>
-                      <TableCell>
-                        {row.head ? (
+                    </TableRow>
+                  ) : (
+                    heads.map((row) => (
+                      <TableRow
+                        key={row.departmentId}
+                        onClick={() => setPreviewId(row.departmentId)}
+                        className={`cursor-pointer ${previewId === row.departmentId ? 'bg-brand-soft' : ''}`}
+                      >
+                        <TableCell>
                           <span className="flex items-center gap-1.5">
-                            <Avatar name={row.head.fullName} size="sm" />
-                            <span className="text-xs text-ink">
-                              {row.head.fullName}
+                            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                              {(() => {
+                                const Icon = departmentIcon(
+                                  row.departmentName,
+                                  row.subdepartmentsUnderResponsibility > 0,
+                                );
+                                return <Icon size={13} strokeWidth={1.75} />;
+                              })()}
+                            </span>
+                            <span className="text-[11px] font-bold leading-tight text-brand">
+                              {row.departmentName}
                             </span>
                           </span>
-                        ) : (
-                          <span className="text-xs text-ink-faint">
-                            Por atribuir
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {row.position ?? '—'}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {row.deputyHead?.fullName ?? '—'}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {formatDateNumeric(row.startedAt)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge intent={row.active ? 'success' : 'neutral'}>
-                          {STATUS_LABEL[row.status] ?? row.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        <span className="break-all">{row.contact ?? '—'}</span>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {row.usersUnderResponsibility}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {row.subdepartmentsUnderResponsibility}
-                      </TableCell>
-                      {canManage && (
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            intent="ghost"
-                            title="Alterar responsável"
-                            aria-label="Alterar responsável"
-                            onClick={() => setChanging(row)}
-                          >
-                            <UserCog size={14} strokeWidth={1.75} />
-                          </Button>
                         </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                        <TableCell className="!pl-5">
+                          {row.head ? (
+                            <span className="flex items-center gap-1">
+                              <Avatar name={row.head.fullName} size="sm" />
+                              <span className="text-[11px] leading-tight text-ink">
+                                {row.head.fullName}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-xs text-ink-faint">
+                              Por atribuir
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.position ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.deputyHead?.fullName ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {formatDateNumeric(row.startedAt)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge intent={row.active ? 'success' : 'neutral'}>
+                            {STATUS_LABEL[row.status] ?? row.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          <span className="break-all">
+                            {row.contact ?? '—'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.usersUnderResponsibility}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {row.subdepartmentsUnderResponsibility}
+                        </TableCell>
+                        {canManage && (
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              intent="ghost"
+                              title="Alterar responsável"
+                              aria-label="Alterar responsável"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setChanging(row);
+                              }}
+                            >
+                              <UserCog size={14} strokeWidth={1.75} />
+                            </Button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              {previewRow && (
+                <HeadPreviewPanel
+                  row={previewRow}
+                  onChangeHead={canManage ? setChanging : undefined}
+                  onClose={() => setPreviewId(null)}
+                />
+              )}
+            </div>
           )}
         </>
       )}
@@ -214,7 +309,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{historyError.message}</div>
           ) : (
             <Table>
-              <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableHead className="bg-brand-dark [&_th]:text-white">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável anterior</TableHeaderCell>

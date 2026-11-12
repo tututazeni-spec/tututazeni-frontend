@@ -734,7 +734,7 @@ export function ForecastsTab({
           <div className="overflow-x-auto">
             <table className="w-full font-body text-sm">
               <thead>
-                <tr className="bg-brand/60 text-left text-xs text-white">
+                <tr className="bg-brand-dark text-left text-xs text-white">
                   <th className="rounded-l-card px-3 py-2.5 font-semibold">
                     Recurso
                   </th>

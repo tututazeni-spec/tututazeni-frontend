@@ -9,7 +9,9 @@
 
 'use client';
 
-import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { downloadCsvAsPdf, downloadFromApi } from '@/lib/download';
+import { useToast } from '@/providers/ToastProvider';
 import { useState } from 'react';
 import {
   AlertTriangle,
@@ -18,7 +20,6 @@ import {
   Briefcase,
   Building2,
   CalendarCheck,
-  Download,
   Landmark,
   Layers,
   LayoutGrid,
@@ -38,7 +39,6 @@ import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { buttonVariants } from '@/components/ui/Button';
 import { CATEGORY_CFG, POSITION_LEVEL_CFG, STATUS_CFG } from './constants';
 import {
   useCompetencyOptions,
@@ -57,7 +57,7 @@ const ALL = 'ALL';
 
 // Cabeçalho dos cards de relatório: #0F1F3D a 60%, letra branca, sem hover.
 const CARD_HEADER_CLASS =
-  'border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+  'border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
 
 // Paleta para as listas em que cada competência tem a sua própria cor.
 const BAR_COLORS = [
@@ -199,6 +199,32 @@ export function ReportsView() {
     Object.entries(params).filter(([, v]) => v != null) as [string, string][],
   ).toString();
 
+  const notify = useToast();
+  const [exporting, setExporting] = useState(false);
+  const exportPath = `/competencies/reports/export${exportQuery ? `?${exportQuery}` : ''}`;
+  const runExport = async (format: 'csv' | 'pdf') => {
+    setExporting(true);
+    try {
+      if (format === 'csv') {
+        await downloadFromApi(exportPath, {
+          fallbackName: 'relatorio-de-competencias.csv',
+        });
+      } else {
+        await downloadCsvAsPdf(exportPath, {
+          title: 'Relatório de competências',
+          filename: 'relatorio-de-competencias',
+        });
+      }
+    } catch (e) {
+      notify({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -305,17 +331,13 @@ export function ReportsView() {
             onValueChange={setStatus}
           />
         </div>
-        <a
-          href={`/api/competencies/reports/export${exportQuery ? `?${exportQuery}` : ''}`}
-          className={buttonVariants({ intent: 'ghost', size: 'sm' })}
-        >
-          <Download size={14} strokeWidth={1.75} />
-          Exportar CSV
-        </a>
-        <PdfFromCsvButton
-          path={`/competencies/reports/export${exportQuery ? `?${exportQuery}` : ''}`}
-          title="Relatório de competências"
-        />
+        <div className="ml-auto">
+          <ExportMenu
+            formats={['csv', 'pdf']}
+            loading={exporting}
+            onExport={(f) => void runExport(f as 'csv' | 'pdf')}
+          />
+        </div>
       </div>
 
       {isLoading || !data ? (

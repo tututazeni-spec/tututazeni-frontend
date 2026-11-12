@@ -25,11 +25,20 @@ export interface UnitOption {
  * Pesquisa no diretório interno (GET /users/directory), com debounce no
  * termo. Só corre quando `enabled` (picker aberto e sem utilizador escolhido).
  */
-export function useDirectoryUsers(rawSearch: string, enabled = true) {
+export function useDirectoryUsers(
+  rawSearch: string,
+  enabled = true,
+  departmentId?: number,
+) {
   const search = useDebounce(rawSearch);
-  const params = { search: search || undefined };
+  const params = {
+    search: search || undefined,
+    departmentId: departmentId || undefined,
+  };
   const query = useApiQuery<DirectoryUser[]>(
-    queryKeys.users.directory(search),
+    queryKeys.users.directory(
+      departmentId ? `${search}|dept:${departmentId}` : search,
+    ),
     '/users/directory',
     {
       params,
@@ -42,6 +51,26 @@ export function useDirectoryUsers(rawSearch: string, enabled = true) {
     (u): u is DirectoryUser => u != null && u.id != null,
   );
   return { users, loading: query.isLoading };
+}
+
+/**
+ * Candidatos a responsável directo de um colaborador deste departamento
+ * (GET /departments/:id/manager-candidates): os do mesmo departamento e os
+ * chefes do departamento superior e dos subdepartamentos.
+ */
+export function useManagerCandidates(
+  departmentId: number | undefined,
+  enabled = true,
+) {
+  const query = useApiQuery<DirectoryUser[]>(
+    [...queryKeys.departments.all, 'manager-candidates', departmentId ?? 0],
+    `/departments/${departmentId}/manager-candidates`,
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: enabled && departmentId != null,
+    },
+  );
+  return { users: query.data ?? [], loading: query.isLoading };
 }
 
 /** Lista de unidades/filiais (GET /units) — para o Select "Unidade/empresa". */

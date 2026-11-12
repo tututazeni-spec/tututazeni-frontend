@@ -39,7 +39,7 @@ export function TrainingView({
 
   return (
     <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
+      <TableHead className="bg-brand-dark [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Formação</TableHeaderCell>
           <TableHeaderCell>Instrutor</TableHeaderCell>
@@ -111,7 +111,7 @@ export function CoursesView({
         />
       </div>
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Curso</TableHeaderCell>
             <TableHeaderCell>Progresso</TableHeaderCell>
@@ -163,7 +163,7 @@ export function CompetenciesView({
 
   return (
     <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
+      <TableHead className="bg-brand-dark [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Competência</TableHeaderCell>
           <TableHeaderCell>Actual</TableHeaderCell>

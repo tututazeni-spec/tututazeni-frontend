@@ -257,7 +257,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       {/* Sessões */}
       {training.sessions && training.sessions.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Sessões disponíveis ({training.sessions.length})
           </div>
           {training.sessions.map((session) => {
@@ -374,7 +374,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
 
       {/* Avaliar */}
       <Card className="mb-5 overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <div className="bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
           Avaliar este treinamento
         </div>
         <div className="p-5">

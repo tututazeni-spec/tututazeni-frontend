@@ -196,7 +196,7 @@ export function PeopleAnalyticsView() {
 
       {/* Departamentos */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Colaboradores por departamento — clicar para detalhe
         </div>
         {data.byDepartment.map((d, idx) => (
@@ -226,7 +226,7 @@ export function PeopleAnalyticsView() {
 
       {/* Cargos */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Top cargos
         </div>
         {data.byPosition.map((p) => (

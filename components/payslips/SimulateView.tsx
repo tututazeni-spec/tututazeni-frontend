@@ -264,7 +264,7 @@ export function SimulateView() {
         <div className="p-4 sm:px-6">
           <Table>
             <TableHead>
-              <TableRow className="bg-brand/60 hover:bg-brand/60">
+              <TableRow className="bg-brand-dark hover:bg-brand-dark">
                 <TableHeaderCell className="py-1.5 text-white">
                   Escal.
                 </TableHeaderCell>

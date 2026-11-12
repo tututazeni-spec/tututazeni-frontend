@@ -30,7 +30,7 @@ export function HistoryView({
 
   return (
     <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
+      <TableHead className="bg-brand-dark [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Evento</TableHeaderCell>
           <TableHeaderCell>Módulo</TableHeaderCell>
@@ -95,7 +95,7 @@ export function ActivityView({
         />
       </div>
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Actividade por categoria
         </div>
         <div className="p-5">

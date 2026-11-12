@@ -100,7 +100,7 @@ export function DashboardView({
       </div>
 
       <Card>
-        <div className="bg-brand/60 p-4">
+        <div className="bg-brand-dark p-4">
           <h3 className="font-body text-sm font-semibold text-white">
             Satisfação média: {satisfaction ? satisfaction.toFixed(1) : '—'}/5
           </h3>

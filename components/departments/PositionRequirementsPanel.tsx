@@ -28,6 +28,8 @@ import {
 } from '@/components/career/types';
 import type { PositionDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { ChoiceOrManualField } from './PositionFormFields';
+import { CERTIFICATION_OPTIONS, LANGUAGE_OPTIONS } from './positionCatalog';
 
 type SectionKey = RequirementCategory | 'HARD_SKILL' | 'SOFT_SKILL';
 
@@ -93,6 +95,7 @@ export function PositionRequirementsPanel({
   const confirm = useConfirm();
   const [adding, setAdding] = useState<SectionKey | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [pickedCompetencies, setPickedCompetencies] = useState<string[]>([]);
 
   const { data: requirements = [] } = useApiQuery<PositionRequirement[]>(
     queryKeys.career.positionRequirements(positionId),
@@ -112,6 +115,11 @@ export function PositionRequirementsPanel({
     },
   );
 
+  const mappedIds = new Set(competencies.map((c) => c.competency.id));
+  const availableCompetencies = (competencyOptions?.data ?? []).filter(
+    (o) => !mappedIds.has(o.id),
+  );
+
   const invalidateKeys = [
     queryKeys.career.positionRequirements(positionId),
     queryKeys.departments.positionDetail(positionId),
@@ -119,13 +127,25 @@ export function PositionRequirementsPanel({
   const close = () => {
     setAdding(null);
     setForm(EMPTY_FORM);
+    setPickedCompetencies([]);
+  };
+  // Depois de guardar mantém o formulário aberto para juntar o item seguinte.
+  const resetForNext = () => {
+    setForm((f) => ({
+      ...EMPTY_FORM,
+      level: '',
+      priority: f.priority,
+      requiredLevel: f.requiredLevel,
+    }));
+    setPickedCompetencies([]);
+    notify({ title: 'Adicionado', intent: 'success' });
   };
   const onError = (e: Error) => notify({ title: e.message, intent: 'danger' });
 
   const createRequirement = useApiMutation(
     (body: Record<string, unknown>) =>
       apiClient.post(`/career/positions/${positionId}/requirements`, body),
-    { invalidateKeys, onSuccess: close, onError },
+    { invalidateKeys, onSuccess: resetForNext, onError },
   );
   const deleteRequirement = useApiMutation(
     (id: number) =>
@@ -133,9 +153,22 @@ export function PositionRequirementsPanel({
     { invalidateKeys, onError },
   );
   const mapCompetency = useApiMutation(
-    (body: Record<string, unknown>) =>
-      apiClient.post('/competencies/map/position', body),
-    { invalidateKeys, onSuccess: close, onError },
+    (body: {
+      competencyIds: number[];
+      requiredLevel: number;
+      priority: string;
+    }) =>
+      Promise.all(
+        body.competencyIds.map((competencyId) =>
+          apiClient.post('/competencies/map/position', {
+            positionId,
+            competencyId,
+            requiredLevel: body.requiredLevel,
+            priority: body.priority,
+          }),
+        ),
+      ),
+    { invalidateKeys, onSuccess: resetForNext, onError },
   );
   const unmapCompetency = useApiMutation(
     (competencyId: number) =>
@@ -148,10 +181,9 @@ export function PositionRequirementsPanel({
   const submit = () => {
     if (!adding) return;
     if (adding === 'HARD_SKILL' || adding === 'SOFT_SKILL') {
-      if (!form.competencyId) return;
+      if (pickedCompetencies.length === 0) return;
       mapCompetency.mutate({
-        positionId,
-        competencyId: Number(form.competencyId),
+        competencyIds: pickedCompetencies.map(Number),
         requiredLevel: Number(form.requiredLevel),
         priority: form.priority,
       });
@@ -311,53 +343,95 @@ export function PositionRequirementsPanel({
               {canManage && adding === key && (
                 <div className="mt-2 space-y-2 rounded-card border border-brand-line p-3">
                   {isComp ? (
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                      <Select
-                        items={(competencyOptions?.data ?? []).map((o) => ({
-                          value: String(o.id),
-                          label: o.name,
-                        }))}
-                        value={form.competencyId}
-                        onValueChange={(v) =>
-                          setForm((f) => ({ ...f, competencyId: v }))
-                        }
-                        placeholder="Competência"
-                      />
-                      <Select
-                        items={SCALE_ITEMS}
-                        value={form.requiredLevel}
-                        onValueChange={(v) =>
-                          setForm((f) => ({ ...f, requiredLevel: v }))
-                        }
-                        placeholder="Nível"
-                      />
-                      <Select
-                        items={PRIORITY_ITEMS}
-                        value={form.priority}
-                        onValueChange={(v) =>
-                          setForm((f) => ({ ...f, priority: v }))
-                        }
-                        placeholder="Prioridade"
-                      />
+                    <div className="space-y-2">
+                      {availableCompetencies.length === 0 ? (
+                        <p className="font-body text-xs text-brand/60">
+                          Todas as competências desta categoria já estão
+                          associadas ao cargo.
+                        </p>
+                      ) : (
+                        <ul className="max-h-44 divide-y divide-brand-line overflow-y-auto rounded-card border border-brand-line">
+                          {availableCompetencies.map((o) => (
+                            <li key={o.id}>
+                              <label className="flex cursor-pointer items-center gap-2 px-3 py-2 font-body text-sm text-brand hover:bg-brand-soft/60">
+                                <Checkbox
+                                  checked={pickedCompetencies.includes(
+                                    String(o.id),
+                                  )}
+                                  onChange={() =>
+                                    setPickedCompetencies((cur) =>
+                                      cur.includes(String(o.id))
+                                        ? cur.filter((x) => x !== String(o.id))
+                                        : [...cur, String(o.id)],
+                                    )
+                                  }
+                                />
+                                {o.name}
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <Select
+                          items={SCALE_ITEMS}
+                          value={form.requiredLevel}
+                          onValueChange={(v) =>
+                            setForm((f) => ({ ...f, requiredLevel: v }))
+                          }
+                          placeholder="Nível (para todas)"
+                        />
+                        <Select
+                          items={PRIORITY_ITEMS}
+                          value={form.priority}
+                          onValueChange={(v) =>
+                            setForm((f) => ({ ...f, priority: v }))
+                          }
+                          placeholder="Prioridade (para todas)"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      <Input
-                        value={form.title}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, title: e.target.value }))
-                        }
-                        placeholder={
-                          key === 'ACADEMIC'
-                            ? 'Curso exigido (ex.: Informática) — é comparado com o curso do colaborador'
-                            : key === 'EXPERIENCE'
-                              ? 'Descrição (ex.: Desenvolvimento web) — só informativa'
-                              : key === 'LANGUAGE'
-                                ? 'Idioma (ex.: Inglês)'
-                                : 'Certificação (ex.: AWS Cloud)'
-                        }
-                        className="w-full"
-                      />
+                      {key === 'LANGUAGE' || key === 'CERTIFICATION' ? (
+                        <ChoiceOrManualField
+                          id={`req-${key}`}
+                          options={
+                            key === 'LANGUAGE'
+                              ? LANGUAGE_OPTIONS
+                              : CERTIFICATION_OPTIONS
+                          }
+                          value={form.title}
+                          onChange={(v) => setForm((f) => ({ ...f, title: v }))}
+                          placeholder={
+                            key === 'LANGUAGE'
+                              ? 'Seleccionar idioma…'
+                              : 'Seleccionar certificação…'
+                          }
+                          manualPlaceholder={
+                            key === 'LANGUAGE'
+                              ? 'Idioma (ex.: Inglês)'
+                              : 'Certificação (ex.: AWS Cloud)'
+                          }
+                        />
+                      ) : (
+                        <Input
+                          value={form.title}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, title: e.target.value }))
+                          }
+                          placeholder={
+                            key === 'ACADEMIC'
+                              ? 'Curso exigido (ex.: Informática) — é comparado com o curso do colaborador'
+                              : key === 'EXPERIENCE'
+                                ? 'Descrição (ex.: Desenvolvimento web) — só informativa'
+                                : key === 'LANGUAGE'
+                                  ? 'Idioma (ex.: Inglês)'
+                                  : 'Certificação (ex.: AWS Cloud)'
+                          }
+                          className="w-full"
+                        />
+                      )}
                       {key === 'ACADEMIC' && (
                         <Select
                           items={ACADEMIC_ITEMS}
@@ -409,7 +483,7 @@ export function PositionRequirementsPanel({
                   )}
                   <div className="flex justify-end gap-2">
                     <Button size="sm" intent="ghost" onClick={close}>
-                      Cancelar
+                      Concluir
                     </Button>
                     <Button
                       size="sm"
@@ -418,7 +492,9 @@ export function PositionRequirementsPanel({
                         createRequirement.isPending || mapCompetency.isPending
                       }
                     >
-                      Guardar
+                      {isComp && pickedCompetencies.length > 1
+                        ? `Adicionar ${pickedCompetencies.length}`
+                        : 'Adicionar'}
                     </Button>
                   </div>
                 </div>

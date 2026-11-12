@@ -90,7 +90,7 @@ export function StatsTab({ userId }: { userId?: number }) {
 
       {/* Activity heatmap */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Actividade — Últimas 12 Semanas
         </div>
         <CardBody>
@@ -130,7 +130,7 @@ export function StatsTab({ userId }: { userId?: number }) {
       {/* By category */}
       {data?.byCategory && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Actividade por Categoria
           </div>
           <CardBody>

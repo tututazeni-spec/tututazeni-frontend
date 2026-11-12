@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { useDirectoryUsers, type DirectoryUser } from './modelFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
@@ -60,7 +60,8 @@ export function UserFilterSearch({
 
   return (
     <div className={`relative ${className ?? ''}`}>
-      <Input
+      <SearchInput
+        variant="underline"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Colaborador (nome ou email)…"

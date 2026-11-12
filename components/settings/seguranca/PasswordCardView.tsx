@@ -26,7 +26,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Alterar Senha
         </div>
         <CardBody>
@@ -131,7 +131,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Dicas de Segurança
         </div>
         <CardBody>

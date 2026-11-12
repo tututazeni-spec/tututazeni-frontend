@@ -279,7 +279,7 @@ export function CalendarView() {
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               {formatDate(
                 new Date(
                   Number(selectedDay.slice(0, 4)),

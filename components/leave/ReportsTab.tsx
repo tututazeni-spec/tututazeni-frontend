@@ -389,7 +389,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
           ) : (
             <>
               <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:align-bottom [&_th]:leading-tight">
-                <TableHead className="bg-[#0F1F3D] [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide [&_th]:text-white">
+                <TableHead className="bg-brand-dark [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide [&_th]:text-white">
                   <TableRow className="hover:bg-[#0F1F3D]">
                     {data.columns.map((c) => (
                       <TableHeaderCell key={c.key} className="text-center">

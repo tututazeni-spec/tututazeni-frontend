@@ -124,7 +124,7 @@ export function AuditsListView({
         ) : (
           <>
             <Table>
-              <TableHead className="bg-brand/60">
+              <TableHead className="bg-brand-dark">
                 <TableRow className="hover:bg-transparent">
                   {[
                     'Código',

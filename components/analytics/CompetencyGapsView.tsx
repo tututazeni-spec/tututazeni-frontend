@@ -29,7 +29,7 @@ export function CompetencyGapsView() {
 
   return (
     <Card className="overflow-hidden">
-      <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
         Lacunas de competência — organização inteira (actual vs. desejado)
       </div>
       <CardBody>

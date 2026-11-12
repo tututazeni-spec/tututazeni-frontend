@@ -68,7 +68,9 @@ const CATEGORY_ICONS: Record<CompetencyCategory, LucideIcon> = {
   FUNCTIONAL: Target,
 };
 
-function competencyIcon(comp: Competency): LucideIcon {
+export function competencyIcon(
+  comp: Pick<Competency, 'name' | 'category'>,
+): LucideIcon {
   return (
     iconForCompetencyName(comp.name) ?? CATEGORY_ICONS[comp.category] ?? Target
   );

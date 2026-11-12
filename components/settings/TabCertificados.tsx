@@ -250,7 +250,7 @@ export function TabCertificados() {
     <div className="space-y-4">
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Identidade dos certificados
           </div>
           <CardBody>
@@ -343,7 +343,7 @@ export function TabCertificados() {
         </Card>
 
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Numeração e verificação
           </div>
           <CardBody>
@@ -418,7 +418,7 @@ export function TabCertificados() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
           Biblioteca de templates
           <Button type="button" onClick={openCreate}>
             Novo template

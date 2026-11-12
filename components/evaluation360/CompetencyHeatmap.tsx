@@ -17,14 +17,14 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
       <table className="w-full border-collapse" style={{ minWidth: 600 }}>
         <thead>
           <tr>
-            <th className="text-left px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border">
+            <th className="text-left px-3 py-2.5 text-xs font-bold text-white uppercase tracking-wider border-b border-border">
               Competência
             </th>
             {['Auto', 'Gestor', 'Pares', 'Média', 'Lacunas', 'Referencial'].map(
               (h) => (
                 <th
                   key={h}
-                  className="text-center px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border whitespace-nowrap"
+                  className="text-center px-3 py-2.5 text-xs font-bold text-white uppercase tracking-wider border-b border-border bg-brand-dark whitespace-nowrap"
                 >
                   {h}
                 </th>

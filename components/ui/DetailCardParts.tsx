@@ -8,6 +8,10 @@ import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 export const DETAIL_NAVY = 'var(--color-brand-ink)';
+// Rótulos (Código, Família…): seguem o azul marinho, mas um cartão pode fixá-los
+// com --detail-label mesmo quando recolore --color-brand-ink.
+const DETAIL_TEXT = 'var(--detail-label, var(--color-ink))';
+const DETAIL_LABEL = 'var(--detail-label, var(--color-brand-ink))';
 
 export function detailTint(percent: number): string {
   return `color-mix(in srgb, ${DETAIL_NAVY} ${percent}%, white)`;
@@ -24,6 +28,8 @@ export function detailInitials(name: string): string {
 interface DetailHeaderProps {
   name: string;
   avatarUrl?: string | null;
+  /** Ícone no lugar das iniciais (quando não há foto). */
+  icon?: LucideIcon;
   /** Linha por baixo do nome (ex.: cargo · departamento). */
   subtitle?: ReactNode;
   /** Etiquetas (pílulas) por baixo do nome. */
@@ -34,6 +40,7 @@ interface DetailHeaderProps {
 export function DetailHeader({
   name,
   avatarUrl,
+  icon: HeaderIcon,
   subtitle,
   children,
 }: DetailHeaderProps) {
@@ -69,14 +76,18 @@ export function DetailHeader({
               className="flex h-full w-full items-center justify-center rounded-full text-3xl font-bold text-white"
               style={{ backgroundColor: DETAIL_NAVY }}
             >
-              {detailInitials(name)}
+              {HeaderIcon ? (
+                <HeaderIcon size={44} strokeWidth={1.75} aria-hidden="true" />
+              ) : (
+                detailInitials(name)
+              )}
             </span>
           )}
         </span>
         <div className="min-w-0">
           <h2
             className="break-words font-display text-3xl font-bold"
-            style={{ color: DETAIL_NAVY }}
+            style={{ color: DETAIL_LABEL }}
           >
             {name}
           </h2>
@@ -108,15 +119,17 @@ export function DetailInfoRow({
     <div className="flex items-start gap-3">
       <span
         className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-white"
-        style={{ backgroundColor: DETAIL_NAVY }}
+        style={{ backgroundColor: DETAIL_LABEL }}
       >
         <Icon size={16} strokeWidth={1.75} />
       </span>
       <div className="min-w-0">
-        <div className="text-sm font-semibold" style={{ color: DETAIL_NAVY }}>
+        <div className="text-sm font-semibold" style={{ color: DETAIL_LABEL }}>
           {label}
         </div>
-        <div className="break-words text-sm text-ink">{children}</div>
+        <div className="break-words text-sm" style={{ color: DETAIL_TEXT }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -136,15 +149,20 @@ export function DetailSectionRow({
     <div className="flex items-start gap-3">
       <span
         className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: detailTint(10), color: DETAIL_NAVY }}
+        style={{
+          backgroundColor: `color-mix(in srgb, ${DETAIL_LABEL} 10%, white)`,
+          color: DETAIL_LABEL,
+        }}
       >
         <Icon size={18} strokeWidth={1.75} />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold" style={{ color: DETAIL_NAVY }}>
+        <div className="text-sm font-semibold" style={{ color: DETAIL_LABEL }}>
           {label}
         </div>
-        <div className="mt-0.5 text-sm text-ink">{children}</div>
+        <div className="mt-0.5 text-sm" style={{ color: DETAIL_TEXT }}>
+          {children}
+        </div>
       </div>
     </div>
   );

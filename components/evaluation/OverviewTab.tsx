@@ -131,7 +131,7 @@ function OrganizationOverview() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
             classificações
           </div>
@@ -172,7 +172,7 @@ function OrganizationOverview() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
           </div>
           <CardBody>
@@ -328,7 +328,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {/* My results radar */}
       {myResults && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Os Meus Resultados
           </div>
           <CardBody>

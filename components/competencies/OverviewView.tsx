@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   AlertTriangle,
   Award,
@@ -31,9 +32,17 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG } from './constants';
+import { OverviewUsersModal } from './OverviewUsersModal';
 import type { CompetencyCategory, CompetencyOverview } from './types';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+import { CATEGORY_CFG as CATEGORY_LABELS } from './constants';
 
 export function OverviewView() {
+  const [selected, setSelected] = useState<{
+    id: number;
+    name: string;
+    mode: 'gap' | 'top';
+  } | null>(null);
   const { data, isLoading } = useApiQuery<CompetencyOverview>(
     queryKeys.competencies.overview(),
     '/competencies/overview',
@@ -42,8 +51,56 @@ export function OverviewView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
+  const buildExport = () => {
+    const cat = (c: string) =>
+      CATEGORY_LABELS[c as CompetencyCategory]?.label ?? c;
+    const rows: (string | number)[][] = [
+      ['Indicadores', 'Total de competências', data.total, ''],
+      ['Indicadores', 'Competências activas', data.active, ''],
+      ['Indicadores', 'Em revisão', data.inReview, ''],
+      ['Indicadores', 'Competências críticas', data.critical, ''],
+      ['Indicadores', 'Competências estratégicas', data.strategic, ''],
+      ['Indicadores', 'Colaboradores avaliados', data.evaluatedUsers, ''],
+      ['Indicadores', 'Média global de proficiência', data.avgProficiency, ''],
+      ['Indicadores', 'Avaliações pendentes', data.pendingEvaluations, ''],
+      ['Por categoria', 'Técnicas', data.byCategory.technical, ''],
+      ['Por categoria', 'Comportamentais', data.byCategory.behavioral, ''],
+      ['Por categoria', 'Liderança', data.byCategory.leadership, ''],
+      ['Por categoria', 'Funcionais', data.byCategory.functional, ''],
+      ['Por categoria', 'Idiomas', data.byCategory.language, ''],
+      ['Por categoria', 'Ferramentas', data.byCategory.tool, ''],
+      ...data.criticalAlerts.map((c) => [
+        'Alertas críticos',
+        c.name,
+        c.usersWithGap,
+        cat(c.category),
+      ]),
+      ...data.biggestGaps.map((c) => [
+        'Maior lacuna',
+        c.name,
+        c.usersWithGap,
+        cat(c.category),
+      ]),
+      ...data.topCompetencies.map((c) => [
+        'Mais fortes',
+        c.competency?.name ?? String(c.competencyId),
+        c.avgLevel,
+        c.competency ? cat(c.competency.category) : '',
+      ]),
+    ];
+    return {
+      title: 'Competências — Visão geral',
+      filename: 'competencias-visao-geral',
+      headers: ['Secção', 'Indicador', 'Valor', 'Detalhe'],
+      rows,
+    };
+  };
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <CompetencyExportMenu build={buildExport} />
+      </div>
       {/* KPIs gerais */}
       <div className="grid grid-cols-4 gap-4">
         <NavyStatCard
@@ -139,7 +196,7 @@ export function OverviewView() {
       {/* Alertas de competências críticas */}
       {data.criticalAlerts.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Alertas — competências críticas com lacunas
           </div>
           {data.criticalAlerts.map((c) => {
@@ -176,7 +233,7 @@ export function OverviewView() {
 
       {/* Competências com maior lacuna */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Competências com maior lacuna
         </div>
         {data.biggestGaps.length === 0 ? (
@@ -188,9 +245,13 @@ export function OverviewView() {
           </div>
         ) : (
           data.biggestGaps.map((c) => (
-            <div
+            <button
+              type="button"
               key={c.id}
-              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              onClick={() =>
+                setSelected({ id: c.id, name: c.name, mode: 'gap' })
+              }
+              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="flex-1">
                 <div className="font-body text-sm font-medium text-ink">
@@ -201,10 +262,10 @@ export function OverviewView() {
                   map={CATEGORY_CFG}
                 />
               </div>
-              <span className="font-data text-sm text-ink-muted">
+              <span className="font-body text-sm text-ink-muted">
                 {c.usersWithGap} utilizadores com lacuna
               </span>
-            </div>
+            </button>
           ))
         )}
       </div>
@@ -212,13 +273,21 @@ export function OverviewView() {
       {/* Top competências */}
       {data.topCompetencies.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Top competências da organização
           </div>
           {data.topCompetencies.map((t, idx) => (
-            <div
+            <button
+              type="button"
               key={t.competencyId}
-              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+              onClick={() =>
+                setSelected({
+                  id: t.competencyId,
+                  name: t.competency?.name ?? 'Competência',
+                  mode: 'top',
+                })
+              }
+              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className="w-6 text-center font-data text-lg font-bold text-ink-faint">
                 {idx + 1}
@@ -236,16 +305,25 @@ export function OverviewView() {
                 />
               </div>
               <div className="text-right">
-                <div className="font-data text-sm text-ink-muted">
+                <div className="font-body text-sm text-ink-muted">
                   {t._count.competencyId} utilizadores
                 </div>
                 <div className="font-body text-xs text-ink-faint">
                   Nível médio: {t.avgLevel}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
+      )}
+
+      {selected && (
+        <OverviewUsersModal
+          competencyId={selected.id}
+          competencyName={selected.name}
+          mode={selected.mode}
+          onClose={() => setSelected(null)}
+        />
       )}
     </div>
   );

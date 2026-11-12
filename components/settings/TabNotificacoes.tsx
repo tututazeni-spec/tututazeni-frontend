@@ -95,7 +95,7 @@ export function TabNotificacoes() {
   return (
     <form onSubmit={submit} className="grid grid-cols-2 gap-4">
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Canais
         </div>
         <CardBody>
@@ -138,7 +138,7 @@ export function TabNotificacoes() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Templates das mensagens
           {data && <Badge intent="info">{data.activeTemplates} activos</Badge>}
         </div>
@@ -151,7 +151,7 @@ export function TabNotificacoes() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Eventos que geram notificação
         </div>
         <CardBody>
@@ -178,7 +178,7 @@ export function TabNotificacoes() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Horário permitido de envio
         </div>
         <CardBody>

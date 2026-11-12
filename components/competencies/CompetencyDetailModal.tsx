@@ -6,6 +6,9 @@
 // competencies.controller.ts. "Apagar" é mais restrito — só aparece com
 // `canDelete` (ADMIN), espelhando @Roles(ADMIN) no DELETE /competencies/:id.
 //
+// Desenho: igual à ficha do Formador (TrainerDetailModal), via as peças
+// partilhadas de ui/DetailCardParts.
+//
 // Arquivar → PATCH /competencies/:id/archive (status = INACTIVE).
 // Reactivar → PUT /competencies/:id { status: 'ACTIVE' } (não há endpoint
 // dedicado; o update parcial serve).
@@ -17,7 +20,16 @@
 
 'use client';
 
-import { AlertCircle } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import {
+  AlertCircle,
+  FileText,
+  Hash,
+  Layers,
+  Tag,
+  Target,
+  UserCog,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -25,11 +37,28 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import {
+  DetailDivider,
+  DetailHeader,
+  DetailInfoRow,
+  DetailSectionRow,
+  detailTint,
+} from '@/components/ui/DetailCardParts';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { CATEGORY_CFG, LEVEL_LABELS, STATUS_CFG } from './constants';
+import { cardSolidColor } from './cardColors';
+import { competencyIcon } from './CatalogView';
+import { CATEGORY_CFG } from './constants';
 import type { CompetencyDetail } from './types';
+
+// Botões do card: letra branca, sem efeito ao passar o cursor.
+const NAVY_BTN =
+  'border border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white';
+const RED_BTN =
+  'border border-[#DC2626] bg-[#DC2626] text-white hover:bg-[#DC2626] hover:text-white disabled:opacity-100';
+const BLACK_BTN =
+  'border border-black bg-black text-white hover:bg-black hover:text-white';
 
 export interface CompetencyDetailModalProps {
   competencyId: number;
@@ -127,7 +156,20 @@ export function CompetencyDetailModal({
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={data?.name ?? 'Competência'}
-        className="max-w-lg max-h-[90vh] overflow-y-auto"
+        hideHeading
+        navyClose
+        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        // As peças de DetailCardParts pintam o azul marinho com esta variável:
+        // aqui passa a ser a cor do cartão da competência no catálogo.
+        style={
+          {
+            '--detail-label': '#0F1F3D',
+            '--color-brand-ink': cardSolidColor(competencyId),
+            '--color-brand': cardSolidColor(competencyId),
+            '--color-brand-hover': cardSolidColor(competencyId),
+            '--color-brand-active': cardSolidColor(competencyId),
+          } as CSSProperties
+        }
       >
         {isLoading ? (
           <div className="mt-5">
@@ -140,196 +182,126 @@ export function CompetencyDetailModal({
           </div>
         ) : (
           <>
-            <div className="mt-4 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge value={data.category} map={CATEGORY_CFG} />
-                <StatusBadge value={data.status} map={STATUS_CFG} />
-                {data.isCritical && (
-                  <span className="rounded bg-danger-subtle px-1.5 py-0.5 font-body text-xs text-danger-ink">
-                    Crítica
-                  </span>
-                )}
-                {data.isStrategic && (
-                  <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
-                    Estratégica
-                  </span>
-                )}
+            <DetailHeader name={data.name} icon={competencyIcon(data)}>
+              <StatusBadge value={data.category} map={CATEGORY_CFG} />
+            </DetailHeader>
+
+            <div className="mt-6 grid gap-6 md:grid-cols-[1fr_auto_1fr]">
+              <div className="space-y-4">
+                <DetailInfoRow icon={Hash} label="Código">
+                  {data.code || '—'}
+                </DetailInfoRow>
+                <DetailInfoRow icon={Layers} label="Família">
+                  {data.family || '—'}
+                </DetailInfoRow>
+                <DetailInfoRow
+                  icon={UserCog}
+                  label="Responsável pela competência"
+                >
+                  {data.owner?.fullName ?? '—'}
+                </DetailInfoRow>
               </div>
 
-              {(data.code || data.family) && (
-                <div className="flex gap-4 font-body text-xs text-ink-faint">
-                  {data.code && <span>Código: {data.code}</span>}
-                  {data.family && <span>Família: {data.family}</span>}
-                </div>
-              )}
+              <DetailDivider />
 
-              {data.description && (
-                <p className="font-body text-sm text-ink-muted">
-                  {data.description}
-                </p>
-              )}
-
-              {data.objective && (
-                <p className="font-body text-sm text-ink-muted">
-                  <span className="font-semibold text-ink">Objetivo: </span>
-                  {data.objective}
-                </p>
-              )}
-
-              {data.owner && (
-                <p className="font-body text-xs text-ink-faint">
-                  Responsável: {data.owner.fullName}
-                </p>
-              )}
-
-              {data.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {data.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex gap-4 font-body text-xs text-ink-faint">
-                <span>{data._count.userCompetencies} utilizadores</span>
-                <span>{data._count.endorsements} endorsements</span>
+              <div className="space-y-4">
+                <DetailSectionRow icon={FileText} label="Descrição">
+                  <span className="whitespace-pre-wrap">
+                    {data.description || '—'}
+                  </span>
+                </DetailSectionRow>
+                <DetailSectionRow icon={Target} label="Objetivo">
+                  <span className="whitespace-pre-wrap">
+                    {data.objective || '—'}
+                  </span>
+                </DetailSectionRow>
+                <DetailSectionRow icon={Tag} label="Tags">
+                  {data.tags.length === 0 ? (
+                    '—'
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {data.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full px-3 py-0.5 text-xs text-ink"
+                          style={{ backgroundColor: detailTint(8) }}
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </DetailSectionRow>
               </div>
-
-              {data.proficiencyLevels.length > 0 && (
-                <Section title="Níveis de proficiência">
-                  <ul className="space-y-1">
-                    {data.proficiencyLevels.map((lvl) => (
-                      <li
-                        key={lvl.id}
-                        className="font-body text-sm text-ink-muted"
-                      >
-                        <span className="font-semibold text-ink">
-                          {lvl.value}. {lvl.name}
-                        </span>
-                        {lvl.description ? ` — ${lvl.description}` : ''}
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-
-              {data.courses.length > 0 && (
-                <Section
-                  title={`Cursos que a desenvolvem (${data.courses.length})`}
-                >
-                  <ul className="space-y-1">
-                    {data.courses.map((c) => (
-                      <li
-                        key={c.id}
-                        className="font-body text-sm text-ink-muted"
-                      >
-                        {c.course.title}
-                        <span className="text-ink-faint">
-                          {' '}
-                          · nível {LEVEL_LABELS[c.levelGained] ?? c.levelGained}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-
-              {data.positions.length > 0 && (
-                <Section
-                  title={`Cargos que a exigem (${data.positions.length})`}
-                >
-                  <ul className="space-y-1">
-                    {data.positions.map((p) => (
-                      <li
-                        key={p.id}
-                        className="font-body text-sm text-ink-muted"
-                      >
-                        {p.position?.name ?? 'Cargo'}
-                        <span className="text-ink-faint">
-                          {' '}
-                          · requer{' '}
-                          {LEVEL_LABELS[p.requiredLevel] ?? p.requiredLevel}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
             </div>
 
-            {canManage && (
-              <div className="mt-6 flex items-start justify-between gap-3 border-t border-border pt-4">
-                <div>
-                  {canDelete && (
-                    <>
-                      <Button
-                        intent="danger"
-                        onClick={onDelete}
-                        loading={remove.isPending}
-                        disabled={busy || usersAttached}
-                      >
-                        Apagar
-                      </Button>
-                      {usersAttached && (
-                        <p className="mt-1.5 max-w-[16rem] font-body text-xs text-ink-faint">
-                          Tem {data._count.userCompetencies} utilizadores
-                          associados — arquive em vez de eliminar.
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div className="flex gap-3">
-                  <Button intent="ghost" onClick={onEdit} disabled={busy}>
-                    Editar
-                  </Button>
-                  {archived ? (
+            <div className="mt-6 flex flex-wrap items-start justify-between gap-3 border-t border-border pt-4">
+              <div>
+                {canManage && canDelete && (
+                  <>
                     <Button
                       intent="secondary"
-                      onClick={() => reactivate.mutate(undefined)}
-                      loading={reactivate.isPending}
-                      disabled={busy}
+                      className={RED_BTN}
+                      onClick={onDelete}
+                      loading={remove.isPending}
+                      disabled={busy || usersAttached}
                     >
-                      Reactivar
+                      Apagar
                     </Button>
-                  ) : (
-                    <Button
-                      intent="danger"
-                      onClick={onArchive}
-                      loading={archive.isPending}
-                      disabled={busy}
-                    >
-                      Arquivar
-                    </Button>
-                  )}
-                </div>
+                    {usersAttached && (
+                      <p className="mt-1.5 max-w-[16rem] font-body text-xs text-ink-faint">
+                        Tem {data._count.userCompetencies} utilizadores
+                        associados — arquive em vez de eliminar.
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
-            )}
+              <div className="flex gap-3">
+                <Button
+                  intent="secondary"
+                  className={NAVY_BTN}
+                  onClick={onClose}
+                >
+                  Fechar
+                </Button>
+                {canManage && (
+                  <>
+                    <Button
+                      className={NAVY_BTN}
+                      onClick={onEdit}
+                      disabled={busy}
+                    >
+                      Editar
+                    </Button>
+                    {archived ? (
+                      <Button
+                        intent="secondary"
+                        className={NAVY_BTN}
+                        onClick={() => reactivate.mutate(undefined)}
+                        loading={reactivate.isPending}
+                        disabled={busy}
+                      >
+                        Reactivar
+                      </Button>
+                    ) : (
+                      <Button
+                        intent="secondary"
+                        className={BLACK_BTN}
+                        onClick={onArchive}
+                        loading={archive.isPending}
+                        disabled={busy}
+                      >
+                        Arquivar
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
           </>
         )}
       </ModalContent>
     </Modal>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <h3 className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
-        {title}
-      </h3>
-      {children}
-    </div>
   );
 }

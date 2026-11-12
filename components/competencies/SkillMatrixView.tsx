@@ -44,6 +44,8 @@ import {
 } from './modelFormData';
 import { POSITION_LEVEL_CFG } from './constants';
 import { UserFilterSearch } from './UserFilterSearch';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+
 import type { SkillMatrix } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -119,6 +121,21 @@ export function SkillMatrixView() {
     },
   );
 
+  const buildExport = () => ({
+    title: 'Matriz de competências',
+    filename: 'matriz-de-competencias',
+    headers: [
+      'Colaborador',
+      'Cargo',
+      ...(matrix?.competencies.map((c) => c.name) ?? []),
+    ],
+    rows: (matrix?.matrix ?? []).map((row) => [
+      row.user.fullName,
+      row.user.position?.name ?? '',
+      ...row.levels.map((lv) => lv.level),
+    ]),
+  });
+
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -182,6 +199,11 @@ export function SkillMatrixView() {
           onChange={setUser}
           className="w-[220px]"
         />
+        <CompetencyExportMenu
+          className="ml-auto"
+          build={buildExport}
+          disabled={!matrix}
+        />
       </div>
 
       <div className="mb-5 flex justify-end gap-2 font-body text-xs text-ink-faint">
@@ -205,7 +227,7 @@ export function SkillMatrixView() {
                 <tr>
                   <th
                     scope="col"
-                    className="sticky left-0 top-0 z-30 w-56 min-w-56 border-b border-r border-white/20 bg-[#0F2D55] px-3 py-3 text-left text-xs font-semibold text-white"
+                    className="sticky left-0 top-0 z-30 w-56 min-w-56 border-b border-r border-white/20 bg-brand-dark px-3 py-3 text-left text-xs font-semibold text-white"
                   >
                     <span className="flex items-center gap-2">
                       <UserRound
@@ -220,7 +242,7 @@ export function SkillMatrixView() {
                     <th
                       key={comp.id}
                       scope="col"
-                      className="sticky top-0 z-20 w-28 min-w-28 border-b border-r border-white/20 bg-[#0F2D55] px-2 py-3 text-center align-top text-xs font-semibold leading-tight text-white last:border-r-0"
+                      className="sticky top-0 z-20 w-28 min-w-28 border-b border-r border-white/20 bg-brand-dark px-2 py-3 text-center align-top text-xs font-semibold leading-tight text-white last:border-r-0"
                     >
                       <span className="flex flex-col items-center gap-1.5">
                         <CompetencyIcon name={comp.name} />
@@ -235,7 +257,7 @@ export function SkillMatrixView() {
                   <tr key={row.user.id}>
                     <th
                       scope="row"
-                      className="sticky left-0 z-10 w-56 min-w-56 border-b border-r border-white/20 bg-[#0F2D55] px-3 py-2 text-left font-normal"
+                      className="sticky left-0 z-10 w-56 min-w-56 border-b border-r border-white/20 bg-brand-dark px-3 py-2 text-left font-normal"
                     >
                       <span className="flex items-center gap-2">
                         <Avatar

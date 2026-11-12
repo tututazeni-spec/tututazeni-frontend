@@ -8,6 +8,14 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Briefcase,
+  Building2,
+  CalendarCheck,
+  Flag,
+  Layers,
+  Target,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -30,6 +38,8 @@ import {
 } from './modelFormData';
 import { avatarColor } from './EvaluationsView';
 import { UserFilterSearch } from './UserFilterSearch';
+import { CompetencyExportMenu } from './CompetencyExportMenu';
+
 import type { CompetencyGap } from './types';
 import { getInitials, formatDateNumeric } from '@/lib/format';
 
@@ -105,45 +115,85 @@ export function GapsView() {
     { params, staleTime: STALE_TIME.DYNAMIC, enabled: hasFilter },
   );
 
+  const buildExport = () => ({
+    title: 'Lacunas de competências',
+    filename: 'lacunas-de-competencias',
+    headers: COLUMNS.map((c) => c.label),
+    rows: (rows ?? []).map((r) => [
+      `${r.colaborador} (${r.departamento ?? '—'} · ${r.cargo ?? '—'})`,
+      r.competencia,
+      r.nivelAtual,
+      r.nivelEsperado,
+      r.gap,
+      GAP_PRIORITY_CFG[r.prioridade]?.label ?? r.prioridade,
+      r.competenciaCritica ? 'Sim' : 'Não',
+      GAP_IMPACT_CFG[r.impacto]?.label ?? r.impacto,
+      formatDateNumeric(r.dataIdentificacao),
+      r.planoDesenvolvimentoAssociado?.name ?? '',
+      GAP_STATUS_CFG[r.estado]?.label ?? r.estado,
+    ]),
+  });
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <Select
-          items={[
-            { value: ALL, label: 'Departamento' },
-            ...departmentOptions,
-          ]}
+          variant="underline"
+          icon={Building2}
+          items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
           value={departmentId}
           onValueChange={setDepartmentId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Briefcase}
           items={[{ value: ALL, label: 'Cargo' }, ...positionOptions]}
           value={positionId}
           onValueChange={setPositionId}
+          className="w-[160px]"
         />
         <Select
-          items={[
-            { value: ALL, label: 'Competência' },
-            ...competencyOptions,
-          ]}
+          variant="underline"
+          icon={Target}
+          items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
           value={competencyId}
           onValueChange={setCompetencyId}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={HIERARCHY_LEVEL_ITEMS}
           value={hierarchyLevel}
           onValueChange={setHierarchyLevel}
+          className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Flag}
           items={PRIORITY_ITEMS}
           value={priority}
           onValueChange={setPriority}
+          className="w-[150px]"
         />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={CalendarCheck}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+          className="w-[140px]"
+        />
         <UserFilterSearch
           selected={user}
           onChange={setUser}
-          className="w-[220px]"
+          className="w-[240px]"
+        />
+        <CompetencyExportMenu
+          className="ml-auto"
+          build={buildExport}
+          disabled={!hasFilter || !rows}
         />
       </div>
 
@@ -155,8 +205,8 @@ export function GapsView() {
           description="Nenhuma lacuna de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
+        <div className="scroll-navy overflow-x-auto rounded-[14px] border border-border bg-surface shadow-elevated">
+          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-ink">
             <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
@@ -173,13 +223,15 @@ export function GapsView() {
               {(hasFilter ? (rows ?? []) : []).map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                  className="border-b border-border transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img loading="lazy" decoding="async"
+                        <img
+                          loading="lazy"
+                          decoding="async"
                           src={r.colaboradorAvatarUrl}
                           alt={r.colaborador}
                           className="h-9 w-9 shrink-0 rounded-full object-cover"
@@ -188,22 +240,24 @@ export function GapsView() {
                         <span
                           aria-hidden
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                          style={{ backgroundColor: avatarColor(r.colaborador) }}
+                          style={{
+                            backgroundColor: avatarColor(r.colaborador),
+                          }}
                         >
                           {getInitials(r.colaborador, '?')}
                         </span>
                       )}
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-white">
+                        <p className="truncate font-semibold text-ink">
                           {r.colaborador}
                         </p>
-                        <p className="truncate text-xs text-on-brand-faint">
+                        <p className="truncate text-xs text-ink-faint">
                           {r.departamento ?? '—'} · {r.cargo ?? '—'}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 leading-snug text-white">
+                  <td className="px-4 py-3 leading-snug text-ink">
                     <p>{r.competencia}</p>
                     <StatusBadge
                       value={r.categoria}
@@ -211,28 +265,28 @@ export function GapsView() {
                       className="mt-0.5"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelAtual}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.nivelEsperado}
                   </td>
-                  <td className="px-4 py-3 text-center text-on-brand">
+                  <td className="px-4 py-3 text-center text-ink-muted">
                     {r.gap}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge value={r.prioridade} map={GAP_PRIORITY_CFG} />
                   </td>
-                  <td className="px-4 py-3 text-xs text-white">
+                  <td className="px-4 py-3 text-xs text-ink">
                     {r.competenciaCritica ? 'Sim' : 'Não'}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-ink-muted">
                     {formatDateNumeric(r.dataIdentificacao)}
                   </td>
-                  <td className="px-4 py-3 text-xs text-on-brand">
+                  <td className="px-4 py-3 text-xs text-ink-muted">
                     {r.planoDesenvolvimentoAssociado?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3">

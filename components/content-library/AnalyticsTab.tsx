@@ -88,7 +88,7 @@ export function AnalyticsTab() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Format breakdown */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Distribuição por Formato
           </div>
           <CardBody>
@@ -128,7 +128,7 @@ export function AnalyticsTab() {
 
         {/* Most viewed */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Mais Vistos (30 dias)
           </div>
           <CardBody>
@@ -162,7 +162,7 @@ export function AnalyticsTab() {
       {/* Recently added */}
       {(data?.recentlyAdded?.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Adicionados Recentemente
           </div>
           <CardBody>
@@ -193,7 +193,7 @@ export function AnalyticsTab() {
       {/* Compliance de leitura obrigatória — Documentos Corporativos (ADMIN/RH/DIRECTOR) */}
       {canSeeCompliance && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Compliance de Leitura Obrigatória
           </div>
           <CardBody>

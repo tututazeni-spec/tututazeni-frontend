@@ -30,6 +30,8 @@ import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
+import { DepartmentExportMenu } from './DepartmentExportMenu';
+
 import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
@@ -72,7 +74,7 @@ function BarList({
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
     <Card className="overflow-hidden">
-      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       {items.length === 0 ? (
@@ -85,7 +87,7 @@ function BarList({
                 <span className="min-w-0 break-words pr-2 text-ink-muted">
                   {item.label}
                 </span>
-                <span className="flex-shrink-0 font-data text-ink-faint">
+                <span className="flex-shrink-0 text-ink-faint">
                   {item.count}
                   {suffix}
                 </span>
@@ -153,6 +155,102 @@ export function ReportsView() {
 
   return (
     <div>
+      <div className="mb-3 flex justify-end">
+        <DepartmentExportMenu
+          disabled={!data}
+          build={async () => {
+            if (!data) throw new Error('Relatório ainda a carregar');
+            const rows: (string | number | null | undefined)[][] = [
+              ...data.headcountByDepartment.map((d) => [
+                'Departamento',
+                d.name,
+                d.actual,
+                d.expected,
+                d.max,
+                '',
+              ]),
+              ...data.headcountByUnit.map((u) => [
+                'Unidade',
+                u.name,
+                u.actual,
+                u.expected,
+                u.max,
+                '',
+              ]),
+              ...data.headcountByPosition.map((p) => [
+                'Cargo',
+                p.department ? `${p.name} (${p.department.name})` : p.name,
+                p.occupied,
+                p.planned,
+                '',
+                p.vacancies,
+              ]),
+              [
+                'Resumo',
+                'Colaboradores (total)',
+                data.employeeDistribution.total,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Activos',
+                data.employeeDistribution.active,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Inactivos',
+                data.employeeDistribution.inactive,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Admissões no período',
+                data.admissions.total,
+                '',
+                '',
+                '',
+              ],
+              ['Resumo', 'Saídas no período', data.exits.total, '', '', ''],
+              [
+                'Resumo',
+                'Taxa de rotatividade (%)',
+                data.turnoverRate,
+                '',
+                '',
+                '',
+              ],
+              [
+                'Resumo',
+                'Antiguidade média (anos)',
+                data.seniority.avgYears,
+                '',
+                '',
+                '',
+              ],
+            ];
+            return {
+              title: 'Relatórios de departamentos',
+              headers: [
+                'Secção',
+                'Item',
+                'Actual / Ocupadas',
+                'Previsto',
+                'Máximo',
+                'Vagas',
+              ],
+              rows,
+            };
+          }}
+        />
+      </div>
+
       {/* Filtros */}
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Select
@@ -296,7 +394,7 @@ export function ReportsView() {
 
           {/* Headcount por departamento: previsto vs. actual */}
           <Card className="overflow-hidden">
-            <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Número de colaboradores previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
@@ -310,7 +408,7 @@ export function ReportsView() {
                   <span className="min-w-0 flex-1 break-words text-ink">
                     {d.name}
                   </span>
-                  <span className="flex-shrink-0 font-mono text-xs text-ink-muted">
+                  <span className="flex-shrink-0 text-xs text-ink-muted">
                     {d.actual} actual · {d.expected ?? '—'} previsto ·{' '}
                     {d.max ?? '—'} limite
                   </span>

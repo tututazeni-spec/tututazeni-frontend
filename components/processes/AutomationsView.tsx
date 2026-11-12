@@ -215,7 +215,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
       {data && data.data.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           <div>
-            <div className="grid grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] gap-3 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white cursor-default select-none pointer-events-none">
+            <div className="grid grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] gap-3 border-b border-border bg-brand-dark px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white cursor-default select-none pointer-events-none">
               <div>Regra</div>
               <div>Evento</div>
               <div>Acção</div>

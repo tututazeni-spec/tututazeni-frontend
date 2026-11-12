@@ -61,7 +61,7 @@ export function ReportRecordsPanel({
       >
         <div className="mt-4 overflow-x-auto rounded-card border border-border">
           <div className="min-w-[760px]">
-            <div className="grid grid-cols-[110px_1.8fr_110px_1.2fr_90px_90px] gap-3 border-b border-border bg-surface-sunken px-3 py-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="grid grid-cols-[110px_1.8fr_110px_1.2fr_90px_90px] gap-3 border-b border-border bg-brand-dark px-3 py-2 font-body text-xs font-medium uppercase tracking-wide text-white">
               <div>Tipo</div>
               <div>Registo</div>
               <div>Estado</div>

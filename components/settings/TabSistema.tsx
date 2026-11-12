@@ -128,7 +128,7 @@ export function TabSistema() {
     <div className="space-y-4">
       {/* Estado */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Estado do sistema
         </div>
         <CardBody>
@@ -198,13 +198,13 @@ export function TabSistema() {
 
       {/* Filas */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
           Filas e jobs
         </div>
         <CardBody>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-ink">
-              <thead className="text-xs text-ink-faint">
+              <thead className="text-xs text-white">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
                   <th className="pr-3">Estado</th>
@@ -277,7 +277,7 @@ export function TabSistema() {
       <form onSubmit={submit} className="space-y-4">
         {/* Manutenção */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Manutenção
           </div>
           <CardBody>
@@ -329,7 +329,7 @@ export function TabSistema() {
 
         {/* Limites */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Limites e parâmetros técnicos
           </div>
           <CardBody>

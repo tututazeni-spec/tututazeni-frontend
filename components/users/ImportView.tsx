@@ -200,7 +200,7 @@ export function ImportView() {
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           1. Carregar ficheiro
         </div>
         <div className="p-5">
@@ -248,7 +248,7 @@ export function ImportView() {
 
       {(step === 'map' || step === 'result') && parsed && !parsed.error && (
         <Card className="overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             2. Mapear colunas
           </div>
           <div className="p-5">
@@ -319,7 +319,7 @@ export function ImportView() {
 
       {step === 'result' && report && (
         <Card className="overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             3. {report.dryRun ? 'Pré-visualização' : 'Relatório de importação'}
           </div>
           <div className="p-5">
@@ -384,7 +384,7 @@ export function ImportView() {
       )}
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-2 bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center gap-2 bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           <Upload size={14} strokeWidth={1.75} />
           Histórico de importações
         </div>

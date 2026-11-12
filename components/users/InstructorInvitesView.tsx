@@ -268,7 +268,7 @@ export function InstructorInvitesView() {
       )}
 
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Convites de instrutores externos
         </div>
         <div className="p-4">
@@ -279,7 +279,7 @@ export function InstructorInvitesView() {
             searchKeys={['fullName', 'email']}
             searchPlaceholder="Pesquisar instrutor ou email"
             emptyLabel="Ainda não há convites de instrutores externos."
-            headerClassName="bg-brand/60 text-white"
+            headerClassName="bg-brand-dark text-white"
           />
         </div>
       </Card>

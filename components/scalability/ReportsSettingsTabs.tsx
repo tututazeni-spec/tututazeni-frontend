@@ -189,7 +189,7 @@ export function ReportsTab({
               key={t.title}
               className="overflow-hidden rounded-[24px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
             >
-              <div className="pointer-events-none cursor-default select-none bg-brand/60 px-6 py-3 font-body text-sm font-semibold text-white">
+              <div className="pointer-events-none cursor-default select-none bg-brand-dark px-6 py-3 font-body text-sm font-semibold text-white">
                 {t.title}
               </div>
               <CardBody className="px-6 py-5">
@@ -199,7 +199,7 @@ export function ReportsTab({
                   <div className="overflow-x-auto">
                     <table className="w-full font-body text-sm">
                       <thead>
-                        <tr className="pointer-events-none cursor-default select-none bg-brand/60 text-left text-xs uppercase tracking-wide text-white">
+                        <tr className="pointer-events-none cursor-default select-none bg-brand-dark text-left text-xs uppercase tracking-wide text-white">
                           {t.columns.map((c) => (
                             <th key={c} className="px-3 py-1.5 font-semibold">
                               {c}

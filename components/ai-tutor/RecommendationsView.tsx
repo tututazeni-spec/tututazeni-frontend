@@ -94,7 +94,7 @@ export function RecommendationsView() {
 
       {/* Cursos */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand-dark font-body text-xs font-medium text-white uppercase tracking-wide">
           Cursos recomendados
         </div>
         {data.courses.map((c) => (

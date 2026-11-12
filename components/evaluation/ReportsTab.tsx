@@ -52,7 +52,7 @@ function GroupTable({
   if (!rows.length) return null;
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
@@ -359,7 +359,7 @@ export function ReportsTab() {
 
           {data.competencyGaps.length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
                 Lacunas de Competências
               </div>
               <CardBody>
@@ -382,7 +382,7 @@ export function ReportsTab() {
 
           {data.evolution.length > 1 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
                 Evolução do Desempenho
               </div>
               <CardBody>

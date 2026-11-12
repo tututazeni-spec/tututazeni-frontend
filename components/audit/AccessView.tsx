@@ -73,7 +73,7 @@ const ACTION_TEXT: Record<string, string> = {
 
 const label = (a: string) => ACTION_TEXT[a] ?? actionLabel(a);
 
-const HEADER_BG = 'cursor-default select-none bg-brand/60 text-white';
+const HEADER_BG = 'cursor-default select-none bg-brand-dark text-white';
 const PANEL_HEADER = `${HEADER_BG} px-4 py-3 font-body text-xs font-semibold`;
 
 function Panel({

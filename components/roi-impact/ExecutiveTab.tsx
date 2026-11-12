@@ -201,7 +201,7 @@ export function ExecutiveTab() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {(data?.byInitiativeType?.length ?? 0) > 0 && (
             <Card>
-              <div className="rounded-t-card bg-brand/60 px-5 py-3">
+              <div className="rounded-t-card bg-brand-dark px-5 py-3">
                 <h4 className="font-display text-sm font-semibold text-white">
                   ROI por tipo de iniciativa
                 </h4>
@@ -229,7 +229,7 @@ export function ExecutiveTab() {
           )}
           {(data?.byDepartment?.length ?? 0) > 0 && (
             <Card>
-              <div className="rounded-t-card bg-brand/60 px-5 py-3">
+              <div className="rounded-t-card bg-brand-dark px-5 py-3">
                 <h4 className="font-display text-sm font-semibold text-white">
                   ROI por departamento
                 </h4>
@@ -260,7 +260,7 @@ export function ExecutiveTab() {
       {/* Top 10 iniciativas com maior impacto */}
       {(data?.topInitiatives?.length ?? 0) > 0 && (
         <Card className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-          <div className="pointer-events-none cursor-default select-none bg-brand/60 px-5 py-3">
+          <div className="pointer-events-none cursor-default select-none bg-brand-dark px-5 py-3">
             <h4 className="font-display text-sm font-semibold text-white">
               Top iniciativas com maior impacto
             </h4>

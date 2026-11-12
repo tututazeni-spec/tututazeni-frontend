@@ -39,7 +39,7 @@ function EvolutionList({ title, items, variant }: EvolutionListProps) {
   const top = items.slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+      <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
         {title}
       </div>
       <div className="p-4">
@@ -159,7 +159,7 @@ export function OverviewTab() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <div className="border-b border-border bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
           Movimentações Internas (últimos 90 dias)
         </div>
         {overview.internalMovements.length === 0 ? (
@@ -167,7 +167,7 @@ export function OverviewTab() {
         ) : (
           <div className="overflow-x-auto bg-brand-deep">
             <table className="w-full border-collapse font-body text-sm text-white">
-              <thead className="bg-brand/60">
+              <thead className="bg-brand-dark">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase leading-tight tracking-wide text-white">
                     Tipo de movimentação

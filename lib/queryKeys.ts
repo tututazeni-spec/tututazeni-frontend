@@ -239,6 +239,8 @@ export const queryKeys = {
       [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
     overview: () => [...queryKeys.competencies.all, 'overview'] as const,
     top: () => [...queryKeys.competencies.all, 'top'] as const,
+    overviewUsers: (competencyId: number) =>
+      [...queryKeys.competencies.all, 'overview-users', competencyId] as const,
     gap: (userId: string | number) =>
       [...queryKeys.competencies.all, 'gap', userId] as const,
     // docs/módulo_competencies.md §3/§4 (Fase 2)

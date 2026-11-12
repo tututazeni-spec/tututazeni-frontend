@@ -13,7 +13,11 @@ import { X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import { useDirectoryUsers, type DirectoryUser } from './departmentFormData';
+import {
+  useDirectoryUsers,
+  useManagerCandidates,
+  type DirectoryUser,
+} from './departmentFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
 import { VirtualList } from '@/components/ui/VirtualList';
@@ -25,6 +29,15 @@ export interface DepartmentUserPickerProps {
   onChange: (u: DirectoryUser | null) => void;
   /** Não mostrar este utilizador nos resultados. */
   excludeId?: number;
+  /**
+   * Modo "responsável directo": mostra só quem pode sê-lo de um colaborador deste
+   * departamento (do mesmo departamento, ou chefe do superior/subdepartamento).
+   */
+  managerOfDepartmentId?: number;
+  /** Restringe a pesquisa a colaboradores deste departamento (filtro). */
+  departmentId?: number;
+  /** Campo de pesquisa no desenho dos Filtros Underline. */
+  underline?: boolean;
 }
 
 export function DepartmentUserPicker({
@@ -33,13 +46,35 @@ export function DepartmentUserPicker({
   value,
   onChange,
   excludeId,
+  managerOfDepartmentId,
+  departmentId,
+  underline = false,
 }: DepartmentUserPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { users, loading } = useDirectoryUsers(
+  const candidateMode = managerOfDepartmentId != null;
+  const directory = useDirectoryUsers(
     search,
-    open && !value && search.trim().length > 0,
+    open &&
+      !value &&
+      !candidateMode &&
+      (search.trim().length > 0 || departmentId != null),
+    departmentId,
   );
+  const candidates = useManagerCandidates(
+    managerOfDepartmentId,
+    open && !value && candidateMode,
+  );
+  const term = search.trim().toLowerCase();
+  const users = candidateMode
+    ? candidates.users.filter(
+        (u) =>
+          !term ||
+          u.fullName.toLowerCase().includes(term) ||
+          (u.email ?? '').toLowerCase().includes(term),
+      )
+    : directory.users;
+  const loading = candidateMode ? candidates.loading : directory.loading;
   const results = users.filter((u) => u.id !== excludeId);
 
   const select = (u: DirectoryUser) => {
@@ -81,13 +116,17 @@ export function DepartmentUserPicker({
           <Popover.Anchor asChild>
             <Input
               id={htmlFor}
+              variant={underline ? 'underline' : undefined}
               value={search}
               onChange={(e) => {
                 const v = e.target.value;
                 setSearch(v);
-                setOpen(v.trim().length > 0);
+                setOpen(v.trim().length > 0 || departmentId != null);
               }}
-              onFocus={() => search.trim().length > 0 && setOpen(true)}
+              onFocus={() =>
+                (search.trim().length > 0 || departmentId != null) &&
+                setOpen(true)
+              }
               className="w-full"
               placeholder="Pesquisar por nome ou email…"
               autoComplete="off"

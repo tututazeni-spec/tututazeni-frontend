@@ -65,13 +65,31 @@ body {
 
 ::-webkit-scrollbar {
   width: 4px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-strong);
+  background: #0f1f3d; /* azul marinho */
   border-radius: 4px;
+}
+
+/* Cabeçalhos de tabela: azul escuro com letra branca em toda a plataforma.
+   Cobre as tabelas feitas à mão (<thead> simples); o componente ui/Table já
+   traz as mesmas cores. Classes utilitárias na própria célula têm prioridade. */
+table > thead {
+  background-color: var(--color-brand-dark);
+}
+table > thead th {
+  color: #fff;
+}
+
+/* Firefox não suporta ::-webkit-scrollbar: todas as barras em azul marinho. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-color: #0f1f3d transparent;
+  }
 }
 
 /* Listas de filtros/selecção (Select, Combobox, DropdownMenu): barra vertical
@@ -94,12 +112,33 @@ body {
   border-radius: 8px;
 }
 .list-scroll::-webkit-scrollbar-thumb {
-  background: #94a3b8;
+  background: #0f1f3d;
   border-radius: 8px;
   border: 2px solid #f1f5f9;
 }
 .list-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--color-ink-faint);
+  background: #0f1f3d;
+}
+
+/* Tabelas largas (ex.: Competências › Avaliações): barra horizontal em azul
+   marinho (#0F1F3D), visível e fácil de agarrar. */
+.scroll-navy {
+  scrollbar-width: auto;
+}
+.scroll-navy::-webkit-scrollbar {
+  height: 12px;
+}
+.scroll-navy::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 8px;
+}
+.scroll-navy::-webkit-scrollbar-thumb {
+  background: #0f1f3d;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+.scroll-navy::-webkit-scrollbar-thumb:hover {
+  background: #0f1f3d;
 }
 
 /* Modais: barra vertical larga e sempre visível para o cursor a agarrar
@@ -121,14 +160,14 @@ body {
 }
 .modal-scroll::-webkit-scrollbar-thumb,
 .overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar-thumb {
-  background: #94a3b8;
+  background: #0f1f3d;
   border-radius: 8px;
   border: 3px solid #f1f5f9;
   min-height: 48px;
 }
 .modal-scroll::-webkit-scrollbar-thumb:hover,
 .overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar-thumb:hover {
-  background: var(--color-ink-faint);
+  background: #0f1f3d;
 }
 
 @theme {

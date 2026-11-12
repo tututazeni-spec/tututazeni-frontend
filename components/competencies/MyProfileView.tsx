@@ -38,7 +38,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { Select } from '@/components/ui/Select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PeriodPills } from '@/components/ui/Pills';
 import { CATEGORY_CFG, LEVEL_LABELS } from './constants';
 import { usePositionOptions } from './modelFormData';
 import { levelTextClass } from './utils';
@@ -167,26 +168,17 @@ export function MyProfileView() {
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-      <TabsList>
-        <TabsTrigger
-          value="profile"
-          className="data-[state=active]:border-brand data-[state=active]:text-brand"
-        >
-          O meu perfil
-        </TabsTrigger>
-        <TabsTrigger
-          value="gap"
-          className="data-[state=active]:border-brand data-[state=active]:text-brand"
-        >
-          Análise de lacunas
-        </TabsTrigger>
-        <TabsTrigger
-          value="evolution"
-          className="data-[state=active]:border-brand data-[state=active]:text-brand"
-        >
-          Evolução
-        </TabsTrigger>
-      </TabsList>
+      <PeriodPills
+        label="Secções do perfil"
+        className="mb-5"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'profile', label: 'O meu perfil' },
+          { value: 'gap', label: 'Análise de lacunas' },
+          { value: 'evolution', label: 'Evolução' },
+        ]}
+      />
 
       {/* Profile tab */}
       <TabsContent value="profile">
@@ -478,7 +470,7 @@ export function MyProfileView() {
       {/* Evolution tab */}
       <TabsContent value="evolution">
         <Table>
-          <TableHead className="bg-brand/60">
+          <TableHead className="bg-brand-dark">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="text-white">
                 Competência

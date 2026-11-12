@@ -88,7 +88,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Distribution chart */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="flex items-center gap-3 border-b border-border bg-brand/60 px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center gap-3 border-b border-border bg-brand-dark px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
           <div className="flex-1">Distribuição de colaboradores</div>
           <div className="w-20 text-right">Membros</div>
           <div className="w-24">Responsável</div>
@@ -113,7 +113,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                     color={DEPT_COLORS[i % DEPT_COLORS.length]}
                     className="h-3 flex-1 rounded-control"
                   />
-                  <div className="w-20 text-right font-mono text-xs text-ink-muted">
+                  <div className="w-20 text-right text-xs text-ink-muted">
                     {r.totalMembers} membros
                   </div>
                   <div className="w-24 truncate text-xs text-ink-faint">

@@ -556,7 +556,7 @@ export function AlertsPanel() {
 
       {isFull && rulesQ.data && (
         <Card className="overflow-hidden">
-          <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
+          <div className="bg-brand-dark px-4 py-3 font-body text-sm font-semibold text-white">
             Regras e limiares
           </div>
           <div className="p-4">

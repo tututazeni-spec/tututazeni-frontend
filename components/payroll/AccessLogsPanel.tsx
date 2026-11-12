@@ -40,7 +40,7 @@ export function AccessLogsPanel({ payslipId }: AccessLogsPanelProps) {
       )}
       {!isLoading && !error && (data?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="grid grid-cols-[160px_1fr_140px_180px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="grid grid-cols-[160px_1fr_140px_180px] gap-3 border-b border-border bg-brand-dark px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
             <div>Acção</div>
             <div>Quem</div>
             <div>IP</div>

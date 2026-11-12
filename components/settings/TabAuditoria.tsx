@@ -61,7 +61,7 @@ export function TabAuditoria() {
   return (
     <div className="space-y-4">
       <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand-dark px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Registo de logs
           </h3>
@@ -119,7 +119,7 @@ export function TabAuditoria() {
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
             Estado dos backups
           </div>
           <CardBody>
@@ -141,7 +141,7 @@ export function TabAuditoria() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="flex items-center justify-between gap-3 border-b border-border bg-brand-dark px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
             Exportação de dados
             <Link href={data.links.exports}>
               <Button type="button" intent="secondary">
@@ -167,7 +167,7 @@ export function TabAuditoria() {
       </div>
 
       <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand-dark px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Política de auditoria
           </h3>

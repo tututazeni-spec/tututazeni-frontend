@@ -169,7 +169,7 @@ function toFeedback(f: RawFeedback): ContinuousFeedback {
 // ─── Hook ───────────────────────────────────────────────────────────────────
 
 export function useEvaluation360() {
-  const { data: me } = useCurrentUser();
+  const { data: me } = useCurrentUser({ fresh: true });
   const myId = me ? String(me.id) : undefined;
   // Sempre o próprio — ver nota de regra no topo do ficheiro.
   const participantId = myId;

@@ -18,7 +18,7 @@ const eslintConfig = [
     // (ex: .next/) — sem isto, um `.next/` deixado por um build anterior faz
     // o lint varrer os .ts auto-gerados em .next/types/ e rebentar com
     // milhares de erros que nada têm a ver com o código-fonte.
-    ignores: ['.next/**'],
+    ignores: ['.next/**', 'public/**'],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {

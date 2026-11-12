@@ -36,6 +36,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { scoreColor } from './colors';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
+import type { TableExportInput } from '@/lib/tableExport';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface RawOverview {
@@ -75,6 +77,35 @@ function Stat({ label, value, icon, tone }: StatProps) {
   return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 
+function buildOverviewExport(d: RawOverview): TableExportInput {
+  const pct = (v: number) => `${Math.round(v)}%`;
+  const rows: (string | number)[][] = [
+    ['Estado', 'Total de avaliações', d.totalCycles],
+    ['Estado', 'Em preparação', d.inPreparation],
+    ['Estado', 'Abertas', d.open],
+    ['Estado', 'Em preenchimento', d.inProgress],
+    ['Estado', 'Concluídas', d.completed],
+    ['Estado', 'Encerradas', d.closed],
+    ['Participação', 'Colaboradores avaliados', d.evaluatedCount],
+    ['Participação', 'Avaliadores convidados', d.invitedEvaluatorsCount],
+    ['Participação', 'Avaliadores que responderam', d.respondedEvaluatorsCount],
+    ['Participação', 'Taxa de participação', pct(d.participationRate)],
+    ['Participação', 'Taxa de conclusão', pct(d.completionRate)],
+    ['Resultado', 'Média geral', d.avgOverall.toFixed(2)],
+    ['Resultado', 'Avaliações pendentes', d.pendingAssignments],
+    ...d.competencyAverages.map((c) => [
+      'Média por competência',
+      c.name,
+      c.average.toFixed(2),
+    ]),
+  ];
+  return {
+    title: 'Avaliação 360° — Painel Geral',
+    headers: ['Secção', 'Indicador', 'Valor'],
+    rows,
+  };
+}
+
 export function OverviewAdminTab() {
   const { data, isLoading } = useApiQuery<RawOverview>(
     queryKeys.evaluation360.overview(),
@@ -95,12 +126,15 @@ export function OverviewAdminTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="m-0 text-lg font-bold text-ink">Painel Geral</h2>
-        <p className="m-0 mt-1 text-sm text-ink-muted">
-          Visão agregada de todas as avaliações 360° — nunca identifica um
-          colaborador ou avaliador individual.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="m-0 text-lg font-bold text-ink">Painel Geral</h2>
+          <p className="m-0 mt-1 text-sm text-ink-muted">
+            Visão agregada de todas as avaliações 360° — nunca identifica um
+            colaborador ou avaliador individual.
+          </p>
+        </div>
+        <CompetencyExportMenu build={() => buildOverviewExport(data)} />
       </div>
 
       {/* Estado das avaliações */}
@@ -184,7 +218,7 @@ export function OverviewAdminTab() {
 
       {/* Média por competência (docs/evaluation360.md §1) — todas, não só top/bottom */}
       <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-        <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
           Média por competência
         </h3>
         {data.competencyAverages.length === 0 && (
@@ -219,7 +253,7 @@ export function OverviewAdminTab() {
       {/* Competências */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Competências com maior pontuação
           </h3>
           {data.topCompetencies.length === 0 && (
@@ -241,7 +275,7 @@ export function OverviewAdminTab() {
           ))}
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Competências com menor pontuação
           </h3>
           {data.bottomCompetencies.length === 0 && (
@@ -267,7 +301,7 @@ export function OverviewAdminTab() {
       {/* Prazos e últimas avaliações */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Avaliações próximas do prazo (7 dias)
           </h3>
           {data.upcomingDeadline.length === 0 && (
@@ -289,7 +323,7 @@ export function OverviewAdminTab() {
           ))}
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
             Últimas avaliações realizadas
           </h3>
           {data.recentCompleted.length === 0 && (

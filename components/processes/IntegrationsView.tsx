@@ -260,7 +260,7 @@ export function IntegrationsView({
                     className="flex flex-col overflow-hidden rounded-card border border-border bg-surface"
                   >
                     <div
-                      className="flex h-16 items-center justify-between gap-2 border-b-4 bg-brand/60 px-4"
+                      className="flex h-16 items-center justify-between gap-2 border-b-4 bg-brand-dark px-4"
                       style={{ borderBottomColor: `hsl(${hue} 65% 50%)` }}
                     >
                       <div className="line-clamp-2 font-body text-sm font-semibold leading-tight text-white">

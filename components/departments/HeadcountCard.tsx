@@ -71,7 +71,7 @@ export function HeadcountCard({
 
   return (
     <Card className="p-4">
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D] px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Número de colaboradores
       </div>
       {editing ? (
@@ -129,7 +129,12 @@ export function HeadcountCard({
             </span>
           </div>
           {canEdit && (
-            <Button intent="secondary" size="sm" onClick={startEdit}>
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={startEdit}
+              className="bg-[#0F1F3D] text-white hover:bg-[#0F1F3D]/90"
+            >
               Definir número de colaboradores
             </Button>
           )}

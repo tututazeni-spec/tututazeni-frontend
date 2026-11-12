@@ -24,6 +24,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 import { Building2, MapPin } from 'lucide-react';
 
 const ALL = 'ALL';
@@ -74,13 +75,50 @@ export function AvaliadosTab() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h2 className="m-0 text-lg font-bold text-ink">Avaliados</h2>
-        <p className="m-0 mt-1 text-sm text-ink-muted">
-          {cycleId && data
-            ? `${data.total} avaliado(s) neste ciclo`
-            : 'Escolhe um ciclo de avaliação 360°.'}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="m-0 text-lg font-bold text-ink">Avaliados</h2>
+          <p className="m-0 mt-1 text-sm text-ink-muted">
+            {cycleId && data
+              ? `${data.total} avaliado(s) neste ciclo`
+              : 'Escolhe um ciclo de avaliação 360°.'}
+          </p>
+        </div>
+        <CompetencyExportMenu
+          disabled={!cycleId || isLoading}
+          build={() => ({
+            title: 'Avaliação 360° — Avaliados',
+            filename: 'avaliados-360',
+            headers: [
+              'Colaborador',
+              'Nº colaborador',
+              'Cargo',
+              'Departamento',
+              'Gestor',
+              'Avaliadores',
+              'Confirmados',
+              'Respostas',
+              'Progresso (%)',
+              'Estado',
+              'Resultado final',
+              'Conclusão',
+            ],
+            rows: rows.map((p) => [
+              p.fullName,
+              p.employeeNumber,
+              p.position,
+              p.department,
+              p.managerName,
+              p.evaluatorsCount,
+              p.confirmedEvaluators,
+              p.responsesReceived,
+              Math.round(p.progressPercent),
+              participantStatusLabel[p.status] ?? p.status,
+              p.finalScore === null ? '' : p.finalScore.toFixed(2),
+              p.completedAt?.slice(0, 10),
+            ]),
+          })}
+        />
       </div>
 
       <FilterPanelCard>
@@ -122,7 +160,7 @@ export function AvaliadosTab() {
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Avaliados
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -131,7 +169,7 @@ export function AvaliadosTab() {
       {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Avaliados
           </h3>
           Nenhum avaliado encontrado com estes filtros.
@@ -142,7 +180,7 @@ export function AvaliadosTab() {
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Colaborador</th>
                 <th className="px-4 py-3">Cargo</th>
                 <th className="px-4 py-3">Departamento</th>

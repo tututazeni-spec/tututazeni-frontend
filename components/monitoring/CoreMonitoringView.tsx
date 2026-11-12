@@ -69,7 +69,7 @@ function Section({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand-dark text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>{children}</CardBody>
@@ -170,7 +170,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Quando</th>
                   <th className="pr-3">Regra</th>
@@ -233,7 +233,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
       <Section title="Últimas execuções">
         <div className="w-full">
           <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-            <thead className="text-xs uppercase text-ink-muted">
+            <thead className="text-xs uppercase text-white">
               <tr>
                 <th className="py-2 pr-3">Início</th>
                 <th className="pr-3">Regra</th>
@@ -371,7 +371,7 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
       <Section title="Por família">
         <div className="w-full">
           <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-            <thead className="text-xs uppercase text-ink-muted">
+            <thead className="text-xs uppercase text-white">
               <tr>
                 <th className="py-2 pr-3">Família</th>
                 <th className="pr-3">Estado</th>
@@ -426,7 +426,7 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Integração</th>
                   <th className="pr-3">Estado</th>
@@ -546,7 +546,7 @@ function EndpointTable({
       ) : (
         <div className="w-full">
           <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-            <thead className="text-xs uppercase text-ink-muted">
+            <thead className="text-xs uppercase text-white">
               <tr>
                 <th className="py-2 pr-3">Endpoint</th>
                 <th className="pr-3">Pedidos</th>
@@ -801,7 +801,7 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
         {queues.available && queues.queues.length > 0 && (
           <div className="mt-4 w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
+              <thead className="text-xs uppercase text-white">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
                   <th className="pr-3">Em espera</th>

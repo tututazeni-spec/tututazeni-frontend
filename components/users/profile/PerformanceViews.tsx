@@ -68,7 +68,7 @@ export function PerformanceView({ data, isLoading }: QueryData<EvalResults>) {
         <div className="grid grid-cols-3 gap-3">
           {QUALITATIVE_KEYS.map((key) => (
             <Card key={key} className="overflow-hidden">
-              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 {qualitativeTitle(key)}
               </div>
               <div className="p-4">
@@ -101,7 +101,7 @@ export function EvaluationsView({
   return (
     <SectionCard title="Avaliações 360°">
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Ciclo</TableHeaderCell>
             <TableHeaderCell>Período</TableHeaderCell>
@@ -148,7 +148,7 @@ export function PdiView({
   return (
     <SectionCard title="Planos de desenvolvimento (PDI)">
       <Table>
-        <TableHead className="bg-brand/60 [&_th]:text-white">
+        <TableHead className="bg-brand-dark [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Plano</TableHeaderCell>
             <TableHeaderCell>Prioridade</TableHeaderCell>
@@ -198,14 +198,14 @@ export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
     <div className="space-y-4">
       <InfoCard title="Plano de carreira activo" rows={careerPlanRows(data)} />
       <Card className="overflow-hidden">
-        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="bg-brand-dark px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Histórico de cargos
         </div>
         {data.careerHistory.length === 0 ? (
           <EmptyState title="Sem histórico de cargos" />
         ) : (
           <Table>
-            <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableHead className="bg-brand-dark [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Cargo</TableHeaderCell>
                 <TableHeaderCell>Início</TableHeaderCell>
