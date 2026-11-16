@@ -16,7 +16,12 @@
 import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleEvolutionPoint, CycleReportData } from './types';
-import { evaluatorRoleLabel, scoreColor, cycleStatusText } from './colors';
+import {
+  evaluatorAssignmentStatusLabel,
+  evaluatorRoleLabel,
+  scoreColor,
+  cycleStatusText,
+} from './colors';
 import {
   useCycleSelectorOptions,
   useDepartmentOptions,
@@ -598,7 +603,7 @@ export function RelatoriosTab() {
                           {evaluatorRoleLabel[p.role] ?? p.role}
                         </td>
                         <td className="px-4 py-2.5 text-ink-muted">
-                          {p.status}
+                          {evaluatorAssignmentStatusLabel[p.status] ?? p.status}
                         </td>
                         <td className="px-4 py-2.5 text-ink-muted">
                           {p.invitedAt ? p.invitedAt.slice(0, 10) : '—'}

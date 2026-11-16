@@ -13,7 +13,7 @@
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { CycleParticipantRow } from './types';
 import { participantStatusLabel } from './colors';
 import { ParticipantDetailModal } from './ParticipantDetailModal';
@@ -26,6 +26,11 @@ import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 import { Building2, MapPin } from 'lucide-react';
+import { cn } from '@/lib/cn';
+
+// Mesma grelha no cabeçalho e nas linhas (desenho da lista de Avaliações 360°).
+const PARTICIPANT_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-8 px-4';
 
 const ALL = 'ALL';
 
@@ -37,17 +42,9 @@ const STATUS_OPTIONS: SelectItemOption[] = [
 ];
 
 export function AvaliadosTab() {
-  const {
-    cycles,
-    options: cycleOptions,
-    loading: cyclesLoading,
-  } = useCycleSelectorOptions();
+  const { options: cycleOptions, loading: cyclesLoading } =
+    useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
-  // Assim que os ciclos chegam, selecciona o mais recente por omissão — sem
-  // isto a aba ficava sempre vazia até o utilizador escolher manualmente.
-  useEffect(() => {
-    if (!cycleId && cycles.length > 0) setCycleId(cycles[0].id);
-  }, [cycleId, cycles]);
 
   const [status, setStatus] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
@@ -163,7 +160,9 @@ export function AvaliadosTab() {
           <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Avaliados
           </h3>
-          Ainda não existe nenhum ciclo de avaliação 360º.
+          {cycleOptions.length === 0
+            ? 'Ainda não existe nenhum ciclo de avaliação 360º.'
+            : 'Escolhe um ciclo para ver os resultados.'}
         </div>
       )}
       {cycleId && isLoading && <Skeleton rows={3} />}
@@ -177,85 +176,79 @@ export function AvaliadosTab() {
       )}
 
       {rows.length > 0 && (
-        <div className="rounded-card border border-border bg-surface overflow-x-auto">
-          <table className="w-full text-sm border-collapse min-w-[1000px]">
-            <thead>
-              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
-                <th className="px-4 py-3">Colaborador</th>
-                <th className="px-4 py-3">Cargo</th>
-                <th className="px-4 py-3">Departamento</th>
-                <th className="px-4 py-3">Gestor</th>
-                <th className="px-4 py-3 text-right">Avaliadores</th>
-                <th className="px-4 py-3 text-right">Confirmados</th>
-                <th className="px-4 py-3 text-right">Respostas</th>
-                <th className="px-4 py-3 text-right">Progresso</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3 text-right">Resultado final</th>
-                <th className="px-4 py-3">Conclusão</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => (
-                <tr
-                  key={p.userId}
-                  className="border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
-                  onClick={() => setOpenUserId(p.userId)}
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar
-                        name={p.fullName}
-                        url={p.avatarUrl ?? undefined}
-                        size="sm"
-                      />
-                      <div>
-                        <div className="font-semibold text-ink">
-                          {p.fullName}
-                        </div>
-                        {p.employeeNumber && (
-                          <div className="text-xs text-ink-muted">
-                            Nº {p.employeeNumber}
-                          </div>
-                        )}
-                      </div>
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div
+            className={cn(
+              PARTICIPANT_GRID,
+              'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+            )}
+          >
+            <div>Colaborador</div>
+            <div>Cargo</div>
+            <div>Departamento</div>
+            <div>Gestor</div>
+            <div className="text-right">Avaliadores</div>
+            <div className="text-right">Confirmados</div>
+            <div className="text-right">Respostas</div>
+            <div className="text-right">Progresso</div>
+            <div>Estado</div>
+            <div className="text-right">Resultado final</div>
+            <div>Conclusão</div>
+          </div>
+          {rows.map((p) => (
+            <div
+              key={p.userId}
+              role="button"
+              tabIndex={0}
+              onClick={() => setOpenUserId(p.userId)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setOpenUserId(p.userId);
+                }
+              }}
+              className={cn(
+                PARTICIPANT_GRID,
+                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+              )}
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <Avatar
+                  name={p.fullName}
+                  url={p.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0">
+                  <div className="break-words font-semibold text-ink">
+                    {p.fullName}
+                  </div>
+                  {p.employeeNumber && (
+                    <div className="text-xs text-ink-muted">
+                      Nº {p.employeeNumber}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {p.position ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {p.department ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {p.managerName ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {p.evaluatorsCount}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {p.confirmedEvaluators}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {p.responsesReceived}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {p.progressPercent}%
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
-                      {participantStatusLabel[p.status] ?? p.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {p.finalScore !== null ? p.finalScore.toFixed(1) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
-                    {p.completedAt ? p.completedAt.slice(0, 10) : '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                </div>
+              </div>
+              <div className="break-words">{p.position ?? '—'}</div>
+              <div className="break-words">{p.department ?? '—'}</div>
+              <div className="break-words">{p.managerName ?? '—'}</div>
+              <div className="text-right text-ink">{p.evaluatorsCount}</div>
+              <div className="text-right text-ink">{p.confirmedEvaluators}</div>
+              <div className="text-right text-ink">{p.responsesReceived}</div>
+              <div className="text-right text-ink">{p.progressPercent}%</div>
+              <div>
+                <span className="text-xs font-bold text-ink">
+                  {participantStatusLabel[p.status] ?? p.status}
+                </span>
+              </div>
+              <div className="text-right text-ink">
+                {p.finalScore !== null ? p.finalScore.toFixed(1) : '—'}
+              </div>
+              <div className="break-words">
+                {p.completedAt ? p.completedAt.slice(0, 10) : '—'}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

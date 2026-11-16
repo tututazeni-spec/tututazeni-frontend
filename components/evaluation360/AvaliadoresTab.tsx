@@ -9,7 +9,7 @@
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { CycleEvaluatorRow } from './types';
 import { evaluatorAssignmentStatusLabel, evaluatorRoleLabel } from './colors';
 import { useCycleSelectorOptions } from './cycleData';
@@ -41,15 +41,9 @@ const ROLE_OPTIONS: SelectItemOption[] = [
 ];
 
 export function AvaliadoresTab() {
-  const {
-    cycles,
-    options: cycleOptions,
-    loading: cyclesLoading,
-  } = useCycleSelectorOptions();
+  const { options: cycleOptions, loading: cyclesLoading } =
+    useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
-  useEffect(() => {
-    if (!cycleId && cycles.length > 0) setCycleId(cycles[0].id);
-  }, [cycleId, cycles]);
 
   const [status, setStatus] = useState(ALL);
   const [role, setRole] = useState(ALL);
@@ -121,7 +115,9 @@ export function AvaliadoresTab() {
           <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
             Avaliadores
           </h3>
-          Ainda não existe nenhum ciclo de avaliação 360º.
+          {cycleOptions.length === 0
+            ? 'Ainda não existe nenhum ciclo de avaliação 360º.'
+            : 'Escolhe um ciclo para ver os resultados.'}
         </div>
       )}
       {cycleId && isLoading && <Skeleton rows={3} />}
@@ -166,7 +162,10 @@ export function AvaliadoresTab() {
                   <td className="px-4 py-3 text-ink-muted">
                     {evaluatorRoleLabel[e.role] ?? e.role}
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{e.role}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {ROLE_OPTIONS.find((r) => r.value === e.role)?.label ??
+                      e.role}
+                  </td>
                   <td className="px-4 py-3 text-ink">{e.evaluateeName}</td>
                   <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
                     {e.invitedAt ? e.invitedAt.slice(0, 10) : 'Não enviado'}
@@ -175,7 +174,7 @@ export function AvaliadoresTab() {
                     {e.respondedAt ? e.respondedAt.slice(0, 10) : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+                    <span className="text-xs font-bold text-ink">
                       {evaluatorAssignmentStatusLabel[e.status] ?? e.status}
                     </span>
                   </td>

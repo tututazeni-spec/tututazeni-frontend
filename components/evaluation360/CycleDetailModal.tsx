@@ -182,30 +182,17 @@ export function CycleDetailModal({
                     ? '—'
                     : shownWeights.map(([l, w]) => `${l} ${w}%`).join(' · ')}
                 </DetailSectionRow>
-                <DetailSectionRow
-                  icon={Layers}
-                  label="Competências avaliadas"
-                  below={
-                    !data?.competencies || data.competencies.length === 0 ? (
-                      '—'
-                    ) : (
-                      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-                        {data.competencies.map((c) => (
-                          <li key={c.id} className="flex items-center gap-2">
-                            <span
-                              aria-hidden
-                              className="h-1.5 w-1.5 shrink-0 rounded-full"
-                              style={{
-                                backgroundColor: 'var(--color-brand-ink)',
-                              }}
-                            />
-                            {c.competency?.name ?? '—'}
-                          </li>
-                        ))}
-                      </ul>
-                    )
-                  }
-                />
+                <DetailSectionRow icon={Layers} label="Competências avaliadas">
+                  {!data?.competencies || data.competencies.length === 0 ? (
+                    '—'
+                  ) : (
+                    <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+                      {data.competencies.map((c) => (
+                        <li key={c.id}>{c.competency?.name ?? '—'}</li>
+                      ))}
+                    </ul>
+                  )}
+                </DetailSectionRow>
               </>
             )}
           </div>

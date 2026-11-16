@@ -407,7 +407,7 @@ export function EvaluationCyclesTab() {
                     {c.participationRate}%
                   </div>
                   <div>
-                    <span className="inline-flex items-center rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-bold text-ink">
+                    <span className="text-xs font-bold text-ink">
                       {cycleStatusDisplay(c.status, c.startDate, c.endDate)}
                     </span>
                   </div>
