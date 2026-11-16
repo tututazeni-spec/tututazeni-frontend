@@ -69,7 +69,7 @@ const ALL = 'ALL';
 
 // Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
 const CYCLE_GRID =
-  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-2 px-4';
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-x-8 px-4';
 
 const STATUS_OPTIONS: SelectItemOption[] = [
   { value: ALL, label: 'Todos os estados' },
@@ -385,35 +385,33 @@ export function EvaluationCyclesTab() {
                   }}
                   className={cn(
                     CYCLE_GRID,
-                    'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-xs text-brand-muted last:border-0 hover:bg-surface-sunken',
+                    'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
                   )}
                 >
-                  <div className="truncate text-sm font-semibold text-brand">
+                  <div className="break-words font-semibold text-ink">
                     {c.name}
                   </div>
-                  <div className="truncate font-mono">{c.code}</div>
-                  <div className="truncate">
+                  <div className="break-words">{c.code}</div>
+                  <div className="break-words">
                     {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ??
                       c.type}
                   </div>
                   <div className="break-words">
                     {c.startDate.slice(0, 10)} → {c.endDate.slice(0, 10)}
                   </div>
-                  <div className="text-right text-brand">
+                  <div className="text-right text-ink">
                     {c._count.participants}
                   </div>
-                  <div className="text-right text-brand">
-                    {c.evaluatorsCount}
-                  </div>
-                  <div className="text-right text-brand">
+                  <div className="text-right text-ink">{c.evaluatorsCount}</div>
+                  <div className="text-right text-ink">
                     {c.participationRate}%
                   </div>
                   <div>
-                    <span className="inline-flex items-center rounded-full bg-surface-sunken px-2.5 py-0.5 font-body text-xs font-semibold text-ink">
+                    <span className="inline-flex items-center rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-bold text-ink">
                       {cycleStatusDisplay(c.status, c.startDate, c.endDate)}
                     </span>
                   </div>
-                  <div className="truncate">{c.createdByName}</div>
+                  <div className="break-words">{c.createdByName}</div>
                   <div className="break-words">{c.createdAt.slice(0, 10)}</div>
                   {canDeleteCycle && (
                     <div>

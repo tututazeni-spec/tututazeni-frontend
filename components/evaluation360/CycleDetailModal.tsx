@@ -28,7 +28,6 @@ import {
   DetailHeader,
   DetailInfoRow,
   DetailSectionRow,
-  detailTint,
 } from '@/components/ui/DetailCardParts';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { cardSolidColor } from '@/components/competencies/cardColors';
@@ -133,7 +132,7 @@ export function CycleDetailModal({
         <div className="mt-6 grid gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="space-y-4">
             <DetailInfoRow icon={Hash} label="Código">
-              <span className="font-mono">{cycle.code}</span>
+              {cycle.code}
             </DetailInfoRow>
             <DetailInfoRow icon={Layers} label="Tipo">
               {TYPE_LABEL[cycle.type] ?? cycle.type}
@@ -183,23 +182,30 @@ export function CycleDetailModal({
                     ? '—'
                     : shownWeights.map(([l, w]) => `${l} ${w}%`).join(' · ')}
                 </DetailSectionRow>
-                <DetailSectionRow icon={Layers} label="Competências avaliadas">
-                  {!data?.competencies || data.competencies.length === 0 ? (
-                    '—'
-                  ) : (
-                    <div className="flex flex-wrap gap-1.5">
-                      {data.competencies.map((c) => (
-                        <span
-                          key={c.id}
-                          className="rounded-full px-3 py-0.5 text-xs text-ink"
-                          style={{ backgroundColor: detailTint(8) }}
-                        >
-                          {c.competency?.name ?? '—'}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </DetailSectionRow>
+                <DetailSectionRow
+                  icon={Layers}
+                  label="Competências avaliadas"
+                  below={
+                    !data?.competencies || data.competencies.length === 0 ? (
+                      '—'
+                    ) : (
+                      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+                        {data.competencies.map((c) => (
+                          <li key={c.id} className="flex items-center gap-2">
+                            <span
+                              aria-hidden
+                              className="h-1.5 w-1.5 shrink-0 rounded-full"
+                              style={{
+                                backgroundColor: 'var(--color-brand-ink)',
+                              }}
+                            />
+                            {c.competency?.name ?? '—'}
+                          </li>
+                        ))}
+                      </ul>
+                    )
+                  }
+                />
               </>
             )}
           </div>

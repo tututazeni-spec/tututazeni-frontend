@@ -140,30 +140,45 @@ export function DetailSectionRow({
   icon: Icon,
   label,
   children,
+  below,
 }: {
   icon: LucideIcon;
   label: string;
-  children: ReactNode;
+  children?: ReactNode;
+  /** Conteúdo por baixo do ícone, alinhado à esquerda (ex.: lista longa). */
+  below?: ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span
-        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: `color-mix(in srgb, ${DETAIL_LABEL} 10%, white)`,
-          color: DETAIL_LABEL,
-        }}
-      >
-        <Icon size={18} strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold" style={{ color: DETAIL_LABEL }}>
-          {label}
-        </div>
-        <div className="mt-0.5 text-sm" style={{ color: DETAIL_TEXT }}>
-          {children}
+    <div>
+      <div className="flex items-start gap-3">
+        <span
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: `color-mix(in srgb, ${DETAIL_LABEL} 10%, white)`,
+            color: DETAIL_LABEL,
+          }}
+        >
+          <Icon size={18} strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div
+            className="text-sm font-semibold"
+            style={{ color: DETAIL_LABEL }}
+          >
+            {label}
+          </div>
+          {children != null && (
+            <div className="mt-0.5 text-sm" style={{ color: DETAIL_TEXT }}>
+              {children}
+            </div>
+          )}
         </div>
       </div>
+      {below != null && (
+        <div className="mt-2 text-sm" style={{ color: DETAIL_TEXT }}>
+          {below}
+        </div>
+      )}
     </div>
   );
 }
