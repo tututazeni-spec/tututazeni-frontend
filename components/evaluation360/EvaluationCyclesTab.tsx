@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { cycleStatusDisplay } from './colors';
 import { CreateCycleModal } from './CreateCycleModal';
+import { CycleDetailModal } from './CycleDetailModal';
 import {
   useDepartmentOptions,
   useUnitOptions,
@@ -105,6 +106,10 @@ export function EvaluationCyclesTab() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
+  const [selected, setSelected] = useState<{
+    cycle: RawCycleRow;
+    index: number;
+  } | null>(null);
 
   const { options: departmentOptionsRaw } = useDepartmentOptions();
   const departmentOptions: SelectItemOption[] = [
@@ -366,12 +371,21 @@ export function EvaluationCyclesTab() {
                 <div>Criado em</div>
                 {canDeleteCycle && <div />}
               </div>
-              {cycles.map((c) => (
+              {cycles.map((c, idx) => (
                 <div
                   key={c.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelected({ cycle: c, index: idx })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelected({ cycle: c, index: idx });
+                    }
+                  }}
                   className={cn(
                     CYCLE_GRID,
-                    'border-b border-brand-line bg-surface py-3 font-body text-xs text-brand-muted last:border-0',
+                    'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-xs text-brand-muted last:border-0 hover:bg-surface-sunken',
                   )}
                 >
                   <div className="truncate text-sm font-semibold text-brand">
@@ -408,7 +422,10 @@ export function EvaluationCyclesTab() {
                         label={`Eliminar ciclo ${c.name}`}
                         intent="danger"
                         size="sm"
-                        onClick={() => handleDeleteCycle(c)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCycle(c);
+                        }}
                         disabled={deleteCycle.isPending}
                       />
                     </div>
@@ -418,6 +435,15 @@ export function EvaluationCyclesTab() {
             </div>
           </div>
         </div>
+      )}
+
+      {selected && (
+        <CycleDetailModal
+          cycle={selected.cycle}
+          // +1 salta a primeira cor (azul marinho)
+          colorIndex={selected.index + 1}
+          onClose={() => setSelected(null)}
+        />
       )}
 
       {cycleModalOpen && canCreateCycle && (
