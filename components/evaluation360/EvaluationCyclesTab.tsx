@@ -43,6 +43,7 @@ import {
   useUnitOptions,
   usePositionOptions,
 } from './cycleData';
+import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
@@ -64,6 +65,10 @@ interface RawCycleRow {
 }
 
 const ALL = 'ALL';
+
+// Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
+const CYCLE_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-2 px-4';
 
 const STATUS_OPTIONS: SelectItemOption[] = [
   { value: ALL, label: 'Todos os estados' },
@@ -340,59 +345,64 @@ export function EvaluationCyclesTab() {
       )}
 
       {cycles.length > 0 && (
-        <div className="rounded-card border border-border bg-surface overflow-x-auto">
-          <table className="w-full text-sm border-collapse min-w-[900px]">
-            <thead>
-              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
-                <th className="px-4 py-3">Nome</th>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Período</th>
-                <th className="px-4 py-3 text-right">Avaliados</th>
-                <th className="px-4 py-3 text-right">Avaliadores</th>
-                <th className="px-4 py-3 text-right">Participação</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Criado por</th>
-                <th className="px-4 py-3">Criado em</th>
-                {canDeleteCycle && <th className="px-4 py-3" />}
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div>
+            <div>
+              <div
+                className={cn(
+                  CYCLE_GRID,
+                  'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+                )}
+              >
+                <div>Nome</div>
+                <div>Código</div>
+                <div>Tipo</div>
+                <div>Período</div>
+                <div className="text-right">Avaliados</div>
+                <div className="text-right">Avaliadores</div>
+                <div className="text-right">Participação</div>
+                <div>Estado</div>
+                <div>Criado por</div>
+                <div>Criado em</div>
+                {canDeleteCycle && <div />}
+              </div>
               {cycles.map((c) => (
-                <tr key={c.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-semibold text-ink">{c.name}</td>
-                  <td className="px-4 py-3 text-ink-muted font-mono text-xs">
-                    {c.code}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
+                <div
+                  key={c.id}
+                  className={cn(
+                    CYCLE_GRID,
+                    'border-b border-brand-line bg-surface py-3 font-body text-xs text-brand-muted last:border-0',
+                  )}
+                >
+                  <div className="truncate text-sm font-semibold text-brand">
+                    {c.name}
+                  </div>
+                  <div className="truncate font-mono">{c.code}</div>
+                  <div className="truncate">
                     {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ??
                       c.type}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
+                  </div>
+                  <div className="break-words">
                     {c.startDate.slice(0, 10)} → {c.endDate.slice(0, 10)}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  </div>
+                  <div className="text-right text-brand">
                     {c._count.participants}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  </div>
+                  <div className="text-right text-brand">
                     {c.evaluatorsCount}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  </div>
+                  <div className="text-right text-brand">
                     {c.participationRate}%
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+                  </div>
+                  <div>
+                    <span className="inline-flex items-center rounded-full bg-surface-sunken px-2.5 py-0.5 font-body text-xs font-semibold text-ink">
                       {cycleStatusDisplay(c.status, c.startDate, c.endDate)}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {c.createdByName}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
-                    {c.createdAt.slice(0, 10)}
-                  </td>
+                  </div>
+                  <div className="truncate">{c.createdByName}</div>
+                  <div className="break-words">{c.createdAt.slice(0, 10)}</div>
                   {canDeleteCycle && (
-                    <td className="px-4 py-3">
+                    <div>
                       <IconButton
                         icon={Trash2}
                         label={`Eliminar ciclo ${c.name}`}
@@ -401,12 +411,12 @@ export function EvaluationCyclesTab() {
                         onClick={() => handleDeleteCycle(c)}
                         disabled={deleteCycle.isPending}
                       />
-                    </td>
+                    </div>
                   )}
-                </tr>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
       )}
 
