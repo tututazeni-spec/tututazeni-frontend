@@ -33,13 +33,15 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import {
   Briefcase,
   Building2,
-  CheckCircle2,
   Filter,
   Landmark,
   type LucideIcon,
-  Percent,
   Star,
   TrendingUp,
   Trophy,
@@ -375,17 +377,17 @@ export function RelatoriosTab() {
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Stat
+            <SpeedometerStatCard
               label="Taxa de participação"
-              icon={Percent}
-              tone="blue"
-              value={`${data.participationRate}%`}
+              value={data.participationRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.participationRate)}%`}
             />
-            <Stat
+            <SpeedometerStatCard
               label="Taxa de conclusão"
-              value={`${data.completionRate}%`}
-              icon={CheckCircle2}
-              tone="green"
+              value={data.completionRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.completionRate)}%`}
             />
           </div>
 
