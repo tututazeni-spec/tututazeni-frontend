@@ -197,12 +197,14 @@ export function OverviewAdminTab() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <SpeedometerStatCard
+          bare
           label="Taxa de participação"
           value={data.participationRate}
           bands={RATE_BANDS}
           display={`${Math.round(data.participationRate)}%`}
         />
         <SpeedometerStatCard
+          bare
           label="Taxa de conclusão"
           value={data.completionRate}
           bands={RATE_BANDS}

@@ -342,67 +342,87 @@ export function RelatoriosTab() {
       {data && (
         <>
           {/* Resultado geral 360° */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Stat
-              label="Avaliados"
-              value={data.overall.totalParticipants}
-              icon={Users}
-              tone="blue"
-            />
-            <Stat
-              label="Média geral"
-              icon={Star}
-              tone="orange"
-              value={
-                data.overall.avgOverall
-                  ? data.overall.avgOverall.toFixed(1)
-                  : '—'
-              }
-            />
-            <Stat
-              label="Média ponderada"
-              icon={TrendingUp}
-              tone="green"
-              value={
-                data.overall.avgWeighted
-                  ? data.overall.avgWeighted.toFixed(1)
-                  : '—'
-              }
-            />
-            <Stat
-              label="Elegíveis a promoção"
-              icon={Trophy}
-              tone="blue"
-              value={data.overall.eligiblePromotion}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <SpeedometerStatCard
-              label="Taxa de participação"
-              value={data.participationRate}
-              bands={RATE_BANDS}
-              display={`${Math.round(data.participationRate)}%`}
-            />
-            <SpeedometerStatCard
-              label="Taxa de conclusão"
-              value={data.completionRate}
-              bands={RATE_BANDS}
-              display={`${Math.round(data.completionRate)}%`}
-            />
+          <div className="grid grid-cols-1 items-center gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-2 gap-4">
+              <Stat
+                label="Avaliados"
+                value={data.overall.totalParticipants}
+                icon={Users}
+                tone="blue"
+              />
+              <Stat
+                label="Média geral"
+                icon={Star}
+                tone="orange"
+                value={
+                  data.overall.avgOverall
+                    ? data.overall.avgOverall.toFixed(1)
+                    : '—'
+                }
+              />
+              <Stat
+                label="Média ponderada"
+                icon={TrendingUp}
+                tone="green"
+                value={
+                  data.overall.avgWeighted
+                    ? data.overall.avgWeighted.toFixed(1)
+                    : '—'
+                }
+              />
+              <Stat
+                label="Elegíveis a promoção"
+                icon={Trophy}
+                tone="blue"
+                value={data.overall.eligiblePromotion}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <SpeedometerStatCard
+                bare
+                label="Taxa de participação"
+                value={data.participationRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.participationRate)}%`}
+              />
+              <SpeedometerStatCard
+                bare
+                label="Taxa de conclusão"
+                value={data.completionRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.completionRate)}%`}
+              />
+            </div>
           </div>
 
-          {/* Resultados por competência */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Resultados por competência
-            </h3>
-            <BarList
-              items={data.byCompetency.map((c) => ({
-                key: c.competencyId,
-                label: c.name,
-                average: c.average,
-              }))}
-            />
+          {/* Resultados por competência + por grupo de avaliadores */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5 lg:col-span-2">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+                Resultados por competência
+              </h3>
+              <BarList
+                items={data.byCompetency.map((c) => ({
+                  key: c.competencyId,
+                  label: c.name,
+                  average: c.average,
+                }))}
+              />
+            </div>
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+                Resultados por grupo de avaliadores
+              </h3>
+              <BarList
+                items={Object.entries(data.byEvaluatorGroup)
+                  .filter(([, v]) => v !== null)
+                  .map(([k, v]) => ({
+                    key: k,
+                    label: EVALUATOR_GROUP_LABEL[k] ?? k,
+                    average: v as number,
+                  }))}
+              />
+            </div>
           </div>
 
           {/* Resultados por departamento / cargo / unidade */}
@@ -445,22 +465,6 @@ export function RelatoriosTab() {
             </div>
           </div>
 
-          {/* Por grupo de avaliadores */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Resultados por grupo de avaliadores
-            </h3>
-            <BarList
-              items={Object.entries(data.byEvaluatorGroup)
-                .filter(([, v]) => v !== null)
-                .map(([k, v]) => ({
-                  key: k,
-                  label: EVALUATOR_GROUP_LABEL[k] ?? k,
-                  average: v as number,
-                }))}
-            />
-          </div>
-
           {/* Comparações */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <ComparisonStat
@@ -484,7 +488,7 @@ export function RelatoriosTab() {
           </div>
 
           {/* Pontos fortes / gaps */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
               <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
                 Principais pontos fortes
@@ -533,36 +537,36 @@ export function RelatoriosTab() {
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Competências críticas */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Competências críticas (abaixo do nível esperado)
-            </h3>
-            {data.criticalCompetencies.length === 0 && (
-              <EmptyState
-                variant="inline"
-                title="Nenhuma competência abaixo do nível esperado"
-              />
-            )}
-            {data.criticalCompetencies.map((c) => (
-              <div
-                key={c.competencyId}
-                className="flex justify-between items-center mb-2.5 text-sm"
-              >
-                <span className="font-semibold text-ink">{c.name}</span>
-                <span className="text-ink-muted">
-                  {c.average.toFixed(1)} / esperado {fmt(c.expectedLevel)}
-                  <span
-                    className="ml-2 font-bold"
-                    style={{ color: 'rgb(239, 68, 68)' }}
-                  >
-                    {c.gapToExpected?.toFixed(1)}
+            {/* Competências críticas */}
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+                Competências críticas (abaixo do nível esperado)
+              </h3>
+              {data.criticalCompetencies.length === 0 && (
+                <EmptyState
+                  variant="inline"
+                  title="Nenhuma competência abaixo do nível esperado"
+                />
+              )}
+              {data.criticalCompetencies.map((c) => (
+                <div
+                  key={c.competencyId}
+                  className="flex justify-between items-center mb-2.5 text-sm"
+                >
+                  <span className="font-semibold text-ink">{c.name}</span>
+                  <span className="text-ink-muted">
+                    {c.average.toFixed(1)} / esperado {fmt(c.expectedLevel)}
+                    <span
+                      className="ml-2 font-bold"
+                      style={{ color: 'rgb(239, 68, 68)' }}
+                    >
+                      {c.gapToExpected?.toFixed(1)}
+                    </span>
                   </span>
-                </span>
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Avaliadores pendentes */}

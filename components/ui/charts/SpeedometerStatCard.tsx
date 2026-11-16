@@ -37,6 +37,8 @@ export interface SpeedometerStatCardProps {
   bands: { to: number; color: string }[];
   display: string;
   caption?: string;
+  /** sem o quadrado do card: só título e velocímetro sobre o fundo da página */
+  bare?: boolean;
 }
 
 export function SpeedometerStatCard({
@@ -46,9 +48,10 @@ export function SpeedometerStatCard({
   bands,
   display,
   caption,
+  bare,
 }: SpeedometerStatCardProps) {
-  return (
-    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+  const content = (
+    <>
       <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
         {label}
       </h3>
@@ -61,6 +64,18 @@ export function SpeedometerStatCard({
         display={display}
         label={caption}
       />
+    </>
+  );
+  if (bare) {
+    return (
+      <div className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4">
+        {content}
+      </div>
+    );
+  }
+  return (
+    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+      {content}
     </Card>
   );
 }
