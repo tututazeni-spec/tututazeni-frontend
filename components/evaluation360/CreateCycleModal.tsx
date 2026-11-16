@@ -73,6 +73,27 @@ const TYPE_ITEMS = Object.entries(TYPE_LABEL).map(([value, label]) => ({
   label,
 }));
 
+// Duração em meses das periodicidades fixas; PROJECT/CUSTOM não têm duração
+// conhecida, por isso a data de fim fica a cargo do utilizador.
+const TYPE_MONTHS: Record<string, number> = {
+  TRIMESTRAL: 3,
+  SEMESTRAL: 6,
+  ANUAL: 12,
+};
+
+// Fim = início + N meses − 1 dia (ex.: 01/01 + 3 meses → 31/03). Aritmética
+// em partes numéricas para evitar desvios de fuso horário.
+function computeEndDate(start: string, type: string): string {
+  const months = TYPE_MONTHS[type];
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(start);
+  if (!months || !m) return '';
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const lastDayOfTarget = new Date(Date.UTC(y, mo - 1 + months + 1, 0));
+  const day = Math.min(d, lastDayOfTarget.getUTCDate());
+  const end = new Date(Date.UTC(y, mo - 1 + months, day - 1));
+  return end.toISOString().slice(0, 10);
+}
+
 // Espelha o enum EvaluatorRole do backend. Pesos por omissão pedidos: 10%
 // autoavaliação, 30% gestor directo, 20% pares (mesma função), 40%
 // equipa/subordinados — soma 100.
@@ -337,7 +358,11 @@ export function CreateCycleModal({
             <Select
               items={TYPE_ITEMS}
               value={form.type || undefined}
-              onValueChange={(v) => setField('type', v)}
+              onValueChange={(v) => {
+                setField('type', v);
+                const end = computeEndDate(form.startDate, v);
+                if (end) setField('endDate', end);
+              }}
               className="w-full"
               placeholder="Selecionar periodicidade"
             />
@@ -349,7 +374,11 @@ export function CreateCycleModal({
                 id="cyc-start"
                 type="date"
                 value={form.startDate}
-                onChange={(e) => setField('startDate', e.target.value)}
+                onChange={(e) => {
+                  setField('startDate', e.target.value);
+                  const end = computeEndDate(e.target.value, form.type);
+                  if (end) setField('endDate', end);
+                }}
                 className="w-full"
               />
             </FormField>
