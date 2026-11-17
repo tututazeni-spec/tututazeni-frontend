@@ -59,7 +59,8 @@ import {
   TASK_STATUS_CFG,
 } from './constants';
 import { DocumentLink } from './DocumentLink';
-import { TeamMemberCard } from './TeamMemberCard';
+import { AssignTeamMemberModal } from './AssignTeamMemberModal';
+import { TeamMemberCard, type TeamRole } from './TeamMemberCard';
 import type {
   DocStatus,
   OnboardingPlanDetail,
@@ -93,6 +94,11 @@ export function PlanDetailModal({
   // Painel de rejeição de documento (id do documento) + motivo.
   const [docReject, setDocReject] = useState<number | null>(null);
   const [docReason, setDocReason] = useState('');
+  const [assigning, setAssigning] = useState<{
+    role: TeamRole;
+    label: string;
+    hasPerson: boolean;
+  } | null>(null);
 
   const { data, isLoading, error } = useApiQuery<OnboardingPlanDetail>(
     queryKeys.onboarding.plan(planId),
@@ -232,9 +238,20 @@ export function PlanDetailModal({
 
   const team = data
     ? [
-        { label: 'Gestor directo', person: data.manager, icon: User },
-        { label: 'Buddy / Mentor', person: data.buddy, icon: Users },
         {
+          role: 'manager' as const,
+          label: 'Gestor directo',
+          person: data.manager,
+          icon: User,
+        },
+        {
+          role: 'buddy' as const,
+          label: 'Buddy / Mentor',
+          person: data.buddy,
+          icon: Users,
+        },
+        {
+          role: 'hr' as const,
           label: 'RH responsável',
           person: data.hrResponsible,
           icon: ShieldCheck,
@@ -341,13 +358,18 @@ export function PlanDetailModal({
 
             {/* Equipa de apoio */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {team.map(({ label, person, icon }) => (
+              {team.map(({ role, label, person, icon }) => (
                 <TeamMemberCard
                   key={label}
                   label={label}
                   person={person}
                   icon={icon}
                   mailSubject={`Onboarding — ${data.user.fullName}`}
+                  onAssign={
+                    canManagePlan
+                      ? () => setAssigning({ role, label, hasPerson: !!person })
+                      : undefined
+                  }
                 />
               ))}
             </div>
@@ -713,6 +735,15 @@ export function PlanDetailModal({
           </Button>
         </div>
       </ModalContent>
+      {assigning && (
+        <AssignTeamMemberModal
+          planId={planId}
+          role={assigning.role}
+          label={assigning.label}
+          hasPerson={assigning.hasPerson}
+          onClose={() => setAssigning(null)}
+        />
+      )}
     </Modal>
   );
 }

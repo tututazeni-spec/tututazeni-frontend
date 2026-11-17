@@ -229,7 +229,7 @@ export function CheckinsTab() {
               <StatusBadge
                 value={c.status}
                 map={CHECKIN_STATUS_CFG}
-                className="!bg-transparent !px-0"
+                className="!bg-transparent !px-0 !text-ink"
               />
             </button>
           ))}

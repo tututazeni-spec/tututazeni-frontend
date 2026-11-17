@@ -46,7 +46,8 @@ import {
 import { DocumentLink } from './DocumentLink';
 import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 import { TaskCard } from './TaskCard';
-import { TeamMemberCard } from './TeamMemberCard';
+import { AssignTeamMemberModal } from './AssignTeamMemberModal';
+import { TeamMemberCard, type TeamRole } from './TeamMemberCard';
 import {
   availableSurveyMilestones,
   nextLockedSurveyMilestone,
@@ -99,6 +100,13 @@ function paceLabel(pct: number): string {
 export function MyPlanView() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
+  const [assigning, setAssigning] = useState<{
+    role: TeamRole;
+    label: string;
+    hasPerson: boolean;
+  } | null>(null);
+  // PATCH /onboarding/:id/team é só ADMIN/RH.
+  const canAssignTeam = me?.role?.code === 'ADMIN' || me?.role?.code === 'RH';
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   // Marco escolhido no Select; '' = usar o mais recente disponível.
@@ -369,24 +377,49 @@ export function MyPlanView() {
         <SectionCard title="Equipa de apoio">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {[
-              { label: 'Gestor directo', person: plan.manager, icon: User },
-              { label: 'Buddy / Mentor', person: plan.buddy, icon: Users },
               {
+                role: 'manager' as const,
+                label: 'Gestor directo',
+                person: plan.manager,
+                icon: User,
+              },
+              {
+                role: 'buddy' as const,
+                label: 'Buddy / Mentor',
+                person: plan.buddy,
+                icon: Users,
+              },
+              {
+                role: 'hr' as const,
                 label: 'RH responsável',
                 person: plan.hrResponsible,
                 icon: ShieldCheck,
               },
-            ].map(({ label, person, icon }) => (
+            ].map(({ role, label, person, icon }) => (
               <TeamMemberCard
                 key={label}
                 label={label}
                 person={person}
                 icon={icon}
                 mailSubject={`Onboarding — ${plan.template.name}`}
+                onAssign={
+                  canAssignTeam
+                    ? () => setAssigning({ role, label, hasPerson: !!person })
+                    : undefined
+                }
               />
             ))}
           </div>
         </SectionCard>
+      )}
+      {assigning && (
+        <AssignTeamMemberModal
+          planId={plan.id}
+          role={assigning.role}
+          label={assigning.label}
+          hasPerson={assigning.hasPerson}
+          onClose={() => setAssigning(null)}
+        />
       )}
 
       {/* Pesquisa de feedback */}
