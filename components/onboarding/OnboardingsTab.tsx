@@ -35,6 +35,7 @@ import {
 } from './planData';
 import type { OnboardingPlanListItem } from './types';
 import { Input } from '@/components/ui/Input';
+import { cn } from '@/lib/cn';
 import {
   Briefcase,
   Building2,
@@ -48,6 +49,10 @@ interface Paginated {
   data: OnboardingPlanListItem[];
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
+
+// Mesma grelha no cabeçalho e nas linhas (desenho da lista de Avaliados, evaluation360).
+const PLAN_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,0.6fr)_minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,1fr)] items-center gap-x-6 px-4';
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -217,47 +222,77 @@ export function OnboardingsTab({
           description="Nenhum processo de integração corresponde aos filtros."
         />
       ) : (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div
+            className={cn(
+              PLAN_GRID,
+              'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+            )}
+          >
+            <div>Colaborador</div>
+            <div>Cargo</div>
+            <div>Departamento</div>
+            <div>Plano</div>
+            <div className="text-right">Tarefas</div>
+            <div className="text-right">Docs</div>
+            <div className="text-right">Progresso</div>
+            <div>Período</div>
+            <div>Estado</div>
+          </div>
           {data.data.map((plan) => (
-            <button
+            <div
               key={plan.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => setDetailId(plan.id)}
-              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setDetailId(plan.id);
+                }
+              }}
+              className={cn(
+                PLAN_GRID,
+                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+              )}
             >
-              <Avatar
-                name={plan.user.fullName}
-                url={plan.user.avatarUrl ?? undefined}
-                size="md"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
-                  {plan.user.fullName}
+              <div className="flex min-w-0 items-center gap-2.5">
+                <Avatar
+                  name={plan.user.fullName}
+                  url={plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0">
+                  <div className="break-words font-semibold text-ink">
+                    {plan.user.fullName}
+                  </div>
                   {plan.user.employeeNumber && (
-                    <span className="ml-1.5 font-mono text-xs text-ink-faint">
-                      #{plan.user.employeeNumber}
-                    </span>
+                    <div className="text-xs text-ink-muted">
+                      Nº {plan.user.employeeNumber}
+                    </div>
                   )}
                 </div>
-                <div className="truncate font-body text-xs text-ink-faint">
-                  {plan.user.position?.name ?? plan.user.email}
-                  {plan.user.department &&
-                    ` · ${plan.user.department.name}`} · {plan.template.name}
-                </div>
               </div>
-              <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
-                {plan._count.taskInstances} tarefas · {plan._count.documents}{' '}
-                docs
+              <div className="break-words">
+                {plan.user.position?.name ?? plan.user.email}
               </div>
-              <div className="w-12 shrink-0 text-right font-mono text-xs text-ink-faint">
-                {plan.progress}%
+              <div className="break-words">
+                {plan.user.department?.name ?? '—'}
               </div>
-              <div className="shrink-0 font-body text-xs text-ink-faint">
+              <div className="break-words">{plan.template.name}</div>
+              <div className="text-right text-ink">
+                {plan._count.taskInstances}
+              </div>
+              <div className="text-right text-ink">{plan._count.documents}</div>
+              <div className="text-right text-ink">{plan.progress}%</div>
+              <div className="break-words">
                 {fmtDate(plan.startDate)}
                 {plan.expectedEndDate && ` → ${fmtDate(plan.expectedEndDate)}`}
               </div>
-              <StatusBadge value={plan.status} map={STATUS_CFG} />
-            </button>
+              <div>
+                <StatusBadge value={plan.status} map={STATUS_CFG} />
+              </div>
+            </div>
           ))}
         </div>
       )}

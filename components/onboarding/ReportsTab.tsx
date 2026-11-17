@@ -56,8 +56,8 @@ function RankedList({
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 8);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
         {title}
       </div>
       <div className="p-4">

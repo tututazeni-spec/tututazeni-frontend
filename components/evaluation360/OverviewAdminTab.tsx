@@ -219,8 +219,8 @@ export function OverviewAdminTab() {
       </div>
 
       {/* Média por competência (docs/evaluation360.md §1) — todas, não só top/bottom */}
-      <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-        <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
           Média por competência
         </h3>
         {data.competencyAverages.length === 0 && (
@@ -254,8 +254,8 @@ export function OverviewAdminTab() {
 
       {/* Competências */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Competências com maior pontuação
           </h3>
           {data.topCompetencies.length === 0 && (
@@ -276,8 +276,8 @@ export function OverviewAdminTab() {
             </div>
           ))}
         </div>
-        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Competências com menor pontuação
           </h3>
           {data.bottomCompetencies.length === 0 && (
@@ -302,8 +302,8 @@ export function OverviewAdminTab() {
 
       {/* Prazos e últimas avaliações */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Avaliações próximas do prazo (7 dias)
           </h3>
           {data.upcomingDeadline.length === 0 && (
@@ -324,8 +324,8 @@ export function OverviewAdminTab() {
             </div>
           ))}
         </div>
-        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Últimas avaliações realizadas
           </h3>
           {data.recentCompleted.length === 0 && (

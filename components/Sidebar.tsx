@@ -109,7 +109,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Competências',
       },
       { href: '/evaluation360', icon: MessageSquare, label: 'Avaliação 360°' },
-      { href: '/onboarding', icon: UserPlus, label: 'Onboarding - Integração' },
+      { href: '/onboarding', icon: UserPlus, label: 'Integração de Novos Colaboradores' },
       {
         // Módulo "Folha de Pagamento" único: integra Recibos Salariais
         // (ex-/payslips) como separadores da mesma página. Ver

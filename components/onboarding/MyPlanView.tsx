@@ -80,8 +80,8 @@ function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h4 className="-mx-5 -mt-5 mb-4 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <h4 className="-mx-5 -mt-5 mb-4 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
         {title}
       </h4>
       {children}
@@ -287,7 +287,9 @@ export function MyPlanView() {
           <p className="m-0 text-xs text-on-brand-muted">Progresso do plano</p>
           <div className="flex items-center gap-3">
             <ProgressBar value={pct} color="#3B82F6" className="flex-1" />
-            <span className="text-xs tabular-nums text-on-brand-muted">{pct}%</span>
+            <span className="text-xs tabular-nums text-on-brand-muted">
+              {pct}%
+            </span>
           </div>
         </div>
       </div>
@@ -539,8 +541,8 @@ export function MyPlanView() {
                 </CardBody>
               </Card>
             ) : (
-              <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-                <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+                <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                   Pesquisas de satisfação
                 </h3>
                 {answeredCount >= SURVEY_MILESTONES.length

@@ -124,8 +124,8 @@ interface ComparisonStatProps {
 
 function ComparisonStat({ title, labelA, labelB, cmp }: ComparisonStatProps) {
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
         {title}
       </h3>
       <div className="flex items-center justify-between text-sm">
@@ -330,8 +330,8 @@ export function RelatoriosTab() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Relatórios
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -397,8 +397,8 @@ export function RelatoriosTab() {
 
           {/* Resultados por competência + por grupo de avaliadores */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5 lg:col-span-2">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] lg:col-span-2">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Resultados por competência
               </h3>
               <BarList
@@ -409,8 +409,8 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Resultados por grupo de avaliadores
               </h3>
               <BarList
@@ -427,8 +427,8 @@ export function RelatoriosTab() {
 
           {/* Resultados por departamento / cargo / unidade */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por departamento
               </h3>
               <BarList
@@ -439,8 +439,8 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por cargo
               </h3>
               <BarList
@@ -451,8 +451,8 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por unidade
               </h3>
               <BarList
@@ -489,8 +489,8 @@ export function RelatoriosTab() {
 
           {/* Pontos fortes / gaps */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Principais pontos fortes
               </h3>
               {data.topStrengths.length === 0 && (
@@ -513,8 +513,8 @@ export function RelatoriosTab() {
                 </div>
               ))}
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Principais lacunas
               </h3>
               {data.topGaps.length === 0 && (
@@ -539,8 +539,8 @@ export function RelatoriosTab() {
             </div>
 
             {/* Competências críticas */}
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Competências críticas (abaixo do nível esperado)
               </h3>
               {data.criticalCompetencies.length === 0 && (
@@ -687,8 +687,8 @@ function CycleEvolutionSection({
 
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && points.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Relatórios
           </h3>
           Sem ciclos para comparar.
