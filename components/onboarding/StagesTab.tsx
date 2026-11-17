@@ -100,13 +100,14 @@ export function StagesTab() {
             {stages.map((s) => (
               <div
                 key={s.phase}
-                className="rounded-card border border-border bg-surface p-4"
+                className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-body text-sm font-semibold text-ink">
+                {/* Mesmo desenho da lista de colaboradores (Visão Geral). */}
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-brand-dark px-5 py-3 text-white">
+                  <h3 className="font-body text-xs font-semibold uppercase tracking-wider">
                     {PHASE_LABELS[s.phase]}
                   </h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 font-body text-xs text-ink-faint">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 font-body text-xs text-white/80">
                     <span>
                       {s.taskCount} tarefas ({s.mandatoryCount} obrigatórias)
                     </span>
@@ -125,25 +126,29 @@ export function StagesTab() {
                     )}
                   </div>
                 </div>
-                <ul className="mt-3 space-y-1.5">
+                <ul>
                   {s.tasks.map((t) => {
                     const catCfg = CATEGORY_CFG[t.category];
                     const CatIcon = catCfg?.icon;
                     return (
                       <li
                         key={t.id}
-                        className="flex items-center gap-2 font-body text-xs text-ink-muted"
+                        className="flex items-center gap-2.5 border-b border-brand-line bg-surface px-5 py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken"
                       >
-                        <span>
+                        <span className="shrink-0">
                           {CatIcon ? (
-                            <CatIcon size={13} strokeWidth={1.75} />
+                            <CatIcon size={14} strokeWidth={1.75} />
                           ) : (
                             '•'
                           )}
                         </span>
-                        <span className="truncate">{t.title}</span>
+                        <span className="truncate font-semibold text-ink">
+                          {t.title}
+                        </span>
                         {!t.isMandatory && (
-                          <span className="text-ink-faint">(opcional)</span>
+                          <span className="text-xs text-ink-faint">
+                            (opcional)
+                          </span>
                         )}
                       </li>
                     );

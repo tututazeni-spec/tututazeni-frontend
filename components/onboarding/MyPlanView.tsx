@@ -13,25 +13,25 @@
 
 import { useState, type ReactNode } from 'react';
 import {
-  CalendarDays,
   ClipboardList,
   Clapperboard,
-  Clock,
-  ListChecks,
+  ShieldCheck,
+  User,
+  Users,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Metric } from '@/components/courses/CourseListCard';
+import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -46,6 +46,7 @@ import {
 import { DocumentLink } from './DocumentLink';
 import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 import { TaskCard } from './TaskCard';
+import { TeamMemberCard } from './TeamMemberCard';
 import {
   availableSurveyMilestones,
   nextLockedSurveyMilestone,
@@ -97,6 +98,7 @@ function paceLabel(pct: number): string {
 
 export function MyPlanView() {
   const notify = useToast();
+  const { data: me } = useCurrentUser();
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   // Marco escolhido no Select; '' = usar o mais recente disponível.
@@ -182,6 +184,8 @@ export function MyPlanView() {
 
   const plan = plans[0];
   const pct = plan.progress ?? 0;
+  // /onboarding/my não devolve `user` — o plano é sempre o do próprio.
+  const owner = plan.user ?? me;
 
   // Calcular tarefas por fase
   const tasksByPhase: Record<string, TaskInstance[]> = {};
@@ -233,66 +237,26 @@ export function MyPlanView() {
         </div>
       )}
 
-      {/* Header — mesmo desenho do cartão de inscrições (CourseListCard) */}
-      <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-        <div
-          aria-hidden
-          className="absolute -right-10 -top-8 h-[260px] w-[42%] rotate-6 rounded-[48px] opacity-80"
-          style={{ background: '#0B3A75' }}
-        />
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[240px] w-[38%] items-center justify-center rounded-bl-[56px] rounded-tl-[48px] bg-white/10 sm:flex"
-        >
-          <div className="text-center">
-            <div className="font-mono text-5xl font-bold">{pct}%</div>
-            <div className="mt-1 text-xs text-on-brand-muted">
-              {plan.completedTasks}/{plan.totalTasks} tarefas
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 px-6 pt-5 sm:w-[60%]">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
-              <ClipboardList size={20} strokeWidth={1.75} />
-            </span>
-            <span className="text-sm font-medium">Plano de integração</span>
-          </div>
-          <h3 className="m-0 pt-5 font-body text-3xl font-extrabold uppercase leading-tight tracking-wide">
-            {plan.template.name}
-          </h3>
-          <p className="m-0 pt-2 text-sm text-on-brand-muted">
-            Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
-            dias
-          </p>
-        </div>
-
-        <div className="relative z-10 flex min-h-[28px] flex-wrap items-center gap-2 px-6 pt-4">
-          <Badge intent={pct >= 100 ? 'success' : 'info'}>
-            {paceLabel(pct)}
-          </Badge>
-        </div>
-
-        <div className="relative z-10 mx-6 mt-4 grid grid-cols-1 gap-3 rounded-panel bg-white/10 px-4 py-3 sm:grid-cols-3">
-          <Metric icon={CalendarDays}>{fmtDate(plan.startDate)}</Metric>
-          <Metric icon={Clock}>{plan.template.durationDays} dias</Metric>
-          <Metric icon={ListChecks}>
-            {plan.completedTasks}/{plan.totalTasks} tarefas
-            {plan.xpEarned > 0 && ` · ${plan.xpEarned} XP`}
-          </Metric>
-        </div>
-
-        <div className="relative z-10 m-4 mt-3 space-y-2 rounded-panel bg-white/10 px-4 py-3">
-          <p className="m-0 text-xs text-on-brand-muted">Progresso do plano</p>
-          <div className="flex items-center gap-3">
-            <ProgressBar value={pct} color="#3B82F6" className="flex-1" />
-            <span className="text-xs tabular-nums text-on-brand-muted">
-              {pct}%
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Header — mesmo desenho do cartão da Visão Geral do evaluation360 */}
+      <ProfileRoiCard
+        kicker="Plano de integração"
+        kickerIcon={ClipboardList}
+        name={owner?.fullName ?? '—'}
+        avatarUrl={owner?.avatarUrl}
+        subtitle={plan.template.name}
+        stats={[
+          { label: 'Cargo', value: owner?.position?.name || '—' },
+          { label: 'Departamento', value: owner?.department?.name || '—' },
+          { label: 'Início', value: fmtDate(plan.startDate) },
+          {
+            label: 'Tarefas',
+            value: `${plan.completedTasks ?? 0}/${plan.totalTasks ?? 0}`,
+          },
+        ]}
+        note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias${
+          plan.xpEarned > 0 ? ` · ${plan.xpEarned} XP` : ''
+        }`}
+      />
 
       {/* Tabs */}
       <PeriodPills
@@ -403,49 +367,23 @@ export function MyPlanView() {
       {/* Equipa de apoio */}
       {activeTab === 'team' && (
         <SectionCard title="Equipa de apoio">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {[
-              { label: 'Gestor directo', person: plan.manager },
-              { label: 'Amigável / Mentor', person: plan.buddy },
-              { label: 'RH Responsável', person: plan.hrResponsible },
-            ].map(({ label, person }) => (
-              <Card
+              { label: 'Gestor directo', person: plan.manager, icon: User },
+              { label: 'Buddy / Mentor', person: plan.buddy, icon: Users },
+              {
+                label: 'RH responsável',
+                person: plan.hrResponsible,
+                icon: ShieldCheck,
+              },
+            ].map(({ label, person, icon }) => (
+              <TeamMemberCard
                 key={label}
-                className="overflow-hidden rounded-panel border-0 bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-5 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
-              >
-                <div className="text-sm text-on-brand-muted mb-3">{label}</div>
-                {person ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <Avatar
-                      name={person.fullName}
-                      url={person.avatarUrl ?? undefined}
-                      size="lg"
-                    />
-                    <div className="text-sm text-on-brand-muted">
-                      {person.fullName}
-                    </div>
-                    {person.position && (
-                      <div className="text-sm text-on-brand-muted">
-                        {person.position.name}
-                      </div>
-                    )}
-                    {person.email && (
-                      <a
-                        href={`mailto:${person.email}?subject=${encodeURIComponent(
-                          `Onboarding — ${plan.template.name}`,
-                        )}`}
-                        className="text-sm text-on-brand-muted underline-offset-2 hover:underline mt-1"
-                      >
-                        Enviar mensagem
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-sm text-on-brand-muted mt-4">
-                    Não atribuído
-                  </div>
-                )}
-              </Card>
+                label={label}
+                person={person}
+                icon={icon}
+                mailSubject={`Onboarding — ${plan.template.name}`}
+              />
             ))}
           </div>
         </SectionCard>

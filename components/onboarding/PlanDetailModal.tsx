@@ -59,6 +59,7 @@ import {
   TASK_STATUS_CFG,
 } from './constants';
 import { DocumentLink } from './DocumentLink';
+import { TeamMemberCard } from './TeamMemberCard';
 import type {
   DocStatus,
   OnboardingPlanDetail,
@@ -340,42 +341,14 @@ export function PlanDetailModal({
 
             {/* Equipa de apoio */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {team.map(({ label, person, icon: TeamIcon }) => (
-                <div
+              {team.map(({ label, person, icon }) => (
+                <TeamMemberCard
                   key={label}
-                  className="flex items-center gap-3 rounded-[20px] border border-brand-line bg-surface-sunken p-3 shadow-[0_6px_18px_rgba(21,47,89,0.08)]"
-                >
-                  {person ? (
-                    <Avatar
-                      name={person.fullName}
-                      url={person.avatarUrl ?? undefined}
-                      size="md"
-                      className="!h-11 !w-11 shrink-0"
-                    />
-                  ) : (
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white">
-                      <TeamIcon size={20} strokeWidth={1.75} />
-                    </span>
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-body text-sm font-bold text-brand-dark">
-                      {label}
-                    </div>
-                    <div className="break-words font-body text-sm text-ink">
-                      {person ? person.fullName : 'Não atribuído'}
-                    </div>
-                    {person?.email && (
-                      <a
-                        href={`mailto:${person.email}?subject=${encodeURIComponent(
-                          `Onboarding — ${data.user.fullName}`,
-                        )}`}
-                        className="font-body text-xs text-primary underline-offset-2 hover:underline"
-                      >
-                        Enviar mensagem
-                      </a>
-                    )}
-                  </div>
-                </div>
+                  label={label}
+                  person={person}
+                  icon={icon}
+                  mailSubject={`Onboarding — ${data.user.fullName}`}
+                />
               ))}
             </div>
 
