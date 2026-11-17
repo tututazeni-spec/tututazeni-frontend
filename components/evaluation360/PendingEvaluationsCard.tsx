@@ -112,7 +112,17 @@ export function PendingEvaluationsCard({
         <EvaluationFormTab
           questions={(formData?.questions ?? []).map(toQuestion)}
           participantName={
-            selected.role === 'SELF' ? 'Eu' : selected.evaluateeName
+            selected.role === 'SELF'
+              ? (me?.fullName ?? 'Eu')
+              : selected.evaluateeName
+          }
+          participantAvatarUrl={
+            selected.role === 'SELF'
+              ? me?.avatarUrl
+              : selected.evaluateeAvatarUrl
+          }
+          participantDepartment={
+            selected.role === 'SELF' ? null : selected.evaluateeDepartment
           }
           evaluatorRole={selected.role}
           cycleId={cycleId}
