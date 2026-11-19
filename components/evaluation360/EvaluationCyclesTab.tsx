@@ -69,7 +69,7 @@ const ALL = 'ALL';
 
 // Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
 const CYCLE_GRID =
-  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-x-8 px-4';
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-x-8 px-4';
 
 const STATUS_OPTIONS: SelectItemOption[] = [
   { value: ALL, label: 'Todos os estados' },
@@ -360,7 +360,6 @@ export function EvaluationCyclesTab() {
                 )}
               >
                 <div>Nome</div>
-                <div>Código</div>
                 <div>Tipo</div>
                 <div>Período</div>
                 <div className="text-right">Avaliados</div>
@@ -391,7 +390,6 @@ export function EvaluationCyclesTab() {
                   <div className="break-words font-semibold text-ink">
                     {c.name}
                   </div>
-                  <div className="break-words">{c.code}</div>
                   <div className="break-words">
                     {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ??
                       c.type}
