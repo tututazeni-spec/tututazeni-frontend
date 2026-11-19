@@ -45,6 +45,7 @@ import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
 import { useDepartmentOptions } from './cycleData';
+import type { QuestionnaireListItem } from './types';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -194,6 +195,38 @@ export function CreateCycleModal({
     Record<number, { weight: string; isRequired: boolean }>
   >({});
 
+  // Questionário (docs/evaluation360.md §6): quando escolhido, o backend
+  // semeia competências + perguntas do ciclo a partir dele e ignora as
+  // competências avulsas/padrão. Só os publicados são oferecidos.
+  const NO_QUESTIONNAIRE = 'NONE';
+  const [questionnaireId, setQuestionnaireId] = useState(NO_QUESTIONNAIRE);
+  const usingQuestionnaire = questionnaireId !== NO_QUESTIONNAIRE;
+  const { data: questionnairesData } = useApiQuery<{
+    data: QuestionnaireListItem[];
+    total: number;
+  }>(
+    queryKeys.evaluation360.questionnaires({
+      tenantId: 'default',
+      limit: '100',
+      status: 'PUBLISHED',
+    }),
+    '/evaluation360/questionnaires',
+    {
+      params: { tenantId: 'default', limit: '100', status: 'PUBLISHED' },
+      staleTime: STALE_TIME.DYNAMIC,
+    },
+  );
+  const questionnaireItems = [
+    {
+      value: NO_QUESTIONNAIRE,
+      label: 'Nenhum — usar as competências-padrão da INNOVA',
+    },
+    ...(questionnairesData?.data ?? []).map((q) => ({
+      value: q.id,
+      label: `${q.name} (${q.questionCount} perguntas)`,
+    })),
+  ];
+
   const { data: competencyCatalogue, isLoading: competenciesLoading } =
     useApiQuery<CompetencyOption[]>(
       queryKeys.evaluation360.competencies(),
@@ -264,7 +297,10 @@ export function CreateCycleModal({
           ...(form.description.trim()
             ? { description: form.description.trim() }
             : {}),
-          ...(useCustomCompetencies && selectedCompetencyIds.length > 0
+          ...(usingQuestionnaire ? { questionnaireId } : {}),
+          ...(!usingQuestionnaire &&
+          useCustomCompetencies &&
+          selectedCompetencyIds.length > 0
             ? {
                 competencies: selectedCompetencyIds.map((id, order) => ({
                   competencyId: String(id),
@@ -316,7 +352,11 @@ export function CreateCycleModal({
       return 'Escolhe pelo menos um departamento a avaliar.';
     if (weightTotal !== 100)
       return `Os pesos por papel têm de somar 100 (soma actual: ${weightTotal}).`;
-    if (useCustomCompetencies && selectedCompetencyIds.length === 0)
+    if (
+      !usingQuestionnaire &&
+      useCustomCompetencies &&
+      selectedCompetencyIds.length === 0
+    )
       return 'Escolhe pelo menos uma competência do catálogo, ou desliga "Escolher competências específicas" para usar as 8 competências-padrão.';
     return '';
   })();
@@ -480,76 +520,91 @@ export function CreateCycleModal({
             </div>
           </div>
 
-          <div>
-            <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
-              <Checkbox
-                checked={useCustomCompetencies}
-                onChange={(e) => setUseCustomCompetencies(e.target.checked)}
-              />
-              Escolher competências específicas do catálogo
-            </label>
-            <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
-              Por omissão o ciclo usa as 8 competências-padrão da INNOVA. Aqui
-              podes escolher outras do módulo Competências e ajustar o peso e se
-              são obrigatórias.
-            </p>
-            {useCustomCompetencies && (
-              <div className="max-h-48 overflow-y-auto rounded-card border border-border p-2 space-y-1">
-                {competenciesLoading && <Skeleton rows={3} />}
-                {!competenciesLoading &&
-                  (competencyCatalogue ?? []).length === 0 && (
-                    <EmptyState
-                      variant="inline"
-                      title="Nenhuma competência encontrada no catálogo"
-                    />
-                  )}
-                {(competencyCatalogue ?? []).map((c) => {
-                  const selection = competencySelection[c.id];
-                  return (
-                    <div
-                      key={c.id}
-                      className="rounded-control px-1 py-1 hover:bg-surface-sunken"
-                    >
-                      <label className="flex items-center gap-2 font-body text-sm text-ink">
-                        <Checkbox
-                          checked={!!selection}
-                          onChange={() => toggleCompetency(c.id)}
-                        />
-                        {c.name}
-                      </label>
-                      {selection && (
-                        <div className="mt-1 ml-6 flex items-center gap-3">
-                          <label
-                            htmlFor={`cyc-comp-w-${c.id}`}
-                            className="font-body text-xs text-ink-muted"
-                          >
-                            Peso
-                          </label>
-                          <Input
-                            id={`cyc-comp-w-${c.id}`}
-                            type="number"
-                            min={0}
-                            value={selection.weight}
-                            onChange={(e) =>
-                              setCompetencyWeight(c.id, e.target.value)
-                            }
-                            className="w-20"
+          <FormField
+            label="Questionário"
+            htmlFor="cyc-questionnaire"
+            hint="Usa um questionário publicado para definir as competências e perguntas do ciclo. Cria-os no separador Questionários."
+          >
+            <Select
+              items={questionnaireItems}
+              value={questionnaireId}
+              onValueChange={setQuestionnaireId}
+              className="w-full"
+            />
+          </FormField>
+
+          {!usingQuestionnaire && (
+            <div>
+              <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
+                <Checkbox
+                  checked={useCustomCompetencies}
+                  onChange={(e) => setUseCustomCompetencies(e.target.checked)}
+                />
+                Escolher competências específicas do catálogo
+              </label>
+              <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
+                Por omissão o ciclo usa as 8 competências-padrão da INNOVA. Aqui
+                podes escolher outras do módulo Competências e ajustar o peso e
+                se são obrigatórias.
+              </p>
+              {useCustomCompetencies && (
+                <div className="max-h-48 overflow-y-auto rounded-card border border-border p-2 space-y-1">
+                  {competenciesLoading && <Skeleton rows={3} />}
+                  {!competenciesLoading &&
+                    (competencyCatalogue ?? []).length === 0 && (
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhuma competência encontrada no catálogo"
+                      />
+                    )}
+                  {(competencyCatalogue ?? []).map((c) => {
+                    const selection = competencySelection[c.id];
+                    return (
+                      <div
+                        key={c.id}
+                        className="rounded-control px-1 py-1 hover:bg-surface-sunken"
+                      >
+                        <label className="flex items-center gap-2 font-body text-sm text-ink">
+                          <Checkbox
+                            checked={!!selection}
+                            onChange={() => toggleCompetency(c.id)}
                           />
-                          <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
-                            <Checkbox
-                              checked={selection.isRequired}
-                              onChange={() => toggleCompetencyRequired(c.id)}
+                          {c.name}
+                        </label>
+                        {selection && (
+                          <div className="mt-1 ml-6 flex items-center gap-3">
+                            <label
+                              htmlFor={`cyc-comp-w-${c.id}`}
+                              className="font-body text-xs text-ink-muted"
+                            >
+                              Peso
+                            </label>
+                            <Input
+                              id={`cyc-comp-w-${c.id}`}
+                              type="number"
+                              min={0}
+                              value={selection.weight}
+                              onChange={(e) =>
+                                setCompetencyWeight(c.id, e.target.value)
+                              }
+                              className="w-20"
                             />
-                            Obrigatória
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                            <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
+                              <Checkbox
+                                checked={selection.isRequired}
+                                onChange={() => toggleCompetencyRequired(c.id)}
+                              />
+                              Obrigatória
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           <FormField label="Modo de anonimato" htmlFor="cyc-anonymity">
             <Select

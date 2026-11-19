@@ -1,13 +1,13 @@
 // components/evaluation360/QuestionariosTab.tsx
-// Separador "Questionários" (docs/evaluation360.md §6) — lista dos
-// questionários 360° existentes, com publicar/arquivar. A criação e a escolha
-// de questionário no "Novo ciclo" foram removidas.
+// separador "Questionários" (docs/evaluation360.md §6) — banco de questionários
+// 360°: criar, ver/editar perguntas (em rascunho), publicar, arquivar e
+// eliminar. Os publicados podem ser escolhidos no "Novo ciclo".
 
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
-import { FileText, MapPin } from 'lucide-react';
+import { FileText, MapPin, Plus } from 'lucide-react';
 import type { QuestionnaireListItem, QuestionnaireStatus } from './types';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,6 +18,10 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Button } from '@/components/ui/Button';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { QuestionnaireFormModal } from './QuestionnaireFormModal';
+import { QuestionnaireDetailModal } from './QuestionnaireDetailModal';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 const ALL = 'ALL';
@@ -37,9 +41,12 @@ const STATUS_OPTIONS: SelectItemOption[] = [
 
 export function QuestionariosTab() {
   const notify = useToast();
+  const confirm = useConfirm();
   const canManage = useHasRole(EVAL_CREATOR_ROLES);
 
   const [status, setStatus] = useState(ALL);
+  const [creating, setCreating] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const params: Record<string, string> = { tenantId: 'default', limit: '50' };
   if (status !== ALL) params.status = status;
@@ -81,6 +88,31 @@ export function QuestionariosTab() {
     },
   );
 
+  const remove = useApiMutation(
+    (id: string) => apiClient.delete(`/evaluation360/questionnaires/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation360.all],
+      onSuccess: () =>
+        notify({ title: 'Questionário eliminado', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível eliminar',
+          description: 'Só rascunhos que nunca foram usados por um ciclo.',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  const handleRemove = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: 'Eliminar questionário?',
+      message: `"${name}" e as suas perguntas serão eliminados.`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(id);
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
@@ -90,33 +122,41 @@ export function QuestionariosTab() {
             Banco de questionários utilizados nas avaliações 360°.
           </p>
         </div>
-        <CompetencyExportMenu
-          disabled={isLoading}
-          build={() => ({
-            title: 'Avaliação 360° — Questionários',
-            filename: 'questionarios-360',
-            headers: [
-              'Nome',
-              'Código',
-              'Versão',
-              'Perguntas',
-              'Competências',
-              'Escala',
-              'Estado',
-              'Actualizado',
-            ],
-            rows: rows.map((q) => [
-              q.name,
-              q.code,
-              `v${q.version}`,
-              q.questionCount,
-              q.competencyCount,
-              `${q.scaleMin}–${q.scaleMax}`,
-              STATUS_LABEL[q.status],
-              q.updatedAt.slice(0, 10),
-            ]),
-          })}
-        />
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <Button onClick={() => setCreating(true)}>
+              <Plus size={16} strokeWidth={1.75} />
+              Novo questionário
+            </Button>
+          )}
+          <CompetencyExportMenu
+            disabled={isLoading}
+            build={() => ({
+              title: 'Avaliação 360° — Questionários',
+              filename: 'questionarios-360',
+              headers: [
+                'Nome',
+                'Código',
+                'Versão',
+                'Perguntas',
+                'Competências',
+                'Escala',
+                'Estado',
+                'Actualizado',
+              ],
+              rows: rows.map((q) => [
+                q.name,
+                q.code,
+                `v${q.version}`,
+                q.questionCount,
+                q.competencyCount,
+                `${q.scaleMin}–${q.scaleMax}`,
+                STATUS_LABEL[q.status],
+                q.updatedAt.slice(0, 10),
+              ]),
+            })}
+          />
+        </div>
       </div>
 
       <FilterPanelCard>
@@ -141,6 +181,7 @@ export function QuestionariosTab() {
             Questionários
           </h3>
           Nenhum questionário encontrado com estes filtros.
+          {canManage && ' Usa "Novo questionário" para criar o primeiro.'}
         </div>
       )}
 
@@ -157,7 +198,7 @@ export function QuestionariosTab() {
                 <th className="px-4 py-3">Escala</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Actualizado</th>
-                {canManage && <th className="px-4 py-3" />}
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -201,33 +242,66 @@ export function QuestionariosTab() {
                   <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
                     {q.updatedAt.slice(0, 10)}
                   </td>
-                  {canManage && (
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-                      {q.status === 'DRAFT' && (
-                        <button
-                          type="button"
-                          onClick={() => publish.mutate(q.id)}
-                          className="font-body text-xs font-semibold text-brand hover:underline"
-                        >
-                          Publicar
-                        </button>
-                      )}
-                      {q.status === 'PUBLISHED' && (
-                        <button
-                          type="button"
-                          onClick={() => archive.mutate(q.id)}
-                          className="font-body text-xs font-semibold text-ink-muted hover:text-ink"
-                        >
-                          Arquivar
-                        </button>
-                      )}
-                    </td>
-                  )}
+                  <td className="px-4 py-3 text-right whitespace-nowrap space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(q.id)}
+                      className="font-body text-xs font-semibold text-brand hover:underline"
+                    >
+                      {canManage && q.status === 'DRAFT'
+                        ? 'Editar perguntas'
+                        : 'Ver'}
+                    </button>
+                    {canManage && q.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        onClick={() => publish.mutate(q.id)}
+                        className="font-body text-xs font-semibold text-brand hover:underline"
+                      >
+                        Publicar
+                      </button>
+                    )}
+                    {canManage && q.status === 'PUBLISHED' && (
+                      <button
+                        type="button"
+                        onClick={() => archive.mutate(q.id)}
+                        className="font-body text-xs font-semibold text-ink-muted hover:text-ink"
+                      >
+                        Arquivar
+                      </button>
+                    )}
+                    {canManage && q.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(q.id, q.name)}
+                        className="font-body text-xs font-semibold text-ink-muted hover:text-danger-ink"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {creating && (
+        <QuestionnaireFormModal
+          onClose={() => setCreating(false)}
+          onCreated={(id) => {
+            setCreating(false);
+            setOpenId(id);
+          }}
+        />
+      )}
+      {openId && (
+        <QuestionnaireDetailModal
+          questionnaireId={openId}
+          canManage={canManage}
+          onClose={() => setOpenId(null)}
+        />
       )}
     </div>
   );
