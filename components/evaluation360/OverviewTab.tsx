@@ -30,6 +30,7 @@ import {
   SpeedometerStatCard,
   SCORE5_BANDS,
 } from '@/components/ui/charts/SpeedometerStatCard';
+import { typeLabel } from './colors';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -91,6 +92,7 @@ export function OverviewTab({
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <SpeedometerStatCard
               label="Pontuação Ponderada"
+              labelClassName="text-black"
               value={result.weightedScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -99,6 +101,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Autoavaliação"
+              labelClassName="text-black"
               value={result.selfScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -107,6 +110,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Gestor"
+              labelClassName="text-black"
               value={result.managerScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -115,6 +119,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Pares"
+              labelClassName="text-black"
               value={result.peerScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -145,7 +150,7 @@ export function OverviewTab({
                       {s.name}
                     </span>
                     <span className="text-xs text-ink-muted ml-2">
-                      {s.category}
+                      {typeLabel[s.category] ?? typeLabel[s.type] ?? s.category}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-success-ink">
@@ -174,7 +179,7 @@ export function OverviewTab({
                       {g.name}
                     </span>
                     <span className="text-xs text-ink-muted ml-2">
-                      {g.category}
+                      {typeLabel[g.category] ?? typeLabel[g.type] ?? g.category}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-danger-ink">

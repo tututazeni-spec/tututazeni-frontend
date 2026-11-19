@@ -5,7 +5,10 @@
 'use client';
 
 import type { CompetencyScore } from './types';
-import { typeColor, scoreColor } from './colors';
+import { typeColor, typeLabel, scoreColor } from './colors';
+
+// Sem sombreado amarelo: a faixa intermédia (âmbar) fica com texto neutro.
+const AMBER = 'rgb(245, 158, 11)';
 
 export interface CompetencyHeatmapProps {
   competencies: CompetencyScore[];
@@ -61,7 +64,9 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     <span className="text-sm font-semibold text-ink">
                       {c.name}
                     </span>
-                    <span className="text-xs text-ink-muted">{c.category}</span>
+                    <span className="text-xs text-ink-muted">
+                      {typeLabel[c.category] ?? typeLabel[c.type] ?? c.category}
+                    </span>
                   </div>
                 </td>
                 {[c.selfScore, c.managerScore, c.peerScore, c.othersScore].map(
@@ -72,10 +77,14 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     >
                       <span
                         className="inline-block px-2.5 py-0.75 rounded text-sm font-bold"
-                        style={{
-                          background: `${scoreColor(v)}22`,
-                          color: scoreColor(v),
-                        }}
+                        style={
+                          scoreColor(v) === AMBER
+                            ? { color: 'var(--color-ink)' }
+                            : {
+                                background: `${scoreColor(v)}22`,
+                                color: scoreColor(v),
+                              }
+                        }
                       >
                         {v.toFixed(1)}
                       </span>

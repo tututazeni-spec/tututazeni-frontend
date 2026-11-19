@@ -39,6 +39,8 @@ export interface SpeedometerStatCardProps {
   caption?: string;
   /** sem o quadrado do card: só título e velocímetro sobre o fundo da página */
   bare?: boolean;
+  /** substitui a cor do título (por omissão ink-faint) */
+  labelClassName?: string;
 }
 
 export function SpeedometerStatCard({
@@ -49,10 +51,13 @@ export function SpeedometerStatCard({
   display,
   caption,
   bare,
+  labelClassName = 'text-ink-faint',
 }: SpeedometerStatCardProps) {
   const content = (
     <>
-      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <h3
+        className={`font-body text-xs font-medium uppercase tracking-wide ${labelClassName}`}
+      >
         {label}
       </h3>
       <SpeedometerChart
