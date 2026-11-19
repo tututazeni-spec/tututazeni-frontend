@@ -97,7 +97,8 @@ export function QuestionariosTab() {
       onError: () =>
         notify({
           title: 'Não foi possível eliminar',
-          description: 'Só rascunhos que nunca foram usados por um ciclo.',
+          description:
+            'Só rascunhos ou arquivados que nunca foram usados por um ciclo.',
           intent: 'danger',
         }),
     },
@@ -187,11 +188,10 @@ export function QuestionariosTab() {
 
       {rows.length > 0 && (
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
-          <table className="w-full text-sm border-collapse min-w-[900px]">
+          <table className="w-full font-body text-sm border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Nome</th>
-                <th className="px-4 py-3">Código</th>
                 <th className="px-4 py-3 text-right">Versão</th>
                 <th className="px-4 py-3 text-right">Perguntas</th>
                 <th className="px-4 py-3 text-right">Competências</th>
@@ -209,44 +209,43 @@ export function QuestionariosTab() {
                       <FileText
                         size={16}
                         strokeWidth={1.75}
-                        className="text-ink-muted shrink-0"
+                        className="text-black shrink-0"
                       />
                       <div>
-                        <div className="font-semibold text-ink">{q.name}</div>
+                        <div className="font-semibold text-black">{q.name}</div>
                         {q.description && (
-                          <div className="text-xs text-ink-muted line-clamp-1">
+                          <div className="text-xs text-black line-clamp-1">
                             {q.description}
                           </div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{q.code}</td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     v{q.version}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     {q.questionCount}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     {q.competencyCount}
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">
+                  <td className="px-4 py-3 text-black">
                     {q.scaleMin}–{q.scaleMax}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+                    <span className="text-xs font-bold text-black">
                       {STATUS_LABEL[q.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
+                  <td className="px-4 py-3 text-black whitespace-nowrap">
                     {q.updatedAt.slice(0, 10)}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap space-x-3">
                     <button
                       type="button"
                       onClick={() => setOpenId(q.id)}
-                      className="font-body text-xs font-semibold text-brand hover:underline"
+                      className="font-body text-xs font-semibold text-black hover:underline"
                     >
                       {canManage && q.status === 'DRAFT'
                         ? 'Editar perguntas'
@@ -256,7 +255,7 @@ export function QuestionariosTab() {
                       <button
                         type="button"
                         onClick={() => publish.mutate(q.id)}
-                        className="font-body text-xs font-semibold text-brand hover:underline"
+                        className="font-body text-xs font-semibold text-black hover:underline"
                       >
                         Publicar
                       </button>
@@ -265,16 +264,16 @@ export function QuestionariosTab() {
                       <button
                         type="button"
                         onClick={() => archive.mutate(q.id)}
-                        className="font-body text-xs font-semibold text-ink-muted hover:text-ink"
+                        className="font-body text-xs font-semibold text-black hover:text-black"
                       >
                         Arquivar
                       </button>
                     )}
-                    {canManage && q.status === 'DRAFT' && (
+                    {canManage && q.status !== 'PUBLISHED' && (
                       <button
                         type="button"
                         onClick={() => handleRemove(q.id, q.name)}
-                        className="font-body text-xs font-semibold text-ink-muted hover:text-danger-ink"
+                        className="font-body text-xs font-semibold text-black hover:text-danger-ink"
                       >
                         Eliminar
                       </button>

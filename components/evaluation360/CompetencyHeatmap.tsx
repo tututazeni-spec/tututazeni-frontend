@@ -36,7 +36,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
           </tr>
         </thead>
         <tbody>
-          {competencies.map((c, i) => {
+          {competencies.map((c) => {
             const gapColor =
               c.gap === null
                 ? 'var(--color-ink-faint)'
@@ -46,13 +46,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     ? 'rgb(34, 197, 94)'
                     : 'var(--color-ink-muted)';
             return (
-              <tr
-                key={c.id}
-                style={{
-                  background:
-                    i % 2 === 0 ? 'var(--color-surface-sunken)' : 'transparent',
-                }}
-              >
+              <tr key={c.id}>
                 <td className="px-3 py-2.5 border-b border-border">
                   <div className="flex items-center gap-2">
                     <span
