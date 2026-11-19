@@ -2,7 +2,7 @@
 // Tipos do domínio "avaliação 360º". Usados por hooks/useEvaluation360.ts
 // (dono dos dados reais — GET /evaluation360/*, ver esse ficheiro) e pelos
 // componentes de apresentação em components/evaluation360/ (Evaluation360View,
-// OverviewTab, RadarChart, CompetencyHeatmap, FeedbackTab,
+// OverviewTab, RadarChart, FeedbackTab,
 // EvaluationFormTab) — page.tsx é só o container que liga o hook à
 // Evaluation360View. Ver memory project_innova_component_separation_audit.
 
@@ -46,6 +46,10 @@ export interface CompetencyScore {
   // exista pelo menos uma das duas fontes, mesmo sem a lacuna comparativa.
   selfRaw: number | null;
   othersRaw: number | null;
+  // Idem para gestor/pares: null (e não 0) quando falta essa fonte — a tabela
+  // de Resultados mostra "—" em vez de uma nota fictícia de 0.0.
+  managerRaw: number | null;
+  peerRaw: number | null;
   benchmark: number; // média do cargo/nível
   // Média geral desta competência (todos os grupos de avaliador combinados,
   // para este avaliado) — distinto de `benchmark` (referência comparativa do

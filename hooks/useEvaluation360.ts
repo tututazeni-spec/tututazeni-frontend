@@ -120,6 +120,8 @@ function toCompetencies(
       gap: v.gap,
       selfRaw: v.selfScore,
       othersRaw: v.othersScore,
+      managerRaw: v.managerScore,
+      peerRaw: v.peerScore,
       benchmark: v.benchmark ?? v.score ?? 0,
       score: v.score,
       expectedLevel: v.expectedLevel,

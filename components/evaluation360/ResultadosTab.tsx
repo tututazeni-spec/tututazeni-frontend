@@ -16,9 +16,8 @@
 import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CompetencyScore, CycleResultRow } from './types';
-import { typeColor, typeLabel } from './colors';
+import { scoreColor, typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
-import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_RESULTS_ADMIN_ROLES } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -55,6 +54,28 @@ function gapDisplay(c: CompetencyScore): { text: string; color: string } {
       color: 'var(--color-ink-muted)',
     };
   return { text: 'Sem dados', color: 'var(--color-ink-faint)' };
+}
+
+// Nota com o sistema de cores por intervalo (verde ≥ 4,2 · azul ≥ 3,5 ·
+// vermelho < 2,5). A faixa intermédia (âmbar) fica sem sombreado, só texto
+// normal. Sem dados → "—".
+const AMBER = 'rgb(245, 158, 11)';
+
+function ScoreCell({ value }: { value: number | null }) {
+  if (value === null) return <span>—</span>;
+  const color = scoreColor(value);
+  return (
+    <span
+      className="inline-block rounded px-2.5 py-0.5 text-sm font-bold"
+      style={
+        color === AMBER
+          ? { color: 'var(--color-ink)' }
+          : { background: `${color}22`, color }
+      }
+    >
+      {value.toFixed(1)}
+    </span>
+  );
 }
 
 export interface ResultadosTabProps {
@@ -141,14 +162,8 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                 </span>
               ))}
             </div>
-            <div className="rounded-card border border-border bg-surface overflow-hidden">
-              <ErrorBoundary source="evaluation360.CompetencyHeatmap">
-                <CompetencyHeatmap competencies={competencies} />
-              </ErrorBoundary>
-            </div>
-
             <div className="rounded-card border border-border bg-surface overflow-x-auto">
-              <table className="w-full text-sm border-collapse min-w-[900px]">
+              <table className="w-full text-sm border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                     <th className="px-4 py-3">Competência</th>
@@ -158,6 +173,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                     <th className="px-4 py-3 text-right">Subordinados</th>
                     <th className="px-4 py-3 text-right">Outras</th>
                     <th className="px-4 py-3 text-right">Média</th>
+                    <th className="px-4 py-3 text-right">Referencial</th>
                     <th className="px-4 py-3 text-right">Nível esperado</th>
                     <th className="px-4 py-3 text-right">Lacuna</th>
                     <th className="px-4 py-3 text-right">Nº respostas</th>
@@ -169,26 +185,40 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                       key={c.id}
                       className="border-b border-border last:border-0"
                     >
-                      <td className="px-4 py-3 font-semibold text-ink">
-                        {c.name}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+                            style={{
+                              background:
+                                typeColor[c.type] ?? 'rgb(99, 102, 241)',
+                            }}
+                          />
+                          <span className="font-semibold text-ink">
+                            {c.name}
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.selfRaw)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.selfRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.managerScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.managerRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.peerScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.peerRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.subordinateScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.subordinateScore} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.externalScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.externalScore} />
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-ink">
-                        {fmt(c.score)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.score} />
+                      </td>
+                      <td className="px-4 py-3 text-right text-ink-muted">
+                        {fmt(c.benchmark)}
                       </td>
                       <td className="px-4 py-3 text-right text-ink-muted">
                         {fmt(c.expectedLevel)}
