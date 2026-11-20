@@ -15,7 +15,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
@@ -76,7 +75,7 @@ export function DocumentsTab({
                 onClick={() => setDetailId(doc.planId)}
                 className={cn(
                   SUBMITTED_GRID,
-                  'w-full border-b border-brand-line bg-surface py-3 text-left font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                  'w-full cursor-pointer border-b border-brand-line bg-surface py-3 text-left font-body text-sm text-ink-muted last:border-0',
                 )}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -92,7 +91,7 @@ export function DocumentsTab({
                 <div className="break-words font-semibold text-ink">
                   {doc.documentType}
                 </div>
-                <div>{fmtDate(doc.createdAt)}</div>
+                <div className="text-ink">{fmtDate(doc.createdAt)}</div>
                 <div>
                   <span className="text-xs font-bold text-ink">
                     {DOC_LABEL[doc.status]}
@@ -105,44 +104,58 @@ export function DocumentsTab({
       </section>
 
       <section>
-        <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+        <h2 className="m-0 mb-3 text-lg font-bold text-ink">
           Por submeter ({data.pendingSubmission.length})
-        </h3>
+        </h2>
         {data.pendingSubmission.length === 0 ? (
           <EmptyState
             title="Nada por submeter"
             description="Todos os documentos obrigatórios já foram submetidos."
           />
         ) : (
-          <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div
+              className={cn(
+                SUBMITTED_GRID,
+                'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+              )}
+            >
+              <div>Colaborador</div>
+              <div>Documento</div>
+              <div>Prazo</div>
+              <div>Estado</div>
+            </div>
             {data.pendingSubmission.map((row) => (
               <button
                 key={row.taskInstanceId}
                 type="button"
                 onClick={() => setDetailId(row.planId)}
-                className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
-              >
-                <Avatar
-                  name={row.plan.user.fullName}
-                  url={row.plan.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {row.documentType}
-                  </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {row.plan.user.fullName}
-                  </div>
-                </div>
-                {row.dueDate && (
-                  <div className="shrink-0 font-body text-xs text-ink-faint">
-                    Prazo {fmtDate(row.dueDate)}
-                  </div>
+                className={cn(
+                  SUBMITTED_GRID,
+                  'w-full cursor-pointer border-b border-brand-line bg-surface py-3 text-left font-body text-sm text-ink-muted last:border-0',
                 )}
-                <Badge dot={false} intent="warning">
-                  Por submeter
-                </Badge>
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    name={row.plan.user.fullName}
+                    url={row.plan.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <span className="truncate font-semibold text-ink">
+                    {row.plan.user.fullName}
+                  </span>
+                </div>
+                <div className="break-words font-semibold text-ink">
+                  {row.documentType}
+                </div>
+                <div className="text-ink">
+                  {row.dueDate ? fmtDate(row.dueDate) : '—'}
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-ink">
+                    Por submeter
+                  </span>
+                </div>
               </button>
             ))}
           </div>

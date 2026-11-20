@@ -231,10 +231,11 @@ export function TasksTab({
                   </span>
                 </button>
                 {canManagePlan && (
-                  <div className="flex shrink-0 items-center pr-3">
+                  <div className="flex w-28 shrink-0 items-center pr-3">
                     <Button
                       size="sm"
                       intent="ghost"
+                      className="w-full justify-center"
                       onClick={() => setAssigning(t)}
                     >
                       {t.assignee ? 'Reatribuir' : 'Atribuir'}

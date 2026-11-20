@@ -53,7 +53,7 @@ export function TeamMemberCard({
   return (
     <div
       {...interactive}
-      className={`flex items-center gap-4 rounded-[20px] p-3 ${onAssign ? 'cursor-pointer hover:bg-surface-sunken' : ''}`}
+      className={`flex items-center gap-4 rounded-[20px] p-3 ${onAssign ? 'cursor-pointer' : ''}`}
     >
       {person ? (
         <Avatar
