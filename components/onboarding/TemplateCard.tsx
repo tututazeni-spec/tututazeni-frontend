@@ -15,7 +15,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { CATEGORY_CFG } from './constants';
 import type { OnboardingTemplate } from './types';
 
 // Paleta por template (escolhida pelo id, estável entre renders): cada card
@@ -74,7 +73,6 @@ export function TemplateCard({
   const palette = PALETTE[Math.abs(t.id) % PALETTE.length];
   const category = t.department?.name ?? t.company ?? null;
   const description = t.objective || t.description;
-  const tasks = t.tasks ?? [];
 
   return (
     <div
@@ -136,30 +134,23 @@ export function TemplateCard({
         {t.unit && <Metric icon={GraduationCap}>{t.unit.name}</Metric>}
       </div>
 
-      {(description || tasks.length > 0) && (
-        <div className="space-y-1 px-6 pt-3">
-          {description && (
-            <p className="mb-2 break-words text-xs text-white/70">
-              {description}
-            </p>
-          )}
-          {tasks.map((task) => {
-            const CatIcon = CATEGORY_CFG[task.category]?.icon;
-            return (
-              <div
-                key={task.id}
-                className="flex items-start gap-2 text-xs text-white/70"
-              >
-                <span>
-                  {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
-                </span>
-                <span className="min-w-0 break-words">{task.title}</span>
-                <span className="ml-auto shrink-0 text-[#FFD28A]">
-                  +{task.xpReward}xp
-                </span>
-              </div>
-            );
-          })}
+      {description && (
+        <div className="px-6 pt-3">
+          <ul className="space-y-1.5 text-sm text-white/80">
+            {description
+              .split(/\r?\n+|(?<=[.;!?])\s+(?=[A-ZÀ-Ý])/)
+              .map((line) => line.replace(/^[\s\-•*]+/, '').trim())
+              .filter(Boolean)
+              .map((line, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span
+                    aria-hidden
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#FFD28A]"
+                  />
+                  <span className="min-w-0 break-words">{line}</span>
+                </li>
+              ))}
+          </ul>
         </div>
       )}
 

@@ -528,8 +528,8 @@ export function TemplateFormModal({
             className={cn(
               'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
               active
-                ? 'border-primary bg-primary-subtle text-primary'
-                : 'border-border-strong bg-surface text-ink-muted',
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white'
+                : 'border-[#0F1F3D] bg-white text-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]',
             )}
           >
             Template activo
@@ -698,6 +698,15 @@ export function TemplateFormModal({
                       Obrigatória (ex.: Formação obrigatória) — desmarcar
                       torna-a opcional
                     </label>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={addTask}
+                      type="button"
+                    >
+                      <Plus size={14} strokeWidth={1.75} className="mr-1" />
+                      Adicionar item
+                    </Button>
                   </div>
                 ))}
               </div>
