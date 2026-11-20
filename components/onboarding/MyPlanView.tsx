@@ -60,6 +60,7 @@ import type {
   TaskInstance,
 } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { cn } from '@/lib/cn';
 
 const SUB_TABS = [
   { id: 'tasks', label: ' Tarefas' },
@@ -69,10 +70,14 @@ const SUB_TABS = [
 ] as const;
 
 const DOC_STATUS_LABEL: Record<DocStatus, string> = {
-  APPROVED: '✓ Aprovado',
-  REJECTED: '✗ Rejeitado',
+  APPROVED: 'Aprovado',
+  REJECTED: 'Rejeitado',
   PENDING: 'Pendente',
 };
+
+// Mesma grelha no cabeçalho e nas linhas (desenho da lista de Avaliados).
+const DOC_GRID =
+  'grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,2fr)] items-center gap-x-8 px-4';
 
 function SectionCard({
   title,
@@ -318,58 +323,63 @@ export function MyPlanView() {
         </SectionCard>
       )}
 
-      {/* Documentos */}
+      {/* Documentos — lista no desenho da lista de Avaliados (evaluation360) */}
       {activeTab === 'docs' && (
-        <SectionCard title="Documentos">
-          <div className="space-y-3">
-            <OnboardingDocUploadForm planId={plan.id} onUploaded={refetch} />
+        <div className="space-y-5">
+          <OnboardingDocUploadForm planId={plan.id} onUploaded={refetch} />
 
-            {plan.documents.map((doc) => (
+          {plan.documents.length === 0 ? (
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+              <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                Documentos
+              </h3>
+              Ainda não submeteste documentos.
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div
-                key={doc.id}
-                className={`flex items-center gap-4 border rounded-card p-4 ${
-                  doc.status === 'APPROVED'
-                    ? 'border-success bg-success-subtle'
-                    : doc.status === 'REJECTED'
-                      ? 'border-danger bg-danger-subtle'
-                      : 'border-border bg-surface'
-                }`}
+                className={cn(
+                  DOC_GRID,
+                  'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+                )}
               >
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-ink">
+                <div>Documento</div>
+                <div>Ficheiro</div>
+                <div>Submetido</div>
+                <div>Estado</div>
+                <div>Motivo</div>
+              </div>
+              {plan.documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className={cn(
+                    DOC_GRID,
+                    'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                  )}
+                >
+                  <div className="break-words font-semibold text-ink">
                     {doc.documentType}
                   </div>
-                  <DocumentLink
-                    fileUrl={doc.fileUrl}
-                    className="text-xs text-primary hover:underline"
-                  />
-                  {doc.rejectionReason && (
-                    <div className="text-xs text-danger-ink mt-0.5">
-                      Motivo: {doc.rejectionReason}
-                    </div>
-                  )}
+                  <div>
+                    <DocumentLink
+                      fileUrl={doc.fileUrl}
+                      className="text-sm font-semibold text-ink hover:underline"
+                    />
+                  </div>
+                  <div>{doc.createdAt ? fmtDate(doc.createdAt) : '—'}</div>
+                  <div>
+                    <span className="text-xs font-bold text-ink">
+                      {DOC_STATUS_LABEL[doc.status]}
+                    </span>
+                  </div>
+                  <div className="break-words">
+                    {doc.rejectionReason ?? '—'}
+                  </div>
                 </div>
-                <Badge
-                  intent={
-                    doc.status === 'APPROVED'
-                      ? 'success'
-                      : doc.status === 'REJECTED'
-                        ? 'danger'
-                        : 'warning'
-                  }
-                >
-                  {DOC_STATUS_LABEL[doc.status]}
-                </Badge>
-              </div>
-            ))}
-            {plan.documents.length === 0 && (
-              <EmptyState
-                variant="inline"
-                title="Ainda não submeteu documentos"
-              />
-            )}
-          </div>
-        </SectionCard>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Equipa de apoio */}
