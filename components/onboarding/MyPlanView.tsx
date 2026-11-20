@@ -16,6 +16,7 @@ import {
   ClipboardList,
   Clapperboard,
   ShieldCheck,
+  Star,
   User,
   Users,
 } from 'lucide-react';
@@ -27,7 +28,6 @@ import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -443,34 +443,81 @@ export function MyPlanView() {
           <div className="space-y-4">
             {/* Pesquisas anteriores */}
             {plan.surveys.length > 0 && (
-              <Card className="p-4">
-                <div className="text-xs font-medium text-ink-muted mb-3">
-                  Feedbacks anteriores
-                </div>
-                {plan.surveys.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center gap-3 py-2 border-b border-border last:border-0"
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+                {/* Cabeçalho — desenho do Feedback Contínuo, tamanho do Submeter documento */}
+                <div className="relative flex items-center gap-3 overflow-hidden bg-brand-dark px-4 py-3 text-white">
+                  <Star
+                    size={16}
+                    strokeWidth={1.75}
+                    className="relative z-10 shrink-0 text-white"
+                  />
+                  <span
+                    className="relative z-10 h-4 w-px bg-white/40"
+                    aria-hidden="true"
+                  />
+                  <h3 className="relative z-10 m-0 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                    Feedbacks anteriores
+                  </h3>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 200 80"
+                    preserveAspectRatio="none"
+                    className="pointer-events-none absolute right-0 top-0 h-full w-[22%]"
                   >
-                    <Badge intent="info">
-                      {SURVEY_MILESTONE_LABELS[s.milestone] ?? s.milestone}
-                    </Badge>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <span
-                          key={i}
-                          className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
-                        ></span>
-                      ))}
-                    </div>
-                    {s.comment && (
-                      <p className="text-xs text-ink-muted truncate">
-                        {s.comment}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </Card>
+                    <defs>
+                      <linearGradient
+                        id="prev-fb-swoosh"
+                        x1="0"
+                        y1="1"
+                        x2="1"
+                        y2="0"
+                      >
+                        <stop offset="0%" stopColor="#16a34a" />
+                        <stop offset="100%" stopColor="#4ade80" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M200 0v52C170 66 120 72 70 76 130 56 150 24 160 0z"
+                      fill="url(#prev-fb-swoosh)"
+                    />
+                  </svg>
+                </div>
+                <ul className="m-0 list-none divide-y divide-border p-0">
+                  {plan.surveys.map((s) => (
+                    <li
+                      key={s.id}
+                      className="flex flex-wrap items-center gap-x-4 gap-y-1 px-6 py-3"
+                    >
+                      <span
+                        className="rounded-full py-0.5 pl-3.5 pr-3 font-body text-xs font-bold"
+                        style={{
+                          background: '#dbeafe',
+                          color: '#17408a',
+                          boxShadow: 'inset 6px 0 0 #60a5fa',
+                        }}
+                      >
+                        {SURVEY_MILESTONE_LABELS[s.milestone] ?? s.milestone}
+                      </span>
+                      <span className="h-4 w-px bg-ink/30" aria-hidden="true" />
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span
+                            key={i}
+                            className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      {s.comment && (
+                        <p className="m-0 min-w-0 flex-1 truncate font-display text-base text-brand-dark">
+                          {s.comment}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             {/* Nova pesquisa */}
@@ -503,8 +550,12 @@ export function MyPlanView() {
                       <button
                         key={s}
                         onClick={() => setSurveyScore(s)}
+                        type="button"
+                        aria-label={`Nota ${s} de 5`}
                         className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
-                      ></button>
+                      >
+                        ★
+                      </button>
                     ))}
                   </div>
                   <Textarea

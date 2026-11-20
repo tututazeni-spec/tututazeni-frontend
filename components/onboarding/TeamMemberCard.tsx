@@ -46,18 +46,18 @@ export function TeamMemberCard({
   return (
     <div
       {...interactive}
-      className={`flex items-center gap-3 rounded-[20px] p-3 ${onAssign ? 'cursor-pointer hover:bg-surface-sunken' : ''}`}
+      className={`flex items-center gap-4 rounded-[20px] p-3 ${onAssign ? 'cursor-pointer hover:bg-surface-sunken' : ''}`}
     >
       {person ? (
         <Avatar
           name={person.fullName}
           url={person.avatarUrl ?? undefined}
           size="md"
-          className="!h-11 !w-11 shrink-0"
+          className="!h-[88px] !w-[88px] shrink-0 !text-2xl"
         />
       ) : (
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white">
-          <Icon size={20} strokeWidth={1.75} />
+        <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-brand-dark text-white">
+          <Icon size={40} strokeWidth={1.75} />
         </span>
       )}
       <div className="min-w-0">
