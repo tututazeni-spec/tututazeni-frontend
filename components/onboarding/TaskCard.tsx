@@ -27,7 +27,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
 
   return (
     <Card
-      className={`flex items-start gap-3 p-4 ${
+      className={`flex items-start gap-3 p-4 font-body ${
         task.status === 'COMPLETED'
           ? 'border-success opacity-70'
           : task.status === 'BLOCKED'
@@ -55,11 +55,6 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
               </p>
             )}
           </div>
-          <span
-            className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded flex-shrink-0 font-medium ${catCfg.cls}`}
-          >
-            <CatIcon size={12} strokeWidth={1.75} /> {catCfg.label}
-          </span>
         </div>
 
         <div className="flex items-center gap-3 mt-2 text-xs text-ink-faint">
@@ -85,23 +80,33 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
             <span className="text-info"> Requer aprovação</span>
           )}
           {task.completedAt && (
-            <span className="text-success-ink">
+            <span className="text-[#0F1F3D]">
               ✓ {fmtDate(task.completedAt)}
             </span>
           )}
         </div>
       </div>
 
-      {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
-        <Button
-          size="sm"
-          onClick={() => onComplete(task.id)}
-          disabled={(task.status as string) === 'BLOCKED'}
-          className="flex-shrink-0"
-        >
-          Executar
-        </Button>
-      ) : null}
+      <div className="flex flex-shrink-0 flex-col items-end gap-2">
+        {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
+          <Button
+            size="sm"
+            intent="secondary"
+            onClick={() => onComplete(task.id)}
+            disabled={(task.status as string) === 'BLOCKED'}
+            style={{
+              backgroundColor: '#0F1F3D',
+              color: '#FFFFFF',
+              borderColor: '#0F1F3D',
+            }}
+          >
+            Executar
+          </Button>
+        ) : null}
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#0F1F3D]">
+          <CatIcon size={12} strokeWidth={1.75} /> {catCfg.label}
+        </span>
+      </div>
     </Card>
   );
 }
