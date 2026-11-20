@@ -272,17 +272,6 @@ export function TemplateTaskFormModal({
                 className="w-full"
               />
             </FormField>
-
-            <FormField label="XP ao concluir *" htmlFor="tt-xp">
-              <Input
-                id="tt-xp"
-                type="number"
-                min={0}
-                value={xpReward}
-                onChange={(e) => setField('xpReward', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -293,8 +282,8 @@ export function TemplateTaskFormModal({
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 requiresApproval
-                  ? 'border-primary bg-primary-subtle text-primary'
-                  : 'border-border-strong bg-surface text-ink-muted',
+                  ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white'
+                  : 'border-[#0F1F3D] bg-white text-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]',
               )}
             >
               Requer aprovação
@@ -306,8 +295,8 @@ export function TemplateTaskFormModal({
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 requiresEvidence
-                  ? 'border-primary bg-primary-subtle text-primary'
-                  : 'border-border-strong bg-surface text-ink-muted',
+                  ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white'
+                  : 'border-[#0F1F3D] bg-white text-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]',
               )}
             >
               Requer evidência
@@ -319,8 +308,8 @@ export function TemplateTaskFormModal({
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 isMandatory
-                  ? 'border-primary bg-primary-subtle text-primary'
-                  : 'border-border-strong bg-surface text-ink-muted',
+                  ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white'
+                  : 'border-[#0F1F3D] bg-white text-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]',
               )}
             >
               Obrigatória

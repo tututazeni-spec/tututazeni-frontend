@@ -147,7 +147,7 @@ describe('TemplateTaskFormModal — criar', () => {
     expect(put).not.toHaveBeenCalled();
   });
 
-  test('campos opcionais — fase, dia limite, XP e toggles', async () => {
+  test('campos opcionais — fase, dia limite e toggles (XP predefinido)', async () => {
     renderModal();
     fireEvent.change(screen.getByLabelText('Título *'), {
       target: { value: 'Formação inicial' },
@@ -158,9 +158,6 @@ describe('TemplateTaskFormModal — criar', () => {
     fireEvent.change(selects[3], { target: { value: 'MANAGER' } });
     fireEvent.change(screen.getByLabelText('Dia limite'), {
       target: { value: '7' },
-    });
-    fireEvent.change(screen.getByLabelText('XP ao concluir *'), {
-      target: { value: '25' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Requer aprovação' }));
     fireEvent.click(screen.getByRole('button', { name: 'Requer evidência' }));
@@ -175,7 +172,7 @@ describe('TemplateTaskFormModal — criar', () => {
       type: 'TASK',
       phase: 'WEEK_1',
       responsible: 'MANAGER',
-      xpReward: 25,
+      xpReward: 10,
       requiresApproval: true,
       requiresEvidence: true,
       isMandatory: false,

@@ -71,6 +71,8 @@ export function TemplateDetailModal({
   const toast = useToast();
   const [form, setForm] = useState<FormState>(null);
   const [showEdit, setShowEdit] = useState(false);
+  // Acordeão: só uma fase aberta de cada vez (null = todas recolhidas).
+  const [openPhase, setOpenPhase] = useState<TaskPhase | null>(null);
 
   const { data, isLoading, error } = useApiQuery<OnboardingTemplateDetail>(
     queryKeys.onboarding.template(templateId),
@@ -206,92 +208,102 @@ export function TemplateDetailModal({
                       icon={ListChecks}
                       title={PHASE_LABELS[phase]}
                       meta={`${phaseTasks.length} ${phaseTasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+                      expanded={openPhase === phase}
+                      onToggle={() =>
+                        setOpenPhase((cur) => (cur === phase ? null : phase))
+                      }
                     />
-                    {canManage && (
-                      <div className="mb-2 flex justify-end">
-                        <Button
-                          size="sm"
-                          intent="ghost"
-                          onClick={() => setForm({ task: null, phase })}
-                        >
-                          <Plus size={14} strokeWidth={2} />
-                          Adicionar tarefa
-                        </Button>
-                      </div>
-                    )}
+                    {openPhase === phase && (
+                      <>
+                        {canManage && (
+                          <div className="mb-2 flex justify-end">
+                            <Button
+                              size="sm"
+                              intent="ghost"
+                              onClick={() => setForm({ task: null, phase })}
+                            >
+                              <Plus size={14} strokeWidth={2} />
+                              Adicionar tarefa
+                            </Button>
+                          </div>
+                        )}
 
-                    {phaseTasks.length === 0 ? (
-                      <EmptyState
-                        variant="inline"
-                        title="Sem tarefas nesta fase"
-                      />
-                    ) : (
-                      <ul className="space-y-2">
-                        {phaseTasks.map((task) => (
-                          <li
-                            key={task.id}
-                            className="flex items-start justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle p-3 shadow-[0_2px_10px_rgba(15,31,61,0.10)]"
-                          >
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-body text-xs font-bold text-brand-dark">
-                                  {CATEGORY_CFG[task.category]?.label ??
-                                    task.category}
-                                </span>
-                                <span className="font-body text-sm font-medium text-ink">
-                                  {task.title}
-                                </span>
-                              </div>
-                              {task.description && (
-                                <p className="mt-1 line-clamp-2 font-body text-xs text-ink-muted">
-                                  {task.description}
-                                </p>
-                              )}
-                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                                <span>
-                                  {TASK_TYPE_LABELS[task.type] ?? task.type}
-                                </span>
-                                <span>
-                                  {RESPONSIBLE_LABELS[task.responsible] ??
-                                    task.responsible}
-                                </span>
-                                <span>+{task.xpReward} XP</span>
-                                {task.dueDayOffset != null && (
-                                  <span>até ao dia {task.dueDayOffset}</span>
+                        {phaseTasks.length === 0 ? (
+                          <EmptyState
+                            variant="inline"
+                            title="Sem tarefas nesta fase"
+                          />
+                        ) : (
+                          <ul className="space-y-2">
+                            {phaseTasks.map((task) => (
+                              <li
+                                key={task.id}
+                                className="flex items-start justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle p-3 shadow-[0_2px_10px_rgba(15,31,61,0.10)]"
+                              >
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-body text-xs font-bold text-brand-dark">
+                                      {CATEGORY_CFG[task.category]?.label ??
+                                        task.category}
+                                    </span>
+                                    <span className="font-body text-sm font-medium text-ink">
+                                      {task.title}
+                                    </span>
+                                  </div>
+                                  {task.description && (
+                                    <p className="mt-1 line-clamp-2 font-body text-xs text-ink-muted">
+                                      {task.description}
+                                    </p>
+                                  )}
+                                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                    <span>
+                                      {TASK_TYPE_LABELS[task.type] ?? task.type}
+                                    </span>
+                                    <span>
+                                      {RESPONSIBLE_LABELS[task.responsible] ??
+                                        task.responsible}
+                                    </span>
+                                    <span>+{task.xpReward} XP</span>
+                                    {task.dueDayOffset != null && (
+                                      <span>
+                                        até ao dia {task.dueDayOffset}
+                                      </span>
+                                    )}
+                                    {task.requiresApproval && (
+                                      <span>requer aprovação</span>
+                                    )}
+                                    {task.requiresEvidence && (
+                                      <span>requer evidência</span>
+                                    )}
+                                    {!task.isMandatory && <span>opcional</span>}
+                                  </div>
+                                </div>
+                                {canManage && (
+                                  <div className="flex shrink-0 gap-1">
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      aria-label="Editar tarefa"
+                                      onClick={() => setForm({ task, phase })}
+                                    >
+                                      <Pencil size={14} strokeWidth={2} />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      aria-label="Remover tarefa"
+                                      onClick={() => onDelete(task)}
+                                      disabled={remove.isPending}
+                                    >
+                                      <Trash2 size={14} strokeWidth={2} />
+                                    </Button>
+                                  </div>
                                 )}
-                                {task.requiresApproval && (
-                                  <span>requer aprovação</span>
-                                )}
-                                {task.requiresEvidence && (
-                                  <span>requer evidência</span>
-                                )}
-                                {!task.isMandatory && <span>opcional</span>}
-                              </div>
-                            </div>
-                            {canManage && (
-                              <div className="flex shrink-0 gap-1">
-                                <Button
-                                  size="sm"
-                                  intent="ghost"
-                                  aria-label="Editar tarefa"
-                                  onClick={() => setForm({ task, phase })}
-                                >
-                                  <Pencil size={14} strokeWidth={2} />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  intent="ghost"
-                                  aria-label="Remover tarefa"
-                                  onClick={() => onDelete(task)}
-                                  disabled={remove.isPending}
-                                >
-                                  <Trash2 size={14} strokeWidth={2} />
-                                </Button>
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
                     )}
                   </section>
                 );
@@ -326,7 +338,11 @@ export function TemplateDetailModal({
             </div>
             <div className="flex shrink-0 gap-3">
               {canManage && data && (
-                <Button intent="secondary" onClick={() => setShowEdit(true)}>
+                <Button
+                  intent="ghost"
+                  className="cursor-pointer hover:!bg-transparent"
+                  onClick={() => setShowEdit(true)}
+                >
                   Editar
                 </Button>
               )}
