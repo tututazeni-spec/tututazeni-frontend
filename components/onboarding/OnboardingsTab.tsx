@@ -24,7 +24,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
 import {
@@ -123,6 +122,18 @@ export function OnboardingsTab({
     to: filters.to || undefined,
   };
 
+  // Só mostra informação depois de aplicado algum filtro; sem filtros
+  // aparece apenas o cabeçalho da tabela.
+  const hasFilter =
+    filters.status !== 'ALL' ||
+    filters.templateId !== 'ALL' ||
+    filters.departmentId !== 'ALL' ||
+    filters.unitId !== 'ALL' ||
+    filters.positionId !== 'ALL' ||
+    filters.progress !== 'ALL' ||
+    !!filters.from ||
+    !!filters.to;
+
   const { data, isLoading } = useApiQuery<Paginated>(
     queryKeys.onboarding.plans(params),
     '/onboarding',
@@ -130,6 +141,7 @@ export function OnboardingsTab({
       params,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
+      enabled: hasFilter,
     },
   );
 
@@ -209,14 +221,16 @@ export function OnboardingsTab({
             />
           </div>
         </div>
-        <span className="ml-auto font-body text-sm text-ink-faint">
-          {data?.meta.total ?? 0} onboardings
-        </span>
+        {hasFilter && (
+          <span className="ml-auto font-body text-sm text-ink-faint">
+            {data?.meta.total ?? 0} onboardings
+          </span>
+        )}
       </div>
 
-      {isLoading ? (
+      {hasFilter && isLoading ? (
         <Skeleton rows={5} />
-      ) : !data || data.data.length === 0 ? (
+      ) : hasFilter && (!data || data.data.length === 0) ? (
         <EmptyState
           title="Sem onboardings"
           description="Nenhum processo de integração corresponde aos filtros."
@@ -239,65 +253,71 @@ export function OnboardingsTab({
             <div>Período</div>
             <div>Estado</div>
           </div>
-          {data.data.map((plan) => (
-            <div
-              key={plan.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => setDetailId(plan.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setDetailId(plan.id);
-                }
-              }}
-              className={cn(
-                PLAN_GRID,
-                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0',
-              )}
-            >
-              <div className="flex min-w-0 items-center gap-2.5">
-                <Avatar
-                  name={plan.user.fullName}
-                  url={plan.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0">
-                  <div className="break-words font-semibold text-ink">
-                    {plan.user.fullName}
-                  </div>
-                  {plan.user.employeeNumber && (
-                    <div className="text-xs text-ink-muted">
-                      Nº {plan.user.employeeNumber}
+          {hasFilter &&
+            data?.data.map((plan) => (
+              <div
+                key={plan.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setDetailId(plan.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setDetailId(plan.id);
+                  }
+                }}
+                className={cn(
+                  PLAN_GRID,
+                  'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0',
+                )}
+              >
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar
+                    name={plan.user.fullName}
+                    url={plan.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <div className="min-w-0">
+                    <div className="break-words font-semibold text-ink">
+                      {plan.user.fullName}
                     </div>
-                  )}
+                    {plan.user.employeeNumber && (
+                      <div className="text-xs text-ink-muted">
+                        Nº {plan.user.employeeNumber}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="break-words">
+                  {plan.user.position?.name ?? plan.user.email}
+                </div>
+                <div className="break-words">
+                  {plan.user.department?.name ?? '—'}
+                </div>
+                <div className="break-words">{plan.template.name}</div>
+                <div className="text-right text-ink">
+                  {plan._count.taskInstances}
+                </div>
+                <div className="text-right text-ink">
+                  {plan._count.documents}
+                </div>
+                <div className="text-right text-ink">{plan.progress}%</div>
+                <div className="break-words">
+                  {fmtDate(plan.startDate)}
+                  {plan.expectedEndDate &&
+                    ` → ${fmtDate(plan.expectedEndDate)}`}
+                </div>
+                <div>
+                  <span className="font-bold text-brand-dark">
+                    {STATUS_CFG[plan.status]?.label ?? plan.status}
+                  </span>
                 </div>
               </div>
-              <div className="break-words">
-                {plan.user.position?.name ?? plan.user.email}
-              </div>
-              <div className="break-words">
-                {plan.user.department?.name ?? '—'}
-              </div>
-              <div className="break-words">{plan.template.name}</div>
-              <div className="text-right text-ink">
-                {plan._count.taskInstances}
-              </div>
-              <div className="text-right text-ink">{plan._count.documents}</div>
-              <div className="text-right text-ink">{plan.progress}%</div>
-              <div className="break-words">
-                {fmtDate(plan.startDate)}
-                {plan.expectedEndDate && ` → ${fmtDate(plan.expectedEndDate)}`}
-              </div>
-              <div>
-                <StatusBadge value={plan.status} map={STATUS_CFG} />
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
-      {data && data.meta.totalPages > 1 && (
+      {hasFilter && data && data.meta.totalPages > 1 && (
         <Pagination
           page={data.meta.page}
           totalPages={data.meta.totalPages}
