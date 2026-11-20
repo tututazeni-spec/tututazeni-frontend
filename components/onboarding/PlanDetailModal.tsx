@@ -28,6 +28,8 @@ import {
   AlertCircle,
   CalendarDays,
   Clock,
+  ClipboardCheck,
+  FileText,
   ListChecks,
   ShieldCheck,
   Trash2,
@@ -58,6 +60,41 @@ import {
   TASK_STATUS_CFG,
 } from './constants';
 import { DocumentLink } from './DocumentLink';
+
+// Barra de título dos cards (desenho "titulo do video.jpeg"): faixa clara com
+// sombra suave, ícone e título a azul marinho a negrito, separador • e info
+// secundária.
+function SectionTitleBar({
+  icon: Icon,
+  title,
+  meta,
+}: {
+  icon: typeof FileText;
+  title: string;
+  meta?: string;
+}) {
+  return (
+    <div className="mb-2 flex items-center gap-3 overflow-hidden rounded-card bg-gradient-to-r from-white via-white to-brand-subtle px-4 py-2.5 shadow-[0_2px_10px_rgba(15,31,61,0.10)]">
+      <Icon
+        size={22}
+        strokeWidth={2}
+        className="shrink-0 text-brand-dark"
+        aria-hidden
+      />
+      <span className="min-w-0 truncate font-body text-sm font-extrabold text-brand-dark">
+        {title}
+      </span>
+      {meta && (
+        <>
+          <span aria-hidden className="text-ink-faint">
+            •
+          </span>
+          <span className="font-body text-xs text-ink-faint">{meta}</span>
+        </>
+      )}
+    </div>
+  );
+}
 import { AssignTeamMemberModal } from './AssignTeamMemberModal';
 import { TeamMemberCard, type TeamRole } from './TeamMemberCard';
 import type {
@@ -355,7 +392,7 @@ export function PlanDetailModal({
                   {data.xpEarned > 0 && <span>{data.xpEarned} XP</span>}
                 </div>
                 <div className="mt-2">
-                  <ProgressBar value={data.progress} />
+                  <ProgressBar value={data.progress} color="#0F1F3D" />
                 </div>
               </div>
             </div>
@@ -385,35 +422,39 @@ export function PlanDetailModal({
                 sistema de avaliação próprio. */}
             {data.status === 'COMPLETED' &&
               (canManageTasks || data.integrationEvalRequestId) && (
-                <div className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-4">
-                  <div className="min-w-0">
-                    <div className="font-body text-sm font-semibold text-ink">
-                      Avaliação de Integração
+                <section>
+                  <SectionTitleBar
+                    icon={ClipboardCheck}
+                    title="Avaliação de Integração"
+                  />
+                  <div className="flex items-center justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-4">
+                    <div className="min-w-0">
+                      <div className="font-body text-xs text-ink-faint">
+                        {data.integrationEvalRequestId
+                          ? 'Já foi pedida — acompanha o resultado no módulo Evaluation.'
+                          : 'Avalia se o onboarding foi concluído com sucesso.'}
+                      </div>
                     </div>
-                    <div className="font-body text-xs text-ink-faint">
-                      {data.integrationEvalRequestId
-                        ? 'Já foi pedida — acompanha o resultado no módulo Evaluation.'
-                        : 'Avalia se o onboarding foi concluído com sucesso.'}
-                    </div>
+                    {data.integrationEvalRequestId ? (
+                      <Badge dot={false} intent="success">
+                        Pedida
+                      </Badge>
+                    ) : (
+                      canManageTasks && (
+                        <Button
+                          size="sm"
+                          intent="ghost"
+                          className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                          disabled={busy}
+                          loading={triggerEval.isPending}
+                          onClick={() => triggerEval.mutate(undefined)}
+                        >
+                          Pedir avaliação
+                        </Button>
+                      )
+                    )}
                   </div>
-                  {data.integrationEvalRequestId ? (
-                    <Badge dot={false} intent="success">
-                      Pedida
-                    </Badge>
-                  ) : (
-                    canManageTasks && (
-                      <Button
-                        size="sm"
-                        intent="secondary"
-                        disabled={busy}
-                        loading={triggerEval.isPending}
-                        onClick={() => triggerEval.mutate(undefined)}
-                      >
-                        Pedir avaliação
-                      </Button>
-                    )
-                  )}
-                </div>
+                </section>
               )}
 
             {/* Tarefas por fase */}
@@ -422,12 +463,11 @@ export function PlanDetailModal({
               if (phaseTasks.length === 0) return null;
               return (
                 <section key={phase}>
-                  <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                    {PHASE_LABELS[phase]}
-                    <span className="ml-1.5 text-ink-faint">
-                      ({phaseTasks.length})
-                    </span>
-                  </h3>
+                  <SectionTitleBar
+                    icon={ListChecks}
+                    title={PHASE_LABELS[phase]}
+                    meta={`${phaseTasks.length} ${phaseTasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+                  />
                   <ul className="space-y-2">
                     {phaseTasks.map((task) => {
                       const stCfg = TASK_STATUS_CFG[task.status];
@@ -443,7 +483,7 @@ export function PlanDetailModal({
                       return (
                         <li
                           key={task.id}
-                          className="rounded-card border border-border bg-surface p-3"
+                          className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
                         >
                           <div className="flex items-start gap-3">
                             <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
@@ -458,13 +498,6 @@ export function PlanDetailModal({
                                 <span className="font-body text-sm font-medium text-ink">
                                   {task.templateTask.title}
                                 </span>
-                                {catCfg && (
-                                  <span
-                                    className={`rounded px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}
-                                  >
-                                    {catCfg.label}
-                                  </span>
-                                )}
                               </div>
                               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
                                 {task.dueDate && (
@@ -495,6 +528,11 @@ export function PlanDetailModal({
                                 )}
                               </div>
                             </div>
+                            {catCfg && (
+                              <span className="shrink-0 self-start pr-3 font-body text-xs font-bold text-brand-dark">
+                                {catCfg.label}
+                              </span>
+                            )}
                             {showActions && !panelOpen && (
                               <div className="flex shrink-0 flex-wrap justify-end gap-1">
                                 {awaitingApproval && (
@@ -601,19 +639,18 @@ export function PlanDetailModal({
             {/* Documentos */}
             {data.documents.length > 0 && (
               <section>
-                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-brand-dark">
-                  Documentos
-                  <span className="ml-1.5 text-brand-dark">
-                    ({data.documents.length})
-                  </span>
-                </h3>
+                <SectionTitleBar
+                  icon={FileText}
+                  title="Documentos"
+                  meta={`${data.documents.length} ${data.documents.length === 1 ? 'documento' : 'documentos'}`}
+                />
                 <ul className="space-y-2">
                   {data.documents.map((doc) => {
                     const rejectOpen = docReject === doc.id;
                     return (
                       <li
                         key={doc.id}
-                        className="rounded-card border border-border bg-surface p-3"
+                        className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
