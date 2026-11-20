@@ -97,6 +97,15 @@ export function PlanDetailModal({
   const canAssignTeam = canManagePlan && me?.role?.code === 'ADMIN';
   const [pending, setPending] = useState<PendingAction>(null);
   const [reason, setReason] = useState('');
+  // Secções do plano (avaliação, fases, documentos) começam fechadas.
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const toggleSection = (key: string) =>
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   // Painel de rejeição de documento (id do documento) + motivo.
   const [docReject, setDocReject] = useState<number | null>(null);
   const [docReason, setDocReason] = useState('');
@@ -356,7 +365,6 @@ export function PlanDetailModal({
                       Previsto {fmtDate(data.expectedEndDate)}
                     </span>
                   )}
-                  {data.xpEarned > 0 && <span>{data.xpEarned} XP</span>}
                 </div>
                 <div className="mt-2">
                   <ProgressBar value={data.progress} color="#0F1F3D" />
@@ -393,34 +401,38 @@ export function PlanDetailModal({
                   <SectionTitleBar
                     icon={ClipboardCheck}
                     title="Avaliação de Integração"
+                    expanded={openSections.has('eval')}
+                    onToggle={() => toggleSection('eval')}
                   />
-                  <div className="flex items-center justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-4">
-                    <div className="min-w-0">
-                      <div className="font-body text-xs text-ink-faint">
-                        {data.integrationEvalRequestId
-                          ? 'Já foi pedida — acompanha o resultado no módulo Evaluation.'
-                          : 'Avalia se o onboarding foi concluído com sucesso.'}
+                  {openSections.has('eval') && (
+                    <div className="flex items-center justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-4">
+                      <div className="min-w-0">
+                        <div className="font-body text-xs text-ink-faint">
+                          {data.integrationEvalRequestId
+                            ? 'Já foi pedida — acompanha o resultado no módulo Avaliação.'
+                            : 'Avalia se o onboarding foi concluído com sucesso.'}
+                        </div>
                       </div>
+                      {data.integrationEvalRequestId ? (
+                        <Badge dot={false} intent="success">
+                          Pedida
+                        </Badge>
+                      ) : (
+                        canManageTasks && (
+                          <Button
+                            size="sm"
+                            intent="ghost"
+                            className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                            disabled={busy}
+                            loading={triggerEval.isPending}
+                            onClick={() => triggerEval.mutate(undefined)}
+                          >
+                            Pedir avaliação
+                          </Button>
+                        )
+                      )}
                     </div>
-                    {data.integrationEvalRequestId ? (
-                      <Badge dot={false} intent="success">
-                        Pedida
-                      </Badge>
-                    ) : (
-                      canManageTasks && (
-                        <Button
-                          size="sm"
-                          intent="ghost"
-                          className="text-brand-dark hover:bg-brand-dark hover:text-white"
-                          disabled={busy}
-                          loading={triggerEval.isPending}
-                          onClick={() => triggerEval.mutate(undefined)}
-                        >
-                          Pedir avaliação
-                        </Button>
-                      )
-                    )}
-                  </div>
+                  )}
                 </section>
               )}
 
@@ -434,174 +446,179 @@ export function PlanDetailModal({
                     icon={ListChecks}
                     title={PHASE_LABELS[phase]}
                     meta={`${phaseTasks.length} ${phaseTasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+                    expanded={openSections.has(`phase-${phase}`)}
+                    onToggle={() => toggleSection(`phase-${phase}`)}
                   />
-                  <ul className="space-y-2">
-                    {phaseTasks.map((task) => {
-                      const stCfg = TASK_STATUS_CFG[task.status];
-                      const StIcon = stCfg?.icon;
-                      const catCfg = CATEGORY_CFG[task.templateTask.category];
-                      const awaitingApproval =
-                        task.templateTask.requiresApproval &&
-                        task.status === 'IN_PROGRESS';
-                      const canSkip = SKIPPABLE.has(task.status);
-                      const showActions =
-                        canManageTasks && (awaitingApproval || canSkip);
-                      const panelOpen = pending?.taskId === task.id;
-                      return (
-                        <li
-                          key={task.id}
-                          className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
-                              {StIcon ? (
-                                <StIcon size={14} strokeWidth={1.75} />
-                              ) : (
-                                '•'
-                              )}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              {catCfg && (
-                                <div className="font-body text-xs font-bold text-brand-dark">
-                                  {catCfg.label}
+                  {openSections.has(`phase-${phase}`) && (
+                    <ul className="space-y-2">
+                      {phaseTasks.map((task) => {
+                        const stCfg = TASK_STATUS_CFG[task.status];
+                        const StIcon = stCfg?.icon;
+                        const catCfg = CATEGORY_CFG[task.templateTask.category];
+                        const awaitingApproval =
+                          task.templateTask.requiresApproval &&
+                          task.status === 'IN_PROGRESS';
+                        const canSkip = SKIPPABLE.has(task.status);
+                        const showActions =
+                          canManageTasks && (awaitingApproval || canSkip);
+                        const panelOpen = pending?.taskId === task.id;
+                        return (
+                          <li
+                            key={task.id}
+                            className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
+                                {StIcon ? (
+                                  <StIcon size={14} strokeWidth={1.75} />
+                                ) : (
+                                  '•'
+                                )}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                {catCfg && (
+                                  <div className="font-body text-xs font-bold text-brand-dark">
+                                    {catCfg.label}
+                                  </div>
+                                )}
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="font-body text-sm font-medium text-ink">
+                                    {task.templateTask.title}
+                                  </span>
                                 </div>
-                              )}
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-body text-sm font-medium text-ink">
-                                  {task.templateTask.title}
-                                </span>
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                                {task.dueDate && (
-                                  <span className="font-semibold text-ink">
-                                    Prazo {fmtDate(task.dueDate)}
-                                  </span>
-                                )}
-                                {task.completedAt && (
-                                  <span className="text-success-ink">
-                                    Concluída {fmtDate(task.completedAt)}
-                                  </span>
-                                )}
-                                {task.templateTask.requiresApproval &&
-                                  (task.approvedBy ? (
+                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                  {task.dueDate && (
+                                    <span className="font-semibold text-ink">
+                                      Prazo {fmtDate(task.dueDate)}
+                                    </span>
+                                  )}
+                                  {task.completedAt && (
                                     <span className="text-success-ink">
-                                      Aprovada por {task.approvedBy.fullName}
+                                      Concluída {fmtDate(task.completedAt)}
                                     </span>
-                                  ) : awaitingApproval ? (
-                                    <span className="text-warning-ink">
-                                      Aguarda aprovação
-                                    </span>
-                                  ) : (
-                                    <span>Requer aprovação</span>
-                                  ))}
-                                {task.approvalNote && (
-                                  <span>Nota: {task.approvalNote}</span>
-                                )}
-                                {task.skipReason && (
-                                  <span>Saltada: {task.skipReason}</span>
-                                )}
+                                  )}
+                                  {task.templateTask.requiresApproval &&
+                                    (task.approvedBy ? (
+                                      <span className="text-success-ink">
+                                        Aprovada por {task.approvedBy.fullName}
+                                      </span>
+                                    ) : awaitingApproval ? (
+                                      <span className="text-warning-ink">
+                                        Aguarda aprovação
+                                      </span>
+                                    ) : (
+                                      <span>Requer aprovação</span>
+                                    ))}
+                                  {task.approvalNote && (
+                                    <span>Nota: {task.approvalNote}</span>
+                                  )}
+                                  {task.skipReason && (
+                                    <span>Saltada: {task.skipReason}</span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            {showActions && !panelOpen && (
-                              <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                                {awaitingApproval && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      intent="secondary"
-                                      disabled={busy}
-                                      loading={approve.isPending}
-                                      onClick={() => approve.mutate(task.id)}
-                                    >
-                                      Aprovar
-                                    </Button>
+                              {showActions && !panelOpen && (
+                                <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                                  {awaitingApproval && (
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        intent="secondary"
+                                        disabled={busy}
+                                        loading={approve.isPending}
+                                        onClick={() => approve.mutate(task.id)}
+                                      >
+                                        Aprovar
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        intent="ghost"
+                                        disabled={busy}
+                                        onClick={() => {
+                                          setReason('');
+                                          setPending({
+                                            taskId: task.id,
+                                            kind: 'reject',
+                                          });
+                                        }}
+                                      >
+                                        Rejeitar
+                                      </Button>
+                                    </>
+                                  )}
+                                  {canSkip && (
                                     <Button
                                       size="sm"
                                       intent="ghost"
+                                      className="cursor-pointer hover:bg-transparent hover:text-ink-muted"
                                       disabled={busy}
                                       onClick={() => {
                                         setReason('');
                                         setPending({
                                           taskId: task.id,
-                                          kind: 'reject',
+                                          kind: 'skip',
                                         });
                                       }}
                                     >
-                                      Rejeitar
+                                      Saltar
                                     </Button>
-                                  </>
-                                )}
-                                {canSkip && (
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {panelOpen && (
+                              <div className="mt-3 border-t border-border pt-3">
+                                <Textarea
+                                  value={reason}
+                                  onChange={(e) => setReason(e.target.value)}
+                                  rows={2}
+                                  className="w-full"
+                                  placeholder={
+                                    pending?.kind === 'skip'
+                                      ? 'Motivo para saltar a tarefa (obrigatório)…'
+                                      : 'Comentário para o colaborador (opcional)…'
+                                  }
+                                />
+                                <div className="mt-2 flex justify-end gap-2">
                                   <Button
                                     size="sm"
                                     intent="ghost"
-                                    className="cursor-pointer hover:bg-transparent hover:text-ink-muted"
                                     disabled={busy}
                                     onClick={() => {
+                                      setPending(null);
                                       setReason('');
-                                      setPending({
-                                        taskId: task.id,
-                                        kind: 'skip',
-                                      });
                                     }}
                                   >
-                                    Saltar
+                                    Cancelar
                                   </Button>
-                                )}
+                                  <Button
+                                    size="sm"
+                                    intent={
+                                      pending?.kind === 'skip'
+                                        ? 'primary'
+                                        : 'danger'
+                                    }
+                                    loading={skip.isPending || reject.isPending}
+                                    disabled={
+                                      busy ||
+                                      (pending?.kind === 'skip' &&
+                                        !reason.trim())
+                                    }
+                                    onClick={() => confirmPanel(task)}
+                                  >
+                                    {pending?.kind === 'skip'
+                                      ? 'Saltar tarefa'
+                                      : 'Rejeitar tarefa'}
+                                  </Button>
+                                </div>
                               </div>
                             )}
-                          </div>
-
-                          {panelOpen && (
-                            <div className="mt-3 border-t border-border pt-3">
-                              <Textarea
-                                value={reason}
-                                onChange={(e) => setReason(e.target.value)}
-                                rows={2}
-                                className="w-full"
-                                placeholder={
-                                  pending?.kind === 'skip'
-                                    ? 'Motivo para saltar a tarefa (obrigatório)…'
-                                    : 'Comentário para o colaborador (opcional)…'
-                                }
-                              />
-                              <div className="mt-2 flex justify-end gap-2">
-                                <Button
-                                  size="sm"
-                                  intent="ghost"
-                                  disabled={busy}
-                                  onClick={() => {
-                                    setPending(null);
-                                    setReason('');
-                                  }}
-                                >
-                                  Cancelar
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  intent={
-                                    pending?.kind === 'skip'
-                                      ? 'primary'
-                                      : 'danger'
-                                  }
-                                  loading={skip.isPending || reject.isPending}
-                                  disabled={
-                                    busy ||
-                                    (pending?.kind === 'skip' && !reason.trim())
-                                  }
-                                  onClick={() => confirmPanel(task)}
-                                >
-                                  {pending?.kind === 'skip'
-                                    ? 'Saltar tarefa'
-                                    : 'Rejeitar tarefa'}
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </section>
               );
             })}
@@ -613,118 +630,122 @@ export function PlanDetailModal({
                   icon={FileText}
                   title="Documentos"
                   meta={`${data.documents.length} ${data.documents.length === 1 ? 'documento' : 'documentos'}`}
+                  expanded={openSections.has('docs')}
+                  onToggle={() => toggleSection('docs')}
                 />
-                <ul className="space-y-2">
-                  {data.documents.map((doc) => {
-                    const rejectOpen = docReject === doc.id;
-                    return (
-                      <li
-                        key={doc.id}
-                        className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-body text-sm font-medium text-ink">
-                                {doc.documentType}
+                {openSections.has('docs') && (
+                  <ul className="space-y-2">
+                    {data.documents.map((doc) => {
+                      const rejectOpen = docReject === doc.id;
+                      return (
+                        <li
+                          key={doc.id}
+                          className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-body text-sm font-medium text-ink">
+                                  {doc.documentType}
+                                </span>
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                <DocumentLink
+                                  fileUrl={doc.fileUrl}
+                                  className="text-primary hover:underline"
+                                />
+                                {doc.notes && <span>Nota: {doc.notes}</span>}
+                                {doc.rejectionReason && (
+                                  <span className="text-danger-ink">
+                                    Motivo: {doc.rejectionReason}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-end gap-1">
+                              {canManagePlan &&
+                                doc.status === 'PENDING' &&
+                                !rejectOpen && (
+                                  <div className="flex shrink-0 gap-1">
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                      disabled={busy}
+                                      loading={validateDoc.isPending}
+                                      onClick={() =>
+                                        validateDoc.mutate({
+                                          documentId: doc.id,
+                                          status: 'APPROVED',
+                                        })
+                                      }
+                                    >
+                                      Aprovar documento
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                      disabled={busy}
+                                      onClick={() => {
+                                        setDocReason('');
+                                        setDocReject(doc.id);
+                                      }}
+                                    >
+                                      Rejeitar documento
+                                    </Button>
+                                  </div>
+                                )}
+                              <span className="pr-3 font-body text-xs font-bold text-ink">
+                                {DOC_LABEL[doc.status]}
                               </span>
                             </div>
-                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                              <DocumentLink
-                                fileUrl={doc.fileUrl}
-                                className="text-primary hover:underline"
-                              />
-                              {doc.notes && <span>Nota: {doc.notes}</span>}
-                              {doc.rejectionReason && (
-                                <span className="text-danger-ink">
-                                  Motivo: {doc.rejectionReason}
-                                </span>
-                              )}
-                            </div>
                           </div>
-                          <div className="flex shrink-0 flex-col items-end gap-1">
-                            {canManagePlan &&
-                              doc.status === 'PENDING' &&
-                              !rejectOpen && (
-                                <div className="flex shrink-0 gap-1">
-                                  <Button
-                                    size="sm"
-                                    intent="ghost"
-                                    className="text-brand-dark hover:bg-brand-dark hover:text-white"
-                                    disabled={busy}
-                                    loading={validateDoc.isPending}
-                                    onClick={() =>
-                                      validateDoc.mutate({
-                                        documentId: doc.id,
-                                        status: 'APPROVED',
-                                      })
-                                    }
-                                  >
-                                    Aprovar documento
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    intent="ghost"
-                                    className="text-brand-dark hover:bg-brand-dark hover:text-white"
-                                    disabled={busy}
-                                    onClick={() => {
-                                      setDocReason('');
-                                      setDocReject(doc.id);
-                                    }}
-                                  >
-                                    Rejeitar documento
-                                  </Button>
-                                </div>
-                              )}
-                            <span className="pr-3 font-body text-xs font-bold text-ink">
-                              {DOC_LABEL[doc.status]}
-                            </span>
-                          </div>
-                        </div>
 
-                        {rejectOpen && (
-                          <div className="mt-3 border-t border-border pt-3">
-                            <Textarea
-                              value={docReason}
-                              onChange={(e) => setDocReason(e.target.value)}
-                              rows={2}
-                              className="w-full"
-                              placeholder="Motivo da rejeição (opcional)…"
-                            />
-                            <div className="mt-2 flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                intent="ghost"
-                                disabled={busy}
-                                onClick={() => {
-                                  setDocReject(null);
-                                  setDocReason('');
-                                }}
-                              >
-                                Cancelar
-                              </Button>
-                              <Button
-                                size="sm"
-                                intent="danger"
-                                loading={validateDoc.isPending}
-                                disabled={busy}
-                                onClick={() =>
-                                  validateDoc.mutate({
-                                    documentId: doc.id,
-                                    status: 'REJECTED',
-                                    rejectionReason: docReason,
-                                  })
-                                }
-                              >
-                                Confirmar rejeição
-                              </Button>
+                          {rejectOpen && (
+                            <div className="mt-3 border-t border-border pt-3">
+                              <Textarea
+                                value={docReason}
+                                onChange={(e) => setDocReason(e.target.value)}
+                                rows={2}
+                                className="w-full"
+                                placeholder="Motivo da rejeição (opcional)…"
+                              />
+                              <div className="mt-2 flex justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  intent="ghost"
+                                  disabled={busy}
+                                  onClick={() => {
+                                    setDocReject(null);
+                                    setDocReason('');
+                                  }}
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  intent="danger"
+                                  loading={validateDoc.isPending}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    validateDoc.mutate({
+                                      documentId: doc.id,
+                                      status: 'REJECTED',
+                                      rejectionReason: docReason,
+                                    })
+                                  }
+                                >
+                                  Confirmar rejeição
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </section>
             )}
           </div>
