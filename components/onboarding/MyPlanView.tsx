@@ -110,8 +110,8 @@ export function MyPlanView() {
     label: string;
     hasPerson: boolean;
   } | null>(null);
-  // PATCH /onboarding/:id/team é só ADMIN/RH.
-  const canAssignTeam = me?.role?.code === 'ADMIN' || me?.role?.code === 'RH';
+  // PATCH /onboarding/:id/team é só ADMIN.
+  const canAssignTeam = me?.role?.code === 'ADMIN';
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   // Marco escolhido no Select; '' = usar o mais recente disponível.

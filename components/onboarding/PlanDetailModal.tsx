@@ -35,6 +35,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -87,6 +88,9 @@ export function PlanDetailModal({
 }: PlanDetailModalProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  // PATCH /onboarding/:id/team é só ADMIN.
+  const { data: me } = useCurrentUser();
+  const canAssignTeam = canManagePlan && me?.role?.code === 'ADMIN';
   const [pending, setPending] = useState<PendingAction>(null);
   const [reason, setReason] = useState('');
   // Painel de rejeição de documento (id do documento) + motivo.
@@ -367,7 +371,7 @@ export function PlanDetailModal({
                   icon={icon}
                   mailSubject={`Onboarding — ${data.user.fullName}`}
                   onAssign={
-                    canManagePlan
+                    canAssignTeam
                       ? () => setAssigning({ role, label, hasPerson: !!person })
                       : undefined
                   }
