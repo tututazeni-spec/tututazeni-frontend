@@ -16,10 +16,12 @@ import {
   ClipboardList,
   ClipboardCheck,
   Clapperboard,
+  MessageCircle,
   ShieldCheck,
   Star,
   User,
   Users,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
@@ -116,6 +118,18 @@ function paceLabel(pct: number): string {
   return 'Início do percurso';
 }
 
+// Dispensa do cartão de boas-vindas: por utilizador + plano, no browser.
+function welcomeDismissKey(userId: number | undefined, planId: number) {
+  return `onboarding-welcome-dismissed:${userId ?? 'me'}:${planId}`;
+}
+function readWelcomeDismissed(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function MyPlanView() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
@@ -132,6 +146,8 @@ export function MyPlanView() {
   const [milestoneChoice, setMilestoneChoice] = useState<SurveyMilestone | ''>(
     '',
   );
+  // Chaves de boas-vindas dispensadas nesta sessão (a persistência é no localStorage).
+  const [dismissedWelcome, setDismissedWelcome] = useState<string[]>([]);
   const [activeTab, setActiveTab] =
     useState<(typeof SUB_TABS)[number]['id']>('tasks');
 
@@ -210,7 +226,15 @@ export function MyPlanView() {
   }
 
   const plan = plans[0];
-  const pct = plan.progress ?? 0;
+  // /onboarding/my não devolve contadores — calculam-se a partir das tarefas
+  // reais do plano (mesma regra do backend: concluídas = COMPLETED).
+  const totalTasks = plan.totalTasks ?? plan.taskInstances.length;
+  const completedTasks =
+    plan.completedTasks ??
+    plan.taskInstances.filter((t) => t.status === 'COMPLETED').length;
+  const pct =
+    plan.progress ??
+    (totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0);
   // /onboarding/my não devolve `user` — o plano é sempre o do próprio.
   const owner = plan.user ?? me;
 
@@ -239,17 +263,100 @@ export function MyPlanView() {
     answered,
   );
 
+  // O cartão só aparece com um plano atribuído e ainda não concluído; some
+  // sozinho quando a integração termina e o utilizador pode dispensá-lo (X).
+  const welcomeKey = welcomeDismissKey(me?.id, plan.id);
+  const showWelcome =
+    plan.status !== 'COMPLETED' &&
+    plan.status !== 'ABANDONED' &&
+    !dismissedWelcome.includes(welcomeKey) &&
+    !readWelcomeDismissed(welcomeKey);
+  const dismissWelcome = () => {
+    try {
+      localStorage.setItem(welcomeKey, '1');
+    } catch {
+      /* sem localStorage: fica dispensado só até recarregar */
+    }
+    setDismissedWelcome((cur) => [...cur, welcomeKey]);
+  };
+
   return (
     <div className="space-y-5">
-      {/* Welcome */}
-      <div className="bg-primary text-canvas rounded-card p-5">
-        <div className="text-sm font-semibold mb-1">
-          Mensagem de boas-vindas
+      {/* Welcome — desenho feedback.jpeg: faixa navy com ondulação verde,
+          balão azul, pílula, mensagem e autor. */}
+      {showWelcome && (
+        <div className="relative overflow-hidden rounded-panel bg-surface shadow-[0_4px_16px_rgba(15,31,61,0.12)]">
+          <button
+            type="button"
+            onClick={dismissWelcome}
+            aria-label="Fechar mensagem de boas-vindas"
+            className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white"
+          >
+            <X size={20} strokeWidth={2.25} aria-hidden />
+          </button>
+          <div className="relative flex items-center gap-4 overflow-hidden bg-[#0F1F3D] px-6 py-4">
+            <Star
+              size={30}
+              strokeWidth={1.75}
+              className="shrink-0 text-white"
+              aria-hidden
+            />
+            <span aria-hidden className="h-8 w-px shrink-0 bg-white/40" />
+            <span className="font-body text-xl font-extrabold text-white">
+              Mensagem de boas-vindas
+            </span>
+            <svg
+              aria-hidden
+              viewBox="0 0 200 80"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute inset-y-0 right-0 h-full w-40 text-[#16A765]"
+            >
+              <path
+                d="M200 0 V80 H120 C 150 60, 170 30, 170 0 Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <div className="flex items-center gap-5 px-6 py-5">
+            <div
+              aria-hidden
+              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white shadow-[0_8px_16px_rgba(29,78,216,0.35)]"
+            >
+              <MessageCircle size={38} strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-[#CDEFD9] px-3 py-1 font-body text-sm font-semibold text-[#0F1F3D]">
+                  Boas-vindas
+                </span>
+                <span aria-hidden className="h-5 w-px bg-border-strong" />
+                <span className="font-body text-sm text-ink">
+                  {plan.template.name}
+                </span>
+              </div>
+              <p className="whitespace-pre-line break-words font-body text-lg text-[#0F1F3D]">
+                “
+                {renderWelcomeMessage(
+                  plan.template.welcomeMessage,
+                  owner?.fullName,
+                )}
+                ”
+              </p>
+              {(plan.hrResponsible ?? plan.manager) && (
+                <div className="flex items-center gap-2 font-body text-sm text-ink">
+                  <User size={18} strokeWidth={1.75} aria-hidden />
+                  <span>
+                    por{' '}
+                    <strong className="text-[#0F1F3D]">
+                      {(plan.hrResponsible ?? plan.manager)?.fullName}
+                    </strong>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="text-sm opacity-90 whitespace-pre-line">
-          {renderWelcomeMessage(plan.template.welcomeMessage, owner?.fullName)}
-        </p>
-      </div>
+      )}
       {plan.template.welcomeVideoUrl && (
         <div className="bg-primary text-canvas rounded-card p-5 flex items-center gap-4">
           <Clapperboard size={36} strokeWidth={1.5} className="shrink-0" />
@@ -285,7 +392,7 @@ export function MyPlanView() {
           { label: 'Início', value: fmtDate(plan.startDate) },
           {
             label: 'Tarefas',
-            value: `${plan.completedTasks ?? 0}/${plan.totalTasks ?? 0}`,
+            value: `${completedTasks}/${totalTasks}`,
           },
         ]}
         note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias${

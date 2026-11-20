@@ -263,7 +263,6 @@ export function TemplateDetailModal({
                                       {RESPONSIBLE_LABELS[task.responsible] ??
                                         task.responsible}
                                     </span>
-                                    <span>+{task.xpReward} XP</span>
                                     {task.dueDayOffset != null && (
                                       <span>
                                         até ao dia {task.dueDayOffset}
@@ -346,7 +345,11 @@ export function TemplateDetailModal({
                   Editar
                 </Button>
               )}
-              <Button intent="ghost" onClick={onClose}>
+              <Button
+                intent="ghost"
+                className="cursor-pointer hover:!bg-transparent"
+                onClick={onClose}
+              >
                 Fechar
               </Button>
             </div>
