@@ -421,27 +421,30 @@ export function TemplateFormModal({
 
           <FormField label="Objectivos" htmlFor="ot-objective">
             <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
+              <ul
+                role="group"
+                aria-label="Objectivos sugeridos"
+                className="max-h-56 divide-y divide-border overflow-y-auto rounded-card border border-border"
+              >
                 {[
                   ...objectiveOptions,
                   ...objectives.filter((o) => !objectiveOptions.includes(o)),
                 ].map((o) => (
-                  <button
-                    key={o}
-                    type="button"
-                    aria-pressed={objectives.includes(o)}
-                    onClick={() => toggleObjective(o)}
-                    className={cn(
-                      'rounded-control border px-3 py-1.5 text-left font-body text-xs transition-colors',
-                      objectives.includes(o)
-                        ? 'border-primary bg-primary-subtle text-primary'
-                        : 'border-border-strong bg-surface text-ink-muted',
-                    )}
-                  >
-                    {o}
-                  </button>
+                  <li key={o}>
+                    <label className="flex cursor-pointer items-start gap-2 px-3 py-2 text-sm text-ink hover:bg-surface-sunken">
+                      <Checkbox
+                        checked={objectives.includes(o)}
+                        onChange={() => toggleObjective(o)}
+                      />
+                      <span>{o}</span>
+                    </label>
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <p className="text-xs text-ink-faint">
+                {objectives.length} seleccionado
+                {objectives.length === 1 ? '' : 's'}
+              </p>
               <div className="flex items-center gap-2">
                 <Input
                   id="ot-objective"
