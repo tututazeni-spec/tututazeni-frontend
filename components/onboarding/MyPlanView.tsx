@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { renderWelcomeMessage } from './catalog';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
@@ -241,16 +242,14 @@ export function MyPlanView() {
   return (
     <div className="space-y-5">
       {/* Welcome */}
-      {plan.template.welcomeMessage && (
-        <div className="bg-primary text-canvas rounded-card p-5">
-          <div className="text-sm font-semibold mb-1">
-            Mensagem de boas-vindas
-          </div>
-          <p className="text-sm opacity-90 whitespace-pre-line">
-            {plan.template.welcomeMessage}
-          </p>
+      <div className="bg-primary text-canvas rounded-card p-5">
+        <div className="text-sm font-semibold mb-1">
+          Mensagem de boas-vindas
         </div>
-      )}
+        <p className="text-sm opacity-90 whitespace-pre-line">
+          {renderWelcomeMessage(plan.template.welcomeMessage, owner?.fullName)}
+        </p>
+      </div>
       {plan.template.welcomeVideoUrl && (
         <div className="bg-primary text-canvas rounded-card p-5 flex items-center gap-4">
           <Clapperboard size={36} strokeWidth={1.5} className="shrink-0" />
