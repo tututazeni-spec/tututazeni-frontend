@@ -20,6 +20,7 @@ export function TeamMemberCard({
   icon: Icon,
   mailSubject,
   onAssign,
+  compact = false,
 }: {
   label: string;
   person: TeamMemberPerson | null;
@@ -27,7 +28,13 @@ export function TeamMemberCard({
   mailSubject: string;
   /** Quando definido, o cartão é clicável e abre a atribuição da pessoa. */
   onAssign?: () => void;
+  /** Foto 30% mais pequena (card de detalhe do plano). */
+  compact?: boolean;
 }) {
+  const avatarSize = compact
+    ? '!h-[61.6px] !w-[61.6px] !text-lg'
+    : '!h-[88px] !w-[88px] !text-2xl';
+  const emptySize = compact ? 'h-[61.6px] w-[61.6px]' : 'h-[88px] w-[88px]';
   const interactive = onAssign
     ? {
         role: 'button' as const,
@@ -53,11 +60,13 @@ export function TeamMemberCard({
           name={person.fullName}
           url={person.avatarUrl ?? undefined}
           size="md"
-          className="!h-[88px] !w-[88px] shrink-0 !text-2xl"
+          className={`shrink-0 ${avatarSize}`}
         />
       ) : (
-        <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-brand-dark text-white">
-          <Icon size={40} strokeWidth={1.75} />
+        <span
+          className={`flex ${emptySize} shrink-0 items-center justify-center rounded-full bg-brand-dark text-white`}
+        >
+          <Icon size={compact ? 28 : 40} strokeWidth={1.75} />
         </span>
       )}
       <div className="min-w-0">
