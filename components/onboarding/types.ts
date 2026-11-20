@@ -313,6 +313,7 @@ export interface OnboardingTaskListItem {
   id: number;
   planId: number;
   status: TaskStatus;
+  startDate?: string | null;
   dueDate: string | null;
   completedAt: string | null;
   skipReason: string | null;

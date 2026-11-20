@@ -20,7 +20,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { CATEGORY_CFG, PHASE_LABELS, PHASE_ORDER } from './constants';
-import { planMemberOptions } from './AssignTaskModal';
+import type { DirectoryUser } from '@/components/users/types';
 import type { OnboardingPlanListItem, TaskCategory, TaskPhase } from './types';
 
 interface PlansPage {
@@ -39,11 +39,13 @@ const PHASE_ITEMS = PHASE_ORDER.map((value) => ({
 }));
 
 interface FormValues {
+  templateId: string;
   planId: string;
   title: string;
   description: string;
   category: TaskCategory | '';
   phase: TaskPhase;
+  startDate: string;
   dueDate: string;
   assigneeId: string;
   submitError: string;
@@ -52,11 +54,13 @@ interface FormValues {
 export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
   const notify = useToast();
   const { values, set } = useFormState<FormValues>({
+    templateId: '',
     planId: '',
     title: '',
     description: '',
     category: '',
     phase: 'INTEGRATION',
+    startDate: '',
     dueDate: '',
     assigneeId: NONE,
     submitError: '',
@@ -74,25 +78,47 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
       ),
     [plansPage],
   );
-  const planItems = plans.map((p) => ({
-    value: String(p.id),
-    label: `${p.user.fullName} — ${p.template.name}`,
-  }));
-  const selected = plans.find((p) => String(p.id) === values.planId);
+  // Filtro 1: plano (template). Filtro 2: colaborador com esse plano.
+  const templateItems = useMemo(() => {
+    const seen = new Map<number, string>();
+    for (const p of plans) seen.set(p.template.id, p.template.name);
+    return [...seen.entries()].map(([id, name]) => ({
+      value: String(id),
+      label: name,
+    }));
+  }, [plans]);
+  const collaboratorItems = plans
+    .filter((p) => String(p.template.id) === values.templateId)
+    .map((p) => ({ value: String(p.id), label: p.user.fullName }));
+
+  // Responsável: mesmo departamento do colaborador ou RH (validado no backend).
+  const { data: candidates } = useApiQuery<DirectoryUser[]>(
+    [...queryKeys.onboarding.all, 'task-assignees', values.planId],
+    `/onboarding/${values.planId}/task-assignee-candidates`,
+    { staleTime: STALE_TIME.DYNAMIC, enabled: values.planId !== '' },
+  );
   const assigneeItems = [
     { value: NONE, label: 'Sem responsável' },
-    ...(selected
-      ? planMemberOptions(selected).map((m) => ({
-          value: String(m.id),
-          label: `${m.fullName} (${m.roleLabel})`,
-        }))
-      : []),
+    ...(candidates ?? [])
+      .filter((u) => u != null && u.id != null)
+      .map((u) => ({
+        value: String(u.id),
+        label: `${u.fullName} (${u.role?.name === 'RH' ? 'RH' : (u.department?.name ?? '—')})`,
+      })),
   ];
+
+  const datesInvalid =
+    values.startDate !== '' &&
+    values.dueDate !== '' &&
+    values.dueDate < values.startDate;
 
   const canSubmit =
     values.planId !== '' &&
     values.title.trim().length > 0 &&
-    values.category !== '';
+    values.category !== '' &&
+    values.startDate !== '' &&
+    values.dueDate !== '' &&
+    !datesInvalid;
 
   const save = useApiMutation(
     (body: Record<string, unknown>) =>
@@ -118,9 +144,10 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
       title: values.title.trim(),
       category: values.category,
       phase: values.phase,
+      startDate: values.startDate,
+      dueDate: values.dueDate,
     };
     if (values.description.trim()) body.description = values.description.trim();
-    if (values.dueDate) body.dueDate = values.dueDate;
     if (values.assigneeId !== NONE) body.assigneeId = Number(values.assigneeId);
     save.mutate(body);
   };
@@ -140,18 +167,38 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          <FormField label="Plano / colaborador *" htmlFor="pt-plan">
-            <Select
-              items={planItems}
-              value={values.planId || undefined}
-              onValueChange={(v) => {
-                set('planId', v);
-                set('assigneeId', NONE);
-              }}
-              placeholder="Seleccionar plano"
-              className="w-full"
-            />
-          </FormField>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Plano *" htmlFor="pt-template">
+              <Select
+                items={templateItems}
+                value={values.templateId || undefined}
+                onValueChange={(v) => {
+                  set('templateId', v);
+                  set('planId', '');
+                  set('assigneeId', NONE);
+                }}
+                placeholder="Seleccionar plano"
+                className="w-full"
+              />
+            </FormField>
+            <FormField label="Colaborador *" htmlFor="pt-plan">
+              <Select
+                items={collaboratorItems}
+                value={values.planId || undefined}
+                onValueChange={(v) => {
+                  set('planId', v);
+                  set('assigneeId', NONE);
+                }}
+                placeholder={
+                  values.templateId
+                    ? 'Seleccionar colaborador'
+                    : 'Escolhe primeiro o plano'
+                }
+                disabled={!values.templateId}
+                className="w-full"
+              />
+            </FormField>
+          </div>
 
           <FormField label="Título *" htmlFor="pt-title">
             <Input
@@ -191,16 +238,38 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Prazo" htmlFor="pt-due">
+            <FormField label="Data de início *" htmlFor="pt-start">
+              <Input
+                id="pt-start"
+                type="date"
+                value={values.startDate}
+                onChange={(e) => set('startDate', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+            <FormField
+              label="Data de fim *"
+              htmlFor="pt-due"
+              error={
+                datesInvalid
+                  ? 'Tem de ser igual ou posterior ao início.'
+                  : undefined
+              }
+            >
               <Input
                 id="pt-due"
                 type="date"
+                min={values.startDate || undefined}
                 value={values.dueDate}
                 onChange={(e) => set('dueDate', e.target.value)}
                 className="w-full"
               />
             </FormField>
-            <FormField label="Responsável" htmlFor="pt-assignee">
+            <FormField
+              label="Responsável"
+              htmlFor="pt-assignee"
+              hint="Mesmo departamento do colaborador ou RH."
+            >
               <Select
                 items={assigneeItems}
                 value={values.assigneeId}
