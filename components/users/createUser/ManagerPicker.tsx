@@ -18,6 +18,10 @@ interface ManagerPickerProps {
   loading: boolean;
   onPick: (user: DirectoryUser) => void;
   onClear: () => void;
+  /** Rótulo do campo (por omissão "Gestor direto"). */
+  label?: string;
+  inputId?: string;
+  clearLabel?: string;
 }
 
 export function ManagerPicker({
@@ -28,9 +32,12 @@ export function ManagerPicker({
   loading,
   onPick,
   onClear,
+  label = 'Gestor direto',
+  inputId = 'managerSearch',
+  clearLabel = 'Remover gestor',
 }: ManagerPickerProps) {
   return (
-    <FormField label="Gestor direto" htmlFor="managerSearch">
+    <FormField label={label} htmlFor={inputId}>
       {selected ? (
         <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
           <Avatar
@@ -43,7 +50,7 @@ export function ManagerPicker({
           </div>
           <IconButton
             icon={X}
-            label="Remover gestor"
+            label={clearLabel}
             intent="ghost"
             size="compact"
             type="button"
@@ -53,7 +60,7 @@ export function ManagerPicker({
       ) : (
         <div className="relative">
           <Input
-            id="managerSearch"
+            id={inputId}
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             className="w-full"
