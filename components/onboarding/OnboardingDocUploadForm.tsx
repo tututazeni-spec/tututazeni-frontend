@@ -13,15 +13,20 @@
 
 import { useState } from 'react';
 import { useRef } from 'react';
-import { AlertCircle, FileText, Upload, X } from 'lucide-react';
+import {
+  AlertCircle,
+  CloudUpload,
+  FileText,
+  FileUp,
+  MessageSquareText,
+  X,
+} from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { Button, IconButton } from '@/components/ui/Button';
-import { Card, CardBody } from '@/components/ui/Card';
-import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -116,26 +121,39 @@ export function OnboardingDocUploadForm({
   };
 
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-4 text-sm font-semibold text-ink">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      {/* Cabeçalho — ícone, divisória e título (desenho documentos.jpeg) */}
+      <div className="flex items-center gap-5 bg-brand-dark px-6 py-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-white text-brand-dark">
+          <FileUp size={26} strokeWidth={2} />
+        </span>
+        <span className="h-10 w-px bg-white/40" aria-hidden="true" />
+        <h3 className="m-0 font-body text-xl font-bold text-white">
           Submeter documento
-        </div>
+        </h3>
+      </div>
 
+      <div className="p-6">
         {error && (
-          <div className="mb-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+          <div className="mb-4 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
             <AlertCircle size={16} strokeWidth={1.75} />
             {error}
           </div>
         )}
 
-        <div className="space-y-3">
-          <FormField label="Tipo de documento *" htmlFor="od-type">
+        <div className="space-y-5">
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="od-type"
+              className="font-body text-sm font-bold text-brand-dark"
+            >
+              Tipo de documento *
+            </label>
             <Select
               items={DOCUMENT_TYPE_ITEMS}
               value={typeChoice || undefined}
               onValueChange={setTypeChoice}
-              placeholder="Seleccione o tipo de documento"
+              placeholder="Selecione o tipo de documento"
               className="w-full"
             />
             {typeChoice === OTHER && (
@@ -145,16 +163,18 @@ export function OnboardingDocUploadForm({
                 onChange={(e) => setCustomType(e.target.value)}
                 placeholder="Indique o tipo de documento"
                 maxLength={120}
-                className="mt-2 w-full"
+                className="w-full"
               />
             )}
-          </FormField>
+          </div>
 
-          <FormField
-            label="Documento (PDF) *"
-            htmlFor="od-pdf"
-            hint="Apenas PDF, máx. 3 MB."
-          >
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="od-pdf"
+              className="font-body text-sm font-bold text-brand-dark"
+            >
+              Documento (PDF) *
+            </label>
             <input
               ref={fileInput}
               id="od-pdf"
@@ -164,11 +184,11 @@ export function OnboardingDocUploadForm({
               onChange={(e) => handlePickPdf(e.target.files?.[0])}
             />
             {pdf ? (
-              <div className="flex items-center gap-2 rounded-card border border-border bg-surface-sunken px-3 py-2 text-sm text-ink">
+              <div className="flex items-center gap-3 rounded-[16px] border border-brand-line bg-surface-sunken px-4 py-4 text-sm text-ink">
                 <FileText
-                  size={16}
+                  size={18}
                   strokeWidth={1.75}
-                  className="shrink-0 text-ink-muted"
+                  className="shrink-0 text-brand-dark"
                 />
                 <span className="min-w-0 flex-1 truncate">{pdf.name}</span>
                 <IconButton
@@ -181,30 +201,46 @@ export function OnboardingDocUploadForm({
                 />
               </div>
             ) : (
-              <Button
+              <button
                 type="button"
-                intent="secondary"
                 onClick={() => fileInput.current?.click()}
+                className="flex w-full items-center justify-center gap-3 rounded-[16px] border-2 border-dashed border-brand-line bg-surface px-4 py-5 font-body text-base font-bold text-brand-dark transition-colors hover:bg-surface-sunken"
               >
-                <Upload size={14} strokeWidth={1.75} />
+                <CloudUpload size={26} strokeWidth={1.75} />
                 Carregar PDF
-              </Button>
+              </button>
             )}
-          </FormField>
+            <p className="m-0 font-body text-sm text-ink-muted">
+              Apenas PDF, máx. 3 MB.
+            </p>
+          </div>
 
-          <FormField label="Notas" htmlFor="od-notes">
-            <Textarea
-              id="od-notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              placeholder="Opcional — contexto para quem valida."
-              className="w-full"
-            />
-          </FormField>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="od-notes"
+              className="font-body text-sm font-bold text-brand-dark"
+            >
+              Notas
+            </label>
+            <div className="relative">
+              <MessageSquareText
+                size={18}
+                strokeWidth={1.75}
+                className="pointer-events-none absolute left-4 top-3.5 text-ink-muted"
+              />
+              <Textarea
+                id="od-notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+                placeholder="Opcional — contexto para quem valida."
+                className="w-full rounded-[16px] pl-11"
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 flex justify-end">
+        <div className="mt-6 flex justify-end">
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit}
@@ -213,7 +249,7 @@ export function OnboardingDocUploadForm({
             {loading ? 'A submeter…' : 'Submeter documento'}
           </Button>
         </div>
-      </CardBody>
-    </Card>
+      </div>
+    </div>
   );
 }
