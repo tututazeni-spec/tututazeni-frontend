@@ -28,6 +28,7 @@ interface PlansPage {
 }
 
 const NONE = 'NONE';
+const ALL = 'ALL';
 
 const CATEGORY_ITEMS = Object.entries(CATEGORY_CFG).map(([value, cfg]) => ({
   value,
@@ -87,9 +88,13 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
       label: name,
     }));
   }, [plans]);
-  const collaboratorItems = plans
-    .filter((p) => String(p.template.id) === values.templateId)
-    .map((p) => ({ value: String(p.id), label: p.user.fullName }));
+  // Colaborador é opcional: sem escolha = "Todos" os colaboradores do plano.
+  const collaboratorItems = [
+    { value: ALL, label: 'Todos' },
+    ...plans
+      .filter((p) => String(p.template.id) === values.templateId)
+      .map((p) => ({ value: String(p.id), label: p.user.fullName })),
+  ];
 
   // Responsável: mesmo departamento do colaborador ou RH (validado no backend).
   const { data: candidates } = useApiQuery<DirectoryUser[]>(
@@ -113,7 +118,7 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
     values.dueDate < values.startDate;
 
   const canSubmit =
-    values.planId !== '' &&
+    values.templateId !== '' &&
     values.title.trim().length > 0 &&
     values.category !== '' &&
     values.startDate !== '' &&
@@ -122,7 +127,12 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
 
   const save = useApiMutation(
     (body: Record<string, unknown>) =>
-      apiClient.post(`/onboarding/${values.planId}/tasks`, body),
+      values.planId
+        ? apiClient.post(`/onboarding/${values.planId}/tasks`, body)
+        : apiClient.post(
+            `/onboarding/templates/${values.templateId}/plan-tasks`,
+            body,
+          ),
     {
       invalidateKeys: [queryKeys.onboarding.all],
       onSuccess: () => {
@@ -181,19 +191,19 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Colaborador *" htmlFor="pt-plan">
+            <FormField
+              label="Colaborador"
+              htmlFor="pt-plan"
+              hint="Opcional — sem escolha aplica-se a todos."
+            >
               <Select
                 items={collaboratorItems}
-                value={values.planId || undefined}
+                value={values.planId || ALL}
                 onValueChange={(v) => {
-                  set('planId', v);
+                  set('planId', v === ALL ? '' : v);
                   set('assigneeId', NONE);
                 }}
-                placeholder={
-                  values.templateId
-                    ? 'Seleccionar colaborador'
-                    : 'Escolhe primeiro o plano'
-                }
+                placeholder="Todos"
                 disabled={!values.templateId}
                 className="w-full"
               />
@@ -268,11 +278,16 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
             <FormField
               label="Responsável"
               htmlFor="pt-assignee"
-              hint="Mesmo departamento do colaborador ou RH."
+              hint={
+                values.planId
+                  ? 'Mesmo departamento do colaborador ou RH.'
+                  : 'Escolhe um colaborador para definir o responsável.'
+              }
             >
               <Select
                 items={assigneeItems}
                 value={values.assigneeId}
+                disabled={!values.planId}
                 onValueChange={(v) => set('assigneeId', v)}
                 className="w-full"
               />
