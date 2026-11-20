@@ -89,6 +89,7 @@ export interface OnboardingPlan {
     name: string;
     durationDays: number;
     welcomeVideoUrl: string | null;
+    welcomeMessage?: string | null;
   };
   buddy: {
     id: number;
@@ -199,6 +200,7 @@ export interface OnboardingTemplateDetail {
   active: boolean;
   durationDays: number;
   welcomeVideoUrl: string | null;
+  welcomeMessage?: string | null;
   positionId: number | null;
   departmentId: number | null;
   unitId: number | null;
@@ -264,6 +266,7 @@ export interface OnboardingPlanDetail {
     name: string;
     durationDays: number;
     welcomeVideoUrl: string | null;
+    welcomeMessage?: string | null;
   };
   buddy: {
     id: number;
