@@ -461,6 +461,11 @@ export function PlanDetailModal({
                               )}
                             </span>
                             <div className="min-w-0 flex-1">
+                              {catCfg && (
+                                <div className="font-body text-xs font-bold text-brand-dark">
+                                  {catCfg.label}
+                                </div>
+                              )}
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-body text-sm font-medium text-ink">
                                   {task.templateTask.title}
@@ -468,7 +473,9 @@ export function PlanDetailModal({
                               </div>
                               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
                                 {task.dueDate && (
-                                  <span>Prazo {fmtDate(task.dueDate)}</span>
+                                  <span className="font-semibold text-ink">
+                                    Prazo {fmtDate(task.dueDate)}
+                                  </span>
                                 )}
                                 {task.completedAt && (
                                   <span className="text-success-ink">
@@ -495,11 +502,6 @@ export function PlanDetailModal({
                                 )}
                               </div>
                             </div>
-                            {catCfg && (
-                              <span className="shrink-0 self-start pr-3 font-body text-xs font-bold text-brand-dark">
-                                {catCfg.label}
-                              </span>
-                            )}
                             {showActions && !panelOpen && (
                               <div className="flex shrink-0 flex-wrap justify-end gap-1">
                                 {awaitingApproval && (
@@ -533,6 +535,7 @@ export function PlanDetailModal({
                                   <Button
                                     size="sm"
                                     intent="ghost"
+                                    className="cursor-pointer hover:bg-transparent hover:text-ink-muted"
                                     disabled={busy}
                                     onClick={() => {
                                       setReason('');
@@ -742,7 +745,12 @@ export function PlanDetailModal({
               </Button>
             )}
           </div>
-          <Button intent="ghost" onClick={onClose}>
+          <Button
+            size="sm"
+            intent="ghost"
+            className="mr-3 cursor-pointer hover:bg-transparent hover:text-ink-muted"
+            onClick={onClose}
+          >
             Fechar
           </Button>
         </div>

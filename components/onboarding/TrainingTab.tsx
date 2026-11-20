@@ -12,7 +12,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -48,13 +47,13 @@ export function TrainingTab({
   }
 
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface">
+    <div className="space-y-3">
       {data.map((row) => (
         <button
           key={row.taskInstanceId}
           type="button"
           onClick={() => setDetailId(row.planId)}
-          className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+          className="relative flex w-full cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 overflow-hidden rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] text-left shadow-[0_4px_12px_rgba(21,47,89,0.10)]"
         >
           <Avatar
             name={row.user.fullName}
@@ -78,16 +77,16 @@ export function TrainingTab({
               </div>
             </div>
           ) : (
-            <Badge dot={false} intent="neutral">
+            <span className="font-body text-xs font-bold text-ink">
               Sem inscrição
-            </Badge>
+            </span>
           )}
           {row.enrollment?.hasCertificate && (
-            <Badge dot={false} intent="success">
+            <span className="font-body text-xs font-bold text-ink">
               Certificado
-            </Badge>
+            </span>
           )}
-          <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
+          <div className="hidden shrink-0 font-body text-xs font-semibold text-ink sm:block">
             {row.dueDate ? fmtDate(row.dueDate) : '—'}
           </div>
         </button>

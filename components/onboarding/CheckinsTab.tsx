@@ -24,7 +24,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { CHECKIN_STATUS_CFG, CHECKIN_TYPE_LABELS } from './constants';
 import type { OnboardingCheckin } from './types';
-import { MapPin } from 'lucide-react';
+import { Building2, MapPin } from 'lucide-react';
+import { useDepartmentOptions } from './planData';
 
 interface Paginated {
   data: OnboardingCheckin[];
@@ -38,6 +39,110 @@ const STATUS_ITEMS = [
     label: cfg.label,
   })),
 ];
+
+const CHECKINS_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-6 px-4';
+
+const MANUAL = '__MANUAL__';
+
+// Opções predefinidas (mín. 6) para cada campo do check-in; a última opção do
+// selector é sempre "Escrever manualmente".
+const FIELD_PRESETS: Record<string, string[]> = {
+  difficulties: [
+    'Sem dificuldades identificadas',
+    'Adaptação às ferramentas e sistemas',
+    'Compreensão dos processos internos',
+    'Integração com a equipa',
+    'Carga de trabalho elevada',
+    'Falta de clareza nas responsabilidades',
+    'Acesso a sistemas ou equipamentos em falta',
+  ],
+  positives: [
+    'Boa integração com a equipa',
+    'Aprendizagem rápida',
+    'Proactividade e iniciativa',
+    'Cumprimento dos prazos',
+    'Boa comunicação',
+    'Elevado empenho e motivação',
+    'Boa adaptação à cultura da empresa',
+  ],
+  supportNeeds: [
+    'Sem necessidade de apoio adicional',
+    'Formação técnica complementar',
+    'Acompanhamento mais frequente do gestor',
+    'Apoio do mentor/buddy no dia-a-dia',
+    'Acesso a ferramentas ou equipamentos',
+    'Esclarecimento de processos e responsabilidades',
+    'Apoio na integração com outras equipas',
+  ],
+  managerFeedback: [
+    'Integração a decorrer conforme o esperado',
+    'Desempenho acima do esperado',
+    'Desempenho dentro do esperado',
+    'Necessita de maior autonomia',
+    'Necessita de melhorar a comunicação',
+    'Necessita de acompanhamento próximo',
+    'Recomenda-se reforçar a formação',
+  ],
+  nextActions: [
+    'Agendar novo check-in',
+    'Reforçar formação obrigatória',
+    'Definir objectivos para o próximo período',
+    'Reunião com o mentor/buddy',
+    'Rever responsabilidades com o colaborador',
+    'Providenciar acessos ou equipamentos em falta',
+    'Nenhuma acção necessária',
+  ],
+};
+
+function PresetField({
+  label,
+  presets,
+  value,
+  onChange,
+}: {
+  label: string;
+  presets: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  // Valor já guardado que não é uma opção predefinida → modo manual.
+  const [manual, setManual] = useState(
+    value.trim() !== '' && !presets.includes(value),
+  );
+  const items = [
+    ...presets.map((p) => ({ value: p, label: p })),
+    { value: MANUAL, label: 'Escrever manualmente…' },
+  ];
+  return (
+    <div className="space-y-2">
+      <Select
+        label={label}
+        items={items}
+        value={manual ? MANUAL : value || undefined}
+        onValueChange={(v) => {
+          if (v === MANUAL) {
+            setManual(true);
+            if (presets.includes(value)) onChange('');
+          } else {
+            setManual(false);
+            onChange(v);
+          }
+        }}
+        className="w-full"
+      />
+      {manual && (
+        <Textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={`${label}…`}
+          rows={2}
+          className="w-full"
+        />
+      )}
+    </div>
+  );
+}
 
 function CheckinRegisterModal({
   checkin,
@@ -83,40 +188,35 @@ function CheckinRegisterModal({
         className="max-w-lg"
       >
         <div className="mt-4 space-y-3">
-          <Textarea
+          <PresetField
+            label="Dificuldades identificadas"
+            presets={FIELD_PRESETS.difficulties}
             value={difficulties}
-            onChange={(e) => setDifficulties(e.target.value)}
-            placeholder="Dificuldades identificadas…"
-            rows={2}
-            className="w-full"
+            onChange={setDifficulties}
           />
-          <Textarea
+          <PresetField
+            label="Pontos positivos"
+            presets={FIELD_PRESETS.positives}
             value={positives}
-            onChange={(e) => setPositives(e.target.value)}
-            placeholder="Pontos positivos…"
-            rows={2}
-            className="w-full"
+            onChange={setPositives}
           />
-          <Textarea
+          <PresetField
+            label="Necessidades de apoio"
+            presets={FIELD_PRESETS.supportNeeds}
             value={supportNeeds}
-            onChange={(e) => setSupportNeeds(e.target.value)}
-            placeholder="Necessidades de apoio…"
-            rows={2}
-            className="w-full"
+            onChange={setSupportNeeds}
           />
-          <Textarea
+          <PresetField
+            label="Feedback do gestor"
+            presets={FIELD_PRESETS.managerFeedback}
             value={managerFeedback}
-            onChange={(e) => setManagerFeedback(e.target.value)}
-            placeholder="Feedback do gestor…"
-            rows={2}
-            className="w-full"
+            onChange={setManagerFeedback}
           />
-          <Textarea
+          <PresetField
+            label="Próximas acções"
+            presets={FIELD_PRESETS.nextActions}
             value={nextActions}
-            onChange={(e) => setNextActions(e.target.value)}
-            placeholder="Próximas acções…"
-            rows={2}
-            className="w-full"
+            onChange={setNextActions}
           />
           {checkin.employeeFeedback && (
             <div className="rounded-card border border-border bg-surface-sunken p-3 font-body text-xs text-ink-muted">
@@ -154,10 +254,13 @@ function CheckinRegisterModal({
 
 export function CheckinsTab() {
   const [status, setStatus] = useState('ALL');
+  const [departmentId, setDepartmentId] = useState('ALL');
   const [overdue, setOverdue] = useState(false);
   const [selected, setSelected] = useState<OnboardingCheckin | null>(null);
+  const { options: departmentOptions } = useDepartmentOptions();
 
   const params = {
+    departmentId: departmentId === 'ALL' ? undefined : departmentId,
     status: overdue || status === 'ALL' ? undefined : status,
     overdue: overdue || undefined,
   };
@@ -177,13 +280,22 @@ export function CheckinsTab() {
           value={status}
           onValueChange={setStatus}
         />
+        <Select
+          variant="underline"
+          icon={Building2}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
+          value={departmentId}
+          onValueChange={setDepartmentId}
+        />
         <button
           type="button"
           onClick={() => setOverdue((v) => !v)}
-          className={`rounded-control border px-3 py-2 font-body text-sm ${
-            overdue
-              ? 'border-danger bg-danger-subtle text-danger-ink'
-              : 'border-border text-ink-muted'
+          aria-pressed={overdue}
+          className={`cursor-pointer rounded-control border border-brand px-3 py-2 font-body text-sm font-semibold ${
+            overdue ? 'bg-brand text-white' : 'bg-surface text-brand'
           }`}
         >
           Só em atraso
@@ -198,29 +310,37 @@ export function CheckinsTab() {
           description="Nenhum check-in de acompanhamento corresponde aos filtros."
         />
       ) : (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
+          <div
+            className={`${CHECKINS_GRID} bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white`}
+          >
+            <div>Colaborador</div>
+            <div>Check-in</div>
+            <div>Prazo</div>
+            <div>Estado</div>
+          </div>
           {data.data.map((c) => (
             <button
               key={c.id}
               type="button"
               onClick={() => setSelected(c)}
-              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+              className={`${CHECKINS_GRID} w-full cursor-pointer border-b border-brand-line py-[11px] text-left last:border-0`}
             >
-              <Avatar
-                name={c.plan.user.fullName}
-                url={c.plan.user.avatarUrl ?? undefined}
-                size="sm"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar
+                  name={c.plan.user.fullName}
+                  url={c.plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <span className="truncate font-body text-sm font-medium text-ink">
                   {c.plan.user.fullName}
-                </div>
-                <div className="truncate font-body text-xs text-ink-faint">
-                  {CHECKIN_TYPE_LABELS[c.type]}
-                  {c.responsible && ` · Responsável: ${c.responsible.fullName}`}
-                </div>
+                </span>
               </div>
-              <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
+              <div className="truncate font-body text-xs font-semibold text-ink">
+                {CHECKIN_TYPE_LABELS[c.type]}
+                {c.responsible && ` · Responsável: ${c.responsible.fullName}`}
+              </div>
+              <div className="font-body text-xs font-semibold text-ink">
                 {c.dueDate ? fmtDate(c.dueDate) : '—'}
               </div>
               <StatusBadge
