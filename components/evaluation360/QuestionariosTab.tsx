@@ -1,13 +1,13 @@
 // components/evaluation360/QuestionariosTab.tsx
-// Separador "Questionários" (docs/evaluation360.md §6) — lista dos
-// questionários 360° existentes, com publicar/arquivar. A criação e a escolha
-// de questionário no "Novo ciclo" foram removidas.
+// separador "Questionários" (docs/evaluation360.md §6) — banco de questionários
+// 360°: criar, ver/editar perguntas (em rascunho), publicar, arquivar e
+// eliminar. Os publicados podem ser escolhidos no "Novo ciclo".
 
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
-import { FileText, MapPin } from 'lucide-react';
+import { FileText, MapPin, Plus } from 'lucide-react';
 import type { QuestionnaireListItem, QuestionnaireStatus } from './types';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,6 +18,11 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Button } from '@/components/ui/Button';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { QuestionnaireFormModal } from './QuestionnaireFormModal';
+import { QuestionnaireDetailModal } from './QuestionnaireDetailModal';
+import { QuestionnaireEditModal } from './QuestionnaireEditModal';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 const ALL = 'ALL';
@@ -37,9 +42,13 @@ const STATUS_OPTIONS: SelectItemOption[] = [
 
 export function QuestionariosTab() {
   const notify = useToast();
+  const confirm = useConfirm();
   const canManage = useHasRole(EVAL_CREATOR_ROLES);
 
   const [status, setStatus] = useState(ALL);
+  const [creating, setCreating] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
   const params: Record<string, string> = { tenantId: 'default', limit: '50' };
   if (status !== ALL) params.status = status;
@@ -81,6 +90,32 @@ export function QuestionariosTab() {
     },
   );
 
+  const remove = useApiMutation(
+    (id: string) => apiClient.delete(`/evaluation360/questionnaires/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation360.all],
+      onSuccess: () =>
+        notify({ title: 'Questionário eliminado', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível eliminar',
+          description:
+            'Só rascunhos ou arquivados que nunca foram usados por um ciclo.',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  const handleRemove = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: 'Eliminar questionário?',
+      message: `"${name}" e as suas perguntas serão eliminados.`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(id);
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
@@ -90,33 +125,41 @@ export function QuestionariosTab() {
             Banco de questionários utilizados nas avaliações 360°.
           </p>
         </div>
-        <CompetencyExportMenu
-          disabled={isLoading}
-          build={() => ({
-            title: 'Avaliação 360° — Questionários',
-            filename: 'questionarios-360',
-            headers: [
-              'Nome',
-              'Código',
-              'Versão',
-              'Perguntas',
-              'Competências',
-              'Escala',
-              'Estado',
-              'Actualizado',
-            ],
-            rows: rows.map((q) => [
-              q.name,
-              q.code,
-              `v${q.version}`,
-              q.questionCount,
-              q.competencyCount,
-              `${q.scaleMin}–${q.scaleMax}`,
-              STATUS_LABEL[q.status],
-              q.updatedAt.slice(0, 10),
-            ]),
-          })}
-        />
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <Button onClick={() => setCreating(true)}>
+              <Plus size={16} strokeWidth={1.75} />
+              Novo questionário
+            </Button>
+          )}
+          <CompetencyExportMenu
+            disabled={isLoading}
+            build={() => ({
+              title: 'Avaliação 360° — Questionários',
+              filename: 'questionarios-360',
+              headers: [
+                'Nome',
+                'Código',
+                'Versão',
+                'Perguntas',
+                'Competências',
+                'Escala',
+                'Estado',
+                'Actualizado',
+              ],
+              rows: rows.map((q) => [
+                q.name,
+                q.code,
+                `v${q.version}`,
+                q.questionCount,
+                q.competencyCount,
+                `${q.scaleMin}–${q.scaleMax}`,
+                STATUS_LABEL[q.status],
+                q.updatedAt.slice(0, 10),
+              ]),
+            })}
+          />
+        </div>
       </div>
 
       <FilterPanelCard>
@@ -136,28 +179,28 @@ export function QuestionariosTab() {
 
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && rows.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Questionários
           </h3>
           Nenhum questionário encontrado com estes filtros.
+          {canManage && ' Usa "Novo questionário" para criar o primeiro.'}
         </div>
       )}
 
       {rows.length > 0 && (
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
-          <table className="w-full text-sm border-collapse min-w-[900px]">
+          <table className="w-full font-body text-sm border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Nome</th>
-                <th className="px-4 py-3">Código</th>
                 <th className="px-4 py-3 text-right">Versão</th>
                 <th className="px-4 py-3 text-right">Perguntas</th>
                 <th className="px-4 py-3 text-right">Competências</th>
                 <th className="px-4 py-3">Escala</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Actualizado</th>
-                {canManage && <th className="px-4 py-3" />}
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -168,66 +211,113 @@ export function QuestionariosTab() {
                       <FileText
                         size={16}
                         strokeWidth={1.75}
-                        className="text-ink-muted shrink-0"
+                        className="text-black shrink-0"
                       />
                       <div>
-                        <div className="font-semibold text-ink">{q.name}</div>
+                        <div className="font-semibold text-black">{q.name}</div>
                         {q.description && (
-                          <div className="text-xs text-ink-muted line-clamp-1">
+                          <div className="text-xs text-black line-clamp-1">
                             {q.description}
                           </div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{q.code}</td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     v{q.version}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     {q.questionCount}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  <td className="px-4 py-3 text-right text-black">
                     {q.competencyCount}
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">
+                  <td className="px-4 py-3 text-black">
                     {q.scaleMin}–{q.scaleMax}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+                    <span className="text-xs font-bold text-black">
                       {STATUS_LABEL[q.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
+                  <td className="px-4 py-3 text-black whitespace-nowrap">
                     {q.updatedAt.slice(0, 10)}
                   </td>
-                  {canManage && (
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-                      {q.status === 'DRAFT' && (
-                        <button
-                          type="button"
-                          onClick={() => publish.mutate(q.id)}
-                          className="font-body text-xs font-semibold text-brand hover:underline"
-                        >
-                          Publicar
-                        </button>
-                      )}
-                      {q.status === 'PUBLISHED' && (
-                        <button
-                          type="button"
-                          onClick={() => archive.mutate(q.id)}
-                          className="font-body text-xs font-semibold text-ink-muted hover:text-ink"
-                        >
-                          Arquivar
-                        </button>
-                      )}
-                    </td>
-                  )}
+                  <td className="px-4 py-3 text-right whitespace-nowrap space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(q.id)}
+                      className="font-body text-xs font-semibold text-black hover:underline"
+                    >
+                      {canManage && q.status === 'DRAFT'
+                        ? 'Editar perguntas'
+                        : 'Ver'}
+                    </button>
+                    {canManage && q.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        onClick={() => setEditId(q.id)}
+                        className="font-body text-xs font-semibold text-black hover:underline"
+                      >
+                        Editar
+                      </button>
+                    )}
+                    {canManage && q.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        onClick={() => publish.mutate(q.id)}
+                        className="font-body text-xs font-semibold text-black hover:underline"
+                      >
+                        Publicar
+                      </button>
+                    )}
+                    {canManage && q.status === 'PUBLISHED' && (
+                      <button
+                        type="button"
+                        onClick={() => archive.mutate(q.id)}
+                        className="font-body text-xs font-semibold text-black hover:text-black"
+                      >
+                        Arquivar
+                      </button>
+                    )}
+                    {canManage && q.status !== 'PUBLISHED' && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(q.id, q.name)}
+                        className="font-body text-xs font-semibold text-black hover:text-danger-ink"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {creating && (
+        <QuestionnaireFormModal
+          onClose={() => setCreating(false)}
+          onCreated={(id) => {
+            setCreating(false);
+            setOpenId(id);
+          }}
+        />
+      )}
+      {editId && (
+        <QuestionnaireEditModal
+          questionnaireId={editId}
+          onClose={() => setEditId(null)}
+        />
+      )}
+      {openId && (
+        <QuestionnaireDetailModal
+          questionnaireId={openId}
+          canManage={canManage}
+          onClose={() => setOpenId(null)}
+        />
       )}
     </div>
   );

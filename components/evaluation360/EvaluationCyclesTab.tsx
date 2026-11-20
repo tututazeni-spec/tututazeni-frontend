@@ -38,11 +38,13 @@ import {
 } from 'lucide-react';
 import { cycleStatusDisplay } from './colors';
 import { CreateCycleModal } from './CreateCycleModal';
+import { CycleDetailModal } from './CycleDetailModal';
 import {
   useDepartmentOptions,
   useUnitOptions,
   usePositionOptions,
 } from './cycleData';
+import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
@@ -64,6 +66,10 @@ interface RawCycleRow {
 }
 
 const ALL = 'ALL';
+
+// Mesma grelha no cabeçalho e nas linhas para as colunas alinharem.
+const CYCLE_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_28px] items-center gap-x-8 px-4';
 
 const STATUS_OPTIONS: SelectItemOption[] = [
   { value: ALL, label: 'Todos os estados' },
@@ -100,6 +106,10 @@ export function EvaluationCyclesTab() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
+  const [selected, setSelected] = useState<{
+    cycle: RawCycleRow;
+    index: number;
+  } | null>(null);
 
   const { options: departmentOptionsRaw } = useDepartmentOptions();
   const departmentOptions: SelectItemOption[] = [
@@ -331,8 +341,8 @@ export function EvaluationCyclesTab() {
 
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && cycles.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Avaliações 360°
           </h3>
           Nenhuma avaliação 360° encontrada com estes filtros.
@@ -340,74 +350,96 @@ export function EvaluationCyclesTab() {
       )}
 
       {cycles.length > 0 && (
-        <div className="rounded-card border border-border bg-surface overflow-x-auto">
-          <table className="w-full text-sm border-collapse min-w-[900px]">
-            <thead>
-              <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
-                <th className="px-4 py-3">Nome</th>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Período</th>
-                <th className="px-4 py-3 text-right">Avaliados</th>
-                <th className="px-4 py-3 text-right">Avaliadores</th>
-                <th className="px-4 py-3 text-right">Participação</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Criado por</th>
-                <th className="px-4 py-3">Criado em</th>
-                {canDeleteCycle && <th className="px-4 py-3" />}
-              </tr>
-            </thead>
-            <tbody>
-              {cycles.map((c) => (
-                <tr key={c.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-semibold text-ink">{c.name}</td>
-                  <td className="px-4 py-3 text-ink-muted font-mono text-xs">
-                    {c.code}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div>
+            <div>
+              <div
+                className={cn(
+                  CYCLE_GRID,
+                  'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+                )}
+              >
+                <div>Nome</div>
+                <div>Tipo</div>
+                <div>Período</div>
+                <div className="text-right">Avaliados</div>
+                <div className="text-right">Avaliadores</div>
+                <div className="text-right">Participação</div>
+                <div>Estado</div>
+                <div>Criado por</div>
+                <div>Criado em</div>
+                {canDeleteCycle && <div />}
+              </div>
+              {cycles.map((c, idx) => (
+                <div
+                  key={c.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelected({ cycle: c, index: idx })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelected({ cycle: c, index: idx });
+                    }
+                  }}
+                  className={cn(
+                    CYCLE_GRID,
+                    'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                  )}
+                >
+                  <div className="break-words font-semibold text-ink">
+                    {c.name}
+                  </div>
+                  <div className="break-words">
                     {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ??
                       c.type}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
+                  </div>
+                  <div className="break-words">
                     {c.startDate.slice(0, 10)} → {c.endDate.slice(0, 10)}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  </div>
+                  <div className="text-right text-ink">
                     {c._count.participants}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
-                    {c.evaluatorsCount}
-                  </td>
-                  <td className="px-4 py-3 text-right text-ink">
+                  </div>
+                  <div className="text-right text-ink">{c.evaluatorsCount}</div>
+                  <div className="text-right text-ink">
                     {c.participationRate}%
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-ink">
                       {cycleStatusDisplay(c.status, c.startDate, c.endDate)}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted">
-                    {c.createdByName}
-                  </td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
-                    {c.createdAt.slice(0, 10)}
-                  </td>
+                  </div>
+                  <div className="break-words">{c.createdByName}</div>
+                  <div className="break-words">{c.createdAt.slice(0, 10)}</div>
                   {canDeleteCycle && (
-                    <td className="px-4 py-3">
+                    <div>
                       <IconButton
                         icon={Trash2}
                         label={`Eliminar ciclo ${c.name}`}
                         intent="danger"
                         size="sm"
-                        onClick={() => handleDeleteCycle(c)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCycle(c);
+                        }}
                         disabled={deleteCycle.isPending}
                       />
-                    </td>
+                    </div>
                   )}
-                </tr>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
+      )}
+
+      {selected && (
+        <CycleDetailModal
+          cycle={selected.cycle}
+          // +1 salta a primeira cor (azul marinho)
+          colorIndex={selected.index + 1}
+          onClose={() => setSelected(null)}
+        />
       )}
 
       {cycleModalOpen && canCreateCycle && (

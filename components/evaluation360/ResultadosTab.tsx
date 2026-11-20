@@ -14,20 +14,39 @@
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CompetencyScore, CycleResultRow } from './types';
-import { typeColor, typeLabel } from './colors';
+import { scoreColor, typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
-import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_RESULTS_ADMIN_ROLES } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { Select } from '@/components/ui/Select';
+import { Select, type SelectItemOption } from '@/components/ui/Select';
+import {
+  useDepartmentOptions,
+  usePositionOptions,
+} from '@/components/competencies/modelFormData';
 import { useCycleSelectorOptions } from './cycleData';
 import { Skeleton } from '@/components/ui/Skeleton';
+
+const ALL = '__ALL__';
+const NONE = '—';
+
+function distinctOptions(
+  values: (string | null | undefined)[],
+  allLabel: string,
+): SelectItemOption[] {
+  const unique = Array.from(
+    new Set(values.map((v) => (v && v.trim() ? v : NONE))),
+  ).sort((a, b) => a.localeCompare(b, 'pt'));
+  return [
+    { value: ALL, label: allLabel },
+    ...unique.map((v) => ({ value: v, label: v })),
+  ];
+}
 
 function fmt(v: number | null): string {
   return v === null ? '—' : v.toFixed(1);
@@ -57,6 +76,28 @@ function gapDisplay(c: CompetencyScore): { text: string; color: string } {
   return { text: 'Sem dados', color: 'var(--color-ink-faint)' };
 }
 
+// Nota com o sistema de cores por intervalo (verde ≥ 4,2 · azul ≥ 3,5 ·
+// vermelho < 2,5). A faixa intermédia (âmbar) fica sem sombreado, só texto
+// normal. Sem dados → "—".
+const AMBER = 'rgb(245, 158, 11)';
+
+function ScoreCell({ value }: { value: number | null }) {
+  if (value === null) return <span>—</span>;
+  const color = scoreColor(value);
+  return (
+    <span
+      className="inline-block rounded px-2.5 py-0.5 text-sm font-bold"
+      style={
+        color === AMBER
+          ? { color: 'var(--color-ink)' }
+          : { background: `${color}22`, color }
+      }
+    >
+      {value.toFixed(1)}
+    </span>
+  );
+}
+
 export interface ResultadosTabProps {
   competencies: CompetencyScore[];
 }
@@ -76,8 +117,8 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
         </div>
 
         {competencies.length === 0 ? (
-          <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-            <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+            <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
               Resultados
             </h3>
             Ainda sem competências pontuadas para ti.
@@ -85,8 +126,8 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
         ) : (
           <>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
-              <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-                <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+                <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                   Radar de competências
                 </h3>
                 <div className="flex justify-center">
@@ -141,14 +182,8 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                 </span>
               ))}
             </div>
-            <div className="rounded-card border border-border bg-surface overflow-hidden">
-              <ErrorBoundary source="evaluation360.CompetencyHeatmap">
-                <CompetencyHeatmap competencies={competencies} />
-              </ErrorBoundary>
-            </div>
-
             <div className="rounded-card border border-border bg-surface overflow-x-auto">
-              <table className="w-full text-sm border-collapse min-w-[900px]">
+              <table className="w-full text-sm border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-border bg-brand-dark text-left text-xs font-semibold uppercase tracking-wider text-white">
                     <th className="px-4 py-3">Competência</th>
@@ -158,6 +193,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                     <th className="px-4 py-3 text-right">Subordinados</th>
                     <th className="px-4 py-3 text-right">Outras</th>
                     <th className="px-4 py-3 text-right">Média</th>
+                    <th className="px-4 py-3 text-right">Referencial</th>
                     <th className="px-4 py-3 text-right">Nível esperado</th>
                     <th className="px-4 py-3 text-right">Lacuna</th>
                     <th className="px-4 py-3 text-right">Nº respostas</th>
@@ -169,26 +205,40 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                       key={c.id}
                       className="border-b border-border last:border-0"
                     >
-                      <td className="px-4 py-3 font-semibold text-ink">
-                        {c.name}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+                            style={{
+                              background:
+                                typeColor[c.type] ?? 'rgb(99, 102, 241)',
+                            }}
+                          />
+                          <span className="font-semibold text-ink">
+                            {c.name}
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.selfRaw)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.selfRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.managerScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.managerRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.peerScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.peerRaw} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.subordinateScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.subordinateScore} />
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
-                        {fmt(c.externalScore)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.externalScore} />
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-ink">
-                        {fmt(c.score)}
+                      <td className="px-4 py-3 text-right">
+                        <ScoreCell value={c.score} />
+                      </td>
+                      <td className="px-4 py-3 text-right text-ink-muted">
+                        {fmt(c.benchmark)}
                       </td>
                       <td className="px-4 py-3 text-right text-ink-muted">
                         {fmt(c.expectedLevel)}
@@ -231,7 +281,65 @@ function CycleResultsMatrix() {
     `/evaluation360/cycles/${cycleId}/results`,
     { staleTime: STALE_TIME.DYNAMIC, enabled: !!cycleId },
   );
-  const rows = data?.data ?? [];
+  const rows = useMemo(() => data?.data ?? [], [data]);
+
+  // Filtros: '' = ainda não escolhido. Enquanto nenhum for escolhido só se
+  // mostra o cabeçalho da tabela; as linhas aparecem depois de filtrar.
+  const [department, setDepartment] = useState('');
+  const [competency, setCompetency] = useState('');
+  const [position, setPosition] = useState('');
+  useEffect(() => {
+    setDepartment('');
+    setCompetency('');
+    setPosition('');
+  }, [cycleId]);
+
+  // Catálogo completo (todos os departamentos / funções), não só os que já
+  // têm resultados no ciclo; juntam-se os nomes das linhas para não perder
+  // valores antigos (ex.: departamento entretanto desactivado).
+  const { options: allDepartments } = useDepartmentOptions();
+  const { options: allPositions } = usePositionOptions();
+  const departmentOptions = useMemo(
+    () =>
+      distinctOptions(
+        [
+          ...allDepartments.map((d) => d.label),
+          ...rows.map((r) => r.department),
+        ],
+        'Todos os departamentos',
+      ),
+    [allDepartments, rows],
+  );
+  const competencyOptions = useMemo(
+    () =>
+      distinctOptions(
+        rows.map((r) => r.competencyName),
+        'Todas as competências',
+      ),
+    [rows],
+  );
+  const positionOptions = useMemo(
+    () =>
+      distinctOptions(
+        [...allPositions.map((p) => p.label), ...rows.map((r) => r.position)],
+        'Todas as funções',
+      ),
+    [allPositions, rows],
+  );
+
+  const hasFilter = department !== '' || competency !== '' || position !== '';
+  const matches = (value: string | null | undefined, selected: string) =>
+    selected === '' ||
+    selected === ALL ||
+    (value && value.trim() ? value : NONE) === selected;
+  const filteredRows = hasFilter
+    ? rows.filter(
+        (r) =>
+          matches(r.department, department) &&
+          matches(r.competencyName, competency) &&
+          matches(r.position, position),
+      )
+    : [];
 
   return (
     <section className="flex flex-col gap-5 border-t border-border pt-6">
@@ -253,11 +361,47 @@ function CycleResultsMatrix() {
             className="min-w-[220px]"
           />
         </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Departamento
+          </div>
+          <Select
+            items={departmentOptions}
+            value={department || undefined}
+            onValueChange={setDepartment}
+            placeholder="Escolher departamento"
+            className="min-w-[200px]"
+          />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Competência
+          </div>
+          <Select
+            items={competencyOptions}
+            value={competency || undefined}
+            onValueChange={setCompetency}
+            placeholder="Escolher competência"
+            className="min-w-[200px]"
+          />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Função
+          </div>
+          <Select
+            items={positionOptions}
+            value={position || undefined}
+            onValueChange={setPosition}
+            placeholder="Escolher função"
+            className="min-w-[200px]"
+          />
+        </div>
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Resultados
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -265,8 +409,8 @@ function CycleResultsMatrix() {
       )}
       {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Resultados
           </h3>
           Este ciclo ainda não tem resultados calculados.
@@ -292,7 +436,28 @@ function CycleResultsMatrix() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {!hasFilter && (
+                <tr>
+                  <td
+                    colSpan={11}
+                    className="px-4 py-6 text-center text-sm text-ink-muted"
+                  >
+                    Escolhe um departamento, competência ou função para ver os
+                    resultados.
+                  </td>
+                </tr>
+              )}
+              {hasFilter && filteredRows.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={11}
+                    className="px-4 py-6 text-center text-sm text-ink-muted"
+                  >
+                    Nenhum resultado para estes filtros.
+                  </td>
+                </tr>
+              )}
+              {filteredRows.map((r) => (
                 <tr
                   key={`${r.userId}-${r.competencyId}`}
                   className="border-b border-border last:border-0"

@@ -226,7 +226,11 @@ export function CheckinsTab() {
               <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
                 {c.dueDate ? fmtDate(c.dueDate) : '—'}
               </div>
-              <StatusBadge value={c.status} map={CHECKIN_STATUS_CFG} />
+              <StatusBadge
+                value={c.status}
+                map={CHECKIN_STATUS_CFG}
+                className="!bg-transparent !px-0 !text-ink"
+              />
             </button>
           ))}
         </div>

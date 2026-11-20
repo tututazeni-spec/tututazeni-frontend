@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import {
   ArrowLeft,
   ArrowLeftRight,
@@ -108,6 +109,7 @@ function HeaderIcon({
 
 export function DetailView({ deptId, onBack }: DetailViewProps) {
   const notify = useToast();
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
@@ -200,9 +202,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   );
   const transferLoading = transferMutation.isPending;
   const canTransfer = !!transferUser && transferTargetId !== '';
-  const handleTransfer = () => {
+  const handleTransfer = async () => {
     if (!canTransfer) return;
-    transferMutation.mutate(undefined);
+    const target = targetItems.find((i) => i.value === transferTargetId);
+    const ok = await confirm({
+      title: 'Transferir colaborador',
+      message: `Tens a certeza que queres transferir ${transferUser?.fullName ?? 'este colaborador'} para ${target?.label ?? 'o departamento seleccionado'}?`,
+      confirmLabel: 'Transferir',
+    });
+    if (ok) transferMutation.mutate(undefined);
   };
 
   // "Adicionar colaborador" reutiliza o endpoint de transferência com o
@@ -230,9 +238,14 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   );
   const addMemberLoading = addMemberMutation.isPending;
   const canAddMember = !!addUser;
-  const handleAddMember = () => {
+  const handleAddMember = async () => {
     if (!canAddMember) return;
-    addMemberMutation.mutate(undefined);
+    const ok = await confirm({
+      title: 'Adicionar colaborador',
+      message: `Tens a certeza que queres adicionar ${addUser?.fullName ?? 'este colaborador'} a este departamento? Será transferido do departamento actual.`,
+      confirmLabel: 'Adicionar',
+    });
+    if (ok) addMemberMutation.mutate(undefined);
   };
 
   if (deptQ.isError)

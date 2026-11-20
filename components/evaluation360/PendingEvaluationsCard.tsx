@@ -10,9 +10,10 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ClipboardCheck } from 'lucide-react';
 import type { EvaluationQuestion, EvaluatorRole } from './types';
 import { EvaluationFormTab } from './EvaluationFormTab';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -80,6 +81,7 @@ export function PendingEvaluationsCard({
     `/evaluation360/cycles/${cycleId}/my-assignments`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
+  const { data: me } = useCurrentUser();
   const [selected, setSelected] = useState<RawAssignment | null>(null);
 
   const assignments = (data ?? []).filter(
@@ -110,7 +112,17 @@ export function PendingEvaluationsCard({
         <EvaluationFormTab
           questions={(formData?.questions ?? []).map(toQuestion)}
           participantName={
-            selected.role === 'SELF' ? 'Eu' : selected.evaluateeName
+            selected.role === 'SELF'
+              ? (me?.fullName ?? 'Eu')
+              : selected.evaluateeName
+          }
+          participantAvatarUrl={
+            selected.role === 'SELF'
+              ? me?.avatarUrl
+              : selected.evaluateeAvatarUrl
+          }
+          participantDepartment={
+            selected.role === 'SELF' ? null : selected.evaluateeDepartment
           }
           evaluatorRole={selected.role}
           cycleId={cycleId}
@@ -125,50 +137,71 @@ export function PendingEvaluationsCard({
   if (assignments.length === 0) return null;
 
   return (
-    <div className="rounded-card border border-border bg-surface p-5">
-      <div className="mb-3">
-        <h3 className="m-0 text-sm font-bold text-ink">Avaliações Pendentes</h3>
-        <p className="m-0 mt-0.5 text-xs text-ink-muted">
-          Inclui a tua autoavaliação e as avaliações de colegas/equipa que te
-          foram distribuídas.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2">
-        {assignments.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => setSelected(a)}
-            className="flex items-center justify-between rounded-control border border-border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-sunken"
-          >
-            <div className="flex items-center gap-3">
-              {a.role === 'SELF' ? (
-                <Avatar name="Eu" size="sm" />
-              ) : (
-                <Avatar
-                  name={a.evaluateeName}
-                  url={a.evaluateeAvatarUrl ?? undefined}
-                  size="sm"
-                />
-              )}
-              <div>
-                <div className="text-sm font-semibold text-ink">
-                  {a.role === 'SELF'
-                    ? 'A minha autoavaliação'
-                    : a.evaluateeName}
+    <div className="relative overflow-hidden rounded-card border border-border bg-gradient-to-r from-[#E8EFFC] via-[#F4F7FD] to-[#F8FAFE] p-5">
+      <div className="flex items-stretch gap-5">
+        <div
+          aria-hidden="true"
+          className="hidden shrink-0 items-center justify-center sm:flex"
+        >
+          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/70 text-[#1E4FB5] shadow-sm">
+            <ClipboardCheck size={52} strokeWidth={1.5} />
+          </div>
+        </div>
+        <div aria-hidden="true" className="hidden w-px bg-border sm:block" />
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 text-lg font-bold text-[#0F1F3D]">
+            Avaliações Pendentes
+          </h3>
+          <p className="m-0 mt-1 text-sm text-ink-muted">
+            Inclui a tua autoavaliação e as avaliações de colegas/equipa que te
+            foram distribuídas.
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            {assignments.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setSelected(a)}
+                className="group flex items-center justify-between gap-3 rounded-control bg-transparent text-left"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    name={
+                      a.role === 'SELF'
+                        ? (me?.fullName ?? 'Eu')
+                        : a.evaluateeName
+                    }
+                    url={
+                      (a.role === 'SELF'
+                        ? me?.avatarUrl
+                        : a.evaluateeAvatarUrl) ?? undefined
+                    }
+                    size="lg"
+                    className="!h-14 !w-14 shrink-0 text-base"
+                  />
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-[#0F1F3D]">
+                      {a.role === 'SELF'
+                        ? 'A minha autoavaliação'
+                        : a.evaluateeName}
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-ink-muted">
+                      {a.role === 'SELF'
+                        ? ROLE_LABEL.SELF
+                        : `${a.evaluateeDepartment ?? '—'} · ${ROLE_LABEL[a.role]}`}
+                      <span className="ml-2 font-semibold">
+                        · {STATUS_LABEL[a.status]}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-ink-muted mt-0.5">
-                  {a.role === 'SELF'
-                    ? ROLE_LABEL.SELF
-                    : `${a.evaluateeDepartment ?? '—'} · ${ROLE_LABEL[a.role]}`}
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-semibold text-ink-muted">
-              {STATUS_LABEL[a.status]}
-            </span>
-          </button>
-        ))}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition-transform group-hover:translate-x-0.5">
+                  <ChevronRight size={20} strokeWidth={2} />
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

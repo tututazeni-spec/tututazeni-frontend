@@ -34,7 +34,7 @@ import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
+import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG } from './constants';
@@ -49,6 +49,13 @@ const STATUS_CARD: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
   ON_HOLD: { icon: PauseCircle, tone: 'orange' },
 };
 
+// Mesma grelha no cabeçalho e nas linhas (desenho da lista de Avaliações 360°).
+const ACTIVE_GRID =
+  'grid grid-cols-[minmax(0,2.4fr)_minmax(0,0.5fr)_minmax(0,0.8fr)_minmax(0,1.1fr)] items-center gap-x-4 px-4';
+
+const UPCOMING_GRID =
+  'grid grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)] items-center gap-x-4 px-4';
+
 function RankedList({
   title,
   rows,
@@ -59,37 +66,36 @@ function RankedList({
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="bg-brand-dark px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white">
         {title}
       </div>
-      <div className="p-4">
-        {sorted.length === 0 ? (
+      {sorted.length === 0 ? (
+        <div className="p-4">
           <EmptyState variant="inline" title="Sem dados" />
-        ) : (
-          <div className="space-y-2">
-            {sorted.map(([label, count]) => (
-              <div key={label} className="flex items-center gap-3">
-                <span
-                  className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
-                  title={label}
-                >
-                  {label}
-                </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${Math.round((count / max) * 100)}%` }}
-                  />
-                </div>
-                <span className="w-6 text-right font-mono text-xs text-ink-faint">
-                  {count}
-                </span>
-              </div>
-            ))}
+        </div>
+      ) : (
+        sorted.map(([label, count]) => (
+          <div
+            key={label}
+            className="flex items-center gap-3 border-b border-brand-line bg-surface px-4 py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken"
+          >
+            <span
+              className="w-28 shrink-0 truncate font-semibold text-ink"
+              title={label}
+            >
+              {label}
+            </span>
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${Math.round((count / max) * 100)}%` }}
+              />
+            </div>
+            <span className="w-6 text-right text-ink">{count}</span>
           </div>
-        )}
-      </div>
+        ))
+      )}
     </div>
   );
 }
@@ -219,9 +225,15 @@ export function OverviewTab({
 
       <div className="grid grid-cols-2 gap-4">
         {/* Próximas entradas */}
-        <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
-            Próximas entradas
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div
+            className={cn(
+              UPCOMING_GRID,
+              'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+            )}
+          >
+            <div>Colaborador</div>
+            <div>Início</div>
           </div>
           {upcomingStarts.length === 0 ? (
             <EmptyState
@@ -233,68 +245,87 @@ export function OverviewTab({
             upcomingStarts.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
+                className={cn(
+                  UPCOMING_GRID,
+                  'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                )}
               >
-                <Avatar
-                  name={p.user.fullName}
-                  url={p.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {p.user.fullName}
-                  </div>
-                  <div className="truncate text-xs text-ink-faint">
-                    {p.template.name}
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar
+                    name={p.user.fullName}
+                    url={p.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <div className="min-w-0">
+                    <div className="break-words font-semibold text-ink">
+                      {p.user.fullName}
+                    </div>
+                    <div className="break-words text-xs text-ink-muted">
+                      {p.template.name}
+                    </div>
                   </div>
                 </div>
-                <div className="shrink-0 text-xs text-ink-faint">
-                  {fmtDate(p.startDate)}
-                </div>
+                <div className="text-ink">{fmtDate(p.startDate)}</div>
               </div>
             ))
           )}
         </div>
 
         {/* Colaboradores activos */}
-        <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
-            Processos de Integração activos
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          {/* Mesmo desenho da lista de Avaliações 360° (evaluation360). */}
+          <div
+            className={cn(
+              ACTIVE_GRID,
+              'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+            )}
+          >
+            <div>Colaborador</div>
+            <div className="text-right">Dia</div>
+            <div className="text-right">Progresso</div>
+            <div>Estado</div>
           </div>
           {active.map((plan) => (
-            <button
+            <div
               key={plan.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => setDetailId(plan.id)}
-              className="flex w-full items-center gap-4 px-4 py-4 border-b border-border last:border-0 text-left hover:bg-surface-sunken"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setDetailId(plan.id);
+                }
+              }}
+              className={cn(
+                ACTIVE_GRID,
+                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+              )}
             >
-              <Avatar
-                name={plan.user.fullName}
-                url={plan.user.avatarUrl ?? undefined}
-                size="md"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-ink">
-                  {plan.user.fullName}
-                </div>
-                <div className="text-xs text-ink-faint">
-                  {plan.user.position?.name ?? '—'} ·{' '}
-                  {plan.user.department?.name}
-                </div>
-                <div className="mt-1">
-                  <ProgressBar value={plan.progress ?? 0} />
+              <div className="flex min-w-0 items-center gap-2.5">
+                <Avatar
+                  name={plan.user.fullName}
+                  url={plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0">
+                  <div className="break-words font-semibold text-ink">
+                    {plan.user.fullName}
+                  </div>
+                  <div className="break-words text-xs text-ink-muted">
+                    {plan.user.position?.name ?? '—'} ·{' '}
+                    {plan.user.department?.name ?? '—'}
+                  </div>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-xs text-ink-faint">
-                  Dia {plan.daysIn ?? 0}
-                </div>
-                <div className="text-sm font-mono font-medium text-ink">
-                  {plan.progress}%
-                </div>
-                <StatusBadge value={plan.status} map={STATUS_CFG} />
+              <div className="text-right text-ink">{plan.daysIn ?? 0}</div>
+              <div className="text-right text-ink">{plan.progress ?? 0}%</div>
+              <div>
+                {plan.status !== 'NOT_STARTED' && (
+                  <StatusBadge value={plan.status} map={STATUS_CFG} />
+                )}
               </div>
-            </button>
+            </div>
           ))}
           {active.length === 0 && (
             <EmptyState

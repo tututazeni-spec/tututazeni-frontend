@@ -30,6 +30,7 @@ import {
   SpeedometerStatCard,
   SCORE5_BANDS,
 } from '@/components/ui/charts/SpeedometerStatCard';
+import { typeLabel } from './colors';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -75,8 +76,8 @@ export function OverviewTab({
       {cycleId && <PendingEvaluationsCard cycleId={cycleId} />}
 
       {!result && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Resultados
           </h3>
           {cycle
@@ -91,6 +92,7 @@ export function OverviewTab({
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <SpeedometerStatCard
               label="Pontuação Ponderada"
+              labelClassName="text-black"
               value={result.weightedScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -99,6 +101,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Autoavaliação"
+              labelClassName="text-black"
               value={result.selfScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -107,6 +110,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Gestor"
+              labelClassName="text-black"
               value={result.managerScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -115,6 +119,7 @@ export function OverviewTab({
             />
             <SpeedometerStatCard
               label="Pares"
+              labelClassName="text-black"
               value={result.peerScore}
               max={5}
               bands={SCORE5_BANDS}
@@ -125,8 +130,8 @@ export function OverviewTab({
 
           {/* Strengths & Gaps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Pontos Fortes
               </h3>
               {result.strengths.length === 0 && (
@@ -145,7 +150,7 @@ export function OverviewTab({
                       {s.name}
                     </span>
                     <span className="text-xs text-ink-muted ml-2">
-                      {s.category}
+                      {typeLabel[s.category] ?? typeLabel[s.type] ?? s.category}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-success-ink">
@@ -154,8 +159,8 @@ export function OverviewTab({
                 </div>
               ))}
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Oportunidades de Desenvolvimento
               </h3>
               {result.gaps.length === 0 && (
@@ -174,7 +179,7 @@ export function OverviewTab({
                       {g.name}
                     </span>
                     <span className="text-xs text-ink-muted ml-2">
-                      {g.category}
+                      {typeLabel[g.category] ?? typeLabel[g.type] ?? g.category}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-danger-ink">

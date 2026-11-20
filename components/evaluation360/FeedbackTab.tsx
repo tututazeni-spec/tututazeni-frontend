@@ -38,9 +38,87 @@ import { Button } from '@/components/ui/Button';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { daysAgo } from '@/lib/format';
-import { Filter } from 'lucide-react';
+import {
+  Filter,
+  MessageCircle,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+  User,
+  type LucideIcon,
+} from 'lucide-react';
 
 const ALL = 'ALL';
+
+// Cartão "Feedback Contínuo" (desenho de public/images/feedback.jpeg): faixa
+// navy com estrela e título, curva verde no canto, e por baixo cada feedback
+// com o balão azul, a etiqueta do tipo, a citação e o autor.
+const TYPE_CFG: Record<
+  string,
+  {
+    label: string;
+    Icon: LucideIcon;
+    pillBg: string;
+    pillText: string;
+    edge: string;
+  }
+> = {
+  RECOGNITION: {
+    label: 'Reconhecimento',
+    Icon: ThumbsUp,
+    pillBg: '#d5f5df',
+    pillText: '#0f3d22',
+    edge: '#22c55e',
+  },
+  DEVELOPMENT: {
+    label: 'Desenvolvimento',
+    Icon: TrendingUp,
+    pillBg: '#e3e6fc',
+    pillText: '#25307a',
+    edge: '#818cf8',
+  },
+  CHECK_IN: {
+    label: 'Conversa Individual 1:1',
+    Icon: MessageCircle,
+    pillBg: '#dbeafe',
+    pillText: '#17408a',
+    edge: '#60a5fa',
+  },
+};
+
+function FeedbackBubble({ Icon }: { Icon: LucideIcon }) {
+  return (
+    <div className="relative h-[52px] w-[59px] shrink-0">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 104 92"
+        className="absolute inset-0 h-full w-full"
+      >
+        <defs>
+          <linearGradient id="fb-bubble" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#3b8bff" />
+            <stop offset="100%" stopColor="#1647c9" />
+          </linearGradient>
+        </defs>
+        <ellipse cx="52" cy="84" rx="34" ry="5" fill="#1d6bff" opacity="0.25" />
+        <path
+          d="M22 14h62a14 14 0 0 1 14 14v30a14 14 0 0 1-14 14H44L24 86l2-14h-4A14 14 0 0 1 8 58V28a14 14 0 0 1 14-14z"
+          fill="url(#fb-bubble)"
+        />
+        <g stroke="#22c55e" strokeWidth="4" strokeLinecap="round">
+          <path d="M78 6l4 8" />
+          <path d="M90 14l7 5" />
+          <path d="M94 28l8 1" />
+        </g>
+      </svg>
+      <Icon
+        size={19}
+        strokeWidth={2.2}
+        className="absolute left-[17px] top-[13px] fill-white text-white"
+      />
+    </div>
+  );
+}
 
 export interface FeedbackTabProps {
   feedbacks: ContinuousFeedback[];
@@ -50,69 +128,89 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const canManage = useHasRole(EVAL_CREATOR_ROLES);
 
-  const typeConfig: Record<string, { label: string; color: string }> = {
-    RECOGNITION: { label: 'Reconhecimento', color: 'rgb(34, 197, 94)' },
-    DEVELOPMENT: { label: 'Desenvolvimento', color: 'rgb(129, 140, 248)' },
-    CHECK_IN: { label: 'Conversa Individual 1:1', color: 'rgb(96, 165, 250)' },
-  };
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
-        <div className="flex justify-between items-center mb-2">
-          <div>
-            <h2 className="m-0 text-lg font-bold text-ink">
-              Feedback Contínuo
-            </h2>
-          </div>
+        <div className="flex justify-end items-center">
           <Button intent="primary" size="sm" onClick={() => setModalOpen(true)}>
             + Dar Feedback
           </Button>
         </div>
-        {feedbacks.length === 0 && (
-          <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-            <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
-              Feedback
-            </h3>
-            Ainda sem feedback contínuo.
-          </div>
-        )}
-        {feedbacks.map((fb) => {
-          const cfg = typeConfig[fb.type];
-          return (
-            <div
-              key={fb.id}
-              className="rounded-r-control border border-l-4 bg-surface p-4"
-              style={{ borderLeftColor: cfg.color }}
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="relative flex items-center gap-4 overflow-hidden bg-brand-dark px-6 py-2.5">
+            <Star
+              size={20}
+              strokeWidth={1.75}
+              className="relative z-10 shrink-0 text-white"
+            />
+            <span className="relative z-10 h-5 w-px bg-white/30" />
+            <h2 className="relative z-10 m-0 font-display text-lg font-extrabold text-white">
+              Feedback Contínuo
+            </h2>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 200 80"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute right-0 top-0 h-full w-[22%]"
             >
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className="text-xs font-bold uppercase tracking-wider"
-                      style={{ color: cfg.color }}
-                    >
-                      {cfg.label}
-                    </span>
-                    {fb.competency && (
-                      <span className="text-xs text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">
-                        {fb.competency}
+              <defs>
+                <linearGradient id="fb-swoosh" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#16a34a" />
+                  <stop offset="100%" stopColor="#4ade80" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M200 0v52C170 66 120 72 70 76 130 56 150 24 160 0z"
+                fill="url(#fb-swoosh)"
+              />
+            </svg>
+          </div>
+
+          {feedbacks.length === 0 && (
+            <p className="m-0 px-7 py-6 font-body text-sm text-ink-muted">
+              Ainda sem feedback contínuo.
+            </p>
+          )}
+          <ul className="m-0 list-none divide-y divide-border p-0">
+            {feedbacks.map((fb) => {
+              const cfg = TYPE_CFG[fb.type] ?? TYPE_CFG.RECOGNITION;
+              return (
+                <li key={fb.id} className="flex items-center gap-4 px-6 py-3">
+                  <FeedbackBubble Icon={cfg.Icon} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span
+                        className="rounded-full py-0.5 pl-3.5 pr-3 font-body text-xs font-bold"
+                        style={{
+                          background: cfg.pillBg,
+                          color: cfg.pillText,
+                          boxShadow: `inset 6px 0 0 ${cfg.edge}`,
+                        }}
+                      >
+                        {cfg.label}
                       </span>
-                    )}
-                    <span className="text-xs text-ink-muted">
-                      · {daysAgo(fb.createdAt)}
-                    </span>
+                      <span className="h-4 w-px bg-ink/30" />
+                      <span className="font-body text-sm text-ink">
+                        {[fb.competency, daysAgo(fb.createdAt)]
+                          .filter(Boolean)
+                          .join(' • ')}
+                      </span>
+                    </div>
+                    <p className="m-0 mt-1.5 font-display text-base leading-snug text-brand-dark">
+                      &ldquo;{fb.message}&rdquo;
+                    </p>
+                    <div className="mt-1.5 flex items-center gap-2 font-body text-sm text-ink">
+                      <User size={16} strokeWidth={1.75} className="shrink-0" />
+                      <span>
+                        por <strong className="font-bold">{fb.fromName}</strong>
+                      </span>
+                    </div>
                   </div>
-                  <p className="m-0 text-sm text-ink leading-relaxed">
-                    {fb.message}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-2.5 text-xs text-ink-muted">
-                por <strong className="text-ink-muted">{fb.fromName}</strong>
-              </div>
-            </div>
-          );
-        })}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
         {modalOpen && <GiveFeedbackModal onClose={() => setModalOpen(false)} />}
       </section>
 
@@ -202,8 +300,8 @@ function CycleFeedbackSection() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Feedback
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -211,8 +309,8 @@ function CycleFeedbackSection() {
       )}
       {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Feedback
           </h3>
           Ainda sem feedback submetido para este ciclo.

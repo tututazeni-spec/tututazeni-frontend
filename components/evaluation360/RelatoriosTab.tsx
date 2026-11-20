@@ -16,7 +16,12 @@
 import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleEvolutionPoint, CycleReportData } from './types';
-import { evaluatorRoleLabel, scoreColor, cycleStatusText } from './colors';
+import {
+  evaluatorAssignmentStatusLabel,
+  evaluatorRoleLabel,
+  scoreColor,
+  cycleStatusText,
+} from './colors';
 import {
   useCycleSelectorOptions,
   useDepartmentOptions,
@@ -28,13 +33,15 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import {
   Briefcase,
   Building2,
-  CheckCircle2,
   Filter,
   Landmark,
   type LucideIcon,
-  Percent,
   Star,
   TrendingUp,
   Trophy,
@@ -117,8 +124,8 @@ interface ComparisonStatProps {
 
 function ComparisonStat({ title, labelA, labelB, cmp }: ComparisonStatProps) {
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
         {title}
       </h3>
       <div className="flex items-center justify-between text-sm">
@@ -323,8 +330,8 @@ export function RelatoriosTab() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Relatórios
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -335,73 +342,93 @@ export function RelatoriosTab() {
       {data && (
         <>
           {/* Resultado geral 360° */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Stat
-              label="Avaliados"
-              value={data.overall.totalParticipants}
-              icon={Users}
-              tone="blue"
-            />
-            <Stat
-              label="Média geral"
-              icon={Star}
-              tone="orange"
-              value={
-                data.overall.avgOverall
-                  ? data.overall.avgOverall.toFixed(1)
-                  : '—'
-              }
-            />
-            <Stat
-              label="Média ponderada"
-              icon={TrendingUp}
-              tone="green"
-              value={
-                data.overall.avgWeighted
-                  ? data.overall.avgWeighted.toFixed(1)
-                  : '—'
-              }
-            />
-            <Stat
-              label="Elegíveis a promoção"
-              icon={Trophy}
-              tone="blue"
-              value={data.overall.eligiblePromotion}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Stat
-              label="Taxa de participação"
-              icon={Percent}
-              tone="blue"
-              value={`${data.participationRate}%`}
-            />
-            <Stat
-              label="Taxa de conclusão"
-              value={`${data.completionRate}%`}
-              icon={CheckCircle2}
-              tone="green"
-            />
+          <div className="grid grid-cols-1 items-center gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-2 gap-4">
+              <Stat
+                label="Avaliados"
+                value={data.overall.totalParticipants}
+                icon={Users}
+                tone="blue"
+              />
+              <Stat
+                label="Média geral"
+                icon={Star}
+                tone="orange"
+                value={
+                  data.overall.avgOverall
+                    ? data.overall.avgOverall.toFixed(1)
+                    : '—'
+                }
+              />
+              <Stat
+                label="Média ponderada"
+                icon={TrendingUp}
+                tone="green"
+                value={
+                  data.overall.avgWeighted
+                    ? data.overall.avgWeighted.toFixed(1)
+                    : '—'
+                }
+              />
+              <Stat
+                label="Elegíveis a promoção"
+                icon={Trophy}
+                tone="blue"
+                value={data.overall.eligiblePromotion}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <SpeedometerStatCard
+                bare
+                label="Taxa de participação"
+                value={data.participationRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.participationRate)}%`}
+              />
+              <SpeedometerStatCard
+                bare
+                label="Taxa de conclusão"
+                value={data.completionRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.completionRate)}%`}
+              />
+            </div>
           </div>
 
-          {/* Resultados por competência */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Resultados por competência
-            </h3>
-            <BarList
-              items={data.byCompetency.map((c) => ({
-                key: c.competencyId,
-                label: c.name,
-                average: c.average,
-              }))}
-            />
+          {/* Resultados por competência + por grupo de avaliadores */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] lg:col-span-2">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                Resultados por competência
+              </h3>
+              <BarList
+                items={data.byCompetency.map((c) => ({
+                  key: c.competencyId,
+                  label: c.name,
+                  average: c.average,
+                }))}
+              />
+            </div>
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                Resultados por grupo de avaliadores
+              </h3>
+              <BarList
+                items={Object.entries(data.byEvaluatorGroup)
+                  .filter(([, v]) => v !== null)
+                  .map(([k, v]) => ({
+                    key: k,
+                    label: EVALUATOR_GROUP_LABEL[k] ?? k,
+                    average: v as number,
+                  }))}
+              />
+            </div>
           </div>
 
           {/* Resultados por departamento / cargo / unidade */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por departamento
               </h3>
               <BarList
@@ -412,8 +439,8 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por cargo
               </h3>
               <BarList
@@ -424,8 +451,8 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Por unidade
               </h3>
               <BarList
@@ -436,22 +463,6 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-          </div>
-
-          {/* Por grupo de avaliadores */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Resultados por grupo de avaliadores
-            </h3>
-            <BarList
-              items={Object.entries(data.byEvaluatorGroup)
-                .filter(([, v]) => v !== null)
-                .map(([k, v]) => ({
-                  key: k,
-                  label: EVALUATOR_GROUP_LABEL[k] ?? k,
-                  average: v as number,
-                }))}
-            />
           </div>
 
           {/* Comparações */}
@@ -477,9 +488,9 @@ export function RelatoriosTab() {
           </div>
 
           {/* Pontos fortes / gaps */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Principais pontos fortes
               </h3>
               {data.topStrengths.length === 0 && (
@@ -502,8 +513,8 @@ export function RelatoriosTab() {
                 </div>
               ))}
             </div>
-            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
                 Principais lacunas
               </h3>
               {data.topGaps.length === 0 && (
@@ -526,36 +537,36 @@ export function RelatoriosTab() {
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Competências críticas */}
-          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body font-semibold text-white">
-              Competências críticas (abaixo do nível esperado)
-            </h3>
-            {data.criticalCompetencies.length === 0 && (
-              <EmptyState
-                variant="inline"
-                title="Nenhuma competência abaixo do nível esperado"
-              />
-            )}
-            {data.criticalCompetencies.map((c) => (
-              <div
-                key={c.competencyId}
-                className="flex justify-between items-center mb-2.5 text-sm"
-              >
-                <span className="font-semibold text-ink">{c.name}</span>
-                <span className="text-ink-muted">
-                  {c.average.toFixed(1)} / esperado {fmt(c.expectedLevel)}
-                  <span
-                    className="ml-2 font-bold"
-                    style={{ color: 'rgb(239, 68, 68)' }}
-                  >
-                    {c.gapToExpected?.toFixed(1)}
+            {/* Competências críticas */}
+            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                Competências críticas (abaixo do nível esperado)
+              </h3>
+              {data.criticalCompetencies.length === 0 && (
+                <EmptyState
+                  variant="inline"
+                  title="Nenhuma competência abaixo do nível esperado"
+                />
+              )}
+              {data.criticalCompetencies.map((c) => (
+                <div
+                  key={c.competencyId}
+                  className="flex justify-between items-center mb-2.5 text-sm"
+                >
+                  <span className="font-semibold text-ink">{c.name}</span>
+                  <span className="text-ink-muted">
+                    {c.average.toFixed(1)} / esperado {fmt(c.expectedLevel)}
+                    <span
+                      className="ml-2 font-bold"
+                      style={{ color: 'rgb(239, 68, 68)' }}
+                    >
+                      {c.gapToExpected?.toFixed(1)}
+                    </span>
                   </span>
-                </span>
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Avaliadores pendentes */}
@@ -598,7 +609,7 @@ export function RelatoriosTab() {
                           {evaluatorRoleLabel[p.role] ?? p.role}
                         </td>
                         <td className="px-4 py-2.5 text-ink-muted">
-                          {p.status}
+                          {evaluatorAssignmentStatusLabel[p.status] ?? p.status}
                         </td>
                         <td className="px-4 py-2.5 text-ink-muted">
                           {p.invitedAt ? p.invitedAt.slice(0, 10) : '—'}
@@ -676,8 +687,8 @@ function CycleEvolutionSection({
 
       {isLoading && <Skeleton rows={3} />}
       {!isLoading && points.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
             Relatórios
           </h3>
           Sem ciclos para comparar.

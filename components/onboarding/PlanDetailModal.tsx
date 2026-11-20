@@ -24,7 +24,16 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CalendarDays,
+  Clock,
+  ListChecks,
+  ShieldCheck,
+  Trash2,
+  User,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -50,6 +59,8 @@ import {
   TASK_STATUS_CFG,
 } from './constants';
 import { DocumentLink } from './DocumentLink';
+import { AssignTeamMemberModal } from './AssignTeamMemberModal';
+import { TeamMemberCard, type TeamRole } from './TeamMemberCard';
 import type {
   DocStatus,
   OnboardingPlanDetail,
@@ -83,6 +94,11 @@ export function PlanDetailModal({
   // Painel de rejeição de documento (id do documento) + motivo.
   const [docReject, setDocReject] = useState<number | null>(null);
   const [docReason, setDocReason] = useState('');
+  const [assigning, setAssigning] = useState<{
+    role: TeamRole;
+    label: string;
+    hasPerson: boolean;
+  } | null>(null);
 
   const { data, isLoading, error } = useApiQuery<OnboardingPlanDetail>(
     queryKeys.onboarding.plan(planId),
@@ -222,20 +238,66 @@ export function PlanDetailModal({
 
   const team = data
     ? [
-        { label: 'Gestor directo', person: data.manager },
-        { label: 'Buddy / Mentor', person: data.buddy },
-        { label: 'RH responsável', person: data.hrResponsible },
+        {
+          role: 'manager' as const,
+          label: 'Gestor directo',
+          person: data.manager,
+          icon: User,
+        },
+        {
+          role: 'buddy' as const,
+          label: 'Buddy / Mentor',
+          person: data.buddy,
+          icon: Users,
+        },
+        {
+          role: 'hr' as const,
+          label: 'RH responsável',
+          person: data.hrResponsible,
+          icon: ShieldCheck,
+        },
       ]
     : [];
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title={data ? data.user.fullName : 'Plano de integração'}
-        description={data ? data.template.name : undefined}
-        gradientBanner
+        title="Plano de integração"
+        hideHeading
+        navyClose
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
+        {/* Faixa azul ondulada (desenho onboardings.jpg) */}
+        <div className="relative -mx-6 -mt-6 overflow-hidden bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 pb-16 pt-5 pr-14">
+          <div className="flex items-center gap-4">
+            <Users
+              size={36}
+              strokeWidth={1.75}
+              className="shrink-0 text-white"
+            />
+            <div className="min-w-0">
+              <div className="break-words font-body text-xl font-extrabold uppercase tracking-wide text-white">
+                {data ? data.user.fullName : 'Plano de integração'}
+              </div>
+              {data && (
+                <div className="mt-0.5 font-body text-sm text-on-brand-muted">
+                  {data.template.name}
+                </div>
+              )}
+            </div>
+          </div>
+          <svg
+            aria-hidden
+            viewBox="0 0 800 60"
+            preserveAspectRatio="none"
+            className="absolute inset-x-0 bottom-0 h-12 w-full text-surface"
+          >
+            <path
+              d="M0 60 V38 C 200 0, 450 10, 800 44 V60 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
         {isLoading ? (
           <div className="mt-5">
             <Skeleton rows={5} />
@@ -248,79 +310,67 @@ export function PlanDetailModal({
         ) : (
           <div className="mt-4 space-y-5">
             {/* Cabeçalho */}
-            <div className="flex items-start gap-4 rounded-card border border-border bg-surface p-4">
-              <Avatar
-                name={data.user.fullName}
-                url={data.user.avatarUrl ?? undefined}
-                size="lg"
-              />
-              <div className="min-w-0 flex-1">
+            <div className="-mt-14 flex items-start gap-5 px-1">
+              <div className="shrink-0 rounded-full bg-surface p-1.5 shadow-[0_8px_24px_rgba(21,47,89,0.18)]">
+                <Avatar
+                  name={data.user.fullName}
+                  url={data.user.avatarUrl ?? undefined}
+                  size="lg"
+                  className="!h-24 !w-24 !text-2xl"
+                />
+              </div>
+              <div className="min-w-0 flex-1 pt-14">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-body text-sm font-semibold text-ink">
+                  <span className="font-body text-lg font-bold text-brand-dark">
                     {data.user.fullName}
                   </span>
                   <StatusBadge value={data.status} map={STATUS_CFG} />
                 </div>
-                <div className="mt-0.5 font-body text-xs text-ink-faint">
+                <div className="mt-0.5 font-body text-sm text-ink">
                   {data.user.position?.name ?? '—'}
                   {data.user.department?.name
-                    ? ` · ${data.user.department.name}`
+                    ? ` - ${data.user.department.name}`
                     : ''}
                 </div>
-                <div className="mt-2">
-                  <ProgressBar value={data.progress} />
-                </div>
-                <div className="mt-1 flex flex-wrap gap-x-3 font-body text-xs text-ink-faint">
-                  <span>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-sm text-ink-muted">
+                  <span className="inline-flex items-center gap-1.5">
+                    <ListChecks size={16} strokeWidth={1.75} />
                     {data.completedTasks}/{data.totalTasks} tarefas ·{' '}
                     {data.progress}%
                   </span>
-                  <span>Início {fmtDate(data.startDate)}</span>
+                  <span className="inline-flex items-center gap-1.5 border-l border-brand-line pl-4">
+                    <CalendarDays size={16} strokeWidth={1.75} />
+                    Início {fmtDate(data.startDate)}
+                  </span>
                   {data.expectedEndDate && (
-                    <span>Previsto {fmtDate(data.expectedEndDate)}</span>
+                    <span className="inline-flex items-center gap-1.5 border-l border-brand-line pl-4">
+                      <Clock size={16} strokeWidth={1.75} />
+                      Previsto {fmtDate(data.expectedEndDate)}
+                    </span>
                   )}
                   {data.xpEarned > 0 && <span>{data.xpEarned} XP</span>}
+                </div>
+                <div className="mt-2">
+                  <ProgressBar value={data.progress} />
                 </div>
               </div>
             </div>
 
             {/* Equipa de apoio */}
-            <div className="grid grid-cols-3 gap-3">
-              {team.map(({ label, person }) => (
-                <div
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {team.map(({ role, label, person, icon }) => (
+                <TeamMemberCard
                   key={label}
-                  className="rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-3 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
-                >
-                  <div className="mb-2 font-body text-sm text-on-brand-muted">
-                    {label}
-                  </div>
-                  {person ? (
-                    <div className="flex flex-col items-center gap-1">
-                      <Avatar
-                        name={person.fullName}
-                        url={person.avatarUrl ?? undefined}
-                        size="md"
-                      />
-                      <div className="font-body text-sm text-on-brand-muted">
-                        {person.fullName}
-                      </div>
-                      {person.email && (
-                        <a
-                          href={`mailto:${person.email}?subject=${encodeURIComponent(
-                            `Onboarding — ${data.user.fullName}`,
-                          )}`}
-                          className="font-body text-sm text-on-brand-muted underline-offset-2 hover:underline"
-                        >
-                          Enviar mensagem
-                        </a>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="font-body text-sm text-on-brand-muted">
-                      Não atribuído
-                    </div>
-                  )}
-                </div>
+                  label={label}
+                  person={person}
+                  icon={icon}
+                  mailSubject={`Onboarding — ${data.user.fullName}`}
+                  onAssign={
+                    canManagePlan
+                      ? () => setAssigning({ role, label, hasPerson: !!person })
+                      : undefined
+                  }
+                />
               ))}
             </div>
 
@@ -673,7 +723,9 @@ export function PlanDetailModal({
                 onClick={onDelete}
                 loading={remove.isPending}
                 disabled={busy}
+                className="rounded-[14px]"
               >
+                <Trash2 size={16} strokeWidth={1.75} aria-hidden />
                 Remover plano
               </Button>
             )}
@@ -683,6 +735,15 @@ export function PlanDetailModal({
           </Button>
         </div>
       </ModalContent>
+      {assigning && (
+        <AssignTeamMemberModal
+          planId={planId}
+          role={assigning.role}
+          label={assigning.label}
+          hasPerson={assigning.hasPerson}
+          onClose={() => setAssigning(null)}
+        />
+      )}
     </Modal>
   );
 }

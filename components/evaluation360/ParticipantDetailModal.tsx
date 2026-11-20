@@ -71,7 +71,7 @@ export function ParticipantDetailModal({
                   </div>
                 )}
               </div>
-              <span className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
+              <span className="ml-auto text-xs font-bold text-ink">
                 {participantStatusLabel[data.status] ?? data.status}
               </span>
             </div>
@@ -132,7 +132,7 @@ export function ParticipantDetailModal({
                         — {evaluatorRoleLabel[e.role] ?? e.role}
                       </span>
                     </div>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface-sunken text-ink">
+                    <span className="text-xs font-bold text-ink">
                       {evaluatorAssignmentStatusLabel[e.status] ?? e.status}
                     </span>
                   </div>
@@ -206,9 +206,9 @@ export function ParticipantDetailModal({
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-control border border-border bg-surface-sunken px-3 py-2.5">
-      <div className="text-xs text-ink-muted">{label}</div>
-      <div className="text-base font-bold text-ink">{value}</div>
+    <div className="rounded-control border border-[#0F1F3D] bg-[#0F1F3D] px-3 py-2.5">
+      <div className="text-xs text-white">{label}</div>
+      <div className="text-base font-bold text-white">{value}</div>
     </div>
   );
 }
