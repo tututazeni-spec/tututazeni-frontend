@@ -100,7 +100,6 @@ describe('OnboardingsTab', () => {
     applyFilter();
     expect(screen.getByText('Ana Silva')).toBeInTheDocument();
     expect(screen.getByText(/Onboarding TI/)).toBeInTheDocument();
-    expect(screen.getByText('1 onboardings')).toBeInTheDocument();
   });
 
   test('clicar numa linha abre o detalhe', () => {

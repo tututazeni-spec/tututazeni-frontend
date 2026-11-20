@@ -221,11 +221,6 @@ export function OnboardingsTab({
             />
           </div>
         </div>
-        {hasFilter && (
-          <span className="ml-auto font-body text-sm text-ink-faint">
-            {data?.meta.total ?? 0} onboardings
-          </span>
-        )}
       </div>
 
       {hasFilter && isLoading ? (
