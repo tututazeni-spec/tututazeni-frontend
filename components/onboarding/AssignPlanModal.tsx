@@ -18,7 +18,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, X } from 'lucide-react';
+import { AlertCircle, Building2, ClipboardList, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { ApiError, apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -29,8 +29,10 @@ import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
 import { cn } from '@/lib/cn';
 import {
+  useDepartmentOptions,
   useDirectoryUsers,
   useTemplateOptions,
   type DirectoryUser,
@@ -44,34 +46,83 @@ export interface AssignPlanModalProps {
 export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
   const notify = useToast();
   const [userSearch, setUserSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<DirectoryUser | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<DirectoryUser[]>([]);
+  const [allDept, setAllDept] = useState(false);
+  const [departmentId, setDepartmentId] = useState('ALL');
   const [templateId, setTemplateId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [auto, setAuto] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
   const { options: templateOptions } = useTemplateOptions();
-  const { users, loading: usersLoading } = useDirectoryUsers(
+  const { options: departmentOptions } = useDepartmentOptions();
+  const deptFilter = departmentId === 'ALL' ? undefined : departmentId;
+  // "Todos do departamento" só existe com um departamento escolhido.
+  const everyone = allDept && Boolean(deptFilter);
+  const listOpen =
+    !everyone && (userSearch.trim().length > 0 || Boolean(deptFilter));
+  const { users: fetched, loading: usersLoading } = useDirectoryUsers(
     userSearch,
-    !selectedUser && userSearch.trim().length > 0,
+    everyone || listOpen,
+    deptFilter,
   );
+  const selectedIds = new Set(selectedUsers.map((u) => u.id));
+  const users = fetched.filter((u) => !selectedIds.has(u.id));
+  const targets = everyone ? fetched : selectedUsers;
+
+  const assignOne = (user: DirectoryUser) => {
+    if (auto) {
+      return apiClient.post(`/onboarding/auto-assign/${user.id}`, {});
+    }
+    return apiClient.post('/onboarding', {
+      userId: user.id,
+      templateId: Number(templateId),
+      ...(startDate ? { startDate } : {}),
+    });
+  };
 
   const assign = useApiMutation(
-    (user: DirectoryUser) => {
-      const userId = user.id;
-      if (auto) {
-        return apiClient.post(`/onboarding/auto-assign/${userId}`, {});
+    async (list: DirectoryUser[]) => {
+      // Um só colaborador: o erro sobe tal e qual (mensagens específicas).
+      if (list.length === 1) {
+        await assignOne(list[0]);
+        return { ok: 1, active: 0, failed: 0 };
       }
-      return apiClient.post('/onboarding', {
-        userId,
-        templateId: Number(templateId),
-        ...(startDate ? { startDate } : {}),
-      });
+      const results = await Promise.allSettled(list.map(assignOne));
+      let ok = 0;
+      let active = 0;
+      let failed = 0;
+      for (const r of results) {
+        if (r.status === 'fulfilled') ok++;
+        else if (r.reason instanceof ApiError && r.reason.status === 409)
+          active++;
+        else failed++;
+      }
+      return { ok, active, failed };
     },
     {
       invalidateKeys: [queryKeys.onboarding.all],
-      onSuccess: () => {
-        notify({ title: 'Plano de integração atribuído', intent: 'success' });
+      onSuccess: (r) => {
+        if (r.ok === 0) {
+          setSubmitError(
+            r.active > 0 && r.failed === 0
+              ? 'Todos estes colaboradores já têm um plano de integração activo.'
+              : 'Não foi possível atribuir o plano. Tente novamente.',
+          );
+          return;
+        }
+        const skipped = r.active + r.failed;
+        const extra =
+          skipped > 0
+            ? ` (${skipped} sem plano novo: ${r.active} já com plano activo${r.failed ? `, ${r.failed} com erro` : ''})`
+            : '';
+        notify({
+          title:
+            r.ok === 1
+              ? `Plano de integração atribuído${extra}`
+              : `Plano de integração atribuído a ${r.ok} colaboradores${extra}`,
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) => {
@@ -94,12 +145,12 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
   const loading = assign.isPending;
 
   const canSubmit =
-    Boolean(selectedUser) && (auto || Boolean(templateId)) && !loading;
+    targets.length > 0 && (auto || Boolean(templateId)) && !loading;
 
   const handleSubmit = () => {
-    if (!canSubmit || !selectedUser) return;
+    if (!canSubmit) return;
     setSubmitError('');
-    assign.mutate(selectedUser);
+    assign.mutate(targets);
   };
 
   return (
@@ -117,34 +168,77 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
             </div>
           )}
 
-          <FormField label="Colaborador *" htmlFor="ap-user">
-            {selectedUser ? (
-              <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-                <Avatar
-                  name={selectedUser.fullName}
-                  url={selectedUser.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm text-ink">
-                    {selectedUser.fullName}
-                  </div>
-                  {selectedUser.email && (
-                    <div className="truncate text-xs text-ink-faint">
-                      {selectedUser.email}
-                    </div>
-                  )}
-                </div>
-                <IconButton
-                  icon={X}
-                  label="Remover colaborador"
-                  intent="ghost"
-                  size="compact"
-                  type="button"
-                  onClick={() => setSelectedUser(null)}
-                />
-              </div>
-            ) : (
+          <Select
+            variant="underline"
+            icon={Building2}
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
+            value={departmentId}
+            onValueChange={(v) => {
+              setDepartmentId(v);
+              if (v === 'ALL') setAllDept(false);
+            }}
+          />
+
+          {deptFilter && (
+            <button
+              type="button"
+              aria-pressed={allDept}
+              onClick={() => setAllDept((v) => !v)}
+              className={cn(
+                'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
+                allDept
+                  ? 'border-primary bg-primary-subtle text-primary'
+                  : 'border-border-strong bg-surface text-ink-muted',
+              )}
+            >
+              Todos os colaboradores do departamento
+              {allDept && !usersLoading ? ` (${fetched.length})` : ''}
+            </button>
+          )}
+
+          {!everyone && (
+            <FormField label="Colaboradores *" htmlFor="ap-user">
+              {selectedUsers.length > 0 && (
+                <ul className="mb-2 space-y-1">
+                  {selectedUsers.map((u) => (
+                    <li
+                      key={u.id}
+                      className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5"
+                    >
+                      <Avatar
+                        name={u.fullName}
+                        url={u.avatarUrl ?? undefined}
+                        size="sm"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm text-ink">
+                          {u.fullName}
+                        </div>
+                        {u.email && (
+                          <div className="truncate text-xs text-ink-faint">
+                            {u.email}
+                          </div>
+                        )}
+                      </div>
+                      <IconButton
+                        icon={X}
+                        label="Remover colaborador"
+                        intent="ghost"
+                        size="compact"
+                        type="button"
+                        onClick={() =>
+                          setSelectedUsers((l) =>
+                            l.filter((x) => x.id !== u.id),
+                          )
+                        }
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div className="relative">
                 <Input
                   id="ap-user"
@@ -154,7 +248,7 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
                   placeholder="Pesquisar por nome ou email…"
                   autoComplete="off"
                 />
-                {userSearch.trim().length > 0 && (
+                {listOpen && (
                   <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
                     {usersLoading && (
                       <div className="px-3 py-2 text-sm text-ink-muted">
@@ -172,7 +266,7 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
                         key={u.id}
                         type="button"
                         onClick={() => {
-                          setSelectedUser(u);
+                          setSelectedUsers((l) => [...l, u]);
                           setUserSearch('');
                         }}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
@@ -195,8 +289,8 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
                   </div>
                 )}
               </div>
-            )}
-          </FormField>
+            </FormField>
+          )}
 
           <button
             type="button"
@@ -215,6 +309,8 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
           {!auto && (
             <FormField label="Template *" htmlFor="ap-template">
               <Combobox
+                variant="underline"
+                icon={ClipboardList}
                 items={templateOptions}
                 value={templateId || undefined}
                 onValueChange={setTemplateId}

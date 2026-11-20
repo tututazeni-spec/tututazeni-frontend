@@ -188,9 +188,6 @@ export function CheckinsTab() {
         >
           Só em atraso
         </button>
-        <span className="ml-auto font-body text-sm text-ink-faint">
-          {data?.meta.total ?? 0} check-ins
-        </span>
       </div>
 
       {isLoading ? (

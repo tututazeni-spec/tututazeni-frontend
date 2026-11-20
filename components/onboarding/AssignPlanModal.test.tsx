@@ -48,6 +48,7 @@ vi.mock('./planData', () => ({
     options: [{ value: '5', label: 'Onboarding TI' }],
     loading: false,
   }),
+  useDepartmentOptions: () => ({ options: [], loading: false }),
   useDirectoryUsers: () => ({ users: directoryUsers, loading: false }),
 }));
 
