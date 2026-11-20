@@ -78,6 +78,8 @@ export function StagesTab() {
           items={templateOptions}
           value={effectiveId}
           onValueChange={setTemplateId}
+          listStyle="pills"
+          className="cursor-pointer !rounded-pill !border-[#0F1F3D] !bg-[#0F1F3D] !text-white [&_svg]:!text-white"
         />
       </div>
 
@@ -133,7 +135,7 @@ export function StagesTab() {
                     return (
                       <li
                         key={t.id}
-                        className="flex items-center gap-2.5 border-b border-brand-line bg-surface px-5 py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken"
+                        className="flex items-center gap-2.5 border-b border-brand-line bg-surface px-5 py-3 font-body text-sm text-ink-muted last:border-0 cursor-pointer"
                       >
                         <span className="shrink-0">
                           {CatIcon ? (

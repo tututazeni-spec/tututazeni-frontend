@@ -28,6 +28,11 @@ export interface SelectProps {
   variant?: 'box' | 'underline';
   /** Só na variante `underline`: ícone à esquerda do filtro. */
   icon?: LucideIcon;
+  /**
+   * `pills`: lista suspensa com cantos de pílula (como os PeriodPills), a
+   * opção escolhida em navy com letra branca. Só altera a lista aberta.
+   */
+  listStyle?: 'default' | 'pills';
 }
 
 export function Select({
@@ -41,7 +46,9 @@ export function Select({
   className,
   variant = 'box',
   icon: Icon,
+  listStyle = 'default',
 }: SelectProps) {
+  const pills = listStyle === 'pills';
   const emptyItem = items.find((i) => i.value === '');
   const shownLabel = label ?? emptyItem?.label ?? placeholder;
 
@@ -133,12 +140,21 @@ export function Select({
       )}
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-[700] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
+          className={cn(
+            'z-[700] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated',
+            pills &&
+              'max-w-[min(32rem,calc(100vw-2rem))] rounded-[18px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.18)]',
+          )}
           position="popper"
           sideOffset={4}
           collisionPadding={8}
         >
-          <RadixSelect.Viewport className="list-scroll p-1 max-h-[min(16rem,var(--radix-select-content-available-height))]">
+          <RadixSelect.Viewport
+            className={cn(
+              'list-scroll p-1 max-h-[min(16rem,var(--radix-select-content-available-height))]',
+              pills && 'space-y-1 p-2',
+            )}
+          >
             {items.map((item) => (
               <RadixSelect.Item
                 key={item.value}
@@ -146,6 +162,8 @@ export function Select({
                 className={cn(
                   'flex cursor-pointer items-center justify-between gap-2 rounded-control px-3 py-2 font-body text-sm text-field-ink',
                   'outline-none data-[highlighted]:bg-field-soft',
+                  pills &&
+                    'rounded-pill px-4 py-2.5 font-semibold text-[#0F1F3D] data-[highlighted]:bg-brand-subtle data-[state=checked]:bg-[#0F1F3D] data-[state=checked]:text-white',
                 )}
               >
                 <span className="min-w-0 whitespace-normal break-words">
@@ -155,7 +173,7 @@ export function Select({
                   <Check
                     size={14}
                     strokeWidth={1.75}
-                    className="text-primary"
+                    className={pills ? 'text-white' : 'text-primary'}
                   />
                 </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
