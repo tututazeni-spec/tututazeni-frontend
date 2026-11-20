@@ -29,7 +29,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
     <Card
       className={`flex items-start gap-3 p-4 font-body ${
         task.status === 'COMPLETED'
-          ? 'border-success opacity-70'
+          ? 'border-success'
           : task.status === 'BLOCKED'
             ? 'opacity-50'
             : overdue
@@ -45,7 +45,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <div
-              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-ink-faint' : 'text-ink'}`}
+              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-black' : 'text-black'}`}
             >
               {task.templateTask.title}
             </div>
@@ -57,12 +57,12 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-2 text-xs text-ink-faint">
+        <div className="flex items-center gap-3 mt-2 text-xs text-black">
           {task.dueDate && (
             <span
               className={
                 overdue
-                  ? 'inline-flex items-center gap-1 text-danger font-medium'
+                  ? 'inline-flex items-center gap-1 font-medium'
                   : ''
               }
             >
@@ -74,7 +74,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
             <span className="text-info"> Requer aprovação</span>
           )}
           {task.completedAt && (
-            <span className="text-[#0F1F3D]">
+            <span>
               ✓ {fmtDate(task.completedAt)}
             </span>
           )}
