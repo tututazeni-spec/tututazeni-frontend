@@ -279,23 +279,23 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* Pending evaluations urgent banner */}
       {pending.length > 0 && (
-        <div className="bg-warning-subtle border border-warning rounded-card p-4">
+        <div className="rounded-[18px] border border-brand-line bg-warning-subtle p-4 shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle
               size={16}
               strokeWidth={1.75}
-              className="text-warning-ink"
+              className="text-ink"
             />
-            <p className="text-sm font-semibold text-warning-ink">
+            <p className="text-sm font-semibold text-ink">
               {pending.length} avaliação{pending.length > 1 ? 'ões' : ''}{' '}
               pendente{pending.length > 1 ? 's' : ''}
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {pending.slice(0, 3).map((r) => (
               <div
                 key={r.id}
-                className="flex items-center gap-3 bg-surface rounded-control px-3 py-2.5 border border-border"
+                className="relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] shadow-[0_4px_12px_rgba(21,47,89,0.10)]"
               >
                 <Avatar
                   name={r.evaluated.fullName}
@@ -310,7 +310,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                   </p>
                 </div>
                 {r.dueDate && (
-                  <span className="text-xs text-warning-ink font-medium shrink-0">
+                  <span className="text-xs text-ink font-semibold shrink-0">
                     {formatDateNumeric(r.dueDate)}
                   </span>
                 )}
