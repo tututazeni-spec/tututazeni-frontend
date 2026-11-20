@@ -35,33 +35,54 @@ export function ProfileRoiCard({
   stats,
   note,
 }: ProfileRoiCardProps) {
+  const t = {
+    kicker: 'text-[17.6px]',
+    name: 'text-[17px]',
+    sub: 'text-[10.2px]',
+    label: 'text-[12px]',
+    value: 'text-[17px]',
+    note: 'text-[12px]',
+  };
   return (
     <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       <div className="mb-2 flex items-center gap-3">
         <KickerIcon className="h-6 w-6" strokeWidth={1.8} aria-hidden />
-        <h3 className="font-display text-base font-bold uppercase tracking-wide">
+        <h3
+          className={`font-display ${t.kicker} font-bold uppercase tracking-wide`}
+        >
           {kicker}
         </h3>
       </div>
 
       <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
         <div className="shrink-0 rounded-full p-1.5 ring-[6px] ring-[#2F80ED]/70">
-          <Avatar name={name} url={avatarUrl ?? undefined} size="lg" />
+          <Avatar
+            name={name}
+            url={avatarUrl ?? undefined}
+            size="lg"
+            className="!h-[58px] !w-[58px]"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="font-display text-xl font-bold leading-snug">{name}</p>
+          <p className={`font-display ${t.name} font-bold leading-snug`}>
+            {name}
+          </p>
           {subtitle && (
-            <p className="mb-2 font-body text-sm text-white/70">{subtitle}</p>
+            <p className={`mb-2 font-body ${t.sub} text-white/70`}>
+              {subtitle}
+            </p>
           )}
           <div className="mt-2 flex flex-wrap items-stretch gap-x-8 gap-y-2">
             {stats.map((s, i) => (
               <div key={s.label} className="flex items-stretch gap-8">
                 {i > 0 && <div className="hidden w-px bg-white/20 sm:block" />}
                 <div>
-                  <p className="font-body text-sm text-white/70">{s.label}</p>
+                  <p className={`font-body ${t.label} text-white/70`}>
+                    {s.label}
+                  </p>
                   <p
-                    className="mt-1 flex items-center gap-2 font-display text-xl font-bold"
+                    className={`mt-1 flex items-center gap-2 font-display ${t.value} font-bold`}
                     style={s.color ? { color: s.color } : undefined}
                   >
                     {s.color && (
@@ -80,7 +101,9 @@ export function ProfileRoiCard({
       </div>
 
       {note && (
-        <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
+        <div
+          className={`mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body ${t.note}`}
+        >
           <Info className="h-5 w-5 shrink-0 text-on-brand-accent" aria-hidden />
           <span>{note}</span>
         </div>
