@@ -400,7 +400,7 @@ export function TemplateFormModal({
               value={name}
               onChange={(e) => {
                 setField('name', e.target.value);
-                setField('nameTouched', true);
+                setField('nameTouched', e.target.value.trim() !== '');
               }}
               placeholder="Ex.: Plano de Integração da área de Auditoria"
               maxLength={200}
