@@ -55,17 +55,23 @@ import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 
 beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
 
-function fill() {
+async function attachPdf(name = 'bi.pdf') {
+  const file = new File(['%PDF-1.4'], name, { type: 'application/pdf' });
+  fireEvent.change(screen.getByLabelText('Documento (PDF) *'), {
+    target: { files: [file] },
+  });
+  expect(await screen.findByText(name)).toBeInTheDocument();
+}
+
+async function fill() {
   fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
     target: { value: 'Cópia do BI' },
   });
-  fireEvent.change(screen.getByLabelText('Link do documento *'), {
-    target: { value: '  https://drive.example/bi  ' },
-  });
+  await attachPdf();
 }
 
 describe('OnboardingDocUploadForm', () => {
-  test('botão desactivado sem tipo + link', () => {
+  test('botão desactivado sem tipo + PDF', () => {
     render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
     expect(
       screen.getByRole('button', { name: 'Submeter documento' }),
@@ -75,7 +81,7 @@ describe('OnboardingDocUploadForm', () => {
   test('submete POST /onboarding/documents com os campos trimmed', async () => {
     const onUploaded = vi.fn();
     render(<OnboardingDocUploadForm planId={7} onUploaded={onUploaded} />);
-    fill();
+    await fill();
     fireEvent.change(screen.getByLabelText('Notas'), {
       target: { value: '  entregue em mão  ' },
     });
@@ -85,7 +91,7 @@ describe('OnboardingDocUploadForm', () => {
     expect(post).toHaveBeenCalledWith('/onboarding/documents', {
       planId: 7,
       documentType: 'Cópia do BI',
-      fileUrl: 'https://drive.example/bi',
+      fileUrl: expect.stringMatching(/^data:application\/pdf;base64,/),
       notes: 'entregue em mão',
     });
     await waitFor(() => expect(onUploaded).toHaveBeenCalledTimes(1));
@@ -94,7 +100,7 @@ describe('OnboardingDocUploadForm', () => {
   test('erro da API é mostrado', async () => {
     post.mockRejectedValueOnce(new Error('fileUrl deve usar HTTPS'));
     render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
-    fill();
+    await fill();
     fireEvent.click(screen.getByRole('button', { name: 'Submeter documento' }));
 
     expect(
@@ -113,9 +119,7 @@ describe('OnboardingDocUploadForm', () => {
         target: { value: '  Carta de condução  ' },
       },
     );
-    fireEvent.change(screen.getByLabelText('Link do documento *'), {
-      target: { value: 'https://drive.example/cc' },
-    });
+    await attachPdf('cc.pdf');
     fireEvent.click(screen.getByRole('button', { name: 'Submeter documento' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -124,16 +128,12 @@ describe('OnboardingDocUploadForm', () => {
     });
   });
 
-  test('PDF carregado é enviado como data URL no lugar do link', async () => {
+  test('PDF carregado é enviado como data URL', async () => {
     render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
       target: { value: 'NIB / IBAN' },
     });
-    const file = new File(['%PDF-1.4'], 'nib.pdf', { type: 'application/pdf' });
-    fireEvent.change(screen.getByLabelText('Ou carregar documento (PDF)'), {
-      target: { files: [file] },
-    });
-    expect(await screen.findByText('nib.pdf')).toBeInTheDocument();
+    await attachPdf('nib.pdf');
     fireEvent.click(screen.getByRole('button', { name: 'Submeter documento' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -143,7 +143,7 @@ describe('OnboardingDocUploadForm', () => {
 
   test('recusa PDF acima de 3 MB e ficheiro que não é PDF', async () => {
     render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
-    const input = screen.getByLabelText('Ou carregar documento (PDF)');
+    const input = screen.getByLabelText('Documento (PDF) *');
 
     const big = new File(['x'], 'grande.pdf', { type: 'application/pdf' });
     Object.defineProperty(big, 'size', { value: 3 * 1024 * 1024 + 1 });

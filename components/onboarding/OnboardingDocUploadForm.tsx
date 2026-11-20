@@ -4,10 +4,9 @@
 // pode submeter para o seu próprio plano — POST /onboarding/documents
 // (UploadDocumentDto: planId, documentType, fileUrl, notes?).
 //
-// `fileUrl` é validado no backend por @IsAllowedFileUrl: ou uma URL **HTTPS**
-// (e, se ALLOWED_FILE_HOST estiver definido, de um domínio autorizado —
-// OneDrive, Google Drive, etc.), ou um **PDF de até 3 MB** carregado aqui e
-// enviado como data URL base64 (mesmo padrão das lições PDF). O documento
+// O documento é um **PDF de até 3 MB** carregado aqui e enviado em `fileUrl`
+// como data URL base64 (mesmo padrão das lições PDF; validado no backend por
+// @IsAllowedFileUrl). O formulário já não aceita links externos. O documento
 // nasce em PENDING e o RH valida-o no detalhe do plano.
 
 'use client';
@@ -61,8 +60,7 @@ export function OnboardingDocUploadForm({
   const [typeChoice, setTypeChoice] = useState('');
   const [customType, setCustomType] = useState('');
   const documentType = typeChoice === OTHER ? customType : typeChoice;
-  const [fileUrl, setFileUrl] = useState('');
-  // PDF carregado (data URL) — alternativa ao link; tem prioridade.
+  // PDF carregado (data URL).
   const [pdf, setPdf] = useState<{ name: string; dataUrl: string } | null>(
     null,
   );
@@ -70,15 +68,14 @@ export function OnboardingDocUploadForm({
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
-  const canSubmit =
-    documentType.trim().length > 0 && (!!pdf || fileUrl.trim().length > 0);
+  const canSubmit = documentType.trim().length > 0 && !!pdf;
 
   const upload = useApiMutation(
     () =>
       apiClient.post('/onboarding/documents', {
         planId,
         documentType: documentType.trim(),
-        fileUrl: pdf ? pdf.dataUrl : fileUrl.trim(),
+        fileUrl: pdf?.dataUrl ?? '',
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       }),
     {
@@ -87,15 +84,12 @@ export function OnboardingDocUploadForm({
         notify({ title: 'Documento submetido', intent: 'success' });
         setTypeChoice('');
         setCustomType('');
-        setFileUrl('');
         setPdf(null);
         setNotes('');
         onUploaded();
       },
       onError: (e) =>
-        setError(
-          e.message || 'Erro ao submeter o documento. Verifique o link.',
-        ),
+        setError(e.message || 'Erro ao submeter o documento. Tente novamente.'),
     },
   );
   const loading = upload.isPending;
@@ -157,23 +151,7 @@ export function OnboardingDocUploadForm({
           </FormField>
 
           <FormField
-            label="Link do documento *"
-            htmlFor="od-url"
-            hint="URL HTTPS para o ficheiro (OneDrive, Google Drive, …) — ou carregue um PDF abaixo."
-          >
-            <Input
-              id="od-url"
-              type="url"
-              value={fileUrl}
-              onChange={(e) => setFileUrl(e.target.value)}
-              placeholder="https://…"
-              className="w-full"
-              disabled={!!pdf}
-            />
-          </FormField>
-
-          <FormField
-            label="Ou carregar documento (PDF)"
+            label="Documento (PDF) *"
             htmlFor="od-pdf"
             hint="Apenas PDF, máx. 3 MB."
           >
