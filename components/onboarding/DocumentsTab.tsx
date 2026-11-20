@@ -18,9 +18,14 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { DOC_BADGE, DOC_LABEL } from './constants';
+import { cn } from '@/lib/cn';
+import { DOC_LABEL } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
 import type { OnboardingDocumentsResponse } from './types';
+
+// Mesma grelha no cabeçalho e nas linhas (desenho de "Documentos submetidos").
+const SUBMITTED_GRID =
+  'grid grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-8 px-4';
 
 export interface DocumentsTabProps {
   canManagePlan?: boolean;
@@ -43,39 +48,56 @@ export function DocumentsTab({
   return (
     <div className="space-y-6">
       <section>
-        <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+        <h2 className="m-0 mb-3 text-lg font-bold text-ink">
           Submetidos ({data.submitted.length})
-        </h3>
+        </h2>
         {data.submitted.length === 0 ? (
           <EmptyState
             title="Sem documentos submetidos"
             description="Ainda não há documentos submetidos."
           />
         ) : (
-          <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div
+              className={cn(
+                SUBMITTED_GRID,
+                'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
+              )}
+            >
+              <div>Colaborador</div>
+              <div>Documento</div>
+              <div>Submetido</div>
+              <div>Estado</div>
+            </div>
             {data.submitted.map((doc) => (
               <button
                 key={doc.id}
                 type="button"
                 onClick={() => setDetailId(doc.planId)}
-                className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+                className={cn(
+                  SUBMITTED_GRID,
+                  'w-full border-b border-brand-line bg-surface py-3 text-left font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                )}
               >
-                <Avatar
-                  name={doc.plan.user.fullName}
-                  url={doc.plan.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {doc.documentType}
-                  </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {doc.plan.user.fullName} · Enviado {fmtDate(doc.createdAt)}
-                  </div>
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    name={doc.plan.user.fullName}
+                    url={doc.plan.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <span className="truncate font-semibold text-ink">
+                    {doc.plan.user.fullName}
+                  </span>
                 </div>
-                <Badge dot={false} intent={DOC_BADGE[doc.status]}>
-                  {DOC_LABEL[doc.status]}
-                </Badge>
+                <div className="break-words font-semibold text-ink">
+                  {doc.documentType}
+                </div>
+                <div>{fmtDate(doc.createdAt)}</div>
+                <div>
+                  <span className="text-xs font-bold text-ink">
+                    {DOC_LABEL[doc.status]}
+                  </span>
+                </div>
               </button>
             ))}
           </div>
