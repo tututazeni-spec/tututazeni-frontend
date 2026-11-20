@@ -122,13 +122,11 @@ export function OnboardingDocUploadForm({
 
   return (
     <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-      {/* Cabeçalho — ícone, divisória e título (desenho documentos.jpeg) */}
-      <div className="flex items-center gap-5 bg-brand-dark px-6 py-4">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-white text-brand-dark">
-          <FileUp size={26} strokeWidth={2} />
-        </span>
-        <span className="h-10 w-px bg-white/40" aria-hidden="true" />
-        <h3 className="m-0 font-body text-xl font-bold text-white">
+      {/* Cabeçalho — mesma altura e tipo de letra do cabeçalho da lista */}
+      <div className="flex items-center gap-3 bg-brand-dark px-4 py-3 text-white">
+        <FileUp size={16} strokeWidth={2} className="shrink-0" />
+        <span className="h-4 w-px bg-white/40" aria-hidden="true" />
+        <h3 className="m-0 font-body text-xs font-semibold uppercase tracking-wider text-white">
           Submeter documento
         </h3>
       </div>
@@ -222,11 +220,11 @@ export function OnboardingDocUploadForm({
             >
               Notas
             </label>
-            <div className="relative">
+            <div className="flex items-start gap-3 rounded-[16px] border border-brand-line bg-surface-sunken px-4 py-3">
               <MessageSquareText
                 size={18}
                 strokeWidth={1.75}
-                className="pointer-events-none absolute left-4 top-3.5 text-ink-muted"
+                className="mt-0.5 shrink-0 text-ink-muted"
               />
               <Textarea
                 id="od-notes"
@@ -234,7 +232,7 @@ export function OnboardingDocUploadForm({
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="Opcional — contexto para quem valida."
-                className="w-full rounded-[16px] pl-11"
+                className="min-w-0 flex-1 resize-none !border-0 !bg-transparent !p-0 focus:!ring-0"
               />
             </div>
           </div>
