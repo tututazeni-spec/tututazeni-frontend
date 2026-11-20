@@ -19,14 +19,20 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  ListChecks,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -37,6 +43,7 @@ import {
   RESPONSIBLE_LABELS,
   TASK_TYPE_LABELS,
 } from './constants';
+import { SectionTitleBar } from './SectionTitleBar';
 import { TemplateFormModal } from './TemplateFormModal';
 import { TemplateTaskFormModal } from './TemplateTaskFormModal';
 import type {
@@ -130,21 +137,49 @@ export function TemplateDetailModal({
       <Modal open onOpenChange={(open) => !open && onClose()}>
         <ModalContent
           title={data?.name ?? 'Template'}
-          description={
-            data
-              ? [
-                  `${data.durationDays} dias`,
-                  `${tasks.length} tarefas`,
-                  data.company,
-                  data.location,
-                  data.active ? null : 'inactivo',
-                ]
-                  .filter(Boolean)
-                  .join(' · ')
-              : undefined
-          }
-          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          hideHeading
+          navyClose
+          className="max-w-[874px] max-h-[90vh] overflow-y-auto"
         >
+          {/* Faixa azul ondulada (mesmo desenho do detalhe do plano) */}
+          <div className="relative -mx-6 -mt-6 overflow-hidden bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 pb-16 pt-5 pr-14">
+            <div className="flex items-center gap-4">
+              <Users
+                size={36}
+                strokeWidth={1.75}
+                className="shrink-0 text-white"
+              />
+              <div className="min-w-0">
+                <div className="break-words font-body text-xl font-extrabold uppercase tracking-wide text-white">
+                  {data?.name ?? 'Template'}
+                </div>
+                {data && (
+                  <div className="mt-0.5 font-body text-sm text-on-brand-muted">
+                    {[
+                      `${data.durationDays} dias`,
+                      `${tasks.length} tarefas`,
+                      data.company,
+                      data.location,
+                      data.active ? null : 'inactivo',
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </div>
+                )}
+              </div>
+            </div>
+            <svg
+              aria-hidden
+              viewBox="0 0 800 60"
+              preserveAspectRatio="none"
+              className="absolute inset-x-0 bottom-0 h-12 w-full text-surface"
+            >
+              <path
+                d="M0 60 V38 C 200 0, 450 10, 800 44 V60 Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
           {isLoading ? (
             <div className="mt-5">
               <Skeleton rows={5} />
@@ -167,14 +202,13 @@ export function TemplateDetailModal({
                 if (phaseTasks.length === 0 && !canManage) return null;
                 return (
                   <section key={phase}>
-                    <div className="mb-2 flex items-center justify-between">
-                      <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                        {PHASE_LABELS[phase]}
-                        <span className="ml-1.5 text-ink-faint">
-                          ({phaseTasks.length})
-                        </span>
-                      </h3>
-                      {canManage && (
+                    <SectionTitleBar
+                      icon={ListChecks}
+                      title={PHASE_LABELS[phase]}
+                      meta={`${phaseTasks.length} ${phaseTasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+                    />
+                    {canManage && (
+                      <div className="mb-2 flex justify-end">
                         <Button
                           size="sm"
                           intent="ghost"
@@ -183,8 +217,8 @@ export function TemplateDetailModal({
                           <Plus size={14} strokeWidth={2} />
                           Adicionar tarefa
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {phaseTasks.length === 0 ? (
                       <EmptyState
@@ -196,17 +230,14 @@ export function TemplateDetailModal({
                         {phaseTasks.map((task) => (
                           <li
                             key={task.id}
-                            className="flex items-start justify-between gap-3 rounded-card border border-border bg-surface p-3"
+                            className="flex items-start justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle p-3 shadow-[0_2px_10px_rgba(15,31,61,0.10)]"
                           >
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                <Badge
-                                  dot={false}
-                                  className={CATEGORY_CFG[task.category]?.cls}
-                                >
+                                <span className="font-body text-xs font-bold text-brand-dark">
                                   {CATEGORY_CFG[task.category]?.label ??
                                     task.category}
-                                </Badge>
+                                </span>
                                 <span className="font-body text-sm font-medium text-ink">
                                   {task.title}
                                 </span>
