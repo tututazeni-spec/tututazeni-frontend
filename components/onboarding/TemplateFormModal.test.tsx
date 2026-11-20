@@ -191,7 +191,7 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Título do item'), {
       target: { value: '1:1 com o gestor' },
     });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Obrigatória/ }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Criar plano de integração' }),
     );
