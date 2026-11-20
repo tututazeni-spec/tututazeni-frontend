@@ -32,6 +32,20 @@ export function ProfessionalSection({
     managersLoading,
     pickManager,
     clearManager,
+    selectedMentor,
+    mentorSearch,
+    setMentorSearch,
+    mentorResults,
+    mentorsLoading,
+    pickMentor,
+    clearMentor,
+    selectedHr,
+    hrSearch,
+    setHrSearch,
+    hrResults,
+    hrLoading,
+    pickHr,
+    clearHr,
     unitOptions,
     unitsLoading,
     departmentOptions,
@@ -115,6 +129,30 @@ export function ProfessionalSection({
         loading={managersLoading}
         onPick={pickManager}
         onClear={clearManager}
+      />
+      <ManagerPicker
+        label="Mentor"
+        inputId="mentorSearch"
+        clearLabel="Remover mentor"
+        selected={selectedMentor}
+        search={mentorSearch}
+        onSearch={setMentorSearch}
+        results={mentorResults}
+        loading={mentorsLoading}
+        onPick={pickMentor}
+        onClear={clearMentor}
+      />
+      <ManagerPicker
+        label="RH responsável"
+        inputId="hrSearch"
+        clearLabel="Remover RH responsável"
+        selected={selectedHr}
+        search={hrSearch}
+        onSearch={setHrSearch}
+        results={hrResults}
+        loading={hrLoading}
+        onPick={pickHr}
+        onClear={clearHr}
       />
       <Field
         label="Localização"

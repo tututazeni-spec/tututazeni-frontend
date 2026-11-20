@@ -46,6 +46,28 @@ import {
 } from '@/components/users/createUser/logic';
 import type { DirectoryUser } from '@/components/users/types';
 
+/** Pesquisa + escolha de um colaborador no diretório interno. */
+function useDirectoryPicker() {
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<DirectoryUser | null>(null);
+  const { users: results, loading } = useDirectoryUsers(
+    search,
+    shouldSearchManagers(selected, search),
+  );
+  return {
+    search,
+    setSearch,
+    selected,
+    results,
+    loading,
+    pick: (u: DirectoryUser) => {
+      setSelected(u);
+      setSearch('');
+    },
+    clear: () => setSelected(null),
+  };
+}
+
 export function useCreateUserForm(onCreated: () => void) {
   const notify = useToast();
   const {
@@ -120,15 +142,11 @@ export function useCreateUserForm(onCreated: () => void) {
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setField(k, e.target.value as UserFormValues[K]);
 
-  // ── Gestor directo (pesquisa no diretório interno) ────────────────────────
-  const [managerSearch, setManagerSearch] = useState('');
-  const [selectedManager, setSelectedManager] = useState<DirectoryUser | null>(
-    null,
-  );
-  const { users: managerResults, loading: managersLoading } = useDirectoryUsers(
-    managerSearch,
-    shouldSearchManagers(selectedManager, managerSearch),
-  );
+  // ── Gestor directo, Mentor e RH responsável (pesquisa no diretório) ───────
+  // Ligam ao onboarding: o plano de integração usa-os como predefinição.
+  const manager = useDirectoryPicker();
+  const mentor = useDirectoryPicker();
+  const hrResponsible = useDirectoryPicker();
 
   // ── Catálogos dos pickers ─────────────────────────────────────────────────
   const { options: departmentOptions, loading: departmentsLoading } =
@@ -150,7 +168,12 @@ export function useCreateUserForm(onCreated: () => void) {
     () =>
       apiClient.post(
         '/users',
-        buildCreateUserPayload(form, selectedManager?.id),
+        buildCreateUserPayload(
+          form,
+          manager.selected?.id,
+          mentor.selected?.id,
+          hrResponsible.selected?.id,
+        ),
       ),
     {
       invalidateKeys: [queryKeys.users.lists()],
@@ -190,16 +213,31 @@ export function useCreateUserForm(onCreated: () => void) {
     emailAlternatives: alternatives,
 
     // Gestor directo
-    selectedManager,
-    managerSearch,
-    setManagerSearch,
-    managerResults,
-    managersLoading,
-    pickManager: (u: DirectoryUser) => {
-      setSelectedManager(u);
-      setManagerSearch('');
-    },
-    clearManager: () => setSelectedManager(null),
+    selectedManager: manager.selected,
+    managerSearch: manager.search,
+    setManagerSearch: manager.setSearch,
+    managerResults: manager.results,
+    managersLoading: manager.loading,
+    pickManager: manager.pick,
+    clearManager: manager.clear,
+
+    // Mentor
+    selectedMentor: mentor.selected,
+    mentorSearch: mentor.search,
+    setMentorSearch: mentor.setSearch,
+    mentorResults: mentor.results,
+    mentorsLoading: mentor.loading,
+    pickMentor: mentor.pick,
+    clearMentor: mentor.clear,
+
+    // RH responsável
+    selectedHr: hrResponsible.selected,
+    hrSearch: hrResponsible.search,
+    setHrSearch: hrResponsible.setSearch,
+    hrResults: hrResponsible.results,
+    hrLoading: hrResponsible.loading,
+    pickHr: hrResponsible.pick,
+    clearHr: hrResponsible.clear,
 
     // Catálogos
     departmentOptions,
