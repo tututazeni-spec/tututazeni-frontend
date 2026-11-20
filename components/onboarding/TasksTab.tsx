@@ -196,6 +196,7 @@ export function TasksTab({
                     {PRIORITY_LABEL[t.priority]}
                   </Badge>
                   <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
+                    {t.startDate ? `${fmtDate(t.startDate)} → ` : ''}
                     {t.dueDate ? fmtDate(t.dueDate) : '—'}
                   </div>
                   <div className="shrink-0 font-body text-xs text-ink-faint">

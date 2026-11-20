@@ -16,62 +16,9 @@ import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import type { OnboardingPlanDetail } from './types';
-
-export interface PlanMemberOption {
-  id: number;
-  fullName: string;
-  avatarUrl: string | null;
-  roleLabel: string;
-}
-
-interface PlanPeople {
-  user: { id: number; fullName: string; avatarUrl: string | null };
-  manager?: { id: number; fullName: string; avatarUrl: string | null } | null;
-  buddy?: { id: number; fullName: string; avatarUrl: string | null } | null;
-  hrResponsible?: {
-    id: number;
-    fullName: string;
-    avatarUrl?: string | null;
-  } | null;
-}
-
-/** Pessoas do plano a quem uma tarefa pode ser atribuída. */
-export function planMemberOptions(plan: PlanPeople): PlanMemberOption[] {
-  const out: PlanMemberOption[] = [
-    {
-      id: plan.user.id,
-      fullName: plan.user.fullName,
-      avatarUrl: plan.user.avatarUrl,
-      roleLabel: 'Colaborador',
-    },
-  ];
-  if (plan.manager) {
-    out.push({
-      id: plan.manager.id,
-      fullName: plan.manager.fullName,
-      avatarUrl: plan.manager.avatarUrl,
-      roleLabel: 'Gestor directo',
-    });
-  }
-  if (plan.buddy) {
-    out.push({
-      id: plan.buddy.id,
-      fullName: plan.buddy.fullName,
-      avatarUrl: plan.buddy.avatarUrl,
-      roleLabel: 'Buddy / mentor',
-    });
-  }
-  if (plan.hrResponsible) {
-    out.push({
-      id: plan.hrResponsible.id,
-      fullName: plan.hrResponsible.fullName,
-      avatarUrl: plan.hrResponsible.avatarUrl ?? null,
-      roleLabel: 'RH responsável',
-    });
-  }
-  return out;
-}
+import { Input } from '@/components/ui/Input';
+import { useDebounce } from '@/hooks/useDebounce';
+import type { DirectoryUser } from '@/components/users/types';
 
 export interface AssignTaskModalProps {
   taskId: number;
@@ -90,12 +37,17 @@ export function AssignTaskModal({
 }: AssignTaskModalProps) {
   const notify = useToast();
   const [error, setError] = useState('');
-  const { data: plan, isLoading } = useApiQuery<OnboardingPlanDetail>(
-    queryKeys.onboarding.plan(planId),
-    `/onboarding/${planId}`,
-    { staleTime: STALE_TIME.DYNAMIC },
+  const [search, setSearch] = useState('');
+  const debounced = useDebounce(search);
+  const { data, isLoading } = useApiQuery<DirectoryUser[]>(
+    [...queryKeys.onboarding.all, 'task-assignees', planId, debounced],
+    `/onboarding/${planId}/task-assignee-candidates`,
+    {
+      params: { search: debounced || undefined },
+      staleTime: STALE_TIME.DYNAMIC,
+    },
   );
-  const members = plan ? planMemberOptions(plan) : [];
+  const members = (data ?? []).filter((u) => u != null && u.id != null);
 
   const save = useApiMutation(
     (assigneeId: number | null) =>
@@ -119,7 +71,7 @@ export function AssignTaskModal({
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Atribuir tarefa"
-        description={`«${taskTitle}» — escolhe quem fica responsável, entre as pessoas deste plano.`}
+        description={`«${taskTitle}» — só aparecem colaboradores do mesmo departamento e utilizadores do RH.`}
         className="max-w-md max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-3">
@@ -129,10 +81,22 @@ export function AssignTaskModal({
               {error}
             </div>
           )}
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full"
+            placeholder="Pesquisar por nome ou email…"
+            autoComplete="off"
+          />
           <div className="max-h-64 overflow-y-auto rounded-card border border-border bg-surface">
             {isLoading && (
               <div className="px-3 py-2 text-sm text-ink-muted">
-                A carregar…
+                A pesquisar…
+              </div>
+            )}
+            {!isLoading && members.length === 0 && (
+              <div className="px-3 py-2 text-sm text-ink-muted">
+                Nenhum utilizador elegível encontrado.
               </div>
             )}
             {members.map((m) => (
@@ -157,7 +121,9 @@ export function AssignTaskModal({
                     {m.id === currentAssigneeId ? ' (actual)' : ''}
                   </span>
                   <span className="block truncate text-xs text-ink-faint">
-                    {m.roleLabel}
+                    {m.role?.name === 'RH'
+                      ? 'RH'
+                      : (m.department?.name ?? m.email ?? '—')}
                   </span>
                 </span>
               </Button>
