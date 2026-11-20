@@ -431,7 +431,7 @@ export function TemplateFormModal({
                   ...objectives.filter((o) => !objectiveOptions.includes(o)),
                 ].map((o) => (
                   <li key={o}>
-                    <label className="flex cursor-pointer items-start gap-2 px-3 py-2 text-sm text-ink hover:bg-surface-sunken">
+                    <label className="flex cursor-pointer items-start gap-2 px-3 py-2 text-sm text-ink">
                       <Checkbox
                         checked={objectives.includes(o)}
                         onChange={() => toggleObjective(o)}
