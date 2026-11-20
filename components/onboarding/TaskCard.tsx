@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Zap, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -68,12 +68,6 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
             >
               {overdue && <AlertTriangle size={12} strokeWidth={1.75} />}
               Prazo: {fmtDate(task.dueDate)}
-            </span>
-          )}
-          {task.templateTask.xpReward > 0 && (
-            <span className="inline-flex items-center gap-1 text-warning-ink">
-              <Zap size={12} strokeWidth={1.75} /> {task.templateTask.xpReward}{' '}
-              XP
             </span>
           )}
           {task.templateTask.requiresApproval && (
