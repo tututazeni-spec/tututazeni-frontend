@@ -56,7 +56,7 @@ export function SectionTitleBar({
         type="button"
         aria-expanded={expanded}
         onClick={onToggle}
-        className={`${cls} cursor-pointer`}
+        className="relative mb-2 flex w-full cursor-pointer items-center gap-3 overflow-hidden rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] text-left shadow-[0_4px_12px_rgba(21,47,89,0.10)] transition hover:border-brand"
       >
         {bar}
       </button>

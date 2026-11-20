@@ -381,11 +381,10 @@ export function MyPlanView() {
 
       {/* Header — mesmo desenho do cartão da Visão Geral do evaluation360 */}
       <ProfileRoiCard
-        kicker="Plano de integração"
+        kicker={`Plano de integração - ${plan.template.name}`}
         kickerIcon={ClipboardList}
         name={owner?.fullName ?? '—'}
         avatarUrl={owner?.avatarUrl}
-        subtitle={plan.template.name}
         stats={[
           { label: 'Cargo', value: owner?.position?.name || '—' },
           { label: 'Departamento', value: owner?.department?.name || '—' },
@@ -395,9 +394,7 @@ export function MyPlanView() {
             value: `${completedTasks}/${totalTasks}`,
           },
         ]}
-        note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias${
-          plan.xpEarned > 0 ? ` · ${plan.xpEarned} XP` : ''
-        }`}
+        note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias`}
       />
 
       {/* Tabs */}
