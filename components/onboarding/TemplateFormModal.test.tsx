@@ -291,7 +291,6 @@ describe('TemplateFormModal — editar', () => {
       durationDays: 30,
       description: 'Plano TI',
       objective: null,
-      location: null,
       departmentId: null,
       positionId: null,
       unitId: null,

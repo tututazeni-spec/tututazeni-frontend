@@ -407,3 +407,24 @@ export function suggestionsForFilters(f: ItemFilters): ItemSuggestion[] {
   }
   return list;
 }
+
+/** Marcador substituído pelo primeiro nome do colaborador. */
+export const WELCOME_NAME_TOKEN = '{{nome}}';
+
+/** Mensagem de boas-vindas geral, válida para todos os departamentos. */
+export const DEFAULT_WELCOME_MESSAGE =
+  'Olá, {{nome}}! Seja muito bem-vindo(a) à nossa equipa. Estamos felizes por ' +
+  'o(a) ter connosco. Este plano de integração vai guiá-lo(a) nos primeiros ' +
+  'passos: conhecer a empresa, a sua equipa e as ferramentas de trabalho. ' +
+  'Conte com o apoio do seu gestor, do seu mentor e do RH sempre que precisar. ' +
+  'Bom começo!';
+
+/** Mensagem final para o colaborador: usa a geral se o plano não tiver uma. */
+export function renderWelcomeMessage(
+  message: string | null | undefined,
+  fullName: string | null | undefined,
+): string {
+  const text = message?.trim() ? message : DEFAULT_WELCOME_MESSAGE;
+  const first = (fullName ?? '').trim().split(/\s+/)[0] || 'colaborador(a)';
+  return text.split(WELCOME_NAME_TOKEN).join(first);
+}

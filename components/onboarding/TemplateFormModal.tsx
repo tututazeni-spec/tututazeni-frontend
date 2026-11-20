@@ -48,6 +48,8 @@ import {
 } from './constants';
 import { useUnitOptions } from './planData';
 import {
+  DEFAULT_WELCOME_MESSAGE,
+  WELCOME_NAME_TOKEN,
   objectivesForDepartment,
   planNameForDepartment,
   suggestionsForFilters,
@@ -157,7 +159,6 @@ interface TemplateFormModalFormValues {
   objectives: string[];
   customObjective: string;
   nameTouched: boolean;
-  location: string;
   departmentId: string;
   unitId: string;
   positionId: string;
@@ -182,7 +183,6 @@ export function TemplateFormModal({
       objectives: splitObjectives(template?.objective),
       customObjective: '',
       nameTouched: template != null,
-      location: template?.location ?? '',
       departmentId:
         template?.departmentId != null
           ? String(template.departmentId)
@@ -193,7 +193,7 @@ export function TemplateFormModal({
           ? String(template.positionId)
           : NO_POSITION,
       durationDays: String(template?.durationDays ?? 30),
-      welcomeMessage: template?.welcomeMessage ?? '',
+      welcomeMessage: template?.welcomeMessage ?? DEFAULT_WELCOME_MESSAGE,
       active: template?.active ?? true,
       tasks: [],
       submitError: '',
@@ -204,7 +204,6 @@ export function TemplateFormModal({
     objectives,
     customObjective,
     nameTouched,
-    location,
     departmentId,
     unitId,
     positionId,
@@ -330,15 +329,16 @@ export function TemplateFormModal({
       : objectives;
     if (allObjectives.length > 0) payload.objective = allObjectives.join('\n');
     else if (editing) payload.objective = null;
-    if (location.trim()) payload.location = location.trim();
-    else if (editing) payload.location = null;
     if (departmentId !== NO_DEPT) payload.departmentId = Number(departmentId);
     else if (editing) payload.departmentId = null;
     if (positionId !== NO_POSITION) payload.positionId = Number(positionId);
     else if (editing) payload.positionId = null;
     if (unitId !== NO_UNIT) payload.unitId = Number(unitId);
     else if (editing) payload.unitId = null;
-    if (welcomeMessage.trim()) payload.welcomeMessage = welcomeMessage.trim();
+    // A mensagem geral não se grava: o colaborador vê-a por omissão.
+    const customWelcome = welcomeMessage.trim();
+    if (customWelcome && customWelcome !== DEFAULT_WELCOME_MESSAGE)
+      payload.welcomeMessage = customWelcome;
     else if (editing) payload.welcomeMessage = null;
     // Criar: backend usa default true, só enviamos quando desligado.
     // Editar: enviamos sempre (é o mecanismo de "arquivar").
@@ -503,17 +503,6 @@ export function TemplateFormModal({
                 automaticamente.
               </p>
             </FormField>
-
-            <FormField label="Localização" htmlFor="ot-location">
-              <Input
-                id="ot-location"
-                value={location}
-                onChange={(e) => setField('location', e.target.value)}
-                placeholder="Opcional — ex.: escritório, cidade"
-                maxLength={200}
-                className="w-full"
-              />
-            </FormField>
           </div>
 
           <FormField label="Mensagem de boas-vindas" htmlFor="ot-welcome">
@@ -526,6 +515,10 @@ export function TemplateFormModal({
               maxLength={2000}
               className="w-full"
             />
+            <p className="mt-1 text-xs text-ink-faint">
+              Escreva {WELCOME_NAME_TOKEN} para inserir automaticamente o nome
+              do colaborador. Vale para todos os departamentos.
+            </p>
           </FormField>
 
           <button
