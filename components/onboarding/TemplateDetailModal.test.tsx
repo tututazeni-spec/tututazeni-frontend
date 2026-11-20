@@ -112,8 +112,10 @@ beforeEach(() => {
 });
 
 describe('TemplateDetailModal', () => {
+  // As fases são um acordeão: o conteúdo só aparece depois de clicar na fase.
   test('lista a tarefa com fase e categoria legíveis', () => {
     renderModal();
+    fireEvent.click(screen.getByRole('button', { name: /Primeiro Dia/ }));
     expect(screen.getByText('Entregar documentos')).toBeInTheDocument();
     expect(screen.getByText('Primeiro Dia')).toBeInTheDocument();
     expect(screen.getByText('Documentos')).toBeInTheDocument();
@@ -131,6 +133,7 @@ describe('TemplateDetailModal', () => {
 
   test('"Adicionar tarefa" abre o formulário', () => {
     renderModal();
+    fireEvent.click(screen.getByRole('button', { name: /Primeiro Dia/ }));
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Adicionar tarefa' })[0],
     );
@@ -139,6 +142,7 @@ describe('TemplateDetailModal', () => {
 
   test('remover uma tarefa confirma e envia DELETE', async () => {
     renderModal();
+    fireEvent.click(screen.getByRole('button', { name: /Primeiro Dia/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Remover tarefa' }));
 
     await waitFor(() => expect(del).toHaveBeenCalledTimes(1));
@@ -151,6 +155,7 @@ describe('TemplateDetailModal', () => {
   test('cancelar a confirmação não envia DELETE', async () => {
     confirmFn.mockResolvedValue(false);
     renderModal();
+    fireEvent.click(screen.getByRole('button', { name: /Primeiro Dia/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Remover tarefa' }));
 
     await Promise.resolve();
