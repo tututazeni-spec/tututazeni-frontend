@@ -101,9 +101,15 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
 
   // Responsável: mesmo departamento do colaborador ou RH (validado no backend).
   const { data: candidates } = useApiQuery<DirectoryUser[]>(
-    [...queryKeys.onboarding.all, 'task-assignees', values.planId],
-    `/onboarding/${values.planId}/task-assignee-candidates`,
-    { staleTime: STALE_TIME.DYNAMIC, enabled: values.planId !== '' },
+    [
+      ...queryKeys.onboarding.all,
+      'task-assignees',
+      values.planId || `template-${values.templateId}`,
+    ],
+    values.planId
+      ? `/onboarding/${values.planId}/task-assignee-candidates`
+      : `/onboarding/templates/${values.templateId}/task-assignee-candidates`,
+    { staleTime: STALE_TIME.DYNAMIC, enabled: values.templateId !== '' },
   );
   const assigneeItems = [
     { value: NONE, label: 'Sem responsável' },
@@ -320,13 +326,13 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
               hint={
                 values.planId
                   ? 'Mesmo departamento do colaborador ou RH.'
-                  : 'Escolhe um colaborador para definir o responsável.'
+                  : 'Para todos os colaboradores, só aparece o RH.'
               }
             >
               <Select
                 items={assigneeItems}
                 value={values.assigneeId}
-                disabled={!values.planId}
+                disabled={!values.templateId}
                 onValueChange={(v) => set('assigneeId', v)}
                 className="w-full"
               />
