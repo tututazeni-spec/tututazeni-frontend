@@ -47,11 +47,9 @@ import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   CATEGORY_CFG,
-  DOC_BADGE,
   DOC_LABEL,
   PHASE_LABELS,
   PHASE_ORDER,
@@ -265,7 +263,7 @@ export function PlanDetailModal({
         title="Plano de integração"
         hideHeading
         navyClose
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="max-w-[874px] max-h-[90vh] overflow-y-auto"
       >
         {/* Faixa azul ondulada (desenho onboardings.jpg) */}
         <div className="relative -mx-6 -mt-6 overflow-hidden bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 pb-16 pt-5 pr-14">
@@ -324,7 +322,9 @@ export function PlanDetailModal({
                   <span className="font-body text-lg font-bold text-brand-dark">
                     {data.user.fullName}
                   </span>
-                  <StatusBadge value={data.status} map={STATUS_CFG} />
+                  <span className="cursor-default rounded px-2 py-0.5 font-body text-xs font-bold text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
+                    {STATUS_CFG[data.status]?.label ?? data.status}
+                  </span>
                 </div>
                 <div className="mt-0.5 font-body text-sm text-ink">
                   {data.user.position?.name ?? '—'}
@@ -332,7 +332,7 @@ export function PlanDetailModal({
                     ? ` - ${data.user.department.name}`
                     : ''}
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-sm text-ink-muted">
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-sm text-brand-dark">
                   <span className="inline-flex items-center gap-1.5">
                     <ListChecks size={16} strokeWidth={1.75} />
                     {data.completedTasks}/{data.totalTasks} tarefas ·{' '}
@@ -360,6 +360,7 @@ export function PlanDetailModal({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {team.map(({ role, label, person, icon }) => (
                 <TeamMemberCard
+                  compact
                   key={label}
                   label={label}
                   person={person}
@@ -596,9 +597,9 @@ export function PlanDetailModal({
             {/* Documentos */}
             {data.documents.length > 0 && (
               <section>
-                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-brand-dark">
                   Documentos
-                  <span className="ml-1.5 text-ink-faint">
+                  <span className="ml-1.5 text-brand-dark">
                     ({data.documents.length})
                   </span>
                 </h3>
@@ -616,16 +617,12 @@ export function PlanDetailModal({
                               <span className="font-body text-sm font-medium text-ink">
                                 {doc.documentType}
                               </span>
-                              <Badge dot={false} intent={DOC_BADGE[doc.status]}>
-                                {DOC_LABEL[doc.status]}
-                              </Badge>
                             </div>
                             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
                               <DocumentLink
                                 fileUrl={doc.fileUrl}
                                 className="text-primary hover:underline"
                               />
-                              <span>Enviado {fmtDate(doc.createdAt)}</span>
                               {doc.notes && <span>Nota: {doc.notes}</span>}
                               {doc.rejectionReason && (
                                 <span className="text-danger-ink">
@@ -634,37 +631,44 @@ export function PlanDetailModal({
                               )}
                             </div>
                           </div>
-                          {canManagePlan &&
-                            doc.status === 'PENDING' &&
-                            !rejectOpen && (
-                              <div className="flex shrink-0 gap-1">
-                                <Button
-                                  size="sm"
-                                  intent="secondary"
-                                  disabled={busy}
-                                  loading={validateDoc.isPending}
-                                  onClick={() =>
-                                    validateDoc.mutate({
-                                      documentId: doc.id,
-                                      status: 'APPROVED',
-                                    })
-                                  }
-                                >
-                                  Aprovar documento
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  intent="ghost"
-                                  disabled={busy}
-                                  onClick={() => {
-                                    setDocReason('');
-                                    setDocReject(doc.id);
-                                  }}
-                                >
-                                  Rejeitar documento
-                                </Button>
-                              </div>
-                            )}
+                          <div className="flex shrink-0 flex-col items-end gap-1">
+                            {canManagePlan &&
+                              doc.status === 'PENDING' &&
+                              !rejectOpen && (
+                                <div className="flex shrink-0 gap-1">
+                                  <Button
+                                    size="sm"
+                                    intent="ghost"
+                                    className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                    disabled={busy}
+                                    loading={validateDoc.isPending}
+                                    onClick={() =>
+                                      validateDoc.mutate({
+                                        documentId: doc.id,
+                                        status: 'APPROVED',
+                                      })
+                                    }
+                                  >
+                                    Aprovar documento
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    intent="ghost"
+                                    className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                    disabled={busy}
+                                    onClick={() => {
+                                      setDocReason('');
+                                      setDocReject(doc.id);
+                                    }}
+                                  >
+                                    Rejeitar documento
+                                  </Button>
+                                </div>
+                              )}
+                            <span className="pr-3 font-body text-xs font-bold text-ink">
+                              {DOC_LABEL[doc.status]}
+                            </span>
+                          </div>
                         </div>
 
                         {rejectOpen && (
@@ -723,9 +727,9 @@ export function PlanDetailModal({
                 onClick={onDelete}
                 loading={remove.isPending}
                 disabled={busy}
-                className="rounded-[14px]"
+                className="rounded-[14px] !px-[14.4px] !py-[7.2px] !text-[11.2px]"
               >
-                <Trash2 size={16} strokeWidth={1.75} aria-hidden />
+                <Trash2 size={13} strokeWidth={1.75} aria-hidden />
                 Remover plano
               </Button>
             )}
