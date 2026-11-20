@@ -14,11 +14,13 @@
 import { useState, type ReactNode } from 'react';
 import {
   ClipboardList,
+  ClipboardCheck,
   Clapperboard,
   ShieldCheck,
   Star,
   User,
   Users,
+  type LucideIcon,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -81,17 +83,28 @@ const DOC_GRID =
 
 function SectionCard({
   title,
+  icon: Icon,
   children,
 }: {
   title: string;
+  icon?: LucideIcon;
   children: ReactNode;
 }) {
+  // Mesmo desenho do cartão "Submeter documento".
   return (
-    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-      <h4 className="-mx-5 -mt-5 mb-4 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
-        {title}
-      </h4>
-      {children}
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex items-center gap-3 bg-brand-dark px-4 py-3 text-white">
+        {Icon && (
+          <>
+            <Icon size={16} strokeWidth={2} className="shrink-0" />
+            <span className="h-4 w-px bg-white/40" aria-hidden="true" />
+          </>
+        )}
+        <h4 className="m-0 font-body text-xs font-semibold uppercase tracking-wider text-white">
+          {title}
+        </h4>
+      </div>
+      <div className="p-6">{children}</div>
     </div>
   );
 }
@@ -281,7 +294,7 @@ export function MyPlanView() {
 
       {/* Tarefas por fase */}
       {activeTab === 'tasks' && (
-        <SectionCard title="Tarefas">
+        <SectionCard title="Tarefas" icon={ClipboardCheck}>
           <div className="space-y-5">
             {PHASE_ORDER.map((phase) => {
               const phaseTasks = tasksByPhase[phase] ?? [];
@@ -304,6 +317,7 @@ export function MyPlanView() {
                           ? (phaseCompleted / phaseTasks.length) * 100
                           : 0
                       }
+                      color="#0F1F3D"
                       className="flex-1"
                     />
                   </div>
