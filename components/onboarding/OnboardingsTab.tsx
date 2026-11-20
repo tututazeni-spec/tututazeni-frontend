@@ -253,7 +253,7 @@ export function OnboardingsTab({
               }}
               className={cn(
                 PLAN_GRID,
-                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                'cursor-pointer border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0',
               )}
             >
               <div className="flex min-w-0 items-center gap-2.5">
