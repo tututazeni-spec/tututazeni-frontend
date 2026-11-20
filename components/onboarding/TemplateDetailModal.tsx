@@ -238,7 +238,7 @@ export function TemplateDetailModal({
                             {phaseTasks.map((task) => (
                               <li
                                 key={task.id}
-                                className="flex items-start justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle p-3 shadow-[0_2px_10px_rgba(15,31,61,0.10)]"
+                                className="flex items-start justify-between gap-3 rounded-[18px] border border-brand-line bg-surface px-4 py-[11px] shadow-[0_4px_12px_rgba(21,47,89,0.10)]"
                               >
                                 <div className="min-w-0">
                                   <div className="flex flex-wrap items-center gap-2">
