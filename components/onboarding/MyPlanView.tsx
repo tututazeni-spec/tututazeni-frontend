@@ -336,47 +336,52 @@ export function MyPlanView() {
               Ainda não submeteste documentos.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-              <div
-                className={cn(
-                  DOC_GRID,
-                  'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
-                )}
-              >
-                <div>Documento</div>
-                <div>Ficheiro</div>
-                <div>Submetido</div>
-                <div>Estado</div>
-                <div>Motivo</div>
-              </div>
-              {plan.documents.map((doc) => (
+            <div className="flex flex-col gap-3">
+              <h2 className="m-0 text-lg font-bold text-ink">
+                Documentos submetidos
+              </h2>
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
                 <div
-                  key={doc.id}
                   className={cn(
                     DOC_GRID,
-                    'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                    'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
                   )}
                 >
-                  <div className="break-words font-semibold text-ink">
-                    {doc.documentType}
-                  </div>
-                  <div>
-                    <DocumentLink
-                      fileUrl={doc.fileUrl}
-                      className="text-sm font-semibold text-ink hover:underline"
-                    />
-                  </div>
-                  <div>{doc.createdAt ? fmtDate(doc.createdAt) : '—'}</div>
-                  <div>
-                    <span className="text-xs font-bold text-ink">
-                      {DOC_STATUS_LABEL[doc.status]}
-                    </span>
-                  </div>
-                  <div className="break-words">
-                    {doc.rejectionReason ?? '—'}
-                  </div>
+                  <div>Documento</div>
+                  <div>Ficheiro</div>
+                  <div>Submetido</div>
+                  <div>Estado</div>
+                  <div>Motivo</div>
                 </div>
-              ))}
+                {plan.documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className={cn(
+                      DOC_GRID,
+                      'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                    )}
+                  >
+                    <div className="break-words font-semibold text-ink">
+                      {doc.documentType}
+                    </div>
+                    <div>
+                      <DocumentLink
+                        fileUrl={doc.fileUrl}
+                        className="text-sm font-semibold text-ink hover:underline"
+                      />
+                    </div>
+                    <div>{doc.createdAt ? fmtDate(doc.createdAt) : '—'}</div>
+                    <div>
+                      <span className="text-xs font-bold text-ink">
+                        {DOC_STATUS_LABEL[doc.status]}
+                      </span>
+                    </div>
+                    <div className="break-words">
+                      {doc.rejectionReason ?? '—'}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

@@ -220,7 +220,7 @@ export function OnboardingDocUploadForm({
             >
               Notas
             </label>
-            <div className="flex items-start gap-3 rounded-[16px] border border-brand-line bg-surface-sunken px-4 py-3">
+            <div className="flex items-start gap-3 px-1 py-1">
               <MessageSquareText
                 size={18}
                 strokeWidth={1.75}
