@@ -318,6 +318,7 @@ export interface OnboardingTaskListItem {
   skipReason: string | null;
   priority: TaskPriority;
   templateTask: TemplateTask;
+  assignee: { id: number; fullName: string; avatarUrl: string | null } | null;
   plan: {
     id: number;
     user: { id: number; fullName: string; avatarUrl: string | null };
