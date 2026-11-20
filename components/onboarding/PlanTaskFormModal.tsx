@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { CATEGORY_CFG, PHASE_LABELS, PHASE_ORDER } from './constants';
 import type { DirectoryUser } from '@/components/users/types';
+import { MANUAL_TASK_TYPE, TASK_TYPES_BY_CATEGORY } from './taskTypeCatalog';
 import type { OnboardingPlanListItem, TaskCategory, TaskPhase } from './types';
 
 interface PlansPage {
@@ -42,6 +43,7 @@ const PHASE_ITEMS = PHASE_ORDER.map((value) => ({
 interface FormValues {
   templateId: string;
   planId: string;
+  taskType: string;
   title: string;
   description: string;
   category: TaskCategory | '';
@@ -57,6 +59,7 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
   const { values, set } = useFormState<FormValues>({
     templateId: '',
     planId: '',
+    taskType: '',
     title: '',
     description: '',
     category: '',
@@ -117,10 +120,23 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
     values.dueDate !== '' &&
     values.dueDate < values.startDate;
 
+  const typeItems = values.category
+    ? [
+        ...TASK_TYPES_BY_CATEGORY[values.category].map((t) => ({
+          value: t,
+          label: t,
+        })),
+        { value: MANUAL_TASK_TYPE, label: 'Outro (escrever manualmente)' },
+      ]
+    : [];
+  const manual = values.taskType === MANUAL_TASK_TYPE;
+  // O tipo escolhido (ou escrito) é o título da tarefa.
+  const taskTitle = manual ? values.title.trim() : values.taskType;
+
   const canSubmit =
     values.templateId !== '' &&
-    values.title.trim().length > 0 &&
     values.category !== '' &&
+    taskTitle.length > 0 &&
     values.startDate !== '' &&
     values.dueDate !== '' &&
     !datesInvalid;
@@ -151,7 +167,7 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
     if (!canSubmit || save.isPending) return;
     set('submitError', '');
     const body: Record<string, unknown> = {
-      title: values.title.trim(),
+      title: taskTitle,
       category: values.category,
       phase: values.phase,
       startDate: values.startDate,
@@ -210,15 +226,47 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
             </FormField>
           </div>
 
-          <FormField label="Título *" htmlFor="pt-title">
-            <Input
-              id="pt-title"
-              value={values.title}
-              onChange={(e) => set('title', e.target.value)}
-              maxLength={200}
+          <FormField label="Categoria *" htmlFor="pt-category">
+            <Select
+              items={CATEGORY_ITEMS}
+              value={values.category || undefined}
+              onValueChange={(v) => {
+                set('category', v as TaskCategory);
+                set('taskType', '');
+                set('title', '');
+              }}
+              placeholder="Seleccionar categoria"
               className="w-full"
             />
           </FormField>
+
+          <FormField label="Tipo de tarefa *" htmlFor="pt-type">
+            <Select
+              items={typeItems}
+              value={values.taskType || undefined}
+              onValueChange={(v) => set('taskType', v)}
+              placeholder={
+                values.category
+                  ? 'Seleccionar tipo de tarefa'
+                  : 'Escolhe primeiro a categoria'
+              }
+              disabled={!values.category}
+              className="w-full"
+            />
+          </FormField>
+
+          {manual && (
+            <FormField label="Tipo de tarefa (manual) *" htmlFor="pt-title">
+              <Input
+                id="pt-title"
+                value={values.title}
+                onChange={(e) => set('title', e.target.value)}
+                maxLength={200}
+                placeholder="Escreve o tipo de tarefa"
+                className="w-full"
+              />
+            </FormField>
+          )}
 
           <FormField label="Descrição" htmlFor="pt-description">
             <Textarea
@@ -231,15 +279,6 @@ export function PlanTaskFormModal({ onClose }: { onClose: () => void }) {
           </FormField>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField label="Categoria *" htmlFor="pt-category">
-              <Select
-                items={CATEGORY_ITEMS}
-                value={values.category || undefined}
-                onValueChange={(v) => set('category', v as TaskCategory)}
-                placeholder="Seleccionar categoria"
-                className="w-full"
-              />
-            </FormField>
             <FormField label="Fase *" htmlFor="pt-phase">
               <Select
                 items={PHASE_ITEMS}
