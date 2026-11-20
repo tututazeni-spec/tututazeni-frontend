@@ -3,7 +3,9 @@
 // todos os onboardings, com filtros. "Prioridade" vem já derivada do
 // backend (GET /onboarding/tasks). Clicar numa linha abre o
 // PlanDetailModal do plano dono da tarefa — é lá que vivem aprovar/
-// rejeitar/saltar (evita duplicar essa lógica aqui).
+// rejeitar/saltar (evita duplicar essa lógica aqui). ADMIN/RH (`canManagePlan`)
+// veem ainda "+ Nova tarefa" (POST /onboarding/:id/tasks) e "Atribuir" por
+// linha (PATCH /onboarding/tasks/:id/assignee).
 
 'use client';
 
@@ -15,12 +17,15 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG, PHASE_LABELS, TASK_STATUS_CFG } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
+import { AssignTaskModal } from './AssignTaskModal';
+import { PlanTaskFormModal } from './PlanTaskFormModal';
 import type { OnboardingTaskListItem, TaskPriority } from './types';
 import { LayoutGrid, MapPin } from 'lucide-react';
 
@@ -82,6 +87,10 @@ export function TasksTab({
     page: 1,
   });
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [assigning, setAssigning] = useState<OnboardingTaskListItem | null>(
+    null,
+  );
 
   function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));
@@ -137,6 +146,11 @@ export function TasksTab({
         <span className="ml-auto font-body text-sm text-ink-faint">
           {data?.meta.total ?? 0} tarefas
         </span>
+        {canManagePlan && (
+          <Button size="sm" onClick={() => setCreating(true)}>
+            + Nova tarefa
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -151,37 +165,54 @@ export function TasksTab({
           {data.data.map((t) => {
             const catCfg = CATEGORY_CFG[t.templateTask.category];
             return (
-              <button
+              <div
                 key={t.id}
-                type="button"
-                onClick={() => setDetailId(t.plan.id)}
-                className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+                className="flex items-center border-b border-border last:border-0 hover:bg-surface-sunken"
               >
-                <Avatar
-                  name={t.plan.user.fullName}
-                  url={t.plan.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {t.templateTask.title}
+                <button
+                  type="button"
+                  onClick={() => setDetailId(t.plan.id)}
+                  className="flex min-w-0 flex-1 items-center gap-4 px-4 py-3 text-left"
+                >
+                  <Avatar
+                    name={t.plan.user.fullName}
+                    url={t.plan.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-sm font-medium text-ink">
+                      {t.templateTask.title}
+                    </div>
+                    <div className="truncate font-body text-xs text-ink-faint">
+                      {t.plan.user.fullName} ·{' '}
+                      {PHASE_LABELS[t.templateTask.phase]}
+                      {catCfg ? ` · ${catCfg.label}` : ''}
+                      {t.assignee
+                        ? ` · Responsável: ${t.assignee.fullName}`
+                        : ''}
+                    </div>
                   </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {t.plan.user.fullName} ·{' '}
-                    {PHASE_LABELS[t.templateTask.phase]}
-                    {catCfg ? ` · ${catCfg.label}` : ''}
+                  <Badge dot={false} intent={PRIORITY_BADGE[t.priority]}>
+                    {PRIORITY_LABEL[t.priority]}
+                  </Badge>
+                  <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
+                    {t.dueDate ? fmtDate(t.dueDate) : '—'}
                   </div>
-                </div>
-                <Badge dot={false} intent={PRIORITY_BADGE[t.priority]}>
-                  {PRIORITY_LABEL[t.priority]}
-                </Badge>
-                <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
-                  {t.dueDate ? fmtDate(t.dueDate) : '—'}
-                </div>
-                <div className="shrink-0 font-body text-xs text-ink-faint">
-                  {STATUS_LABEL[t.status] ?? t.status}
-                </div>
-              </button>
+                  <div className="shrink-0 font-body text-xs text-ink-faint">
+                    {STATUS_LABEL[t.status] ?? t.status}
+                  </div>
+                </button>
+                {canManagePlan && (
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    className="mr-3 shrink-0"
+                    onClick={() => setAssigning(t)}
+                  >
+                    {t.assignee ? 'Reatribuir' : 'Atribuir'}
+                  </Button>
+                )}
+              </div>
             );
           })}
         </div>
@@ -192,6 +223,17 @@ export function TasksTab({
           page={data.meta.page}
           totalPages={data.meta.totalPages}
           onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))}
+        />
+      )}
+
+      {creating && <PlanTaskFormModal onClose={() => setCreating(false)} />}
+      {assigning && (
+        <AssignTaskModal
+          taskId={assigning.id}
+          planId={assigning.plan.id}
+          taskTitle={assigning.templateTask.title}
+          currentAssigneeId={assigning.assignee?.id ?? null}
+          onClose={() => setAssigning(null)}
         />
       )}
 
