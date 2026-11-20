@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { QuestionnaireFormModal } from './QuestionnaireFormModal';
 import { QuestionnaireDetailModal } from './QuestionnaireDetailModal';
+import { QuestionnaireEditModal } from './QuestionnaireEditModal';
 import { CompetencyExportMenu } from '@/components/competencies/CompetencyExportMenu';
 
 const ALL = 'ALL';
@@ -47,6 +48,7 @@ export function QuestionariosTab() {
   const [status, setStatus] = useState(ALL);
   const [creating, setCreating] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
   const params: Record<string, string> = { tenantId: 'default', limit: '50' };
   if (status !== ALL) params.status = status;
@@ -254,6 +256,15 @@ export function QuestionariosTab() {
                     {canManage && q.status === 'DRAFT' && (
                       <button
                         type="button"
+                        onClick={() => setEditId(q.id)}
+                        className="font-body text-xs font-semibold text-black hover:underline"
+                      >
+                        Editar
+                      </button>
+                    )}
+                    {canManage && q.status === 'DRAFT' && (
+                      <button
+                        type="button"
                         onClick={() => publish.mutate(q.id)}
                         className="font-body text-xs font-semibold text-black hover:underline"
                       >
@@ -293,6 +304,12 @@ export function QuestionariosTab() {
             setCreating(false);
             setOpenId(id);
           }}
+        />
+      )}
+      {editId && (
+        <QuestionnaireEditModal
+          questionnaireId={editId}
+          onClose={() => setEditId(null)}
         />
       )}
       {openId && (
