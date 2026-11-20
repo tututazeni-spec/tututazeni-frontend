@@ -182,115 +182,131 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
             }}
           />
 
-          {deptFilter && (
-            <button
-              type="button"
-              aria-pressed={allDept}
-              onClick={() => setAllDept((v) => !v)}
-              className={cn(
-                'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
-                allDept
-                  ? 'border-primary bg-primary-subtle text-primary'
-                  : 'border-border-strong bg-surface text-ink-muted',
-              )}
-            >
-              Todos os colaboradores do departamento
-              {allDept && !usersLoading ? ` (${fetched.length})` : ''}
-            </button>
-          )}
-
-          {!everyone && (
-            <FormField label="Colaboradores *" htmlFor="ap-user">
-              {selectedUsers.length > 0 && (
-                <ul className="mb-2 space-y-1">
-                  {selectedUsers.map((u) => (
-                    <li
-                      key={u.id}
-                      className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5"
-                    >
-                      <Avatar
-                        name={u.fullName}
-                        url={u.avatarUrl ?? undefined}
-                        size="sm"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm text-ink">
-                          {u.fullName}
-                        </div>
-                        {u.email && (
-                          <div className="truncate text-xs text-ink-faint">
-                            {u.email}
-                          </div>
-                        )}
-                      </div>
-                      <IconButton
-                        icon={X}
-                        label="Remover colaborador"
-                        intent="ghost"
-                        size="compact"
-                        type="button"
-                        onClick={() =>
-                          setSelectedUsers((l) =>
-                            l.filter((x) => x.id !== u.id),
-                          )
-                        }
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="relative">
-                <Input
-                  id="ap-user"
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full"
-                  placeholder="Pesquisar por nome ou email…"
-                  autoComplete="off"
+          <FormField label="Colaboradores *" htmlFor="ap-user">
+            {everyone ? (
+              <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-2">
+                <span className="min-w-0 flex-1 truncate text-sm text-ink">
+                  Todos os colaboradores do departamento
+                  {usersLoading ? '' : ` (${fetched.length})`}
+                </span>
+                <IconButton
+                  icon={X}
+                  label="Remover Todos"
+                  intent="ghost"
+                  size="compact"
+                  type="button"
+                  onClick={() => setAllDept(false)}
                 />
-                {listOpen && (
-                  <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
-                    {usersLoading && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        A pesquisar…
-                      </div>
-                    )}
-                    {!usersLoading && users.length === 0 && (
-                      <EmptyState
-                        variant="inline"
-                        title="Nenhum colaborador encontrado"
-                      />
-                    )}
-                    {users.map((u) => (
-                      <button
+              </div>
+            ) : (
+              <div>
+                {selectedUsers.length > 0 && (
+                  <ul className="mb-2 space-y-1">
+                    {selectedUsers.map((u) => (
+                      <li
                         key={u.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedUsers((l) => [...l, u]);
-                          setUserSearch('');
-                        }}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                        className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5"
                       >
                         <Avatar
                           name={u.fullName}
                           url={u.avatarUrl ?? undefined}
                           size="sm"
                         />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="truncate text-sm text-ink">
                             {u.fullName}
                           </div>
-                          <div className="truncate text-xs text-ink-faint">
-                            {u.department?.name ?? u.email ?? '—'}
-                          </div>
+                          {u.email && (
+                            <div className="truncate text-xs text-ink-faint">
+                              {u.email}
+                            </div>
+                          )}
                         </div>
-                      </button>
+                        <IconButton
+                          icon={X}
+                          label="Remover colaborador"
+                          intent="ghost"
+                          size="compact"
+                          type="button"
+                          onClick={() =>
+                            setSelectedUsers((l) =>
+                              l.filter((x) => x.id !== u.id),
+                            )
+                          }
+                        />
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
+                <div className="relative">
+                  <Input
+                    id="ap-user"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="w-full"
+                    placeholder="Pesquisar por nome ou email…"
+                    autoComplete="off"
+                  />
+                  {listOpen && (
+                    <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
+                      {usersLoading && (
+                        <div className="px-3 py-2 text-sm text-ink-muted">
+                          A pesquisar…
+                        </div>
+                      )}
+                      {!usersLoading && users.length === 0 && (
+                        <EmptyState
+                          variant="inline"
+                          title="Nenhum colaborador encontrado"
+                        />
+                      )}
+                      {!usersLoading && users.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (deptFilter && !userSearch.trim()) {
+                              setAllDept(true);
+                            } else {
+                              setSelectedUsers((l) => [...l, ...users]);
+                            }
+                            setUserSearch('');
+                          }}
+                          className="flex w-full items-center gap-2 border-b border-border px-3 py-2 text-left text-sm font-bold text-brand-dark hover:bg-primary-subtle"
+                        >
+                          Todos
+                        </button>
+                      )}
+                      {users.map((u) => (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedUsers((l) => [...l, u]);
+                            setUserSearch('');
+                          }}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                        >
+                          <Avatar
+                            name={u.fullName}
+                            url={u.avatarUrl ?? undefined}
+                            size="sm"
+                          />
+                          <div className="min-w-0">
+                            <div className="truncate text-sm text-ink">
+                              {u.fullName}
+                            </div>
+                            <div className="truncate text-xs text-ink-faint">
+                              {u.department?.name ?? u.email ?? '—'}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </FormField>
-          )}
+            )}
+          </FormField>
 
           <button
             type="button"
