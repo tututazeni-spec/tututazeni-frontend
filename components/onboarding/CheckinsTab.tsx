@@ -252,11 +252,56 @@ function CheckinRegisterModal({
   );
 }
 
+function CheckinViewModal({
+  checkin,
+  onClose,
+}: {
+  checkin: OnboardingCheckin;
+  onClose: () => void;
+}) {
+  const fields: Array<[string, string | null]> = [
+    ['Dificuldades identificadas', checkin.difficulties],
+    ['Pontos positivos', checkin.positives],
+    ['Necessidades de apoio', checkin.supportNeeds],
+    ['Feedback do gestor', checkin.managerFeedback],
+    ['Próximas acções', checkin.nextActions],
+    ['Feedback do colaborador', checkin.employeeFeedback],
+  ];
+  return (
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent
+        title={`Check-in — ${CHECKIN_TYPE_LABELS[checkin.type]}`}
+        description={`${checkin.plan.user.fullName}${checkin.completedAt ? ` · Concluído ${fmtDate(checkin.completedAt)}` : ''}`}
+        className="max-w-lg"
+      >
+        <div className="mt-4 space-y-3">
+          {fields.map(([label, value]) => (
+            <div key={label}>
+              <div className="font-body text-xs font-bold text-brand-dark">
+                {label}
+              </div>
+              <div className="whitespace-pre-line break-words font-body text-sm text-ink">
+                {value?.trim() ? value : '—'}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 flex justify-end border-t border-border pt-4">
+          <Button size="sm" intent="ghost" onClick={onClose}>
+            Fechar
+          </Button>
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
 export function CheckinsTab() {
   const [status, setStatus] = useState('ALL');
   const [departmentId, setDepartmentId] = useState('ALL');
   const [overdue, setOverdue] = useState(false);
   const [selected, setSelected] = useState<OnboardingCheckin | null>(null);
+  const [viewing, setViewing] = useState<OnboardingCheckin | null>(null);
   const { options: departmentOptions } = useDepartmentOptions();
 
   const params = {
@@ -320,10 +365,21 @@ export function CheckinsTab() {
             <div>Estado</div>
           </div>
           {data.data.map((c) => (
-            <button
+            <div
               key={c.id}
-              type="button"
-              onClick={() => setSelected(c)}
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                c.status === 'COMPLETED' ? setViewing(c) : setSelected(c)
+              }
+              onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  if (c.status === 'COMPLETED') setViewing(c);
+                  else setSelected(c);
+                }
+              }}
               className={`${CHECKINS_GRID} w-full cursor-pointer border-b border-brand-line py-[11px] text-left last:border-0`}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -343,14 +399,32 @@ export function CheckinsTab() {
               <div className="font-body text-xs font-semibold text-ink">
                 {c.dueDate ? fmtDate(c.dueDate) : '—'}
               </div>
-              <StatusBadge
-                value={c.status}
-                map={CHECKIN_STATUS_CFG}
-                className="!bg-transparent !px-0 !text-ink"
-              />
-            </button>
+              <div className="flex items-center justify-between gap-2">
+                <StatusBadge
+                  value={c.status}
+                  map={CHECKIN_STATUS_CFG}
+                  className="!bg-transparent !px-0 !text-ink"
+                />
+                {c.status === 'COMPLETED' && (
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewing(c);
+                    }}
+                  >
+                    Ver
+                  </Button>
+                )}
+              </div>
+            </div>
           ))}
         </div>
+      )}
+
+      {viewing && (
+        <CheckinViewModal checkin={viewing} onClose={() => setViewing(null)} />
       )}
 
       {selected && (
