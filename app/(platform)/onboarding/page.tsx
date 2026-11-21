@@ -141,7 +141,10 @@ export default function OnboardingPage() {
 
           {visibleTabs.some((t) => t.id === 'integration-evaluations') && (
             <TabsContent value="integration-evaluations">
-              <IntegrationEvaluationTab />
+              <IntegrationEvaluationTab
+                canManagePlan={canManage}
+                canManageTasks={isMgmt}
+              />
             </TabsContent>
           )}
 

@@ -74,7 +74,11 @@ export function PendingEvaluationCard({
           <>
             {progress !== undefined && (
               <div className="flex items-center gap-3">
-                <ProgressBar value={progress} className="flex-1" />
+                <ProgressBar
+                  value={progress}
+
+                  className="flex-1"
+                />
                 <span className="text-xs tabular-nums text-on-brand-muted">
                   {progress}%
                 </span>
