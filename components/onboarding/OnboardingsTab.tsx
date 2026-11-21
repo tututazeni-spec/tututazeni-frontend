@@ -284,7 +284,7 @@ export function OnboardingsTab({
                   </div>
                 </div>
                 <div className="break-words">
-                  {plan.user.position?.name ?? plan.user.email}
+                  {plan.user.position?.name ?? '—'}
                 </div>
                 <div className="break-words">
                   {plan.user.department?.name ?? '—'}
