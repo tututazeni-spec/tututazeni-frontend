@@ -62,6 +62,8 @@ export interface EvalTemplateCardProps {
   imagePosition?: 'top' | 'bottom';
   /** Enquadramento da imagem (classe object-*; por omissão, ao centro). */
   imageClassName?: string;
+  /** Classes do subtítulo (por omissão, 2 linhas em 15px). */
+  subtitleClassName?: string;
 }
 
 export function EvalTemplateCard({
@@ -80,6 +82,7 @@ export function EvalTemplateCard({
   onSelect,
   imagePosition = 'top',
   imageClassName = 'object-center',
+  subtitleClassName = 'line-clamp-2 text-[15px]',
 }: EvalTemplateCardProps) {
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
   const clickable = !!onSelect;
@@ -257,7 +260,12 @@ export function EvalTemplateCard({
             {title}
           </h3>
           {subtitle && (
-            <p className="mt-1 line-clamp-2 break-words text-[15px] text-white/70">
+            <p
+              className={cn(
+                'mt-1 break-words text-white/70',
+                subtitleClassName,
+              )}
+            >
               {subtitle}
             </p>
           )}

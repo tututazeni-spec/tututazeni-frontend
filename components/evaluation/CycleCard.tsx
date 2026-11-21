@@ -82,7 +82,11 @@ export function CycleCard({
           <div>
             <p className="pb-2 text-xs text-on-brand-muted">{progress.label}</p>
             <div className="flex items-center gap-3">
-              <ProgressBar value={progress.value} className="flex-1" />
+              <ProgressBar
+                value={progress.value}
+
+                className="flex-1"
+              />
               <span className="text-xs tabular-nums text-on-brand-muted">
                 {progress.value}%
               </span>
@@ -100,7 +104,8 @@ export function CycleCard({
         </>
       }
       title={title}
-      subtitle={subtitle}
+      subtitle={subtitle?.split(' · ').join('\n')}
+      subtitleClassName="whitespace-pre-line text-xs leading-snug"
     />
   );
 }

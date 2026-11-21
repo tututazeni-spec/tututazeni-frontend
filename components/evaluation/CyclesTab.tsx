@@ -242,15 +242,6 @@ export function CyclesTab() {
               kickerIcon={ClipboardList}
               title={cycle.name}
               imageUrl={cycle.imageUrl}
-              subtitle={[
-                `${formatDateNumeric(cycle.startDate)} → ${formatDateNumeric(cycle.endDate)}`,
-                cycle.selfEvalDueDate &&
-                  `Autoavaliação até ${formatDateNumeric(cycle.selfEvalDueDate)}`,
-                cycle.managerEvalDueDate &&
-                  `Gestor até ${formatDateNumeric(cycle.managerEvalDueDate)}`,
-              ]
-                .filter(Boolean)
-                .join(' · ')}
               status={{
                 label: STATUS_MAP[cycle.status]?.label ?? cycle.status,
                 intent: CYCLE_TONE[cycle.status] ?? 'neutral',
