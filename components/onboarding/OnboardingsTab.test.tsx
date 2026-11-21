@@ -82,16 +82,29 @@ beforeEach(() => {
   queryResult = { data: page1, isLoading: false };
 });
 
+function applyFilter() {
+  fireEvent.change(screen.getAllByTestId('select')[0], {
+    target: { value: 'IN_PROGRESS' },
+  });
+}
+
 describe('OnboardingsTab', () => {
+  test('sem filtros só mostra o cabeçalho', () => {
+    render(<OnboardingsTab />);
+    expect(screen.getByText('Colaborador')).toBeInTheDocument();
+    expect(screen.queryByText('Ana Silva')).not.toBeInTheDocument();
+  });
+
   test('lista um onboarding com colaborador e plano de integração', () => {
     render(<OnboardingsTab />);
+    applyFilter();
     expect(screen.getByText('Ana Silva')).toBeInTheDocument();
     expect(screen.getByText(/Onboarding TI/)).toBeInTheDocument();
-    expect(screen.getByText('1 onboardings')).toBeInTheDocument();
   });
 
   test('clicar numa linha abre o detalhe', () => {
     render(<OnboardingsTab />);
+    applyFilter();
     fireEvent.click(screen.getByRole('button', { name: /Ana Silva/ }));
     expect(screen.getByText('stub-detail-42')).toBeInTheDocument();
   });
@@ -102,6 +115,7 @@ describe('OnboardingsTab', () => {
       isLoading: false,
     };
     render(<OnboardingsTab />);
+    applyFilter();
     expect(screen.getByText('Sem onboardings')).toBeInTheDocument();
   });
 });

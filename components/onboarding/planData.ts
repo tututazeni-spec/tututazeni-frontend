@@ -88,11 +88,18 @@ export function usePositionOptions(enabled = true) {
  * Pesquisa no diretório interno (GET /users/directory), com debounce no
  * termo. Só corre quando `enabled` (modal aberta e sem colaborador escolhido).
  */
-export function useDirectoryUsers(rawSearch: string, enabled = true) {
+export function useDirectoryUsers(
+  rawSearch: string,
+  enabled = true,
+  departmentId?: string,
+) {
   const search = useDebounce(rawSearch);
-  const params = { search: search || undefined };
+  const params = {
+    search: search || undefined,
+    departmentId: departmentId || undefined,
+  };
   const query = useApiQuery<DirectoryUser[]>(
-    queryKeys.users.directory(search),
+    queryKeys.users.directory(search, departmentId),
     '/users/directory',
     {
       params,

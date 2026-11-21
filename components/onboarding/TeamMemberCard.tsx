@@ -20,6 +20,7 @@ export function TeamMemberCard({
   icon: Icon,
   mailSubject,
   onAssign,
+  compact = false,
 }: {
   label: string;
   person: TeamMemberPerson | null;
@@ -27,7 +28,13 @@ export function TeamMemberCard({
   mailSubject: string;
   /** Quando definido, o cartão é clicável e abre a atribuição da pessoa. */
   onAssign?: () => void;
+  /** Foto 30% mais pequena (card de detalhe do plano). */
+  compact?: boolean;
 }) {
+  const avatarSize = compact
+    ? '!h-[61.6px] !w-[61.6px] !text-lg'
+    : '!h-[88px] !w-[88px] !text-2xl';
+  const emptySize = compact ? 'h-[61.6px] w-[61.6px]' : 'h-[88px] w-[88px]';
   const interactive = onAssign
     ? {
         role: 'button' as const,
@@ -46,18 +53,20 @@ export function TeamMemberCard({
   return (
     <div
       {...interactive}
-      className={`flex items-center gap-3 rounded-[20px] border border-brand-line bg-surface-sunken p-3 shadow-[0_6px_18px_rgba(21,47,89,0.08)] ${onAssign ? 'cursor-pointer hover:bg-surface' : ''}`}
+      className={`flex items-center gap-4 rounded-[20px] p-3 ${onAssign ? 'cursor-pointer' : ''}`}
     >
       {person ? (
         <Avatar
           name={person.fullName}
           url={person.avatarUrl ?? undefined}
           size="md"
-          className="!h-11 !w-11 shrink-0"
+          className={`shrink-0 ${avatarSize}`}
         />
       ) : (
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white">
-          <Icon size={20} strokeWidth={1.75} />
+        <span
+          className={`flex ${emptySize} shrink-0 items-center justify-center rounded-full bg-brand-dark text-white`}
+        >
+          <Icon size={compact ? 28 : 40} strokeWidth={1.75} />
         </span>
       )}
       <div className="min-w-0">

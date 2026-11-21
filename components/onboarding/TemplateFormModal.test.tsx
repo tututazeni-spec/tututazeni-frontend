@@ -85,6 +85,7 @@ const template = {
   active: true,
   durationDays: 30,
   welcomeVideoUrl: null,
+  welcomeMessage: null,
   positionId: null,
   departmentId: null,
   unitId: null,
@@ -115,7 +116,7 @@ describe('TemplateFormModal — criar', () => {
     expect(put).not.toHaveBeenCalled();
   });
 
-  test('campos opcionais — descrição, vídeo e active=false', async () => {
+  test('campos opcionais — descrição, mensagem de boas-vindas e active=false', async () => {
     render(<TemplateFormModal onClose={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding Comercial' },
@@ -124,8 +125,8 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Descrição'), {
       target: { value: '  Plano de 60 dias  ' },
     });
-    fireEvent.change(screen.getByLabelText('URL do vídeo de boas-vindas'), {
-      target: { value: '  https://vid.example/welcome  ' },
+    fireEvent.change(screen.getByLabelText('Mensagem de boas-vindas'), {
+      target: { value: '  Bem-vindo à equipa!  ' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Template activo' }));
     fireEvent.click(
@@ -137,7 +138,7 @@ describe('TemplateFormModal — criar', () => {
       name: 'Onboarding Comercial',
       durationDays: 60,
       description: 'Plano de 60 dias',
-      welcomeVideoUrl: 'https://vid.example/welcome',
+      welcomeMessage: 'Bem-vindo à equipa!',
       active: false,
     });
   });
@@ -185,11 +186,12 @@ describe('TemplateFormModal — criar', () => {
       target: { value: 'Onboarding Comercial' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.click(screen.getByRole('button', { name: 'dur-ONE_ON_ONE' }));
+    fireEvent.click(screen.getByRole('button', { name: 'dur-__manual__' }));
     fireEvent.change(screen.getByLabelText('Título do item'), {
       target: { value: '1:1 com o gestor' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'dur-ONE_ON_ONE' }));
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Obrigatória/ }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Criar plano de integração' }),
     );
@@ -215,10 +217,11 @@ describe('TemplateFormModal — criar', () => {
       target: { value: 'Onboarding Comercial' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.click(screen.getByRole('button', { name: 'dur-TRAINING' }));
+    fireEvent.click(screen.getByRole('button', { name: 'dur-__manual__' }));
     fireEvent.change(screen.getByLabelText('Título do item'), {
       target: { value: 'Formação de compliance' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'dur-TRAINING' }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Criar plano de integração' }),
     );
@@ -229,6 +232,41 @@ describe('TemplateFormModal — criar', () => {
       expect.objectContaining({
         tasks: [
           expect.objectContaining({ category: 'TRAINING', isMandatory: true }),
+        ],
+      }),
+    );
+  });
+});
+
+describe('TemplateFormModal — sugestões', () => {
+  test('item escolhido da lista da categoria preenche título, etapa, responsável e prazo', async () => {
+    render(<TemplateFormModal onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Plano X' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.click(screen.getByRole('button', { name: 'dur-DOCUMENTS' }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'dur-Entregar documentos de admissão',
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith(
+      '/onboarding/templates',
+      expect.objectContaining({
+        tasks: [
+          expect.objectContaining({
+            title: 'Entregar documentos de admissão',
+            category: 'DOCUMENTS',
+            phase: 'PRE_BOARDING',
+            responsible: 'SELF',
+            dueDayOffset: 0,
+          }),
         ],
       }),
     );
@@ -253,12 +291,10 @@ describe('TemplateFormModal — editar', () => {
       durationDays: 30,
       description: 'Plano TI',
       objective: null,
-      company: null,
-      location: null,
       departmentId: null,
       positionId: null,
       unitId: null,
-      welcomeVideoUrl: null,
+      welcomeMessage: null,
       active: true,
     });
     expect(post).not.toHaveBeenCalled();

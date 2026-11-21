@@ -85,6 +85,8 @@ const orUndefined = <T>(list: T[]): T[] | undefined =>
 export function buildCreateUserPayload(
   form: UserFormValues,
   managerId: number | undefined,
+  mentorId?: number,
+  hrResponsibleId?: number,
 ) {
   return {
     fullName: form.fullName,
@@ -111,6 +113,8 @@ export function buildCreateUserPayload(
     workMode: form.workMode || undefined,
     hrStatus: form.hrStatus || undefined,
     managerId,
+    mentorId,
+    hrResponsibleId,
     phone: form.phone || undefined,
     personalEmail: form.personalEmail || undefined,
     alternatePhone: form.alternatePhone || undefined,
