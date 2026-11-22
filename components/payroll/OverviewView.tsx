@@ -3,8 +3,9 @@
 // GET /payroll/overview?period=.
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
+  CalendarDays,
   CheckCircle2,
   Clock,
   FileCheck,
@@ -16,7 +17,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
-import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
@@ -24,12 +25,12 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
 
-const thisMonth = () => new Date().toISOString().slice(0, 7);
+import { periodOptions, thisMonth } from './periodOptions';
 
 const ALERT_CLS = {
-  info: 'border-info/30 bg-info-subtle text-info-ink',
-  warning: 'border-warning/30 bg-warning-subtle text-warning-ink',
-  error: 'border-danger/30 bg-danger-subtle text-danger-ink',
+  info: 'border-info/30 bg-info-subtle text-black',
+  warning: 'border-warning/30 bg-warning-subtle text-black',
+  error: 'border-danger/30 bg-danger-subtle text-black',
 } as const;
 
 function Section({
@@ -54,6 +55,7 @@ function Section({
 
 export function OverviewView() {
   const [period, setPeriod] = useState(thisMonth());
+  const periodItems = useMemo(() => periodOptions(period), [period]);
   const valid = /^\d{4}-(0[1-9]|1[0-2])$/.test(period);
   const { data, isLoading, error } = useApiQuery<PayrollOverview>(
     queryKeys.payroll.section('overview', period),
@@ -64,11 +66,12 @@ export function OverviewView() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
+        <Select
+          variant="underline"
+          icon={CalendarDays}
+          items={periodItems}
           value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          placeholder="Período (AAAA-MM)"
-          className="w-44"
+          onValueChange={setPeriod}
         />
         {data?.run && (
           <div className="flex items-center gap-2 font-body text-sm text-ink-muted">

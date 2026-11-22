@@ -6,7 +6,9 @@
 // disponível na API mas sem UI aqui. onCreated navega logo para o detalhe.
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { CalendarDays } from 'lucide-react';
+import { periodOptions, thisMonth } from './periodOptions';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -64,7 +66,8 @@ export interface CreateRunModalProps {
 
 export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const notify = useToast();
-  const [period, setPeriod] = useState('');
+  const [period, setPeriod] = useState(thisMonth());
+  const periodItems = useMemo(() => periodOptions(period), [period]);
   const [payGroup, setPayGroup] = useState(PAY_GROUP_NONE);
   const [countryCode, setCountryCode] = useState('AO');
   const [notes, setNotes] = useState('');
@@ -118,11 +121,12 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
             htmlFor="crm-period"
             hint="Formato AAAA-MM"
           >
-            <Input
-              id="crm-period"
+            <Select
+              variant="underline"
+              icon={CalendarDays}
+              items={periodItems}
               value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              placeholder="2026-09"
+              onValueChange={setPeriod}
               className="w-full"
             />
           </FormField>
@@ -208,20 +212,31 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
               ) : depOptions.length === 0 ? (
                 <EmptyState variant="inline" title="Sem departamentos" />
               ) : (
-                depOptions.map((d) => (
-                  <label
-                    key={d.value}
-                    className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
-                  >
+                <>
+                  <label className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 hover:bg-surface-sunken">
                     <Checkbox
-                      checked={depIds.has(d.value)}
-                      onChange={() => toggleDep(d.value)}
+                      checked={depIds.size === 0}
+                      onChange={() => setDepIds(new Set())}
                     />
-                    <span className="font-body text-sm text-ink">
-                      {d.label}
+                    <span className="font-body text-sm font-semibold text-ink">
+                      Todos
                     </span>
                   </label>
-                ))
+                  {depOptions.map((d) => (
+                    <label
+                      key={d.value}
+                      className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
+                    >
+                      <Checkbox
+                        checked={depIds.has(d.value)}
+                        onChange={() => toggleDep(d.value)}
+                      />
+                      <span className="font-body text-sm text-ink">
+                        {d.label}
+                      </span>
+                    </label>
+                  ))}
+                </>
               )}
             </div>
           </FormField>
