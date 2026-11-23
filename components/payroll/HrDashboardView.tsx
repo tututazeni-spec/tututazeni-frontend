@@ -135,7 +135,7 @@ export function HrDashboardView() {
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3">
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="bills"
                 tone="blue"
                 label="Bruto total"
@@ -143,7 +143,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="stack"
                 tone="green"
                 label="Líquido total"
@@ -151,7 +151,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="coins"
                 tone="orange"
                 label="IRT total"
@@ -159,7 +159,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="coins"
                 tone="orange"
                 label="INSS colaborador"
@@ -167,7 +167,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="mixed"
                 tone="red"
                 label="INSS empregador"
@@ -175,7 +175,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="fan"
                 tone="green"
                 label="Líquido médio"

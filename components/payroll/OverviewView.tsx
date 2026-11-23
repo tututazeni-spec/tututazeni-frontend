@@ -169,7 +169,7 @@ export function OverviewView() {
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="bills"
                 tone="blue"
                 label="Salário bruto"
@@ -177,7 +177,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="stack"
                 tone="green"
                 label="Salário líquido"
@@ -193,7 +193,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="coins"
                 tone="green"
                 label="Remunerações"
@@ -201,7 +201,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="mixed"
                 tone="orange"
                 label="Deduções"
@@ -209,7 +209,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="coins"
                 tone="orange"
                 label="INSS"
@@ -217,7 +217,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="coins"
                 tone="orange"
                 label="IRT"
@@ -225,7 +225,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="bills"
                 tone="red"
                 label="Encargos patronais"
@@ -233,7 +233,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="fan"
                 tone="red"
                 label="Custo total com pessoal"
@@ -241,7 +241,7 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.jpg"
+                image="/images/carteira.png"
                 money="fan"
                 tone="blue"
                 label="Total a pagar"

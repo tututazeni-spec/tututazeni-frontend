@@ -15,7 +15,7 @@ const TONES: Record<WalletTone, { body: string; flap: string }> = {
   red: { body: '#EF4657', flap: '#B52C3B' },
 };
 
-// Azul marinho do valor quando a carteira é a imagem (carteira.jpg)
+// Azul marinho do valor quando a carteira é a imagem (carteira.png)
 const NAVY = '#0F1F3D';
 
 const ZOOM =
@@ -121,7 +121,7 @@ export interface WalletStatProps {
   money: WalletMoney;
   /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
   zoom?: boolean;
-  /** Imagem que substitui a carteira SVG (ex.: /images/carteira.jpg). */
+  /** Imagem que substitui a carteira SVG (ex.: /images/carteira.png). */
   image?: string;
 }
 
@@ -147,7 +147,7 @@ export function WalletStat({
           src={image}
           alt={label}
           width={120}
-          height={109}
+          height={108}
           className="h-[100px] w-auto object-contain"
         />
       ) : (
