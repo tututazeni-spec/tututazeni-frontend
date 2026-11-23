@@ -24,7 +24,13 @@ import { useToast } from '@/providers/ToastProvider';
 import { fmtPeriodNumeric } from '@/components/payslips/format';
 import { RunPicker } from './RunPicker';
 import { PaymentCard } from './PaymentCard';
-import { Download } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import {
   PAYMENT_NEXT,
   PAYMENT_STATUS_MAP,
@@ -82,6 +88,17 @@ function downloadCsv(file: BankFile) {
     type: 'text/csv;charset=utf-8',
   });
   saveBlob(blob, file.filename);
+}
+
+// O CSV mantém os cabeçalhos técnicos (formato de importação do banco); o PDF
+// leva cabeçalhos legíveis.
+const PDF_HEADERS = 'Nº colaborador;Nome;NIB;Valor líquido (AOA)';
+
+async function downloadPdf(file: BankFile) {
+  const base = file.filename.replace(/\.csv$/i, '');
+  const content = file.content.replace(/^[^\n]*/, PDF_HEADERS);
+  const { csvTextToPdf } = await import('@/lib/tableExport');
+  await csvTextToPdf(content, 'Ficheiro bancário', base);
 }
 
 export function PaymentsView() {
@@ -142,14 +159,25 @@ export function PaymentsView() {
   );
 
   const bankFile = useApiMutation(
-    (id: number) =>
-      apiClient.get<BankFile>(`/payroll/payments/${id}/bank-file`),
+    async (v: { id: number; format: 'csv' | 'pdf' }) => ({
+      file: await apiClient.get<BankFile>(
+        `/payroll/payments/${v.id}/bank-file`,
+      ),
+      format: v.format,
+    }),
     {
       invalidateKeys: [queryKeys.payroll.all],
-      onSuccess: (file) => {
-        downloadCsv(file);
+      onSuccess: async ({ file, format }) => {
+        if (format === 'csv') downloadCsv(file);
+        else {
+          try {
+            await downloadPdf(file);
+          } catch {
+            notify({ title: 'Não foi possível gerar o PDF', intent: 'danger' });
+          }
+        }
         notify({
-          title: `Ficheiro gerado (${file.rows} linhas)`,
+          title: `Ficheiro gerado em ${format.toUpperCase()} (${file.rows} linhas)`,
           description: file.missingNib.length
             ? `Sem NIB: ${file.missingNib.join(', ')}`
             : undefined,
@@ -208,18 +236,38 @@ export function PaymentsView() {
               actions={
                 <>
                   {!['CANCELLED', 'FAILED'].includes(p.status) && (
-                    <Button
-                      size="sm"
-                      intent="secondary"
-                      className="w-full !rounded-full !border-[1.5px] !border-[#0F1F3D] !bg-white !text-[#0F1F3D] hover:!bg-[#0F1F3D] hover:!text-white"
-                      loading={
-                        bankFile.isPending && bankFile.variables === p.id
-                      }
-                      onClick={() => bankFile.mutate(p.id)}
-                    >
-                      <Download size={15} strokeWidth={1.75} />
-                      Ficheiro bancário
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          intent="secondary"
+                          className="w-full !rounded-full !border-[1.5px] !border-[#0F1F3D] !bg-white !text-[#0F1F3D] hover:!bg-[#0F1F3D] hover:!text-white"
+                          loading={
+                            bankFile.isPending &&
+                            bankFile.variables?.id === p.id
+                          }
+                        >
+                          <Download size={15} strokeWidth={1.75} />
+                          Ficheiro bancário
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            bankFile.mutate({ id: p.id, format: 'pdf' })
+                          }
+                        >
+                          <FileText size={14} strokeWidth={1.75} /> PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            bankFile.mutate({ id: p.id, format: 'csv' })
+                          }
+                        >
+                          <FileSpreadsheet size={14} strokeWidth={1.75} /> CSV
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                   {PAYMENT_NEXT[p.status].map((next) => {
                     const secondary = next === 'CANCELLED' || next === 'FAILED';

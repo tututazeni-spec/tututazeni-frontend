@@ -28,7 +28,7 @@ function Illustration() {
   return (
     <svg
       viewBox="0 0 110 120"
-      className="h-24 w-24 shrink-0"
+      className="h-16 w-16 shrink-0"
       role="img"
       aria-label="Pagamento"
     >
@@ -100,16 +100,16 @@ function Col({
 }) {
   return (
     <div
-      className="flex min-w-0 flex-col gap-1 lg:px-5"
+      className="flex min-w-0 flex-col gap-0.5 lg:px-4"
       style={first ? undefined : { borderLeft: `1px solid ${DIVIDER}` }}
     >
-      <Icon className="h-6 w-6 text-white" strokeWidth={1.5} aria-hidden />
-      <p className="font-body text-sm text-white">{label}</p>
-      <p className="break-words font-body text-sm font-bold leading-snug text-white">
+      <Icon className="h-5 w-5 text-white" strokeWidth={1.5} aria-hidden />
+      <p className="font-body text-xs text-white">{label}</p>
+      <p className="break-words font-body text-[13px] font-bold leading-snug text-white">
         {value}
       </p>
       {sub && (
-        <p className="break-words font-body text-xs leading-snug text-white/70">
+        <p className="break-words font-body text-[11px] leading-snug text-white/70">
           {sub}
         </p>
       )}
@@ -127,39 +127,34 @@ export function PaymentCard({ payment: p, actions }: PaymentCardProps) {
   const status = PAYMENT_STATUS_MAP[p.status]?.label ?? p.status;
   return (
     <article
-      className="overflow-hidden rounded-[22px] shadow-[0_6px_18px_rgba(21,47,89,0.14)] lg:grid lg:grid-cols-[minmax(250px,21%)_1fr_minmax(190px,17%)]"
+      className="overflow-hidden rounded-[18px] shadow-[0_6px_18px_rgba(21,47,89,0.14)] lg:grid lg:grid-cols-[minmax(250px,21%)_1fr_minmax(190px,17%)]"
       style={{ background: BAND }}
     >
       {/* Ilustração + referência */}
-      <div className="flex items-center gap-4 px-6 py-6">
+      <div className="flex items-center gap-3 px-5 py-4">
         <Illustration />
         <div
-          className="min-w-0 pl-4"
+          className="min-w-0 pl-3"
           style={{ borderLeft: `1px solid ${DIVIDER}` }}
         >
           <p className="whitespace-nowrap font-display text-base font-bold leading-tight tracking-tight text-white">
             {p.reference ?? `Pagamento #${p.id}`}
           </p>
           <p
-            className="mt-1.5 font-body text-base font-semibold"
+            className="mt-1.5 font-body text-sm font-semibold"
             style={{ color: SOFT_BLUE }}
           >
             {status}
           </p>
-          <p className="mt-1 font-body text-sm text-white">
+          <p className="mt-1 font-body text-xs text-white">
             <span className="text-white/70">Período </span>
             {fmtPeriodNumeric(p.period)}
           </p>
-          {p.errorMessage && (
-            <p className="mt-1 max-w-[220px] font-body text-xs text-[#FFB4B4]">
-              {p.errorMessage}
-            </p>
-          )}
         </div>
       </div>
 
       {/* Colunas de informação */}
-      <div className="grid grid-cols-2 gap-x-2 gap-y-5 px-6 pb-6 pt-1 sm:grid-cols-3 lg:grid-cols-5 lg:items-start lg:px-2 lg:py-7">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-4 px-5 pb-4 pt-1 sm:grid-cols-3 lg:grid-cols-5 lg:items-start lg:px-2 lg:py-4">
         <Col first icon={Landmark} label="Banco" value={p.bankName ?? '—'} />
         <Col icon={CreditCard} label="Conta" value={p.paymentAccount ?? '—'} />
         <Col
@@ -185,7 +180,7 @@ export function PaymentCard({ payment: p, actions }: PaymentCardProps) {
 
       {/* Painel claro curvo com os botões */}
       <div
-        className="flex flex-col justify-center gap-2.5 px-6 py-6 lg:rounded-l-[80px] lg:pl-10"
+        className="flex flex-col justify-center gap-2 px-5 py-4 lg:rounded-l-[60px] lg:pl-8"
         style={{ backgroundColor: PANEL }}
       >
         {actions}
