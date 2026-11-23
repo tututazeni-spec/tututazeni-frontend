@@ -2,7 +2,7 @@
 // Secção «Dados pessoais» do formulário Novo Utilizador (apresentação).
 
 import { COUNTRY_OPTIONS } from '../createUserOptions';
-import { GENDER_OPTIONS } from './constants';
+import { GENDER_OPTIONS, IDENTIFICATION_TYPE_OPTIONS } from './constants';
 import { EnumSelect, Field, ListField, SectionTitle } from './fields';
 import { PhotoField } from './PhotoField';
 import type { CreateUserFormController } from '@/hooks/useCreateUserForm';
@@ -72,6 +72,13 @@ export function PersonalSection({ ctl }: { ctl: CreateUserFormController }) {
         value={form.country}
         onChange={(v) => setField('country', v)}
         options={COUNTRY_OPTIONS}
+      />
+      <EnumSelect
+        id="identificationType"
+        label="Tipo de documento"
+        value={form.identificationType}
+        onChange={(v) => setField('identificationType', v)}
+        options={IDENTIFICATION_TYPE_OPTIONS}
       />
       <Field
         label="Número de identificação"

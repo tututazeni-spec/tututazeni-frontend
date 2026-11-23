@@ -49,6 +49,7 @@ export interface User {
   gender: string | null;
   birthDate: string | null;
   nationality: string | null;
+  identificationType: string | null;
   identificationNumber: string | null;
   nif: string | null;
   nib: string | null;
