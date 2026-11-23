@@ -168,8 +168,11 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
   const hrResponsible = useDirectoryPicker();
 
   // ── Catálogos dos pickers ─────────────────────────────────────────────────
-  const { options: departmentOptions, loading: departmentsLoading } =
-    useDepartmentOptions();
+  const {
+    options: departmentOptions,
+    orgByDepartment,
+    loading: departmentsLoading,
+  } = useDepartmentOptions();
   const { options: positionOptions, loading: positionsLoading } =
     usePositionOptions();
   const { options: unitOptions, loading: unitsLoading } = useUnitOptions();
@@ -182,6 +185,33 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
     useLearningPathOptions();
   const { options: competencyOptions, loading: competenciesLoading } =
     useCompetencyOptions();
+
+  // Unidade e área seguem o departamento escolhido: a lista própria dele vem
+  // primeiro, mas qualquer outra unidade/área pode ser escolhida ou escrita.
+  const departmentOrg = orgByDepartment[form.departmentId];
+  const departmentUnitId = departmentOrg?.unitId
+    ? String(departmentOrg.unitId)
+    : undefined;
+  const unitChoices = departmentUnitId
+    ? [
+        ...unitOptions
+          .filter((u) => u.value === departmentUnitId)
+          .map((u) => ({ ...u, label: `${u.label} (do departamento)` })),
+        ...unitOptions.filter((u) => u.value !== departmentUnitId),
+      ]
+    : unitOptions;
+  const areaOptions = (departmentOrg?.areas ?? []).map((a) => ({
+    value: a,
+    label: a,
+  }));
+
+  /** Mudar de departamento propõe a unidade e a área dele (editáveis depois). */
+  const changeDepartment = (id: string) => {
+    setField('departmentId', id);
+    const org = orgByDepartment[id];
+    if (org?.unitId) setField('unitId', String(org.unitId));
+    if (org?.areas[0]) setField('area', org.areas[0]);
+  };
 
   const create = useApiMutation(
     () =>
@@ -284,8 +314,10 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
     departmentsLoading,
     positionOptions,
     positionsLoading,
-    unitOptions,
+    unitOptions: unitChoices,
     unitsLoading,
+    areaOptions,
+    changeDepartment,
     roleOptions,
     rolesLoading,
     permissionOptions,

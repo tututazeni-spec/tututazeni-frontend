@@ -58,6 +58,8 @@ function makeCtl(over: Record<string, unknown> = {}) {
     positionOptions: [],
     positionsLoading: false,
     unitOptions: [],
+    areaOptions: [],
+    changeDepartment: () => {},
     unitsLoading: false,
     roleOptions: [],
     rolesLoading: false,

@@ -31,19 +31,47 @@ interface Paginated<T> {
   data: T[];
 }
 
+/** Unidade e áreas a que um departamento pertence (alimentam as listas do formulário). */
+export interface DepartmentOrg {
+  unitId: number | null;
+  areas: string[];
+}
+
+interface DepartmentRow {
+  id: number;
+  name: string;
+  unitId?: number | null;
+  functionalArea?: string | null;
+  businessArea?: string | null;
+}
+
 /** Departamentos activos para o Combobox de "Departamento". */
 export function useDepartmentOptions(enabled = true) {
   const params = { limit: 200, active: true };
-  const query = useApiQuery<Paginated<{ id: number; name: string }>>(
+  const query = useApiQuery<Paginated<DepartmentRow>>(
     queryKeys.departments.list({ picker: 'create-user', ...params }),
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+  const rows = query.data?.data ?? [];
+  const options: Option[] = rows.map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
-  return { options, loading: query.isLoading };
+  const orgByDepartment: Record<string, DepartmentOrg> = {};
+  for (const d of rows) {
+    orgByDepartment[String(d.id)] = {
+      unitId: d.unitId ?? null,
+      areas: [
+        ...new Set(
+          [d.functionalArea, d.businessArea]
+            .map((a) => a?.trim())
+            .filter((a): a is string => !!a),
+        ),
+      ],
+    };
+  }
+  return { options, orgByDepartment, loading: query.isLoading };
 }
 
 /** Unidades (filiais) para o Combobox de "Unidade". */

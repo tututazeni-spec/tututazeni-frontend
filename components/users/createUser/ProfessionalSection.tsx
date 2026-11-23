@@ -52,6 +52,8 @@ export function ProfessionalSection({
     departmentsLoading,
     positionOptions,
     positionsLoading,
+    areaOptions,
+    changeDepartment,
   } = ctl;
 
   return (
@@ -75,6 +77,7 @@ export function ProfessionalSection({
           value={form.unitId || undefined}
           onValueChange={(v) => setField('unitId', v)}
           placeholder={unitsLoading ? 'A carregar…' : 'Selecionar unidade'}
+          searchPlaceholder="Pesquisar outra unidade…"
           disabled={unitsLoading}
         />
       </FormField>
@@ -82,18 +85,20 @@ export function ProfessionalSection({
         <Combobox
           items={departmentOptions}
           value={form.departmentId || undefined}
-          onValueChange={(v) => setField('departmentId', v)}
+          onValueChange={changeDepartment}
           placeholder={
             departmentsLoading ? 'A carregar…' : 'Selecionar departamento'
           }
           disabled={departmentsLoading}
         />
       </FormField>
-      <Field
-        label="Área"
+      <ListField
         id="area"
+        label="Área"
         value={form.area}
-        onChange={handle('area')}
+        onChange={(v) => setField('area', v)}
+        options={areaOptions}
+        custom
       />
       <FormField label="Cargo" htmlFor="positionId">
         <Combobox
