@@ -29,7 +29,7 @@ import { periodOptions, thisMonth } from './periodOptions';
 
 const ALERT_CLS = {
   info: 'border-info/30 bg-info-subtle text-black',
-  warning: 'border-warning/30 bg-warning-subtle text-black',
+  warning: 'border-[#FACC15] bg-[#FACC15] text-[#0F1F3D]',
   error: 'border-danger/30 bg-danger-subtle text-black',
 } as const;
 
