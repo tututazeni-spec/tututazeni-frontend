@@ -115,7 +115,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[900px]">
             <div
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
@@ -132,16 +132,16 @@ export function RunListView({ onSelect }: RunListViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {r.period}
                 </div>
-                <div className="truncate font-body text-sm text-on-brand">
+                <div className="truncate font-body text-sm text-ink">
                   {r.payGroup ?? '—'}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.countryCode}
                 </div>
                 <div>
@@ -151,21 +151,21 @@ export function RunListView({ onSelect }: RunListViewProps) {
                     variant="dot"
                   />
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.employeeCount ?? '—'}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(r.totalNet)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.exceptionsCount ?? 0}
                   {(r.errorCount ?? 0) > 0 && (
-                    <span className="ml-1 text-[#FFB4B4]">
+                    <span className="ml-1 text-danger">
                       ({r.errorCount} erro)
                     </span>
                   )}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(r.createdAt)}
                 </div>
               </div>

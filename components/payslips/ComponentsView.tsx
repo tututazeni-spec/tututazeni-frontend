@@ -139,7 +139,7 @@ export function ComponentsView() {
       )}
 
       {!isLoading && (data?.length ?? 0) > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[860px]">
             <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
               <div>Nome</div>
@@ -153,21 +153,21 @@ export function ComponentsView() {
               data!.map((c) => (
                 <div
                   key={c.code}
-                  className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
+                  className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-brand-line px-4 py-3 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken ${
                     c.active ? '' : 'opacity-55'
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">
+                    <div className="truncate font-body text-sm font-semibold text-ink">
                       {c.name}
                     </div>
                     {c.description && (
-                      <div className="truncate font-body text-xs text-on-brand-faint">
+                      <div className="truncate font-body text-xs text-ink-muted">
                         {c.description}
                       </div>
                     )}
                     {!c.active && (
-                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro font-medium uppercase tracking-wide text-on-brand">
+                      <span className="mt-0.5 inline-block rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-micro font-medium uppercase tracking-wide text-ink">
                         Inactivo
                       </span>
                     )}
@@ -177,14 +177,14 @@ export function ComponentsView() {
                       className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
                         c.type === 'EARNING'
                           ? 'bg-success/25 text-[#8FE0B0]'
-                          : 'bg-[#D64545]/25 text-[#FFB4B4]'
+                          : 'bg-[#D64545]/25 text-danger'
                       }`}
                     >
                       {c.type === 'EARNING' ? 'Rendimento' : 'Desconto'}
                     </span>
                   </div>
                   <div
-                    className={`text-sm text-on-brand ${
+                    className={`text-sm text-ink ${
                       CALC_MONO.includes(c.calcType)
                         ? 'font-body text-xs'
                         : 'font-body'
@@ -194,31 +194,31 @@ export function ComponentsView() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {c.isTaxable && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
+                      <span className="rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-micro text-ink">
                         Tributável
                       </span>
                     )}
                     {c.isMandatory && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
+                      <span className="rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-micro text-ink">
                         Obrigatório
                       </span>
                     )}
                   </div>
-                  <div className="font-body text-sm text-on-brand">
+                  <div className="font-body text-sm text-ink">
                     {c.order}
                   </div>
                   <div className="flex gap-1">
                     <Button
                       intent="ghost"
                       size="sm"
-                      className="text-white hover:bg-white/10"
+                      className="text-ink hover:bg-surface-sunken"
                       onClick={() => setEditing(c)}
                     >
                       Editar
                     </Button>
                     <IconButton
                       icon={Trash2}
-                      className="text-white hover:bg-white/10"
+                      className="text-ink hover:bg-surface-sunken"
                       label="Remover"
                       intent="ghost"
                       size="sm"

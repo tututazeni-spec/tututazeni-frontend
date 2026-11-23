@@ -188,7 +188,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div>
             <div
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
@@ -204,7 +204,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3.5 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
                 onClick={() => onSelect(r.id)}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -215,24 +215,24 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     className="shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">
+                    <div className="truncate font-body text-sm font-semibold text-ink">
                       {r.user?.fullName ?? '—'}
                     </div>
-                    <div className="truncate font-body text-xs text-on-brand-faint">
+                    <div className="truncate font-body text-xs text-ink-muted">
                       {r.user?.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtPeriodNumeric(r.period)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(r.paymentDate)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtKz(r.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(r.netSalary)}
                 </div>
                 <div>
@@ -251,7 +251,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     label="Ver detalhe"
                     intent="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10"
+                    className="text-ink hover:bg-surface-sunken"
                     onClick={() => onSelect(r.id)}
                   />
                   <a
@@ -262,7 +262,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     title="Descarregar PDF"
                     className={cn(
                       buttonVariants({ intent: 'ghost', size: 'sm' }),
-                      'aspect-square h-9 w-9 p-0 text-white hover:bg-white/10',
+                      'aspect-square h-9 w-9 p-0 text-ink hover:bg-surface-sunken',
                     )}
                   >
                     <Download size={16} strokeWidth={1.75} />

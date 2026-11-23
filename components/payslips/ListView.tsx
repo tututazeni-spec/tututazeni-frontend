@@ -106,7 +106,7 @@ export function ListView({ onSelect }: ListViewProps) {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+      <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
         <div className="min-w-[700px]">
           {/* Cabeçalho */}
           <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
@@ -122,23 +122,23 @@ export function ListView({ onSelect }: ListViewProps) {
               <Skeleton
                 rows={5}
                 wrapperClassName="space-y-2"
-                itemClassName="h-12 rounded-card bg-white/10"
+                itemClassName="h-12 rounded-card bg-surface-sunken"
               />
             </div>
           )}
 
           {error && (
-            <div className="px-4 py-8 text-center font-body text-sm text-[#FFB4B4]">
+            <div className="px-4 py-8 text-center font-body text-sm text-danger">
               {error}
             </div>
           )}
 
           {!loading && !error && data?.data.length === 0 && (
             <div className="px-4 py-10 text-center">
-              <div className="font-body text-sm font-semibold text-white">
+              <div className="font-body text-sm font-semibold text-ink">
                 Sem recibos
               </div>
-              <div className="mt-1 font-body text-xs text-on-brand-faint">
+              <div className="mt-1 font-body text-xs text-ink-muted">
                 {`Não há recibos disponíveis para ${year}.`}
               </div>
             </div>
@@ -148,21 +148,21 @@ export function ListView({ onSelect }: ListViewProps) {
             data?.data.map((p) => (
               <div
                 key={p.id}
-                className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
+                className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-brand-line px-4 py-3.5 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
                 onClick={() => onSelect(p.id)}
               >
                 <div>
-                  <div className="font-body text-sm font-semibold text-white">
+                  <div className="font-body text-sm font-semibold text-ink">
                     {fmtPeriod(p.period)}
                   </div>
-                  <div className="mt-0.5 font-body text-xs text-on-brand-faint">
+                  <div className="mt-0.5 font-body text-xs text-ink-muted">
                     {p.receiptCode}
                   </div>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(p.paymentDate)}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>
@@ -181,7 +181,7 @@ export function ListView({ onSelect }: ListViewProps) {
                     label="Ver detalhe"
                     intent="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10"
+                    className="text-ink hover:bg-surface-sunken"
                     onClick={() => onSelect(p.id)}
                   />
                   <IconButton
@@ -189,7 +189,7 @@ export function ListView({ onSelect }: ListViewProps) {
                     label="Descarregar PDF"
                     intent="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10"
+                    className="text-ink hover:bg-surface-sunken"
                     onClick={() =>
                       window.open(
                         `${API_BASE}/payslips/my/${p.id}/pdf`,

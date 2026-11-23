@@ -18,7 +18,7 @@ const thisMonth = () => new Date().toISOString().slice(0, 7);
 const pct = (r: number) => `${(r * 100).toFixed(2).replace(/\.?0+$/, '')}%`;
 
 const TH =
-  'px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint';
+  'px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white';
 const H3 =
   'mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint';
 
@@ -77,9 +77,9 @@ export function DeductionsView() {
 
           <section>
             <h3 className={H3}>Por tipo de dedução</h3>
-            <div className="overflow-x-auto rounded-card border border-border bg-surface">
+            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
               <table className="w-full min-w-[560px] text-left font-body text-sm">
-                <thead className="border-b border-border">
+                <thead className="bg-brand-dark">
                   <tr>
                     <th className={TH}>Tipo</th>
                     <th className={TH}>Obrigatório</th>
@@ -91,7 +91,7 @@ export function DeductionsView() {
                   {data.types.map((t) => (
                     <tr
                       key={t.code}
-                      className="border-b border-border last:border-0"
+                      className="border-b border-brand-line last:border-0"
                     >
                       <td className="px-4 py-3 text-ink">{t.name}</td>
                       <td className="px-4 py-3 text-ink-muted">
@@ -112,9 +112,9 @@ export function DeductionsView() {
 
           <section>
             <h3 className={H3}>IRT por escalão aplicado</h3>
-            <div className="overflow-x-auto rounded-card border border-border bg-surface">
+            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
               <table className="w-full min-w-[420px] text-left font-body text-sm">
-                <thead className="border-b border-border">
+                <thead className="bg-brand-dark">
                   <tr>
                     <th className={TH}>Escalão</th>
                     <th className={TH}>Colaboradores</th>
@@ -125,7 +125,7 @@ export function DeductionsView() {
                   {data.irt.byBracket.map((b) => (
                     <tr
                       key={b.bracket}
-                      className="border-b border-border last:border-0"
+                      className="border-b border-brand-line last:border-0"
                     >
                       <td className="px-4 py-3 text-ink">{b.bracket}</td>
                       <td className="px-4 py-3 text-ink-muted">
@@ -148,32 +148,32 @@ export function DeductionsView() {
           <h3 className={H3}>
             Regras fiscais {data.config.taxYear} ({data.config.countryCode})
           </h3>
-          <div className="rounded-[14px] border border-brand-edge bg-brand-deep p-4 font-body text-sm text-white shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div className="rounded-[18px] border border-brand-line bg-surface p-4 font-body text-sm text-ink shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
             <dl className="grid grid-cols-[180px_1fr] gap-x-4 gap-y-1.5">
-              <dt className="text-on-brand-faint">INSS trabalhador</dt>
+              <dt className="text-ink-muted">INSS trabalhador</dt>
               <dd>{pct(data.config.socialSecurity.employeeRate)}</dd>
-              <dt className="text-on-brand-faint">INSS patronal</dt>
+              <dt className="text-ink-muted">INSS patronal</dt>
               <dd>{pct(data.config.socialSecurity.employerRate)}</dd>
-              <dt className="text-on-brand-faint">Tecto INSS</dt>
+              <dt className="text-ink-muted">Tecto INSS</dt>
               <dd>
                 {data.config.socialSecurity.ceiling
                   ? fmtKz(data.config.socialSecurity.ceiling)
                   : '—'}
               </dd>
-              <dt className="text-on-brand-faint">Salário mínimo</dt>
+              <dt className="text-ink-muted">Salário mínimo</dt>
               <dd>{fmtKz(data.config.minimumWage)}</dd>
             </dl>
-            <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-[#6F8FB8]/20 pt-3 text-on-brand">
-              <div className="text-xs font-bold uppercase tracking-wide text-white">
+            <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-brand-line pt-3 text-ink">
+              <div className="text-xs font-bold uppercase tracking-wide text-ink">
                 De
               </div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">
+              <div className="text-xs font-bold uppercase tracking-wide text-ink">
                 Até
               </div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">
+              <div className="text-xs font-bold uppercase tracking-wide text-ink">
                 Taxa
               </div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">
+              <div className="text-xs font-bold uppercase tracking-wide text-ink">
                 Parcela a abater
               </div>
               {data.config.irtBrackets.map((b) => (

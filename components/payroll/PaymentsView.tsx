@@ -31,7 +31,7 @@ import { saveBlob } from '@/lib/download';
 
 const TH =
   'px-2 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white';
-const TD = 'px-2 py-3 text-white';
+const TD = 'px-2 py-3 text-ink';
 
 const ACTION_LABEL: Record<PaymentStatus, string> = {
   PENDING: 'Reabrir',
@@ -166,7 +166,7 @@ export function PaymentsView() {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <table className="w-full text-left font-body text-xs">
             <thead className="bg-brand-dark">
               <tr>
@@ -187,25 +187,25 @@ export function PaymentsView() {
               {rows.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-[#6F8FB8]/20 align-top transition-colors duration-150 last:border-0 hover:bg-white/5"
+                  className="border-b border-brand-line align-top transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
                 >
                   <td className={`${TD} font-body`}>
                     {fmtPeriodNumeric(p.period)}
                   </td>
-                  <td className={`${TD} text-on-brand`}>
+                  <td className={`${TD} text-ink`}>
                     {p.bankName ?? '—'}
                   </td>
-                  <td className={`${TD} text-on-brand`}>
+                  <td className={`${TD} text-ink`}>
                     {p.paymentAccount ?? '—'}
                   </td>
                   <td className={TD}>{p.employeeCount}</td>
                   <td className={`${TD} text-right font-body`}>
                     {fmtKz(p.totalAmount)}
                   </td>
-                  <td className={`${TD} text-on-brand`}>
+                  <td className={`${TD} text-ink`}>
                     {p.expectedDate ? fmtDate(p.expectedDate) : '—'}
                   </td>
-                  <td className={`${TD} text-on-brand`}>
+                  <td className={`${TD} text-ink`}>
                     {p.effectiveDate ? fmtDate(p.effectiveDate) : '—'}
                   </td>
                   <td className={TD}>
@@ -215,15 +215,15 @@ export function PaymentsView() {
                       variant="dot"
                     />
                     {p.errorMessage && (
-                      <div className="mt-1 max-w-[220px] text-xs text-[#FFB4B4]">
+                      <div className="mt-1 max-w-[220px] text-xs text-danger">
                         {p.errorMessage}
                       </div>
                     )}
                   </td>
-                  <td className={`${TD} font-body text-xs text-on-brand`}>
+                  <td className={`${TD} font-body text-xs text-ink`}>
                     {p.reference ?? '—'}
                   </td>
-                  <td className={`${TD} text-on-brand`}>
+                  <td className={`${TD} text-ink`}>
                     {p.responsibleName ?? '—'}
                   </td>
                   <td className={TD}>
@@ -251,7 +251,7 @@ export function PaymentsView() {
                           }
                           className={
                             next === 'CANCELLED' || next === 'FAILED'
-                              ? 'text-white hover:bg-white/10'
+                              ? 'text-ink hover:bg-surface-sunken'
                               : undefined
                           }
                           disabled={setStatus.isPending}

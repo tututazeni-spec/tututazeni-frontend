@@ -83,7 +83,7 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div>
             <div
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
@@ -99,7 +99,7 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3.5 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
                 onClick={() => onOpenDetail(r.userId)}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -110,30 +110,30 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
                     className="shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">
+                    <div className="truncate font-body text-sm font-semibold text-ink">
                       {r.user.fullName}
                     </div>
-                    <div className="truncate font-body text-xs text-on-brand-faint">
+                    <div className="truncate font-body text-xs text-ink-muted">
                       {r.user.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="truncate font-body text-sm text-on-brand">
+                <div className="truncate font-body text-sm text-ink">
                   {r.user.department?.name ?? '—'}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(r.baseSalary)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtKz(r.foodAllowance)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtKz(r.transportAllowance)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(r.effectiveFrom)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r._count.components}
                 </div>
               </div>

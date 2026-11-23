@@ -45,7 +45,11 @@ vi.mock('./runData', () => ({
 vi.mock('@/components/ui/Select', () => ({
   Select: ({ items, value, onValueChange }: any) => (
     <select
-      aria-label="Grupo"
+      aria-label={
+        items.some((it: any) => /^\d{4}-\d{2}$/.test(it.value))
+          ? 'Período'
+          : 'Grupo'
+      }
       value={value ?? ''}
       onChange={(e) => onValueChange(e.target.value)}
     >
@@ -67,10 +71,23 @@ beforeEach(() => {
 });
 
 describe('CreateRunModal', () => {
-  test('period is required — submit does not POST with it blank', () => {
+  test('period defaults to the current month (AAAA-MM)', async () => {
     render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
-    expect(post).not.toHaveBeenCalled();
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0][1].period).toBe(
+      new Date().toISOString().slice(0, 7),
+    );
+  });
+
+  test('"Todos" is checked by default and unchecks when a department is picked', () => {
+    render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
+    const todos = screen.getByLabelText('Todos') as HTMLInputElement;
+    expect(todos.checked).toBe(true);
+    fireEvent.click(screen.getByLabelText('Financeiro'));
+    expect(todos.checked).toBe(false);
+    fireEvent.click(todos);
+    expect(todos.checked).toBe(true);
   });
 
   test('submits period + payGroup + countryCode + notes and calls onCreated with the new id', async () => {
