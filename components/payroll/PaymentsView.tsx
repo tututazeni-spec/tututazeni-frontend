@@ -12,6 +12,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { ANGOLAN_BANKS, BANK_OTHER } from '@/lib/angolanBanks';
 import { FormField } from '@/components/ui/FormField';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -51,7 +53,9 @@ interface BankFile {
 }
 
 function downloadCsv(file: BankFile) {
-  const blob = new Blob(['﻿', file.content], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿', file.content], {
+    type: 'text/csv;charset=utf-8',
+  });
   saveBlob(blob, file.filename);
 }
 
@@ -63,6 +67,8 @@ export function PaymentsView() {
   const [creating, setCreating] = useState(false);
   const [runId, setRunId] = useState<number | null>(null);
   const [bankName, setBankName] = useState('');
+  // Banco escolhido na lista ('' = nenhum, BANK_OTHER = escrever outro).
+  const [bankChoice, setBankChoice] = useState('');
   const [account, setAccount] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
   const [failing, setFailing] = useState<PayrollPayment | null>(null);
@@ -87,6 +93,7 @@ export function PaymentsView() {
         setCreating(false);
         setRunId(null);
         setBankName('');
+        setBankChoice('');
         setAccount('');
         setExpectedDate('');
       },
@@ -192,9 +199,7 @@ export function PaymentsView() {
                   <td className={`${TD} font-body`}>
                     {fmtPeriodNumeric(p.period)}
                   </td>
-                  <td className={`${TD} text-ink`}>
-                    {p.bankName ?? '—'}
-                  </td>
+                  <td className={`${TD} text-ink`}>{p.bankName ?? '—'}</td>
                   <td className={`${TD} text-ink`}>
                     {p.paymentAccount ?? '—'}
                   </td>
@@ -281,11 +286,34 @@ export function PaymentsView() {
                 />
               </FormField>
               <FormField label="Banco" htmlFor="pay-bank">
-                <Input
-                  id="pay-bank"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
+                <Select
+                  items={[
+                    { value: 'none', label: 'Seleccionar banco' },
+                    ...ANGOLAN_BANKS.map((b) => ({
+                      value: b.name,
+                      label: `${b.name} (${b.short})`,
+                    })),
+                    { value: BANK_OTHER, label: 'Outro banco…' },
+                  ]}
+                  value={bankChoice || 'none'}
+                  onValueChange={(v) => {
+                    const choice = v === 'none' ? '' : v;
+                    setBankChoice(choice);
+                    setBankName(
+                      choice === BANK_OTHER || choice === '' ? '' : choice,
+                    );
+                  }}
+                  className="w-full"
                 />
+                {bankChoice === BANK_OTHER && (
+                  <Input
+                    id="pay-bank"
+                    className="mt-2 w-full"
+                    placeholder="Nome do banco"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                )}
               </FormField>
               <FormField label="Conta de pagamento" htmlFor="pay-acc">
                 <Input

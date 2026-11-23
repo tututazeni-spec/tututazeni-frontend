@@ -338,12 +338,6 @@ export function PayslipAmountBreakdown({
           </div>
         </div>
       </div>
-
-      <p className="mt-2 font-body text-xs text-ink-muted">
-        INSS empregador (informativo): {fmtKz(data.employerInss)}
-        &nbsp;·&nbsp; Encargo total empresa:{' '}
-        {fmtKz(data.grossSalary + data.employerInss)}
-      </p>
     </div>
   );
 }

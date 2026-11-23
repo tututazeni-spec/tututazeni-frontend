@@ -30,6 +30,10 @@ export interface AdminPayslipDetailViewProps {
   onBack: () => void;
 }
 
+// Hover: fundo preto com letra branca (Descarregar PDF, Editar).
+const BTN_HOVER =
+  'hover:!border-black hover:!bg-black hover:!text-white focus-visible:!bg-black focus-visible:!text-white';
+
 const LOCKED_NOTE: Record<string, string> = {
   ISSUED: 'Recibo emitido — já não é editável.',
   ACKNOWLEDGED: 'Recibo confirmado pelo colaborador — já não é editável.',
@@ -92,46 +96,63 @@ export function AdminPayslipDetailView({
       </button>
 
       <div className="mb-5 flex items-center gap-3">
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-semibold text-ink">
             {data.user?.fullName ?? '—'}
           </h2>
-          <p className="font-body text-sm text-ink-faint">
-            {fmtPeriod(data.period)} ·{' '}
-            <span className="font-body">{data.receiptCode ?? data.id}</span>
+          <p className="font-body text-sm text-black">
+            {fmtPeriod(data.period)}
           </p>
         </div>
+      </div>
+
+      <div className="mb-2">
         <StatusBadge
           value={data.status}
           map={PAYSLIP_STATUS_MAP}
-          variant="dot"
+          variant="plain"
+          className={cn(
+            '!px-3 !py-0.5 !rounded-full border-[1.5px] font-body !text-xs !font-semibold',
+            data.status === 'DRAFT'
+              ? '!border-[#F59E0B] !bg-[#F59E0B] !text-white'
+              : data.status === 'ISSUED'
+                ? '!border-[#218653] !bg-[#218653] !text-white'
+                : '!border-[#0F1F3D]/30 !bg-transparent !text-[#0F1F3D]',
+          )}
         />
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-6 flex flex-wrap items-end gap-2">
         <a
           href={`${API_URL}/payslips/${payslipId}/pdf`}
           target="_blank"
           rel="noreferrer"
-          className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }))}
+          className={cn(
+            buttonVariants({ intent: 'secondary', size: 'sm' }),
+            BTN_HOVER,
+          )}
         >
           <Download size={15} strokeWidth={1.75} />
           Descarregar PDF
         </a>
-        {editable ? (
-          <>
-            <Button
-              size="sm"
-              intent="secondary"
-              onClick={() => setEditing(true)}
-            >
-              Editar
-            </Button>
-            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
-              Emitir
-            </Button>
-          </>
-        ) : (
+        {editable && (
+          <Button
+            size="sm"
+            intent="secondary"
+            className={BTN_HOVER}
+            onClick={() => setEditing(true)}
+          >
+            Editar
+          </Button>
+        )}
+
+        {editable && (
+          <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
+            Emitir
+          </Button>
+        )}
+
+        {!editable && (
           <p className="font-body text-sm text-ink-faint">
             {data.run?.status === 'PUBLISHED'
               ? 'Recibo pertence a um run publicado — já não é editável.'
