@@ -30,11 +30,13 @@ import { Card } from '@/components/ui/Card';
 import { RateGauge } from './profile/shared';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge, type StatusBadgeMap } from '@/lib/statusBadge';
 import type { ProfileTab, UserAction } from '@/hooks/useUserProfile';
 import {
   ACCOUNT_STATUS_MAP,
   HR_STATUS_MAP,
+  type AccountStatus,
+  type HrStatus,
   type User,
   type UserStats,
 } from './types';
@@ -65,6 +67,38 @@ function enrollmentStatusLabel(status: string): string {
   if (status === 'PENDING_APPROVAL') return 'Aguarda aprovação';
   return (
     (STATUS_CFG as Record<string, { label: string }>)[status]?.label ?? status
+  );
+}
+
+/**
+ * Estado da conta e estado de RH como etiqueta fixa (não clicável): verde
+ * sólido e letra branca para «Activo» (os outros estados, letra preta). Quando os dois estados coincidem
+ * (ex.: os dois «Activo») aparece uma só vez.
+ */
+function HeaderStatus({
+  account,
+  hr,
+}: {
+  account: AccountStatus;
+  hr: HrStatus;
+}) {
+  const a = resolveBadge(ACCOUNT_STATUS_MAP, account);
+  const h = resolveBadge(HR_STATUS_MAP, hr);
+  const items = h.label === a.label ? [{ ...a, active: account === 'ACTIVE' }] : [
+    { ...a, active: account === 'ACTIVE' },
+    { ...h, active: hr === 'ACTIVE' },
+  ];
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {items.map((item) => (
+        <span
+          key={item.label}
+          className={`pointer-events-none select-none rounded-control px-3 py-1 text-xs font-medium ${item.active ? 'bg-success text-white' : `text-black ${item.cls.split(' ').find((c) => c.startsWith('bg-')) ?? 'bg-surface-sunken'}`}`}
+        >
+          {item.label}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -151,17 +185,11 @@ export function UserProfileView({
                 <h2 className="text-xl font-semibold text-brand">
                   {user.fullName}
                 </h2>
-                <StatusBadge
-                  value={user.accountStatus}
-                  map={ACCOUNT_STATUS_MAP}
-                  variant="dot"
-                />
-                <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
               </div>
               <div className="text-sm text-brand-muted mb-2">{user.email}</div>
               <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
                 {user.employeeNumber && (
-                  <span className="font-mono">{user.employeeNumber}</span>
+                  <span>{user.employeeNumber}</span>
                 )}
                 {user.position && <span>{user.position.name}</span>}
                 {user.department && <span>{user.department.name}</span>}
@@ -179,6 +207,7 @@ export function UserProfileView({
                   Gestor: <strong>{user.manager.fullName}</strong>
                 </div>
               )}
+              <HeaderStatus account={user.accountStatus} hr={user.hrStatus} />
             </div>
 
             {/* Acções */}
