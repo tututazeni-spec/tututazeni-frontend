@@ -80,6 +80,7 @@ export function OverviewView() {
               value={data.run.status as keyof typeof RUN_STATUS_MAP}
               map={RUN_STATUS_MAP}
               variant="dot"
+              className="!bg-transparent !px-0"
             />
             {data.run.closed && (
               <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-white">
