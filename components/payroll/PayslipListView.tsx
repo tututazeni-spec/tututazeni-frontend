@@ -251,7 +251,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     label="Ver detalhe"
                     intent="ghost"
                     size="sm"
-                    className="text-ink hover:bg-surface-sunken"
+                    className="text-ink hover:bg-transparent"
                     onClick={() => onSelect(r.id)}
                   />
                   <a
@@ -262,7 +262,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     title="Descarregar PDF"
                     className={cn(
                       buttonVariants({ intent: 'ghost', size: 'sm' }),
-                      'aspect-square h-9 w-9 p-0 text-ink hover:bg-surface-sunken',
+                      'aspect-square h-9 w-9 p-0 text-ink hover:bg-transparent',
                     )}
                   >
                     <Download size={16} strokeWidth={1.75} />

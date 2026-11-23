@@ -17,7 +17,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import { CreateRunModal } from './CreateRunModal';
 import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
 import { UNDERLINE_COMBOBOX } from './filterStyles';
@@ -67,11 +67,14 @@ export function RunListView({ onSelect }: RunListViewProps) {
   if (period !== ALL) params.period = period;
   if (payGroup !== ALL && payGroup.trim()) params.payGroup = payGroup.trim();
 
+  const filtered = status !== ALL || period !== ALL || payGroup !== ALL;
+
   const { data, isLoading, error } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
     '/payroll/runs',
     {
       params,
+      enabled: filtered,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
     },
@@ -94,16 +97,19 @@ export function RunListView({ onSelect }: RunListViewProps) {
           }}
           className="w-56"
         />
-        <Select
+        <Combobox
           variant="underline"
           icon={CalendarDays}
+          allowCustom
           items={periodItems}
           value={period}
           onValueChange={(v) => {
             setPeriod(v);
             setPage(1);
           }}
-          className="w-48"
+          placeholder="Período (AAAA-MM)"
+          searchPlaceholder="Escreva o período, ex.: 2026-10…"
+          className={`w-56 ${UNDERLINE_COMBOBOX}`}
         />
         <Combobox
           variant="underline"
@@ -124,19 +130,25 @@ export function RunListView({ onSelect }: RunListViewProps) {
         </Button>
       </div>
 
-      {isLoading && <Skeleton rows={8} />}
+      {!filtered && (
+        <EmptyState
+          title="Filtre para ver os processamentos"
+          description="Escolha um estado, período ou grupo para listar os processamentos."
+        />
+      )}
+      {filtered && isLoading && <Skeleton rows={8} />}
       {error && (
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
 
-      {!isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Nenhum run encontrado"
           description='Limpa os filtros ou cria um novo processamento com "+ Novo processamento".'
         />
       )}
 
-      {!isLoading && rows.length > 0 && (
+      {filtered && !isLoading && rows.length > 0 && (
         <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[900px]">
             <div
@@ -167,11 +179,9 @@ export function RunListView({ onSelect }: RunListViewProps) {
                   {r.countryCode}
                 </div>
                 <div>
-                  <StatusBadge
-                    value={r.status}
-                    map={RUN_STATUS_MAP}
-                    variant="dot"
-                  />
+                  <span className="font-body text-sm text-[#0F1F3D]">
+                    {resolveBadge(RUN_STATUS_MAP, r.status).label}
+                  </span>
                 </div>
                 <div className="font-body text-sm text-ink">
                   {r.employeeCount ?? '—'}
@@ -196,7 +206,13 @@ export function RunListView({ onSelect }: RunListViewProps) {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      {filtered && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       {creating && (
         <CreateRunModal

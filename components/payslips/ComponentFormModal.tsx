@@ -215,7 +215,7 @@ export function ComponentFormModal({
                 value={code}
                 onChange={(e) => setField('code', e.target.value.toUpperCase())}
                 placeholder="BASE"
-                className="w-full font-mono"
+                className="w-full font-body"
               />
             </FormField>
           )}
@@ -280,7 +280,7 @@ export function ComponentFormModal({
                   id="cf-cond"
                   value={formula}
                   onChange={(e) => setField('formula', e.target.value)}
-                  className="w-full font-mono"
+                  className="w-full font-body"
                 />
               ) : (
                 <Input

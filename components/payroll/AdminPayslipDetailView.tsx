@@ -85,7 +85,7 @@ export function AdminPayslipDetailView({
     <div>
       <button
         onClick={onBack}
-        className="mb-4 flex items-center gap-1 font-body text-sm text-ink-muted hover:text-ink"
+        className="mb-4 flex items-center gap-1 font-body text-sm text-ink-muted"
       >
         <ChevronLeft size={16} strokeWidth={1.75} />
         Voltar

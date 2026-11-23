@@ -303,7 +303,7 @@ export function CompensationFormModal({
                 id="cfm-iban"
                 value={iban}
                 onChange={(e) => setField('iban', e.target.value)}
-                className="w-full font-mono"
+                className="w-full font-body"
               />
             </FormField>
             <FormField label="Nº de conta" htmlFor="cfm-acc">

@@ -251,7 +251,7 @@ export function PaymentsView() {
                           }
                           className={
                             next === 'CANCELLED' || next === 'FAILED'
-                              ? 'text-ink hover:bg-surface-sunken'
+                              ? 'text-ink hover:bg-transparent'
                               : undefined
                           }
                           disabled={setStatus.isPending}

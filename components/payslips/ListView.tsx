@@ -148,7 +148,7 @@ export function ListView({ onSelect }: ListViewProps) {
             data?.data.map((p) => (
               <div
                 key={p.id}
-                className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-brand-line px-4 py-3.5 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
+                className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-brand-line px-4 py-3.5 text-ink last:border-0"
                 onClick={() => onSelect(p.id)}
               >
                 <div>
@@ -181,7 +181,7 @@ export function ListView({ onSelect }: ListViewProps) {
                     label="Ver detalhe"
                     intent="ghost"
                     size="sm"
-                    className="text-ink hover:bg-surface-sunken"
+                    className="text-ink hover:bg-transparent"
                     onClick={() => onSelect(p.id)}
                   />
                   <IconButton
@@ -189,7 +189,7 @@ export function ListView({ onSelect }: ListViewProps) {
                     label="Descarregar PDF"
                     intent="ghost"
                     size="sm"
-                    className="text-ink hover:bg-surface-sunken"
+                    className="text-ink hover:bg-transparent"
                     onClick={() =>
                       window.open(
                         `${API_BASE}/payslips/my/${p.id}/pdf`,

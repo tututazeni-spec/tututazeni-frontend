@@ -118,23 +118,6 @@ function EmployeeProfileView({
 
           <section>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]">
-              Histórico salarial
-            </h3>
-            <ul className="space-y-1 text-[#0F1F3D]">
-              {data.salaryHistory.map((h) => (
-                <li key={h.id}>
-                  {fmtDate(h.effectiveFrom)} →{' '}
-                  {h.effectiveTo ? fmtDate(h.effectiveTo) : 'actual'}:{' '}
-                  <span className="font-body text-[#0F1F3D]">
-                    {fmtKz(h.baseSalary)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]">
               Recibos e pagamentos
             </h3>
             <div className="overflow-x-auto rounded-card border border-border bg-surface">
@@ -218,21 +201,26 @@ function useDepartmentItems() {
 export function EmployeesView() {
   const [runId, setRunId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
-  const [departmentId, setDepartmentId] = useState(ALL_DEPARTMENTS);
+  const [departmentId, setDepartmentId] = useState(''); // '' = nada escolhido
   const departmentItems = useDepartmentItems();
   const [page, setPage] = useState(1);
   const [userId, setUserId] = useState<number | null>(null);
 
   const params: Record<string, string | number> = { page, limit: 30 };
   if (search.trim()) params.search = search.trim();
-  if (departmentId !== ALL_DEPARTMENTS) params.departmentId = departmentId;
+  if (departmentId && departmentId !== ALL_DEPARTMENTS)
+    params.departmentId = departmentId;
+
+  const filtered =
+    runId !== null &&
+    (departmentId !== '' || search.trim().length > 0);
 
   const { data, isLoading, error } = useApiQuery<Paginated<RunEmployeeRow>>(
     queryKeys.payroll.section('employees', { runId, ...params }),
     `/payroll/runs/${runId}/employees`,
     {
       params,
-      enabled: runId !== null,
+      enabled: filtered,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
     },
@@ -286,18 +274,24 @@ export function EmployeesView() {
           description="Seleccione o run para ver a situação salarial de cada colaborador."
         />
       )}
-      {runId !== null && isLoading && <Skeleton rows={8} />}
+      {runId !== null && !filtered && (
+        <EmptyState
+          title="Filtre para ver os colaboradores"
+          description="Escolha um departamento ou pesquise por nome ou nº de colaborador."
+        />
+      )}
+      {filtered && isLoading && <Skeleton rows={8} />}
       {error && (
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
-      {runId !== null && !isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Sem colaboradores neste processamento"
           description="Processe o run para gerar os recibos."
         />
       )}
 
-      {rows.length > 0 && (
+      {filtered && rows.length > 0 && (
         <>
           <div className="overflow-x-auto rounded-card border border-border bg-surface">
             <table className="w-full min-w-[1200px] text-left font-body text-sm">
