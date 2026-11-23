@@ -31,47 +31,26 @@ interface Paginated<T> {
   data: T[];
 }
 
-/** Unidade e áreas a que um departamento pertence (alimentam as listas do formulário). */
-export interface DepartmentOrg {
-  unitId: number | null;
+/** Resposta de GET /users/org-options: listas próprias de um departamento. */
+export interface DepartmentOrgOptions {
+  units: { id: number; name: string }[];
   areas: string[];
-}
-
-interface DepartmentRow {
-  id: number;
-  name: string;
-  unitId?: number | null;
-  functionalArea?: string | null;
-  businessArea?: string | null;
+  departmentUnitId: number | null;
 }
 
 /** Departamentos activos para o Combobox de "Departamento". */
 export function useDepartmentOptions(enabled = true) {
   const params = { limit: 200, active: true };
-  const query = useApiQuery<Paginated<DepartmentRow>>(
+  const query = useApiQuery<Paginated<{ id: number; name: string }>>(
     queryKeys.departments.list({ picker: 'create-user', ...params }),
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const rows = query.data?.data ?? [];
-  const options: Option[] = rows.map((d) => ({
+  const options: Option[] = (query.data?.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
-  const orgByDepartment: Record<string, DepartmentOrg> = {};
-  for (const d of rows) {
-    orgByDepartment[String(d.id)] = {
-      unitId: d.unitId ?? null,
-      areas: [
-        ...new Set(
-          [d.functionalArea, d.businessArea]
-            .map((a) => a?.trim())
-            .filter((a): a is string => !!a),
-        ),
-      ],
-    };
-  }
-  return { options, orgByDepartment, loading: query.isLoading };
+  return { options, loading: query.isLoading };
 }
 
 /** Unidades (filiais) para o Combobox de "Unidade". */

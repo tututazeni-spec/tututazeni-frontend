@@ -11,12 +11,14 @@ import type { ChangeEvent } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { resizeImageToDataUrl } from '@/lib/image';
 import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   email as emailValidator,
   required as requiredRule,
 } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from './useApiQuery';
+import type { DepartmentOrgOptions } from '@/components/users/createUserData';
 import { useDebounce } from './useDebounce';
 import { useFormValidation } from './useFormValidation';
 import {
@@ -168,11 +170,8 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
   const hrResponsible = useDirectoryPicker();
 
   // ── Catálogos dos pickers ─────────────────────────────────────────────────
-  const {
-    options: departmentOptions,
-    orgByDepartment,
-    loading: departmentsLoading,
-  } = useDepartmentOptions();
+  const { options: departmentOptions, loading: departmentsLoading } =
+    useDepartmentOptions();
   const { options: positionOptions, loading: positionsLoading } =
     usePositionOptions();
   const { options: unitOptions, loading: unitsLoading } = useUnitOptions();
@@ -186,31 +185,43 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
   const { options: competencyOptions, loading: competenciesLoading } =
     useCompetencyOptions();
 
-  // Unidade e área seguem o departamento escolhido: a lista própria dele vem
-  // primeiro, mas qualquer outra unidade/área pode ser escolhida ou escrita.
-  const departmentOrg = orgByDepartment[form.departmentId];
-  const departmentUnitId = departmentOrg?.unitId
-    ? String(departmentOrg.unitId)
-    : undefined;
-  const unitChoices = departmentUnitId
-    ? [
-        ...unitOptions
-          .filter((u) => u.value === departmentUnitId)
-          .map((u) => ({ ...u, label: `${u.label} (do departamento)` })),
-        ...unitOptions.filter((u) => u.value !== departmentUnitId),
-      ]
-    : unitOptions;
-  const areaOptions = (departmentOrg?.areas ?? []).map((a) => ({
-    value: a,
-    label: a,
-  }));
+  // Unidade e área seguem o departamento: a lista dele (unidades e áreas já
+  // usadas por quem lá trabalha) vem primeiro; qualquer outra unidade da
+  // organização pode ser escolhida e unidade/área novas podem ser escritas.
+  const { data: org } = useApiQuery<DepartmentOrgOptions>(
+    queryKeys.users.orgOptions(form.departmentId),
+    '/users/org-options',
+    {
+      params: { departmentId: form.departmentId },
+      enabled: !!form.departmentId,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
+  );
+  const ownUnitIds = new Set((org?.units ?? []).map((u) => String(u.id)));
+  const unitChoices = [
+    ...(org?.units ?? []).map((u) => ({
+      value: String(u.id),
+      label: `${u.name} (do departamento)`,
+    })),
+    ...unitOptions.filter((u) => !ownUnitIds.has(u.value)),
+  ];
+  const areaOptions = (org?.areas ?? []).map((a) => ({ value: a, label: a }));
 
-  /** Mudar de departamento propõe a unidade e a área dele (editáveis depois). */
+  /** Valor mostrado no campo Unidade: a escolhida ou a escrita à mão. */
+  const unitValue = form.unitId || form.unitName;
+  /** Escolher da lista guarda o id; texto escrito à mão guarda o nome. */
+  const changeUnit = (v: string) => {
+    const known = unitChoices.some((u) => u.value === v);
+    setField('unitId', known ? v : '');
+    setField('unitName', known ? '' : v);
+  };
+
+  /** Mudar de departamento limpa a unidade/área do anterior (as listas mudam). */
   const changeDepartment = (id: string) => {
     setField('departmentId', id);
-    const org = orgByDepartment[id];
-    if (org?.unitId) setField('unitId', String(org.unitId));
-    if (org?.areas[0]) setField('area', org.areas[0]);
+    setField('unitId', '');
+    setField('unitName', '');
+    setField('area', '');
   };
 
   const create = useApiMutation(
@@ -317,6 +328,8 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
     unitOptions: unitChoices,
     unitsLoading,
     areaOptions,
+    unitValue,
+    changeUnit,
     changeDepartment,
     roleOptions,
     rolesLoading,

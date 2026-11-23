@@ -53,6 +53,8 @@ export function ProfessionalSection({
     positionOptions,
     positionsLoading,
     areaOptions,
+    unitValue,
+    changeUnit,
     changeDepartment,
   } = ctl;
 
@@ -74,10 +76,11 @@ export function ProfessionalSection({
       <FormField label="Unidade" htmlFor="unitId">
         <Combobox
           items={unitOptions}
-          value={form.unitId || undefined}
-          onValueChange={(v) => setField('unitId', v)}
+          value={unitValue || undefined}
+          onValueChange={changeUnit}
+          allowCustom
           placeholder={unitsLoading ? 'A carregar…' : 'Selecionar unidade'}
-          searchPlaceholder="Pesquisar outra unidade…"
+          searchPlaceholder="Escreva para filtrar ou indicar outra…"
           disabled={unitsLoading}
         />
       </FormField>
