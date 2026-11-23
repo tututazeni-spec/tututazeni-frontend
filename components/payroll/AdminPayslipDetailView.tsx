@@ -140,7 +140,7 @@ export function AdminPayslipDetailView({
         )}
       </div>
 
-      <div className="mb-8 rounded-card border border-border bg-surface p-6">
+      <div className="mb-8">
         <PayslipAmountBreakdown payslip={data} />
       </div>
 

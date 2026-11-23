@@ -251,7 +251,8 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                   <StatusBadge
                     value={r.status}
                     map={PAYSLIP_STATUS_MAP}
-                    variant="dot"
+                    variant="plain"
+                    className="!bg-transparent !px-0 font-body !text-sm"
                   />
                 </div>
                 <div
