@@ -23,6 +23,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useToast } from '@/providers/ToastProvider';
 import { fmtPeriodNumeric } from '@/components/payslips/format';
 import { RunPicker } from './RunPicker';
+import { PaymentCard } from './PaymentCard';
+import { Download } from 'lucide-react';
 import {
   PAYMENT_NEXT,
   PAYMENT_STATUS_MAP,
@@ -31,9 +33,32 @@ import {
 } from './insightTypes';
 import { saveBlob } from '@/lib/download';
 
-const TH =
-  'px-2 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white';
-const TD = 'px-2 py-3 text-ink';
+function Field({
+  label,
+  children,
+  strong,
+  wide,
+}: {
+  label: string;
+  children: React.ReactNode;
+  strong?: boolean;
+  wide?: boolean;
+}) {
+  return (
+    <div className={wide ? 'col-span-2' : undefined}>
+      <dt className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+        {label}
+      </dt>
+      <dd
+        className={`mt-0.5 break-words font-body text-ink ${
+          strong ? 'text-lg font-bold' : 'text-sm'
+        }`}
+      >
+        {children}
+      </dd>
+    </div>
+  );
+}
 
 const ACTION_LABEL: Record<PaymentStatus, string> = {
   PENDING: 'Reabrir',
@@ -148,12 +173,14 @@ export function PaymentsView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
             setFiltered(true);
           }}
-          placeholder="Período (AAAA-MM)"
+          aria-label="Período (mês e ano)"
           className="w-44"
         />
         <Button className="ml-auto" onClick={() => setCreating(true)}>
@@ -173,104 +200,50 @@ export function PaymentsView() {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
-          <table className="w-full text-left font-body text-xs">
-            <thead className="bg-brand-dark">
-              <tr>
-                <th className={TH}>Período</th>
-                <th className={TH}>Banco</th>
-                <th className={TH}>Conta</th>
-                <th className={TH}>Colab.</th>
-                <th className={`${TH} text-right`}>Valor total</th>
-                <th className={TH}>Prevista</th>
-                <th className={TH}>Efectiva</th>
-                <th className={TH}>Estado</th>
-                <th className={TH}>Referência</th>
-                <th className={TH}>Responsável</th>
-                <th className={TH}>Acções</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-brand-line align-top last:border-0"
-                >
-                  <td className={`${TD} font-body`}>
-                    {fmtPeriodNumeric(p.period)}
-                  </td>
-                  <td className={`${TD} text-ink`}>{p.bankName ?? '—'}</td>
-                  <td className={`${TD} text-ink`}>
-                    {p.paymentAccount ?? '—'}
-                  </td>
-                  <td className={TD}>{p.employeeCount}</td>
-                  <td className={`${TD} text-right font-body`}>
-                    {fmtKz(p.totalAmount)}
-                  </td>
-                  <td className={`${TD} text-ink`}>
-                    {p.expectedDate ? fmtDate(p.expectedDate) : '—'}
-                  </td>
-                  <td className={`${TD} text-ink`}>
-                    {p.effectiveDate ? fmtDate(p.effectiveDate) : '—'}
-                  </td>
-                  <td className={TD}>
-                    <StatusBadge
-                      value={p.status}
-                      map={PAYMENT_STATUS_MAP}
-                      variant="dot"
-                    />
-                    {p.errorMessage && (
-                      <div className="mt-1 max-w-[220px] text-xs text-danger">
-                        {p.errorMessage}
-                      </div>
-                    )}
-                  </td>
-                  <td className={`${TD} font-body text-xs text-ink`}>
-                    {p.reference ?? '—'}
-                  </td>
-                  <td className={`${TD} text-ink`}>
-                    {p.responsibleName ?? '—'}
-                  </td>
-                  <td className={TD}>
-                    <div className="flex flex-wrap gap-1.5">
-                      {!['CANCELLED', 'FAILED'].includes(p.status) && (
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          loading={
-                            bankFile.isPending && bankFile.variables === p.id
-                          }
-                          onClick={() => bankFile.mutate(p.id)}
-                        >
-                          Ficheiro bancário
-                        </Button>
-                      )}
-                      {PAYMENT_NEXT[p.status].map((next) => (
-                        <Button
-                          key={next}
-                          size="sm"
-                          intent={
-                            next === 'CANCELLED' || next === 'FAILED'
-                              ? 'ghost'
-                              : 'primary'
-                          }
-                          className={
-                            next === 'CANCELLED' || next === 'FAILED'
-                              ? 'text-ink hover:bg-transparent'
-                              : undefined
-                          }
-                          disabled={setStatus.isPending}
-                          onClick={() => onAction(p, next)}
-                        >
-                          {ACTION_LABEL[next]}
-                        </Button>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          {rows.map((p) => (
+            <PaymentCard
+              key={p.id}
+              payment={p}
+              actions={
+                <>
+                  {!['CANCELLED', 'FAILED'].includes(p.status) && (
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      className="w-full !rounded-full !border-[1.5px] !border-[#0F1F3D] !bg-white !text-[#0F1F3D] hover:!bg-[#0F1F3D] hover:!text-white"
+                      loading={
+                        bankFile.isPending && bankFile.variables === p.id
+                      }
+                      onClick={() => bankFile.mutate(p.id)}
+                    >
+                      <Download size={15} strokeWidth={1.75} />
+                      Ficheiro bancário
+                    </Button>
+                  )}
+                  {PAYMENT_NEXT[p.status].map((next) => {
+                    const secondary = next === 'CANCELLED' || next === 'FAILED';
+                    return (
+                      <Button
+                        key={next}
+                        size="sm"
+                        intent={secondary ? 'ghost' : 'primary'}
+                        className={
+                          secondary
+                            ? 'w-full !rounded-full !text-[#0F1F3D] hover:!bg-[#0F1F3D]/10'
+                            : 'w-full !rounded-full !bg-[#0F1F3D] !text-white hover:!bg-black'
+                        }
+                        disabled={setStatus.isPending}
+                        onClick={() => onAction(p, next)}
+                      >
+                        {ACTION_LABEL[next]}
+                      </Button>
+                    );
+                  })}
+                </>
+              }
+            />
+          ))}
         </div>
       )}
 
@@ -315,7 +288,11 @@ export function PaymentsView() {
                   />
                 )}
               </FormField>
-              <FormField label="Conta de pagamento" htmlFor="pay-acc">
+              <FormField
+                label="Conta de pagamento"
+                htmlFor="pay-acc"
+                hint="NIB/IBAN da conta da empresa"
+              >
                 <Input
                   id="pay-acc"
                   value={account}
