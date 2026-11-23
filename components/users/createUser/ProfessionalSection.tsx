@@ -1,6 +1,10 @@
 // components/users/createUser/ProfessionalSection.tsx
 // Secção «Dados profissionais» do formulário Novo Utilizador (apresentação).
 
+import { useState } from 'react';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { EditOrgListsModal } from './EditOrgListsModal';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import {
@@ -53,10 +57,15 @@ export function ProfessionalSection({
     positionOptions,
     positionsLoading,
     areaOptions,
+    org,
     unitValue,
     changeUnit,
     changeDepartment,
   } = ctl;
+
+  const [editingLists, setEditingLists] = useState(false);
+  const departmentName =
+    departmentOptions.find((d) => d.value === form.departmentId)?.label ?? '';
 
   return (
     <>
@@ -103,6 +112,28 @@ export function ProfessionalSection({
         options={areaOptions}
         custom
       />
+      {form.departmentId && (
+        <div className="col-span-2 -mt-2">
+          <Button
+            intent="ghost"
+            size="sm"
+            type="button"
+            onClick={() => setEditingLists(true)}
+          >
+            <Pencil size={14} strokeWidth={1.75} />
+            Editar listas de unidades e áreas deste departamento
+          </Button>
+        </div>
+      )}
+      {editingLists && (
+        <EditOrgListsModal
+          key={`${form.departmentId}-${org?.units.length ?? 0}`}
+          departmentId={form.departmentId}
+          departmentName={departmentName}
+          org={org}
+          onClose={() => setEditingLists(false)}
+        />
+      )}
       <FormField label="Cargo" htmlFor="positionId">
         <Combobox
           items={positionOptions}

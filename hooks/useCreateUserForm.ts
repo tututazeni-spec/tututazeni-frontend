@@ -328,6 +328,7 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
     unitOptions: unitChoices,
     unitsLoading,
     areaOptions,
+    org,
     unitValue,
     changeUnit,
     changeDepartment,
