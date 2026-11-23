@@ -15,6 +15,9 @@ const TONES: Record<WalletTone, { body: string; flap: string }> = {
   red: { body: '#EF4657', flap: '#B52C3B' },
 };
 
+// Azul marinho do valor quando a carteira é a imagem (carteira.jpg)
+const NAVY = '#0F1F3D';
+
 const ZOOM =
   'transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100';
 
@@ -167,7 +170,7 @@ export function WalletStat({
       )}
       <p
         className="font-display text-2xl font-bold leading-none"
-        style={{ color: t.body }}
+        style={{ color: image ? NAVY : t.body }}
       >
         {value}
       </p>
