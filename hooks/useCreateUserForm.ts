@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { resizeImageToDataUrl } from '@/lib/image';
@@ -33,6 +33,7 @@ import {
 import {
   INITIAL_USER_FORM,
   buildCreateUserPayload,
+  buildUpdateUserPayload,
   canCheckEmail,
   emailHint,
   emailViolation,
@@ -40,16 +41,17 @@ import {
   isPhotoTooLarge,
   shouldApplyEmailSuggestion,
   shouldSearchManagers,
+  userToFormValues,
   type EmailCheck,
   type StringKeys,
   type UserFormValues,
 } from '@/components/users/createUser/logic';
-import type { DirectoryUser } from '@/components/users/types';
+import type { DirectoryUser, User } from '@/components/users/types';
 
 /** Pesquisa + escolha de um colaborador no diretório interno. */
-function useDirectoryPicker() {
+function useDirectoryPicker(initial: DirectoryUser | null = null) {
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState<DirectoryUser | null>(null);
+  const [selected, setSelected] = useState<DirectoryUser | null>(initial);
   const { users: results, loading } = useDirectoryUsers(
     search,
     shouldSearchManagers(selected, search),
@@ -68,14 +70,31 @@ function useDirectoryPicker() {
   };
 }
 
-export function useCreateUserForm(onCreated: () => void) {
+/**
+ * Sem `editing` cria um utilizador (POST /users). Com `editing` o mesmo
+ * formulário vem pré-preenchido e grava só o que mudou (PUT /users/:id).
+ */
+export function useCreateUserForm(onCreated: () => void, editing?: User) {
   const notify = useToast();
+  const initialValues = useMemo(
+    () => (editing ? userToFormValues(editing) : INITIAL_USER_FORM),
+    // O formulário parte do utilizador aberto; refetches não o devem repor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [editing?.id],
+  );
+  const initialManager: DirectoryUser | null = editing?.manager
+    ? {
+        id: editing.manager.id,
+        fullName: editing.manager.fullName,
+        avatarUrl: editing.manager.avatarUrl,
+      }
+    : null;
   const {
     values: form,
     setField,
     errorMessage: validationError,
     handleSubmit: withValidation,
-  } = useFormValidation<UserFormValues>(INITIAL_USER_FORM, {
+  } = useFormValidation<UserFormValues>(initialValues, {
     fullName: [requiredRule()],
     email: [requiredRule(), emailValidator()],
   });
@@ -111,7 +130,7 @@ export function useCreateUserForm(onCreated: () => void) {
   const [submitError, setSubmitError] = useState('');
 
   // ── Email do tenant: sugere nome.apelido@domínio enquanto não for editado ─
-  const [emailEdited, setEmailEdited] = useState(false);
+  const [emailEdited, setEmailEdited] = useState(!!editing);
   const debouncedName = useDebounce(form.fullName.trim());
   const debouncedEmail = useDebounce(form.email.trim());
   const { data: emailCheck } = useApiQuery<EmailCheck>(
@@ -144,7 +163,7 @@ export function useCreateUserForm(onCreated: () => void) {
 
   // ── Gestor directo, Mentor e RH responsável (pesquisa no diretório) ───────
   // Ligam ao onboarding: o plano de integração usa-os como predefinição.
-  const manager = useDirectoryPicker();
+  const manager = useDirectoryPicker(initialManager);
   const mentor = useDirectoryPicker();
   const hrResponsible = useDirectoryPicker();
 
@@ -166,17 +185,35 @@ export function useCreateUserForm(onCreated: () => void) {
 
   const create = useApiMutation(
     () =>
-      apiClient.post(
-        '/users',
-        buildCreateUserPayload(
-          form,
-          manager.selected?.id,
-          mentor.selected?.id,
-          hrResponsible.selected?.id,
-        ),
-      ),
+      editing
+        ? apiClient.put(
+            `/users/${editing.id}`,
+            buildUpdateUserPayload(
+              initialValues,
+              form,
+              manager.selected?.id,
+              initialManager?.id,
+              mentor.selected?.id,
+              hrResponsible.selected?.id,
+            ),
+          )
+        : apiClient.post(
+            '/users',
+            buildCreateUserPayload(
+              form,
+              manager.selected?.id,
+              mentor.selected?.id,
+              hrResponsible.selected?.id,
+            ),
+          ),
     {
-      invalidateKeys: [queryKeys.users.lists()],
+      invalidateKeys: editing
+        ? [
+            queryKeys.users.lists(),
+            queryKeys.users.detail(editing.id),
+            queryKeys.users.all,
+          ]
+        : [queryKeys.users.lists()],
       onSuccess: () => onCreated(),
       onError: (e) => setSubmitError(e.message),
     },
@@ -209,7 +246,10 @@ export function useCreateUserForm(onCreated: () => void) {
     changeEmail,
     emailHint: emailHint(emailCheck),
     emailError: emailViolation(emailCheck, form.email, debouncedEmail),
-    emailTaken: isEmailTaken(emailCheck),
+    // Na edição o próprio email do utilizador aparece como "em uso".
+    emailTaken:
+      isEmailTaken(emailCheck) && !(editing && form.email === editing.email),
+    isEditing: !!editing,
     emailAlternatives: alternatives,
 
     // Gestor directo

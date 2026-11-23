@@ -17,17 +17,17 @@ interface CreateUserFormViewProps {
 }
 
 export function CreateUserFormView({ ctl, onBack }: CreateUserFormViewProps) {
-  const { error, submit, saving } = ctl;
+  const { error, submit, saving, isEditing } = ctl;
 
   return (
     <div>
       <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
         <ArrowLeft size={14} strokeWidth={1.75} />
-        Cancelar
+        {isEditing ? 'Voltar sem guardar' : 'Cancelar'}
       </Button>
       <Card className="p-6">
         <div className="text-base font-semibold text-ink mb-5">
-          Novo utilizador
+          {isEditing ? 'Editar utilizador' : 'Novo utilizador'}
         </div>
 
         {error && (
@@ -41,13 +41,19 @@ export function CreateUserFormView({ ctl, onBack }: CreateUserFormViewProps) {
           <ProfessionalSection ctl={ctl} />
           <ContactSection ctl={ctl} />
           <AccessSection ctl={ctl} />
-          <AcademySection ctl={ctl} />
+          {!isEditing && <AcademySection ctl={ctl} />}
           <HrSection ctl={ctl} />
         </div>
 
         <div className="flex gap-3">
           <Button onClick={submit} disabled={saving} loading={saving}>
-            {saving ? 'A criar…' : 'Criar utilizador'}
+            {isEditing
+              ? saving
+                ? 'A guardar…'
+                : 'Guardar alterações'
+              : saving
+                ? 'A criar…'
+                : 'Criar utilizador'}
           </Button>
           <Button intent="secondary" onClick={onBack}>
             Cancelar

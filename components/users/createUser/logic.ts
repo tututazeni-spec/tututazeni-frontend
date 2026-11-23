@@ -215,3 +215,89 @@ export const shouldSearchManagers = (
 
 export const managerSubtitle = (u: DirectoryUser): string =>
   u.department?.name ?? u.email ?? '—';
+
+// ── Edição de um utilizador existente ───────────────────────────────────────
+
+/** Subconjunto do perfil (GET /users/:id) de que o formulário de edição precisa. */
+type EditableUser = Partial<
+  Record<Exclude<StringKeys, 'hrStatus' | 'accountStatus'>, string | null>
+> & {
+  hrStatus?: string | null;
+  accountStatus?: string | null;
+  fullName: string;
+  email: string;
+  mfaEnabled?: boolean;
+  isInstructor?: boolean;
+  unit?: { id: number } | null;
+  department?: { id: number } | null;
+  position?: { id: number } | null;
+  role?: { id: number } | null;
+};
+
+const toDateInput = (v: string | null | undefined): string =>
+  v ? v.slice(0, 10) : '';
+
+/** Valores do formulário a partir do utilizador gravado. */
+export function userToFormValues(user: EditableUser): UserFormValues {
+  const form: UserFormValues = { ...INITIAL_USER_FORM };
+  for (const key of Object.keys(INITIAL_USER_FORM) as Array<
+    keyof UserFormValues
+  >) {
+    const v = (user as Record<string, unknown>)[key];
+    if (typeof v === 'string' && typeof form[key] === 'string') {
+      (form as Record<string, unknown>)[key] = v;
+    }
+  }
+  form.birthDate = toDateInput(user.birthDate);
+  form.hireDate = toDateInput(user.hireDate);
+  form.exitDate = toDateInput(user.exitDate);
+  form.unitId = user.unit ? String(user.unit.id) : '';
+  form.departmentId = user.department ? String(user.department.id) : '';
+  form.positionId = user.position ? String(user.position.id) : '';
+  form.roleId = user.role ? String(user.role.id) : '';
+  form.mfaEnabled = !!user.mfaEnabled;
+  form.isInstructor = !!user.isInstructor;
+  return form;
+}
+
+/** Campos de listas que só fazem sentido na criação (matrículas, permissões…). */
+const CREATE_ONLY_KEYS = [
+  'courseIds',
+  'learningPathIds',
+  'competencyIds',
+  'additionalPermissionIds',
+] as const;
+
+/**
+ * Corpo de PUT /users/:id: só os campos que mudaram face ao que estava
+ * gravado. Evita reenviar o NIF (guardado cifrado), a fotografia e outros
+ * valores que o utilizador não tocou.
+ */
+export function buildUpdateUserPayload(
+  initial: UserFormValues,
+  current: UserFormValues,
+  managerId: number | undefined,
+  initialManagerId: number | undefined,
+  mentorId?: number,
+  hrResponsibleId?: number,
+): Record<string, unknown> {
+  const before = buildCreateUserPayload(initial, initialManagerId) as Record<
+    string,
+    unknown
+  >;
+  const after = buildCreateUserPayload(
+    current,
+    managerId,
+    mentorId,
+    hrResponsibleId,
+  ) as Record<string, unknown>;
+  const changed: Record<string, unknown> = {};
+  for (const key of Object.keys(after)) {
+    if ((CREATE_ONLY_KEYS as readonly string[]).includes(key)) continue;
+    if (after[key] === undefined) continue;
+    if (JSON.stringify(after[key]) !== JSON.stringify(before[key])) {
+      changed[key] = after[key];
+    }
+  }
+  return changed;
+}

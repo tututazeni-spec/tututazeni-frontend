@@ -19,6 +19,7 @@ import {
   Clock,
   Trophy,
   AlertTriangle,
+  Pencil,
 } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
 import Image from 'next/image';
@@ -77,6 +78,8 @@ export interface UserProfileViewProps {
   stats: UserStats | undefined;
   actionLoading: boolean;
   onAction: (action: UserAction) => void;
+  /** Só definido para ADMIN/RH: abre o formulário de edição. */
+  onEdit?: () => void;
 }
 
 // docs/modulo_users.md Ponto 3 — ordem e rótulos exactos dos 17 separadores.
@@ -111,6 +114,7 @@ export function UserProfileView({
   stats,
   actionLoading,
   onAction,
+  onEdit,
 }: UserProfileViewProps) {
   if (loadingUser || !user)
     return (
@@ -179,6 +183,12 @@ export function UserProfileView({
 
             {/* Acções */}
             <div className="flex flex-col gap-2">
+              {onEdit && (
+                <Button intent="primary" size="sm" onClick={onEdit}>
+                  <Pencil size={14} strokeWidth={1.75} />
+                  Editar
+                </Button>
+              )}
               {user.accountStatus === 'ACTIVE' && (
                 <Button
                   intent="secondary"

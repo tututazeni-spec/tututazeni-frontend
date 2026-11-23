@@ -84,17 +84,19 @@ export function AccessSection({ ctl }: { ctl: CreateUserFormController }) {
         />
         Autenticação multifator (MFA)
       </label>
-      <div className="col-span-2">
-        <MultiPicker
-          id="additionalPermissionIds"
-          label="Permissões adicionais"
-          options={permissionOptions}
-          loading={permissionsLoading}
-          selected={form.additionalPermissionIds}
-          onChange={(ids) => setField('additionalPermissionIds', ids)}
-          placeholder="Adicionar permissão…"
-        />
-      </div>
+      {!ctl.isEditing && (
+        <div className="col-span-2">
+          <MultiPicker
+            id="additionalPermissionIds"
+            label="Permissões adicionais"
+            options={permissionOptions}
+            loading={permissionsLoading}
+            selected={form.additionalPermissionIds}
+            onChange={(ids) => setField('additionalPermissionIds', ids)}
+            placeholder="Adicionar permissão…"
+          />
+        </div>
+      )}
     </>
   );
 }

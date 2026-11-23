@@ -200,3 +200,33 @@ describe('gestor directo', () => {
     expect(managerSubtitle(user())).toBe('—');
   });
 });
+
+describe('edição de utilizador', () => {
+  const base = {
+    fullName: 'Ana Silva',
+    email: 'ana@x.com',
+    phone: '923',
+    nif: '***masked***',
+    hireDate: '2024-03-01T00:00:00.000Z',
+    department: { id: 4 },
+    role: { id: 2 },
+  };
+
+  it('pré-preenche datas e ids como o formulário espera', async () => {
+    const { userToFormValues } = await import('./logic');
+    const f = userToFormValues(base);
+    expect(f.hireDate).toBe('2024-03-01');
+    expect(f.departmentId).toBe('4');
+    expect(f.roleId).toBe('2');
+    expect(f.phone).toBe('923');
+  });
+
+  it('envia só os campos alterados (nunca o NIF intocado)', async () => {
+    const { userToFormValues, buildUpdateUserPayload } = await import('./logic');
+    const initial = userToFormValues(base);
+    const current = { ...initial, phone: '999', additionalPermissionIds: [1] };
+    expect(
+      buildUpdateUserPayload(initial, current, undefined, undefined),
+    ).toEqual({ phone: '999' });
+  });
+});
