@@ -73,7 +73,7 @@ export function OverviewView() {
             <StatusBadge
               value={data.run.status as keyof typeof RUN_STATUS_MAP}
               map={RUN_STATUS_MAP}
-              variant="dot"
+              variant="pill"
               className="!bg-transparent !px-0 !text-sm !font-normal !text-black"
             />
             {data.run.closed && (
