@@ -152,7 +152,12 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               {run.countryCode}
             </p>
           </div>
-          <StatusBadge value={run.status} map={RUN_STATUS_MAP} variant="dot" />
+          <StatusBadge
+            value={run.status}
+            map={RUN_STATUS_MAP}
+            variant="dot"
+            className="ml-auto"
+          />
         </div>
 
         <dl className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-5">
