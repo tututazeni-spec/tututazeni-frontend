@@ -204,7 +204,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3.5 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3.5 text-ink last:border-0`}
                 onClick={() => onSelect(r.id)}
               >
                 <div className="flex min-w-0 items-center gap-3">

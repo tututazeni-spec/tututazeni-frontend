@@ -301,7 +301,7 @@ export function ReportsView() {
                   {data.rows.map((r, i) => (
                     <tr
                       key={`${r.key ?? i}`}
-                      className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                      className="border-b border-[#6F8FB8]/20 last:border-0"
                     >
                       {columns.map((c) => (
                         <td key={c} className="px-2 py-3 text-white">

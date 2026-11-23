@@ -187,7 +187,7 @@ export function PaymentsView() {
               {rows.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-brand-line align-top transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
+                  className="border-b border-brand-line align-top last:border-0"
                 >
                   <td className={`${TD} font-body`}>
                     {fmtPeriodNumeric(p.period)}

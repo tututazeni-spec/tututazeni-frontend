@@ -153,7 +153,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3 text-ink last:border-0`}
                 onClick={() => onSelect(r.id)}
               >
                 <div className="font-body text-sm font-semibold text-ink">

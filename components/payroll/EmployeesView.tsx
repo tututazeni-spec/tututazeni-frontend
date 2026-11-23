@@ -254,7 +254,7 @@ export function EmployeesView() {
                   <tr
                     key={r.payslipId}
                     onClick={() => setUserId(r.userId)}
-                    className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken"
+                    className="cursor-pointer border-b border-border last:border-0"
                   >
                     <td className={`${TD} font-medium text-ink`}>
                       {r.fullName}

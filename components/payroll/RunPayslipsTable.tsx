@@ -114,7 +114,7 @@ export function RunPayslipsTable({
               <div
                 key={p.id}
                 data-testid={`run-payslip-row-${p.id}`}
-                className={`${COLS} items-center border-b border-brand-line px-4 py-3 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken ${
+                className={`${COLS} items-center border-b border-brand-line px-4 py-3 text-ink last:border-0 ${
                   highlightPayslipId === p.id ? 'bg-warning-subtle' : ''
                 }`}
               >

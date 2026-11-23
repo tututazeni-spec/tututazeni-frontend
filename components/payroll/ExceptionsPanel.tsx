@@ -49,7 +49,7 @@ function Group({ title, items, onSelectException }: GroupProps) {
               key={`${e.payslipId}-${e.code}-${i}`}
               type="button"
               onClick={() => onSelectException?.(e.payslipId)}
-              className={`${COLS} w-full items-center border-b border-brand-line px-4 py-3 text-left text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken`}
+              className={`${COLS} w-full cursor-pointer items-center border-b border-brand-line px-4 py-3 text-left text-ink last:border-0`}
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <Avatar

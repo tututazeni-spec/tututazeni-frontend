@@ -201,7 +201,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                 <EmptyState variant="inline" title="Sem departamentos" />
               ) : (
                 <>
-                  <label className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 hover:bg-surface-sunken">
+                  <label className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2">
                     <Checkbox
                       checked={depIds.size === 0}
                       onChange={() => setDepIds(new Set())}
@@ -213,7 +213,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                   {depOptions.map((d) => (
                     <label
                       key={d.value}
-                      className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
+                      className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0"
                     >
                       <Checkbox
                         checked={depIds.has(d.value)}
