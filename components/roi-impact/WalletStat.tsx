@@ -2,6 +2,8 @@
 // Carteira ilustrada com dinheiro a sair, independente (sem cartão/caixa à
 // volta): rótulo por cima, carteira ao centro e valor por baixo.
 
+import Image from 'next/image';
+
 type WalletTone = 'blue' | 'green' | 'orange' | 'red';
 type WalletMoney = 'bills' | 'coins' | 'stack' | 'mixed' | 'fan';
 
@@ -116,6 +118,8 @@ export interface WalletStatProps {
   money: WalletMoney;
   /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
   zoom?: boolean;
+  /** Imagem que substitui a carteira SVG (ex.: /images/carteira.jpg). */
+  image?: string;
 }
 
 export function WalletStat({
@@ -125,6 +129,7 @@ export function WalletStat({
   money,
   sub,
   zoom = false,
+  image,
 }: WalletStatProps) {
   const t = TONES[tone];
   return (
@@ -134,22 +139,32 @@ export function WalletStat({
       <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink">
         {label}
       </h3>
-      <svg
-        width="120"
-        height="100"
-        viewBox="0 0 120 100"
-        role="img"
-        aria-label={label}
-      >
-        <Money kind={money} />
-        <rect x="8" y="38" width="100" height="56" rx="10" fill={t.body} />
-        <path
-          d="M8 48a10 10 0 0 1 10-10h80a10 10 0 0 1 10 10v6H8z"
-          fill={t.flap}
+      {image ? (
+        <Image
+          src={image}
+          alt={label}
+          width={120}
+          height={109}
+          className="h-[100px] w-auto object-contain"
         />
-        <rect x="78" y="58" width="42" height="24" rx="8" fill={t.flap} />
-        <circle cx="92" cy="70" r="4.5" fill="#fff" />
-      </svg>
+      ) : (
+        <svg
+          width="120"
+          height="100"
+          viewBox="0 0 120 100"
+          role="img"
+          aria-label={label}
+        >
+          <Money kind={money} />
+          <rect x="8" y="38" width="100" height="56" rx="10" fill={t.body} />
+          <path
+            d="M8 48a10 10 0 0 1 10-10h80a10 10 0 0 1 10 10v6H8z"
+            fill={t.flap}
+          />
+          <rect x="78" y="58" width="42" height="24" rx="8" fill={t.flap} />
+          <circle cx="92" cy="70" r="4.5" fill="#fff" />
+        </svg>
+      )}
       <p
         className="font-display text-2xl font-bold leading-none"
         style={{ color: t.body }}
