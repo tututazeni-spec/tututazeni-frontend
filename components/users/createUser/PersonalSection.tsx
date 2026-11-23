@@ -100,25 +100,29 @@ export function PersonalSection({ ctl }: { ctl: CreateUserFormController }) {
       <FormField
         label="IBAN"
         htmlFor="iban"
-        hint="Só os 23 dígitos; o AO já está preenchido"
+        hint="Só os 21 dígitos; o AO06 já está preenchido"
       >
         <div className="relative">
           <span
             aria-hidden
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm font-semibold text-ink"
           >
-            AO
+            AO06
           </span>
           <Input
             id="iban"
             inputMode="numeric"
-            maxLength={23}
-            placeholder="23 dígitos"
-            className="w-full pl-10"
-            value={form.iban.replace(/^AO/i, '')}
+            maxLength={21}
+            placeholder="21 dígitos"
+            className="w-full pl-14"
+            value={form.iban.replace(/^AO06/i, '')}
             onChange={(e) => {
-              const digits = e.target.value.replace(/\D/g, '').slice(0, 23);
-              setField('iban', digits ? `AO${digits}` : '');
+              const digits = e.target.value
+                .replace(/\s+/g, '')
+                .replace(/^AO06/i, '')
+                .replace(/\D/g, '')
+                .slice(0, 21);
+              setField('iban', digits ? `AO06${digits}` : '');
             }}
           />
         </div>
