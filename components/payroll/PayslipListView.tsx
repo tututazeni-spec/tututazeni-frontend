@@ -28,7 +28,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Download, Eye, MapPin } from 'lucide-react';
+import { CalendarDays, Download, Eye, MapPin } from 'lucide-react';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { Paginated } from './types';
@@ -60,6 +60,14 @@ const STATUS_ITEMS = [
   { value: 'ISSUED', label: PAYSLIP_STATUS_MAP.ISSUED.label },
   { value: 'ACKNOWLEDGED', label: PAYSLIP_STATUS_MAP.ACKNOWLEDGED.label },
   { value: 'DISPUTED', label: PAYSLIP_STATUS_MAP.DISPUTED.label },
+];
+
+const YEAR_ITEMS = [
+  { value: 'all', label: 'Todos os anos' },
+  ...Array.from({ length: 8 }, (_, i) => {
+    const y = String(new Date().getFullYear() + 1 - i);
+    return { value: y, label: y };
+  }),
 ];
 
 const COLS =
@@ -145,24 +153,28 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           className="w-48"
         />
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
             setFiltered(true);
             setPage(1);
           }}
-          placeholder="Período (AAAA-MM)"
-          className="w-40"
+          aria-label="Período (mês e ano)"
+          className="w-44"
         />
-        <Input
-          value={year}
-          onChange={(e) => {
-            setYear(e.target.value);
+        <Select
+          variant="underline"
+          icon={CalendarDays}
+          items={YEAR_ITEMS}
+          value={year || 'all'}
+          onValueChange={(v) => {
+            setYear(v === 'all' ? '' : v);
             setFiltered(true);
             setPage(1);
           }}
-          placeholder="Ano (AAAA)"
-          className="w-32"
+          className="w-40"
         />
         <Button className="ml-auto" onClick={onCreate}>
           + Novo recibo
