@@ -27,12 +27,6 @@ import type { PayrollOverview } from './insightTypes';
 
 import { periodOptions, thisMonth } from './periodOptions';
 
-const ALERT_CLS = {
-  info: 'border-info/30 bg-info-subtle text-black',
-  warning: 'border-[#FACC15] bg-[#FACC15] text-[#0F1F3D]',
-  error: 'border-danger/30 bg-danger-subtle text-black',
-} as const;
-
 function Section({
   title,
   children,
@@ -104,14 +98,11 @@ export function OverviewView() {
       {data && (
         <div className="space-y-8">
           {data.alerts.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {data.alerts.map((a) => (
-                <div
-                  key={a.code}
-                  className={`rounded-card border px-4 py-2.5 font-body text-sm ${ALERT_CLS[a.severity]}`}
-                >
+                <p key={a.code} className="font-body text-sm text-[#0F1F3D]">
                   {a.message}
-                </div>
+                </p>
               ))}
             </div>
           )}
