@@ -100,7 +100,7 @@ function SectionHeader({
 function TotalPill({ label, value }: { label: string; value: string }) {
   return (
     <div
-      className="mt-3 flex items-baseline justify-between gap-3 rounded-[12px] px-4 py-2.5"
+      className="mt-auto flex items-baseline justify-between gap-3 rounded-[12px] px-4 py-2.5"
       style={{ backgroundColor: PILL_BG }}
     >
       <span
@@ -289,14 +289,16 @@ export function PayslipAmountBreakdown({
 
         {/* Painel central */}
         <div className="grid gap-6 px-6 py-5 sm:grid-cols-2 sm:gap-0 sm:divide-x sm:divide-[#BCC6E0]">
-          <div className="sm:pr-6">
+          <div className="flex flex-col sm:pr-6">
             <SectionHeader icon={Wallet}>Remunerações</SectionHeader>
             <Rows rows={earnings} />
+            <div className="min-h-3 flex-1" />
             <TotalPill label="Total bruto" value={fmtKz(data.grossSalary)} />
           </div>
-          <div className="sm:pl-6">
+          <div className="flex flex-col sm:pl-6">
             <SectionHeader icon={FileText}>Deduções</SectionHeader>
             <Rows rows={deductions} minus />
+            <div className="min-h-3 flex-1" />
             <TotalPill
               label="Total deduções"
               value={`− ${fmtKz(data.totalDeductions)}`}
