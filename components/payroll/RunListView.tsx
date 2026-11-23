@@ -1,7 +1,7 @@
 // components/payroll/RunListView.tsx
 // Lista paginada de PayrollRun (GET /payroll/runs). Mesmo molde de
 // components/payslips/CompensationsView.tsx: filtros na toolbar, tabela,
-// paginação, "+ Novo run" abre CreateRunModal; onCreated navega logo para
+// paginação, "+ Novo processamento" abre CreateRunModal; onCreated navega logo para
 // o detalhe do run recém-criado.
 'use client';
 
@@ -20,6 +20,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CreateRunModal } from './CreateRunModal';
 import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
+import { UNDERLINE_COMBOBOX } from './filterStyles';
 import { periodOptions, thisMonth } from './periodOptions';
 import { RUN_STATUS_MAP, type Paginated, type PayrollRun } from './types';
 import { CalendarDays, MapPin, Users } from 'lucide-react';
@@ -116,10 +117,10 @@ export function RunListView({ onSelect }: RunListViewProps) {
           }}
           placeholder="Grupo"
           searchPlaceholder="Escreva o grupo…"
-          className="w-48"
+          className={`w-48 ${UNDERLINE_COMBOBOX}`}
         />
         <Button className="ml-auto" onClick={() => setCreating(true)}>
-          + Novo run
+          + Novo processamento
         </Button>
       </div>
 
@@ -131,7 +132,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
       {!isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Nenhum run encontrado"
-          description='Limpa os filtros ou cria um novo run com "+ Novo run".'
+          description='Limpa os filtros ou cria um novo processamento com "+ Novo processamento".'
         />
       )}
 

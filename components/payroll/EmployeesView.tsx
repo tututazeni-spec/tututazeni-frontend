@@ -4,14 +4,16 @@
 // salarial (GET /payroll/employees/:userId).
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Building2 } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Combobox } from '@/components/ui/Combobox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
@@ -20,6 +22,7 @@ import {
   PAYSLIP_STATUS_MAP,
   type PayslipStatus,
 } from '@/components/payslips/types';
+import { UNDERLINE_COMBOBOX } from './filterStyles';
 import { RunPicker } from './RunPicker';
 import type { Paginated } from './types';
 import type { EmployeeProfile, RunEmployeeRow } from './insightTypes';
@@ -172,14 +175,48 @@ function EmployeeProfileView({
   );
 }
 
+const ALL_DEPARTMENTS = 'all';
+
+interface DepartmentNode {
+  id: number;
+  name: string;
+  children?: DepartmentNode[];
+}
+
+function useDepartmentItems() {
+  const { data } = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(),
+    '/departments/tree',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return useMemo(() => {
+    const flat: { value: string; label: string }[] = [];
+    const walk = (nodes: DepartmentNode[] | undefined) => {
+      for (const n of nodes ?? []) {
+        flat.push({ value: String(n.id), label: n.name });
+        walk(n.children);
+      }
+    };
+    walk(data);
+    flat.sort((a, b) => a.label.localeCompare(b.label, 'pt'));
+    return [
+      { value: ALL_DEPARTMENTS, label: 'Todos os departamentos' },
+      ...flat,
+    ];
+  }, [data]);
+}
+
 export function EmployeesView() {
   const [runId, setRunId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
+  const [departmentId, setDepartmentId] = useState(ALL_DEPARTMENTS);
+  const departmentItems = useDepartmentItems();
   const [page, setPage] = useState(1);
   const [userId, setUserId] = useState<number | null>(null);
 
   const params: Record<string, string | number> = { page, limit: 30 };
   if (search.trim()) params.search = search.trim();
+  if (departmentId !== ALL_DEPARTMENTS) params.departmentId = departmentId;
 
   const { data, isLoading, error } = useApiQuery<Paginated<RunEmployeeRow>>(
     queryKeys.payroll.section('employees', { runId, ...params }),
@@ -202,13 +239,28 @@ export function EmployeesView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <RunPicker
+          variant="underline"
           value={runId}
           onChange={(id) => {
             setRunId(id);
             setPage(1);
           }}
         />
-        <Input
+        <Combobox
+          variant="underline"
+          icon={Building2}
+          items={departmentItems}
+          value={departmentId}
+          onValueChange={(v) => {
+            setDepartmentId(v);
+            setPage(1);
+          }}
+          placeholder="Departamento"
+          searchPlaceholder="Escreva o departamento…"
+          className={`w-64 ${UNDERLINE_COMBOBOX}`}
+        />
+        <SearchInput
+          variant="underline"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);

@@ -102,7 +102,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo run" className="max-w-lg">
+      <ModalContent title="Novo processamento" className="max-w-lg">
         <div className="mt-5 space-y-4">
           <FormField
             label="Período *"

@@ -140,10 +140,12 @@ describe('RunListView', () => {
     expect(screen.getByText(/Nenhum run encontrado/i)).toBeInTheDocument();
   });
 
-  test('"+ Novo run" opens CreateRunModal; onCreated calls onSelect', () => {
+  test('"+ Novo processamento" opens CreateRunModal; onCreated calls onSelect', () => {
     const onSelect = vi.fn();
     render(<RunListView onSelect={onSelect} />);
-    fireEvent.click(screen.getByRole('button', { name: '+ Novo run' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: '+ Novo processamento' }),
+    );
     fireEvent.click(screen.getByTestId('create-modal'));
     expect(onSelect).toHaveBeenCalledWith(99);
   });

@@ -13,9 +13,15 @@ export interface RunPickerProps {
   value: number | null;
   onChange: (runId: number | null) => void;
   className?: string;
+  variant?: 'box' | 'underline';
 }
 
-export function RunPicker({ value, onChange, className }: RunPickerProps) {
+export function RunPicker({
+  value,
+  onChange,
+  className,
+  variant,
+}: RunPickerProps) {
   const params = { page: 1, limit: 50 };
   const { data, isLoading } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
@@ -30,6 +36,7 @@ export function RunPicker({ value, onChange, className }: RunPickerProps) {
   }));
   return (
     <Select
+      variant={variant}
       items={items}
       value={value ? String(value) : undefined}
       onValueChange={(v) => onChange(Number(v))}
