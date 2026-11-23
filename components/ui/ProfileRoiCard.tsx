@@ -19,7 +19,8 @@ export interface ProfileRoiStat {
 interface ProfileRoiCardProps {
   kicker: string;
   kickerIcon: LucideIcon;
-  name: string;
+  /** Sem nome, o card mostra só o título e as colunas (sem avatar). */
+  name?: string;
   avatarUrl?: string | null;
   subtitle?: string;
   stats: ProfileRoiStat[];
@@ -55,25 +56,31 @@ export function ProfileRoiCard({
       </div>
 
       <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
-        <div className="shrink-0 rounded-full p-1.5 ring-[6px] ring-[#2F80ED]/70">
-          <Avatar
-            name={name}
-            url={avatarUrl ?? undefined}
-            size="lg"
-            className="!h-[58px] !w-[58px]"
-          />
-        </div>
+        {name !== undefined && (
+          <div className="shrink-0 rounded-full p-1.5 ring-[6px] ring-[#2F80ED]/70">
+            <Avatar
+              name={name}
+              url={avatarUrl ?? undefined}
+              size="lg"
+              className="!h-[58px] !w-[58px]"
+            />
+          </div>
+        )}
 
         <div className="min-w-0 flex-1">
-          <p className={`font-display ${t.name} font-bold leading-snug`}>
-            {name}
-          </p>
+          {name !== undefined && (
+            <p className={`font-display ${t.name} font-bold leading-snug`}>
+              {name}
+            </p>
+          )}
           {subtitle && (
             <p className={`mb-2 font-body ${t.sub} text-white/70`}>
               {subtitle}
             </p>
           )}
-          <div className="mt-2 flex flex-wrap items-stretch gap-x-8 gap-y-2">
+          <div
+            className={`flex flex-wrap items-stretch gap-x-8 gap-y-2 ${name !== undefined ? 'mt-2' : ''}`}
+          >
             {stats.map((s, i) => (
               <div key={s.label} className="flex items-stretch gap-8">
                 {i > 0 && <div className="hidden w-px bg-white/20 sm:block" />}

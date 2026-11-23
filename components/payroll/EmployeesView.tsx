@@ -5,7 +5,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Building2, UserRound } from 'lucide-react';
+import { Building2, UserRound, Wallet } from 'lucide-react';
 import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -76,53 +76,56 @@ function EmployeeProfileView({
           />
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-              Remuneração base e componentes
-            </h3>
             {data.compensation ? (
-              <div className="rounded-card border border-border bg-surface p-4 text-ink-muted">
-                <p>
-                  Salário base:{' '}
-                  <span className="font-body text-ink">
-                    {fmtKz(data.compensation.baseSalary)}
-                  </span>{' '}
-                  (desde {fmtDate(data.compensation.effectiveFrom)})
-                </p>
-                <p>
-                  Alimentação {fmtKz(data.compensation.foodAllowance)} ·
-                  Transporte {fmtKz(data.compensation.transportAllowance)}
-                  {data.compensation.bankName
-                    ? ` · Banco ${data.compensation.bankName}`
-                    : ''}
-                </p>
-                {data.compensation.components.length > 0 && (
-                  <ul className="mt-2 list-disc pl-5">
-                    {data.compensation.components.map((c) => (
-                      <li key={c.id}>
-                        {c.componentCode}: {fmtKz(c.value)}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <EmptyState
-                title="Sem compensação registada"
-                description="Defina a remuneração base em Compensações."
+              <ProfileRoiCard
+                kicker="Remuneração base e componentes"
+                kickerIcon={Wallet}
+                subtitle={`Salário base em vigor desde ${fmtDate(data.compensation.effectiveFrom)}`}
+                stats={[
+                  {
+                    label: 'Salário base',
+                    value: fmtKz(data.compensation.baseSalary),
+                  },
+                  {
+                    label: 'Alimentação',
+                    value: fmtKz(data.compensation.foodAllowance),
+                  },
+                  {
+                    label: 'Transporte',
+                    value: fmtKz(data.compensation.transportAllowance),
+                  },
+                  ...(data.compensation.bankName
+                    ? [{ label: 'Banco', value: data.compensation.bankName }]
+                    : []),
+                  ...data.compensation.components.map((c) => ({
+                    label: c.componentCode,
+                    value: fmtKz(c.value),
+                  })),
+                ]}
               />
+            ) : (
+              <>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                  Remuneração base e componentes
+                </h3>
+                <EmptyState
+                  title="Sem compensação registada"
+                  description="Defina a remuneração base em Compensações."
+                />
+              </>
             )}
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]">
               Histórico salarial
             </h3>
-            <ul className="space-y-1 text-ink-muted">
+            <ul className="space-y-1 text-[#0F1F3D]">
               {data.salaryHistory.map((h) => (
                 <li key={h.id}>
                   {fmtDate(h.effectiveFrom)} →{' '}
                   {h.effectiveTo ? fmtDate(h.effectiveTo) : 'actual'}:{' '}
-                  <span className="font-body text-ink">
+                  <span className="font-body text-[#0F1F3D]">
                     {fmtKz(h.baseSalary)}
                   </span>
                 </li>
@@ -131,7 +134,7 @@ function EmployeeProfileView({
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]">
               Recibos e pagamentos
             </h3>
             <div className="overflow-x-auto rounded-card border border-border bg-surface">
