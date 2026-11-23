@@ -63,6 +63,7 @@ export interface EmployeeProfile {
   user: {
     id: number;
     fullName: string;
+    avatarUrl?: string | null;
     employeeNumber: string | null;
     nif: string | null;
     nib: string | null;

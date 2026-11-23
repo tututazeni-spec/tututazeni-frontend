@@ -5,7 +5,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Building2 } from 'lucide-react';
+import { Building2, UserRound } from 'lucide-react';
+import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -54,20 +55,25 @@ function EmployeeProfileView({
       )}
       {data && (
         <div className="space-y-6 font-body text-sm">
-          <div className="rounded-card border border-border bg-surface p-4">
-            <h2 className="font-display text-lg font-semibold text-ink">
-              {data.user.fullName}
-            </h2>
-            <p className="mt-1 text-ink-muted">
-              Nº {data.user.employeeNumber ?? '—'} · NIF {data.user.nif ?? '—'}{' '}
-              · NIB {data.user.nib ?? '—'}
-            </p>
-            <p className="text-ink-muted">
-              {data.user.position?.name ?? '—'} ·{' '}
-              {data.user.department?.name ?? '—'}
-              {data.user.unit ? ` · ${data.user.unit.name}` : ''}
-            </p>
-          </div>
+          <ProfileRoiCard
+            kicker="Colaborador"
+            kickerIcon={UserRound}
+            name={data.user.fullName}
+            avatarUrl={data.user.avatarUrl}
+            stats={[
+              { label: 'Nº', value: data.user.employeeNumber ?? '—' },
+              { label: 'NIF', value: data.user.nif ?? '—' },
+              { label: 'NIB', value: data.user.nib ?? '—' },
+              { label: 'Cargo', value: data.user.position?.name ?? '—' },
+              {
+                label: 'Departamento',
+                value: data.user.department?.name ?? '—',
+              },
+              ...(data.user.unit
+                ? [{ label: 'Unidade', value: data.user.unit.name }]
+                : []),
+            ]}
+          />
 
           <section>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
