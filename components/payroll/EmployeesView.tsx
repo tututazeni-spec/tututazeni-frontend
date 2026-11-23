@@ -15,6 +15,11 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
+import { resolveBadge } from '@/lib/statusBadge';
+import {
+  PAYSLIP_STATUS_MAP,
+  type PayslipStatus,
+} from '@/components/payslips/types';
 import { RunPicker } from './RunPicker';
 import type { Paginated } from './types';
 import type { EmployeeProfile, RunEmployeeRow } from './insightTypes';
@@ -144,7 +149,14 @@ function EmployeeProfileView({
                       <td className={`${TD} font-body`}>
                         {fmtKz(p.netSalary)}
                       </td>
-                      <td className={`${TD} text-ink-muted`}>{p.status}</td>
+                      <td className={`${TD} text-ink-muted`}>
+                        {
+                          resolveBadge(
+                            PAYSLIP_STATUS_MAP,
+                            p.status as PayslipStatus,
+                          ).label
+                        }
+                      </td>
                       <td className={`${TD} text-ink-muted`}>
                         {p.paymentDate ?? '—'}
                       </td>
@@ -303,7 +315,14 @@ export function EmployeesView() {
                     <td className={`${TD} text-right font-body`}>
                       {fmtKz(r.employerCost)}
                     </td>
-                    <td className={`${TD} text-ink-muted`}>{r.status}</td>
+                    <td className={`${TD} text-ink-muted`}>
+                      {
+                        resolveBadge(
+                          PAYSLIP_STATUS_MAP,
+                          r.status as PayslipStatus,
+                        ).label
+                      }
+                    </td>
                   </tr>
                 ))}
               </tbody>
