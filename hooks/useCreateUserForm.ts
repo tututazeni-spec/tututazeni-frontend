@@ -13,6 +13,7 @@ import { resizeImageToDataUrl } from '@/lib/image';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import {
+  angolanIban,
   email as emailValidator,
   required as requiredRule,
 } from '@/lib/validation';
@@ -99,6 +100,7 @@ export function useCreateUserForm(onCreated: () => void, editing?: User) {
   } = useFormValidation<UserFormValues>(initialValues, {
     fullName: [requiredRule()],
     email: [requiredRule(), emailValidator()],
+    iban: [angolanIban()],
   });
 
   // ── Fotografia ────────────────────────────────────────────────────────────

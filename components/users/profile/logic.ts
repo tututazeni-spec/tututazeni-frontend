@@ -41,6 +41,8 @@ export const identificationRows = (user: User): InfoRow[] => [
   ['Tipo de documento', identificationTypeLabel(user.identificationType)],
   ['Nº de identificação', user.identificationNumber],
   ['NIF', user.nif],
+  ['Banco do salário', user.salaryBankName],
+  ['IBAN', user.iban],
   ['NIB', user.nib],
 ];
 

@@ -27,6 +27,32 @@ export function email(message = 'Email inválido'): Validator {
   };
 }
 
+/**
+ * IBAN angolano: «AO» + 23 dígitos (2 de controlo + NIB de 21), com verificação
+ * mod-97. Espaços e minúsculas são aceites. Campo vazio passa.
+ */
+export function angolanIban(
+  message = 'IBAN inválido: use AO seguido de 23 dígitos',
+): Validator {
+  return (value) => {
+    const iban = String(value ?? '')
+      .replace(/\s+/g, '')
+      .toUpperCase();
+    if (!iban) return undefined;
+    if (!/^AO\d{23}$/.test(iban)) return message;
+    const rearranged = iban.slice(4) + iban.slice(0, 4);
+    let rest = 0;
+    for (const ch of rearranged) {
+      const digits =
+        ch >= 'A' && ch <= 'Z' ? String(ch.charCodeAt(0) - 55) : ch;
+      for (const d of digits) rest = (rest * 10 + Number(d)) % 97;
+    }
+    return rest === 1
+      ? undefined
+      : 'IBAN inválido: os dígitos de controlo não conferem';
+  };
+}
+
 export type Schema<T> = Partial<Record<keyof T, Validator[]>>;
 
 /** Corre os validadores de cada campo do schema; pára no primeiro erro por campo. */

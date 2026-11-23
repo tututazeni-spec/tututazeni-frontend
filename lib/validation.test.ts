@@ -6,7 +6,13 @@
 // Ver memory project_innova_component_separation_audit.
 
 import { describe, expect, test } from 'vitest';
-import { email, firstError, required, validate } from './validation';
+import {
+  angolanIban,
+  email,
+  firstError,
+  required,
+  validate,
+} from './validation';
 
 describe('required', () => {
   test('rejeita string vazia', () => {
@@ -92,5 +98,28 @@ describe('firstError', () => {
 
   test('devolve undefined quando não há erros', () => {
     expect(firstError({})).toBeUndefined();
+  });
+});
+
+describe('angolanIban', () => {
+  // Controlo calculado: 98 - (NIB + "102400") mod 97.
+  const nib = '004000010123456789012';
+  const mod97 = (digits: string) =>
+    [...digits].reduce((rest, d) => (rest * 10 + Number(d)) % 97, 0);
+  const check = String(98 - mod97(nib + '102400')).padStart(2, '0');
+  const valid = `AO${check}${nib}`;
+
+  test('aceita IBAN válido (com espaços e minúsculas) e vazio', () => {
+    const v = angolanIban();
+    expect(v(valid)).toBeUndefined();
+    expect(v(valid.toLowerCase().replace(/(.{4})/g, '$1 '))).toBeUndefined();
+    expect(v('')).toBeUndefined();
+  });
+
+  test('rejeita formato e controlo errados', () => {
+    const v = angolanIban();
+    expect(v('AO12')).toMatch(/IBAN inválido/);
+    expect(v('PT50' + '1'.repeat(21))).toMatch(/IBAN inválido/);
+    expect(v('AO00' + '1'.repeat(21))).toMatch(/controlo/);
   });
 });

@@ -53,6 +53,8 @@ export interface User {
   identificationNumber: string | null;
   nif: string | null;
   nib: string | null;
+  iban?: string | null;
+  salaryBankName?: string | null;
   personalEmail: string | null;
   alternatePhone: string | null;
   address: string | null;
@@ -203,7 +205,16 @@ export interface DevelopmentPlanSummary {
   id: number;
   name: string;
   goal: string;
-  status: 'DRAFT' | 'PENDING_APPROVAL' | 'ACTIVE' | 'PAUSED' | 'AT_RISK' | 'COMPLETED' | 'PARTIALLY_COMPLETED' | 'CANCELLED' | 'OVERDUE';
+  status:
+    | 'DRAFT'
+    | 'PENDING_APPROVAL'
+    | 'ACTIVE'
+    | 'PAUSED'
+    | 'AT_RISK'
+    | 'COMPLETED'
+    | 'PARTIALLY_COMPLETED'
+    | 'CANCELLED'
+    | 'OVERDUE';
   priority: string;
   period: string | null;
   startDate: string | null;

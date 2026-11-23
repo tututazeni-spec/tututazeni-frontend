@@ -1,10 +1,12 @@
 // components/users/createUser/PersonalSection.tsx
 // Secção «Dados pessoais» do formulário Novo Utilizador (apresentação).
 
-import { COUNTRY_OPTIONS } from '../createUserOptions';
+import { BANK_OPTIONS, COUNTRY_OPTIONS } from '../createUserOptions';
 import { GENDER_OPTIONS, IDENTIFICATION_TYPE_OPTIONS } from './constants';
 import { EnumSelect, Field, ListField, SectionTitle } from './fields';
 import { PhotoField } from './PhotoField';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import type { CreateUserFormController } from '@/hooks/useCreateUserForm';
 
 export function PersonalSection({ ctl }: { ctl: CreateUserFormController }) {
@@ -87,6 +89,40 @@ export function PersonalSection({ ctl }: { ctl: CreateUserFormController }) {
         onChange={handle('identificationNumber')}
       />
       <Field label="NIF" id="nif" value={form.nif} onChange={handle('nif')} />
+      <ListField
+        id="salaryBankName"
+        label="Banco que recebe o salário"
+        value={form.salaryBankName}
+        onChange={(v) => setField('salaryBankName', v)}
+        options={BANK_OPTIONS}
+        custom
+      />
+      <FormField
+        label="IBAN"
+        htmlFor="iban"
+        hint="Só os 23 dígitos; o AO já está preenchido"
+      >
+        <div className="relative">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm font-semibold text-ink"
+          >
+            AO
+          </span>
+          <Input
+            id="iban"
+            inputMode="numeric"
+            maxLength={23}
+            placeholder="23 dígitos"
+            className="w-full pl-10"
+            value={form.iban.replace(/^AO/i, '')}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '').slice(0, 23);
+              setField('iban', digits ? `AO${digits}` : '');
+            }}
+          />
+        </div>
+      </FormField>
     </>
   );
 }
