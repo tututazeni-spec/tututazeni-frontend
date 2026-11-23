@@ -160,12 +160,9 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
 
         <dl className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-5">
           {TOTALS.map(([label, getValue]) => (
-            <div
-              key={label}
-              className="rounded-[10px] border border-[#6F8FB8]/20 bg-white/5 p-3"
-            >
-              <dt className="font-body text-xs text-on-brand-faint">{label}</dt>
-              <dd className="font-body text-sm font-semibold text-white">
+            <div key={label} className="rounded-[10px] bg-white p-3">
+              <dt className="font-body text-xs text-ink-muted">{label}</dt>
+              <dd className="font-body text-sm font-semibold text-[#0F1F3D]">
                 {getValue(run)}
               </dd>
             </div>
