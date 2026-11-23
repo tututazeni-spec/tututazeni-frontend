@@ -170,7 +170,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
         </dl>
       </div>
 
-      <div className="mb-2 flex flex-wrap items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center justify-end gap-2">
         {run.status === 'DRAFT' && (
           <Button
             size="sm"

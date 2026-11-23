@@ -31,13 +31,13 @@ function Group({ title, items, onSelectException }: GroupProps) {
       <h4 className="mb-2 font-body text-sm font-semibold text-ink">
         {title} ({items.length})
       </h4>
-      <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+      <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
         {items.map((e, i) => (
           <button
             key={`${e.payslipId}-${e.code}-${i}`}
             type="button"
             onClick={() => onSelectException?.(e.payslipId)}
-            className="flex w-full items-center gap-3 border-b border-[#6F8FB8]/20 px-3 py-2 text-left text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
+            className="flex w-full items-center gap-3 border-b border-brand-line px-4 py-3 text-left text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken"
           >
             <StatusBadge
               value={e.severity}
@@ -50,13 +50,13 @@ function Group({ title, items, onSelectException }: GroupProps) {
               size="md"
               className="shrink-0"
             />
-            <span className="font-body text-sm font-medium text-white">
+            <span className="font-body text-sm font-medium text-ink">
               {e.fullName}
             </span>
-            <span className="font-body text-xs text-on-brand-faint">
+            <span className="font-body text-xs text-ink-faint">
               {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
             </span>
-            <span className="ml-auto text-right font-body text-sm text-on-brand">
+            <span className="ml-auto text-right font-body text-sm text-ink">
               {e.message}
             </span>
           </button>

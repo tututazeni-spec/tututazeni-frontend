@@ -98,10 +98,10 @@ export function RunPayslipsTable({
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[820px]">
             <div
-              className={`${COLS} bg-brand-dark px-3 py-2 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
+              className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
               <div>Bruto</div>
@@ -114,8 +114,8 @@ export function RunPayslipsTable({
               <div
                 key={p.id}
                 data-testid={`run-payslip-row-${p.id}`}
-                className={`${COLS} items-center border-b border-[#6F8FB8]/20 px-3 py-2 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
-                  highlightPayslipId === p.id ? 'bg-[#FFB84D]/15' : ''
+                className={`${COLS} items-center border-b border-brand-line px-4 py-3 text-ink transition-colors duration-150 last:border-0 hover:bg-surface-sunken ${
+                  highlightPayslipId === p.id ? 'bg-warning-subtle' : ''
                 }`}
               >
                 <div className="flex min-w-0 items-center gap-2.5">
@@ -126,18 +126,18 @@ export function RunPayslipsTable({
                     className="shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="break-words font-body text-sm font-medium leading-tight text-white">
+                    <div className="break-words font-body text-sm font-medium leading-tight text-ink">
                       {p.user.fullName}
                     </div>
-                    <div className="font-body text-xs text-on-brand">
+                    <div className="font-body text-xs text-ink-faint">
                       {p.user.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtKz(p.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>
@@ -149,7 +149,7 @@ export function RunPayslipsTable({
                 </div>
                 <div>
                   {p.hasExceptions && (
-                    <span className="flex items-center gap-1 text-[#FFD28A]">
+                    <span className="flex items-center gap-1 text-warning">
                       <AlertCircle size={14} strokeWidth={1.75} />
                     </span>
                   )}

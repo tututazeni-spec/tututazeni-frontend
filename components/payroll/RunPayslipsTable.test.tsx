@@ -109,7 +109,7 @@ describe('RunPayslipsTable', () => {
       />,
     );
     expect(screen.getByTestId('run-payslip-row-5')).toHaveClass(
-      'bg-[#FFB84D]/15',
+      'bg-warning-subtle',
     );
   });
 });
