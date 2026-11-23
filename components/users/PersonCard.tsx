@@ -8,26 +8,6 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { Briefcase, Mail, MoreHorizontal, Users } from 'lucide-react';
 
-/* ── Cores do badge por departamento ───────────────────────── */
-interface BadgeStyle {
-  bg: string;
-  text: string;
-}
-
-const KNOWN_DEPARTMENTS: Record<string, BadgeStyle> = {
-  Administração: { bg: '#E3ECFD', text: '#2F55C8' },
-  Engenharia: { bg: '#DDF3E8', text: '#2A7D58' },
-  'Recursos Humanos': { bg: '#ECE6FB', text: '#5B3FC4' },
-};
-
-// Paleta para qualquer outro departamento (cor estável por nome)
-const FALLBACK_BADGES: BadgeStyle[] = [
-  { bg: '#FDEBDD', text: '#B5561F' },
-  { bg: '#DDF0F6', text: '#2B7894' },
-  { bg: '#FBE4EA', text: '#B23A59' },
-  { bg: '#F5F0D6', text: '#8A7A12' },
-];
-
 const AVATAR_COLORS = [
   '#2F55C8',
   '#D9694A',
@@ -42,14 +22,6 @@ function hash(text: string): number {
   let h = 0;
   for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
   return Math.abs(h);
-}
-
-function badgeFor(department: string | undefined): BadgeStyle {
-  if (!department) return { bg: '#EEF1F6', text: '#475569' };
-  return (
-    KNOWN_DEPARTMENTS[department] ??
-    FALLBACK_BADGES[hash(department) % FALLBACK_BADGES.length]
-  );
 }
 
 function initialsOf(name: string): string {
@@ -83,8 +55,6 @@ export function PersonCard({
   menu,
   footer,
 }: PersonCardProps) {
-  const badge = badgeFor(departmentName ?? undefined);
-
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -160,10 +130,7 @@ export function PersonCard({
         </p>
 
         {departmentName && (
-          <span
-            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
-            style={{ backgroundColor: badge.bg, color: badge.text }}
-          >
+          <span className="mt-3 inline-flex max-w-full items-center gap-1.5 text-xs font-medium text-[#0F1F3D]">
             <Users className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{departmentName}</span>
           </span>
