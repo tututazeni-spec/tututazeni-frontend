@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { PAYSLIP_STATUS_MAP } from '@/components/payslips/types';
@@ -122,7 +122,7 @@ export function RunPayslipsTable({
                   <Avatar
                     name={p.user.fullName}
                     url={p.user.avatarUrl ?? undefined}
-                    size="md"
+                    size="lg"
                     className="shrink-0"
                   />
                   <div className="min-w-0">
@@ -140,12 +140,8 @@ export function RunPayslipsTable({
                 <div className="font-body text-sm font-semibold text-ink">
                   {fmtKz(p.netSalary)}
                 </div>
-                <div>
-                  <StatusBadge
-                    value={p.status}
-                    map={PAYSLIP_STATUS_MAP}
-                    variant="dot"
-                  />
+                <div className="font-body text-sm text-ink">
+                  {resolveBadge(PAYSLIP_STATUS_MAP, p.status).label}
                 </div>
                 <div>
                   {p.hasExceptions && (

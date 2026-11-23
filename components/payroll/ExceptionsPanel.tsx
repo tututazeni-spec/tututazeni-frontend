@@ -6,7 +6,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import {
   EXCEPTION_SEVERITY_MAP,
   EXCEPTION_CODE_LABEL,
@@ -55,7 +55,7 @@ function Group({ title, items, onSelectException }: GroupProps) {
                 <Avatar
                   name={e.fullName}
                   url={e.avatarUrl ?? undefined}
-                  size="md"
+                  size="lg"
                   className="shrink-0"
                 />
                 <span className="break-words font-body text-sm font-medium leading-tight text-ink">
@@ -66,12 +66,8 @@ function Group({ title, items, onSelectException }: GroupProps) {
                 {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
               </div>
               <div className="font-body text-sm text-ink">{e.message}</div>
-              <div>
-                <StatusBadge
-                  value={e.severity}
-                  map={EXCEPTION_SEVERITY_MAP}
-                  variant="pill"
-                />
+              <div className="font-body text-sm text-ink">
+                {resolveBadge(EXCEPTION_SEVERITY_MAP, e.severity).label}
               </div>
             </button>
           ))}
