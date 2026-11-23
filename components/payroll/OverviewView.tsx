@@ -3,9 +3,8 @@
 // GET /payroll/overview?period=.
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
-  CalendarDays,
   CheckCircle2,
   Clock,
   FileCheck,
@@ -17,7 +16,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
-import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
@@ -25,7 +24,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
 
-import { periodOptions, thisMonth } from './periodOptions';
+import { thisMonth } from './periodOptions';
 
 function Section({
   title,
@@ -49,7 +48,6 @@ function Section({
 
 export function OverviewView() {
   const [period, setPeriod] = useState(thisMonth());
-  const periodItems = useMemo(() => periodOptions(period), [period]);
   const valid = /^\d{4}-(0[1-9]|1[0-2])$/.test(period);
   const { data, isLoading, error } = useApiQuery<PayrollOverview>(
     queryKeys.payroll.section('overview', period),
@@ -60,12 +58,13 @@ export function OverviewView() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select
+        <Input
+          type="month"
           variant="underline"
-          icon={CalendarDays}
-          items={periodItems}
           value={period}
-          onValueChange={setPeriod}
+          onChange={(e) => setPeriod(e.target.value)}
+          aria-label="Período (mês e ano)"
+          className="w-44"
         />
         {data?.run && (
           <div className="flex items-center gap-2 font-body text-sm text-black">

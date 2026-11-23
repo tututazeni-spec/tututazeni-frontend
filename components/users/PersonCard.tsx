@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { Briefcase, Mail, MoreHorizontal, Users } from 'lucide-react';
 
@@ -55,6 +56,9 @@ export function PersonCard({
   menu,
   footer,
 }: PersonCardProps) {
+  // Imagem inválida/partida → mostra as iniciais em vez do ícone de erro.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -96,13 +100,14 @@ export function PersonCard({
 
         {/* Avatar sobreposto */}
         <div className="absolute -bottom-7 left-5">
-          {avatarUrl ? (
+          {avatarUrl && failedUrl !== avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               loading="lazy"
               decoding="async"
               src={avatarUrl}
-              alt={fullName}
+              alt=""
+              onError={() => setFailedUrl(avatarUrl)}
               className="h-[60px] w-[60px] rounded-full border-[3px] border-white object-cover shadow"
             />
           ) : (

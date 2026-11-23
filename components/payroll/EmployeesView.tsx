@@ -5,7 +5,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Building2, UserRound, Wallet } from 'lucide-react';
+import { AlertTriangle, Building2, UserRound, Wallet } from 'lucide-react';
 import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -63,7 +63,6 @@ function EmployeeProfileView({
             stats={[
               { label: 'Nº', value: data.user.employeeNumber ?? '—' },
               { label: 'NIF', value: data.user.nif ?? '—' },
-              { label: 'NIB', value: data.user.nib ?? '—' },
               { label: 'Cargo', value: data.user.position?.name ?? '—' },
               {
                 label: 'Departamento',
@@ -212,8 +211,7 @@ export function EmployeesView() {
     params.departmentId = departmentId;
 
   const filtered =
-    runId !== null &&
-    (departmentId !== '' || search.trim().length > 0);
+    runId !== null && (departmentId !== '' || search.trim().length > 0);
 
   const { data, isLoading, error } = useApiQuery<Paginated<RunEmployeeRow>>(
     queryKeys.payroll.section('employees', { runId, ...params }),
@@ -326,7 +324,13 @@ export function EmployeesView() {
                     <td className={`${TD} font-medium text-ink`}>
                       {r.fullName}
                       {r.hasExceptions && (
-                        <span className="ml-2 text-xs text-warning-ink">⚠</span>
+                        <span
+                          className="ml-2 inline-flex align-middle text-warning-ink"
+                          title="Recibo com excepções — abra a ficha do colaborador para ver o que rever"
+                          aria-label="Recibo com excepções"
+                        >
+                          <AlertTriangle size={14} strokeWidth={1.75} />
+                        </span>
                       )}
                     </td>
                     <td className={`${TD} text-ink-muted`}>
