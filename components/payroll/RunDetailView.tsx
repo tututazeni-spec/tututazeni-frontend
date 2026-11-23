@@ -355,7 +355,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
         {run.timeline.map((t) => (
           <li
             key={t.step}
-            className="flex items-center gap-3 font-body text-sm text-white"
+            className="flex items-center justify-end gap-3 font-body text-sm text-white"
           >
             <span className={t.at ? 'text-[#4ADE80]' : 'text-[#6F8FB8]'}>
               ●
