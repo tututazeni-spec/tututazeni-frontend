@@ -148,9 +148,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               {run.period}
               {run.payGroup ? ` · ${run.payGroup}` : ''}
             </h2>
-            <p className="font-body text-sm text-on-brand">
-              {run.countryCode}
-            </p>
+            <p className="font-body text-sm text-on-brand">{run.countryCode}</p>
           </div>
           <StatusBadge
             value={run.status}
@@ -356,26 +354,42 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
         Timeline
       </h3>
-      <ol className="rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)] mb-8 space-y-2 px-4 py-3">
-        {run.timeline.map((t) => (
-          <li
-            key={t.step}
-            className="flex items-center gap-3 font-body text-sm text-white"
-          >
-            <span className={t.at ? 'text-[#4ADE80]' : 'text-[#6F8FB8]'}>
-              ●
-            </span>
-            <span className="w-24 text-on-brand-faint">
-              {TIMELINE_LABEL[t.step] ?? t.step}
-            </span>
-            <span className="text-white">{t.at ? fmtDateTime(t.at) : '—'}</span>
-            {t.by && (
-              <span className="text-on-brand">
-                · <span>{t.by.fullName}</span>
-              </span>
-            )}
-          </li>
-        ))}
+      <ol className="mb-8 grid gap-5 rounded-[14px] border border-brand-edge bg-brand-deep px-5 py-4 shadow-[0_4px_16px_rgba(7,29,59,0.35)] sm:grid-flow-col sm:auto-cols-fr sm:gap-0">
+        {run.timeline.map((t, i) => {
+          const last = i === run.timeline.length - 1;
+          const next = run.timeline[i + 1];
+          return (
+            <li key={t.step} className="flex gap-3 sm:flex-col sm:gap-3">
+              <div className="flex items-center sm:w-full">
+                <span
+                  className={`h-3 w-3 shrink-0 rounded-full ${
+                    t.at ? 'bg-[#4ADE80]' : 'bg-[#6F8FB8]/40'
+                  }`}
+                />
+                {!last && (
+                  <span
+                    className={`ml-2 hidden h-0.5 flex-1 rounded-full sm:block ${
+                      next?.at ? 'bg-[#4ADE80]' : 'bg-[#6F8FB8]/30'
+                    }`}
+                  />
+                )}
+              </div>
+              <div className="min-w-0 pr-3">
+                <p className="font-body text-sm font-semibold text-white">
+                  {TIMELINE_LABEL[t.step] ?? t.step}
+                </p>
+                <p className="font-body text-sm text-white">
+                  {t.at ? fmtDateTime(t.at) : '—'}
+                </p>
+                {t.by && (
+                  <p className="break-words font-body text-xs text-on-brand">
+                    {t.by.fullName}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ol>
 
       <div className="mb-8">
