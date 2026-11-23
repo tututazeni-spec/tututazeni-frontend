@@ -114,7 +114,7 @@ export const RUN_STATUS_MAP: StatusBadgeMap<RunStatus> = {
   SIMULATED: { label: 'Simulado', cls: 'bg-[#1877F2] text-white' },
   PENDING_APPROVAL: {
     label: 'Pendente de aprovação',
-    cls: 'bg-[#FACC15] text-[#0F1F3D]',
+    cls: 'bg-transparent !px-0 text-[#0F1F3D]',
   },
   CALCULATED: { label: 'Calculado', cls: 'bg-surface-sunken text-ink-muted' },
   APPROVED: { label: 'Aprovado', cls: 'bg-success-subtle text-success-ink' },
