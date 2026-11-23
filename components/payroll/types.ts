@@ -111,7 +111,7 @@ export interface Paginated<T> {
 export const RUN_STATUS_MAP: StatusBadgeMap<RunStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-[#FACC15] text-black' },
   PROCESSING: { label: 'A processar', cls: 'bg-info-subtle text-info-ink' },
-  SIMULATED: { label: 'Simulado', cls: 'bg-info-subtle text-info-ink' },
+  SIMULATED: { label: 'Simulado', cls: 'bg-[#1877F2] text-white' },
   PENDING_APPROVAL: {
     label: 'Pendente de aprovação',
     cls: 'bg-warning-subtle text-warning-ink',

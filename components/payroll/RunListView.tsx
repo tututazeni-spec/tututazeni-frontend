@@ -149,11 +149,6 @@ export function RunListView({ onSelect }: RunListViewProps) {
                     value={r.status}
                     map={RUN_STATUS_MAP}
                     variant="dot"
-                    className={
-                      r.status === 'SIMULATED'
-                        ? '!bg-[#1877F2] !text-white'
-                        : ''
-                    }
                   />
                 </div>
                 <div className="font-body text-sm text-ink">
