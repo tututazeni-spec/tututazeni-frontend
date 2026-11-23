@@ -5,22 +5,24 @@
 // o detalhe do run recém-criado.
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Combobox } from '@/components/ui/Combobox';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CreateRunModal } from './CreateRunModal';
+import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
+import { periodOptions, thisMonth } from './periodOptions';
 import { RUN_STATUS_MAP, type Paginated, type PayrollRun } from './types';
-import { MapPin } from 'lucide-react';
+import { CalendarDays, MapPin, Users } from 'lucide-react';
 
 export interface RunListViewProps {
   onSelect: (runId: number) => void;
@@ -37,20 +39,32 @@ const STATUS_ITEMS = [
   { value: 'CANCELLED', label: RUN_STATUS_MAP.CANCELLED.label },
 ];
 
+const ALL = 'all';
+
+const PERIOD_ALL = { value: ALL, label: 'Todos os períodos' };
+const GROUP_ITEMS = [
+  { value: ALL, label: 'Todos os grupos' },
+  ...PAY_GROUP_ITEMS.filter((g) => g.value !== PAY_GROUP_NONE),
+];
+
 const COLS =
   'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
 
 export function RunListView({ onSelect }: RunListViewProps) {
   const [status, setStatus] = useState('all');
-  const [period, setPeriod] = useState('');
-  const [payGroup, setPayGroup] = useState('');
+  const [period, setPeriod] = useState(ALL);
+  const [payGroup, setPayGroup] = useState(ALL);
+  const periodItems = useMemo(
+    () => [PERIOD_ALL, ...periodOptions(period === ALL ? thisMonth() : period)],
+    [period],
+  );
   const [page, setPage] = useState(1);
   const [creating, setCreating] = useState(false);
 
   const params: Record<string, string | number> = { page, limit: 20 };
   if (status !== 'all') params.status = status;
-  if (period.trim()) params.period = period.trim();
-  if (payGroup.trim()) params.payGroup = payGroup.trim();
+  if (period !== ALL) params.period = period;
+  if (payGroup !== ALL && payGroup.trim()) params.payGroup = payGroup.trim();
 
   const { data, isLoading, error } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
@@ -79,23 +93,30 @@ export function RunListView({ onSelect }: RunListViewProps) {
           }}
           className="w-56"
         />
-        <Input
+        <Select
+          variant="underline"
+          icon={CalendarDays}
+          items={periodItems}
           value={period}
-          onChange={(e) => {
-            setPeriod(e.target.value);
+          onValueChange={(v) => {
+            setPeriod(v);
             setPage(1);
           }}
-          placeholder="Período (AAAA-MM)"
-          className="w-40"
+          className="w-48"
         />
-        <Input
+        <Combobox
+          variant="underline"
+          icon={Users}
+          allowCustom
+          items={GROUP_ITEMS}
           value={payGroup}
-          onChange={(e) => {
-            setPayGroup(e.target.value);
+          onValueChange={(v) => {
+            setPayGroup(v);
             setPage(1);
           }}
           placeholder="Grupo"
-          className="w-40"
+          searchPlaceholder="Escreva o grupo…"
+          className="w-48"
         />
         <Button className="ml-auto" onClick={() => setCreating(true)}>
           + Novo run

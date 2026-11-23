@@ -9,6 +9,7 @@
 import { useMemo, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { periodOptions, thisMonth } from './periodOptions';
+import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -38,19 +39,6 @@ const OPTION_FIELDS = [
   ['applyFaults', 'Aplicar faltas'],
   ['applyDiscounts', 'Aplicar descontos'],
 ] as const;
-
-// Grupos de pagamento (PayrollRun.payGroup é texto livre; esta lista padroniza
-// o que a UI grava para os filtros por grupo baterem certo).
-const PAY_GROUP_NONE = 'NONE';
-const PAY_GROUP_ITEMS = [
-  { value: PAY_GROUP_NONE, label: 'Sem grupo' },
-  { value: 'Mensais', label: 'Mensais' },
-  { value: 'Quinzenais', label: 'Quinzenais' },
-  { value: 'Semanais', label: 'Semanais' },
-  { value: 'Diaristas', label: 'Diaristas' },
-  { value: 'Estagiários', label: 'Estagiários' },
-  { value: 'Direcção', label: 'Direcção' },
-];
 
 type OptionKey = (typeof OPTION_FIELDS)[number][0];
 type RunOptions = Record<OptionKey, boolean>;
