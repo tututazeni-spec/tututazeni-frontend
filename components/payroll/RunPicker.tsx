@@ -6,6 +6,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import type { LucideIcon } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { RUN_STATUS_MAP, type Paginated, type PayrollRun } from './types';
 
@@ -14,6 +15,7 @@ export interface RunPickerProps {
   onChange: (runId: number | null) => void;
   className?: string;
   variant?: 'box' | 'underline';
+  icon?: LucideIcon;
 }
 
 export function RunPicker({
@@ -21,6 +23,7 @@ export function RunPicker({
   onChange,
   className,
   variant,
+  icon,
 }: RunPickerProps) {
   const params = { page: 1, limit: 50 };
   const { data, isLoading } = useApiQuery<Paginated<PayrollRun>>(
@@ -37,6 +40,7 @@ export function RunPicker({
   return (
     <Select
       variant={variant}
+      icon={icon}
       items={items}
       value={value ? String(value) : undefined}
       onValueChange={(v) => onChange(Number(v))}

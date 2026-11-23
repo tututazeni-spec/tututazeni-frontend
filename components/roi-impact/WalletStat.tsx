@@ -123,6 +123,8 @@ export interface WalletStatProps {
   zoom?: boolean;
   /** Imagem que substitui a carteira SVG (ex.: /images/carteira.png). */
   image?: string;
+  /** Selo de visto verde sobre a carteira (ex.: pagamentos concluídos). */
+  check?: boolean;
 }
 
 export function WalletStat({
@@ -133,6 +135,7 @@ export function WalletStat({
   sub,
   zoom = false,
   image,
+  check = false,
 }: WalletStatProps) {
   const t = TONES[tone];
   return (
@@ -143,13 +146,41 @@ export function WalletStat({
         {label}
       </h3>
       {image ? (
-        <Image
-          src={image}
-          alt={label}
-          width={120}
-          height={108}
-          className="h-[100px] w-auto object-contain"
-        />
+        <div className="relative">
+          <Image
+            src={image}
+            alt={label}
+            width={120}
+            height={108}
+            className="h-[100px] w-auto object-contain"
+          />
+          {check && (
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              aria-hidden="true"
+              className="absolute -bottom-1 -right-3 drop-shadow-md"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="#218653"
+                stroke="#fff"
+                strokeWidth="3"
+              />
+              <path
+                d="M10.5 18.5l5 5 10-11"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </div>
       ) : (
         <svg
           width="120"
