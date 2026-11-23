@@ -164,7 +164,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               key={label}
               className="rounded-[10px] border border-[#6F8FB8]/20 bg-white/5 p-3"
             >
-              <dt className="font-body text-xs text-on-brand-faint">{label}</dt>
+              <dt className="font-body text-xs text-white">{label}</dt>
               <dd className="font-body text-sm font-semibold text-white">
                 {getValue(run)}
               </dd>
