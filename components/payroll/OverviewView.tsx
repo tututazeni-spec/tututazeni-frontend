@@ -68,13 +68,13 @@ export function OverviewView() {
           onValueChange={setPeriod}
         />
         {data?.run && (
-          <div className="flex items-center gap-2 font-body text-sm text-ink-muted">
+          <div className="flex items-center gap-2 font-body text-sm text-black">
             Estado da folha:
             <StatusBadge
               value={data.run.status as keyof typeof RUN_STATUS_MAP}
               map={RUN_STATUS_MAP}
               variant="dot"
-              className="!bg-transparent !px-0 !text-[#1877F2]"
+              className="!bg-transparent !px-0 !text-sm !font-normal !text-black"
             />
             {data.run.closed && (
               <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-white">
