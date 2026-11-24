@@ -35,6 +35,8 @@ import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { LEVEL_CFG } from '@/components/departments/constants';
+import type { PosLevel } from '@/components/departments/types';
 import { READINESS_CFG } from './constants';
 import { RequirementChecksPanel } from './RequirementChecksPanel';
 import type {
@@ -165,7 +167,9 @@ export function DashboardView() {
   );
   const positionOptions = (positions ?? []).map((p) => ({
     value: String(p.id),
-    label: p.level ? `${p.name} · ${p.level}` : p.name,
+    label: p.level
+      ? `${p.name} · ${LEVEL_CFG[p.level as PosLevel]?.label ?? p.level}`
+      : p.name,
   }));
 
   const simulateMutation = useApiMutation(

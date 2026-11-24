@@ -23,7 +23,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
-import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -560,7 +559,9 @@ export function QualificationsTab({ userId }: { userId: number }) {
               }`}
               badge={
                 isExpired(c.expiresAt) ? (
-                  <Badge intent="danger">Expirada</Badge>
+                  <span className="rounded-pill bg-[#DC2626] px-2 py-0.5 font-body text-xs font-semibold text-white">
+                    Expirada
+                  </span>
                 ) : undefined
               }
               removeLabel={`Remover ${c.name}`}
