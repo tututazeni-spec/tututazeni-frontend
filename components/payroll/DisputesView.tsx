@@ -10,22 +10,19 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { formatDate as fmtDate } from '@/lib/format';
 import { fmtPeriod } from '@/components/payslips/format';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Button } from '@/components/ui/Button';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
+import { DisputeItem, PayslipDisputeCard } from './PayslipDisputeCard';
 import {
   DISPUTE_STATUS_MAP,
   type Paginated,
   type PayslipDispute,
 } from './types';
-import { LinkButton } from '@/components/ui/LinkButton';
-import { ListFilter } from 'lucide-react';
+import { FileText, ListFilter, UserRound } from 'lucide-react';
 
 export interface DisputesViewProps {
   onOpenPayslip: (payslipId: number) => void;
@@ -36,8 +33,6 @@ const STATUS_ITEMS = [
   { value: 'RESOLVED', label: DISPUTE_STATUS_MAP.RESOLVED.label },
   { value: 'all', label: 'Todas' },
 ];
-
-const COLS = 'grid grid-cols-[1.3fr_1.4fr_1.4fr_110px_130px_130px_110px] gap-3';
 
 export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
   const [status, setStatus] = useState('OPEN');
@@ -89,61 +84,33 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto">
-          <div className="min-w-[900px] overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-            <div
-              className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white`}
-            >
-              <div>Colaborador</div>
-              <div>Recibo</div>
-              <div>Motivo</div>
-              <div>Estado</div>
-              <div>Aberta em</div>
-              <div>Resolvida em</div>
-              <div>Acções</div>
-            </div>
-            {rows.map((d) => (
-              <div
-                key={d.id}
-                className={`${COLS} items-center border-b border-border px-4 py-3.5 last:border-0 font-body text-sm`}
-              >
-                <div className="min-w-0 truncate text-ink">
-                  {d.user?.fullName ?? `#${d.userId}`}
-                </div>
-                <LinkButton
-                  type="button"
-                  className="min-w-0 truncate text-left font-body text-xs"
-                  onClick={() => d.payslip && onOpenPayslip(d.payslip.id)}
-                >
-                  {d.payslip?.receiptCode ?? `#${d.payslipId}`}
-                  {d.payslip ? ` · ${fmtPeriod(d.payslip.period)}` : ''}
-                </LinkButton>
-                <div className="truncate text-ink-muted">{d.reason}</div>
-                <div>
-                  <StatusBadge
-                    value={d.status}
-                    map={DISPUTE_STATUS_MAP}
-                    variant="plain"
-                  />
-                </div>
-                <div className="text-ink-muted">{fmtDate(d.createdAt)}</div>
-                <div className="text-ink-muted">
-                  {d.resolvedAt ? fmtDate(d.resolvedAt) : '—'}
-                </div>
-                <div>
-                  {d.status === 'OPEN' && (
-                    <Button
-                      size="sm"
-                      intent="secondary"
-                      onClick={() => setResolving(d)}
+        <div className="space-y-3">
+          {rows.map((d) => (
+            <PayslipDisputeCard
+              key={d.id}
+              dispute={d}
+              onResolve={
+                d.status === 'OPEN' ? () => setResolving(d) : undefined
+              }
+              leading={
+                <>
+                  <DisputeItem icon={UserRound} label="Colaborador">
+                    {d.user?.fullName ?? `#${d.userId}`}
+                  </DisputeItem>
+                  <DisputeItem icon={FileText} label="Recibo">
+                    <button
+                      type="button"
+                      className="text-left underline-offset-2 hover:underline"
+                      onClick={() => d.payslip && onOpenPayslip(d.payslip.id)}
                     >
-                      Resolver
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+                      {d.payslip?.receiptCode ?? `#${d.payslipId}`}
+                      {d.payslip ? ` · ${fmtPeriod(d.payslip.period)}` : ''}
+                    </button>
+                  </DisputeItem>
+                </>
+              }
+            />
+          ))}
         </div>
       )}
 

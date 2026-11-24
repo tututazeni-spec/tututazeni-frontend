@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { AccessLogsPanel } from './AccessLogsPanel';
+import { PayslipDisputeCard } from './PayslipDisputeCard';
 import { EditPayslipModal } from './EditPayslipModal';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
 import {
@@ -85,6 +86,24 @@ export function AdminPayslipDetailView({
 
   const editable = data.status === 'DRAFT' && data.run?.status !== 'PUBLISHED';
 
+  const isDisputed = data.status === 'DISPUTED';
+  const statusBadge = (
+    <StatusBadge
+      value={data.status}
+      map={PAYSLIP_STATUS_MAP}
+      variant="plain"
+      className={cn(
+        '!px-3 !py-0.5 !rounded-full border-[1.5px] font-body !text-xs !font-semibold',
+        data.status === 'DRAFT' || isDisputed
+          ? '!border-[#F59E0B] !bg-[#F59E0B] !text-white'
+          : data.status === 'ISSUED'
+            ? '!border-[#218653] !bg-[#218653] !text-white'
+            : '!border-[#0F1F3D]/30 !bg-transparent !text-[#0F1F3D]',
+      )}
+    />
+  );
+  const rightBadge = <div className="ml-auto">{statusBadge}</div>;
+
   return (
     <div>
       <button
@@ -104,22 +123,6 @@ export function AdminPayslipDetailView({
             {fmtPeriod(data.period)}
           </p>
         </div>
-      </div>
-
-      <div className="mb-2">
-        <StatusBadge
-          value={data.status}
-          map={PAYSLIP_STATUS_MAP}
-          variant="plain"
-          className={cn(
-            '!px-3 !py-0.5 !rounded-full border-[1.5px] font-body !text-xs !font-semibold',
-            data.status === 'DRAFT'
-              ? '!border-[#F59E0B] !bg-[#F59E0B] !text-white'
-              : data.status === 'ISSUED'
-                ? '!border-[#218653] !bg-[#218653] !text-white'
-                : '!border-[#0F1F3D]/30 !bg-transparent !text-[#0F1F3D]',
-          )}
-        />
       </div>
 
       <div className="mb-6 flex flex-wrap items-end gap-2">
@@ -159,6 +162,7 @@ export function AdminPayslipDetailView({
               : (LOCKED_NOTE[data.status] ?? '')}
           </p>
         )}
+        {rightBadge}
       </div>
 
       <div className="mb-8">
@@ -172,44 +176,13 @@ export function AdminPayslipDetailView({
           </h3>
           <div className="space-y-3">
             {data.disputes.map((d) => (
-              <div
+              <PayslipDisputeCard
                 key={d.id}
-                className="rounded-card border border-border bg-surface p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sm font-medium text-ink">
-                    {d.reason}
-                  </span>
-                  <StatusBadge
-                    value={d.status}
-                    map={DISPUTE_STATUS_MAP}
-                    variant="plain"
-                  />
-                </div>
-                {d.details && (
-                  <p className="mt-1 font-body text-sm text-ink-muted">
-                    {d.details}
-                  </p>
-                )}
-                <p className="mt-1 font-body text-xs text-ink-faint">
-                  Aberta em {fmtDate(d.createdAt)}
-                </p>
-                {d.status === 'RESOLVED' && (
-                  <p className="mt-1 font-body text-xs text-success-ink">
-                    Resolvida em {fmtDate(d.resolvedAt)} — {d.resolution}
-                  </p>
-                )}
-                {d.status === 'OPEN' && (
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    className="mt-3"
-                    onClick={() => setResolving(d)}
-                  >
-                    Resolver
-                  </Button>
-                )}
-              </div>
+                dispute={d}
+                onResolve={
+                  d.status === 'OPEN' ? () => setResolving(d) : undefined
+                }
+              />
             ))}
           </div>
         </div>
