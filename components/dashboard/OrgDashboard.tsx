@@ -16,10 +16,9 @@ import {
   Award,
   BookOpen,
   Brain,
-  Building2,
   CheckCircle2,
+  Eye,
   GitCompare,
-  HeartHandshake,
   Library,
   MapPin,
   Save,
@@ -37,12 +36,12 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { FORMAT_LABEL } from '@/components/content-library/constants';
 import { Button } from '@/components/ui/Button';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -484,27 +483,6 @@ export function OrgDashboard() {
             value={summary.learning.courses}
           />
           <NavyStatCard
-            href="/crm"
-            icon={HeartHandshake}
-            tone="green"
-            label="Beneficiários"
-            value={summary.crm.beneficiaries}
-          />
-          <WalletStat
-            zoom
-            money="bills"
-            tone="blue"
-            label="Financiamento"
-            value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-          />
-          <NavyStatCard
-            href="/crm"
-            icon={Building2}
-            tone="orange"
-            label="Parceiros"
-            value={summary.crm.partners}
-          />
-          <NavyStatCard
             href="/courses?tab=certificates"
             icon={Award}
             tone="orange"
@@ -733,34 +711,34 @@ export function OrgDashboard() {
 
       {/* Top content */}
       {(org.topContent?.length ?? 0) > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-3 font-body font-semibold text-ink-muted">
-            Conteúdos Mais Vistos
-          </h3>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <section className="relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+          <div className="inline-flex items-center gap-3 rounded-br-[28px] bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] py-3 pl-6 pr-10 text-white">
+            <Eye size={26} strokeWidth={1.8} aria-hidden="true" />
+            <h3 className="font-body text-lg font-bold uppercase tracking-wide">
+              Conteúdos Mais Vistos
+            </h3>
+          </div>
+          <ul className="grid gap-x-10 gap-y-3 px-6 pt-4 md:grid-cols-2">
             {(org.topContent ?? []).map((c, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 rounded-control p-2 hover:bg-surface-sunken"
-              >
-                <span className="w-4 font-body text-xs font-bold text-ink-faint">
-                  #{i + 1}
+              <li key={i} className="flex items-center gap-3">
+                <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] font-body text-xs font-bold text-white">
+                  {i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-body text-sm font-medium text-ink">
+                  <p className="truncate font-body text-base text-brand-ink">
                     {c.content?.title}
                   </p>
-                  <p className="font-body text-micro text-ink-faint">
-                    {c.content?.type}
+                  <p className="font-body text-xs text-ink-muted">
+                    {FORMAT_LABEL[c.content?.type ?? ''] ?? c.content?.type}
                   </p>
                 </div>
-                <span className="shrink-0 font-body text-xs font-bold text-primary">
-                  {c.views} views
+                <span className="shrink-0 font-body text-sm font-semibold text-[#0F1F3D]">
+                  {c.views} {c.views === 1 ? 'visualização' : 'visualizações'}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       )}
 
       {/* Visão por módulo — onboarding, eventos, processos, declarações,

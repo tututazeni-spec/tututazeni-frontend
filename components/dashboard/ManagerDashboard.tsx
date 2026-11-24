@@ -35,8 +35,9 @@ import {
   RATE_BANDS,
   SpeedometerStatCard,
 } from '@/components/ui/charts/SpeedometerStatCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { STATUS_CFG } from '@/components/development-plans/constants';
+import type { PlanStatus } from '@/components/development-plans/types';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type ManagerDashboardData } from './types';
 import { pollInterval } from '@/lib/polling';
@@ -165,25 +166,24 @@ export function ManagerDashboard() {
       </div>
 
       {/* Team table */}
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="flex items-center justify-between border-b border-border bg-brand-dark px-5 py-4">
-          <h3 className="font-body font-semibold text-white">Equipa</h3>
-          <span className="font-body text-xs text-white">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="flex items-center justify-between bg-brand-dark px-5 py-3">
+          <h3 className="font-body text-xs font-semibold uppercase tracking-wider text-white">
+            Equipa
+          </h3>
+          <span className="rounded-pill bg-white/15 px-2 py-0.5 font-body text-xs text-white">
             {data?.teamSize ?? 0} colaboradores
           </span>
         </div>
         <div className="max-h-80 divide-y divide-border overflow-y-auto">
           {(data?.team ?? []).map((u) => (
-            <div
-              key={u.user.id}
-              className="flex items-center gap-3 px-5 py-3 hover:bg-surface-sunken"
-            >
+            <div key={u.user.id} className="flex items-center gap-3 px-5 py-3">
               <Avatar name={u.user.fullName} url={u.user.avatarUrl} />
               <div className="min-w-0 flex-1">
-                <p className="font-body text-sm font-medium text-ink">
+                <p className="font-body text-sm font-semibold text-ink">
                   {u.user.fullName}
                 </p>
-                <p className="font-body text-micro text-ink-faint">
+                <p className="font-body text-xs text-ink-muted">
                   {[u.user.position?.name, u.user.department?.name]
                     .filter(Boolean)
                     .join(' · ')}
@@ -194,25 +194,16 @@ export function ManagerDashboard() {
                   <p className="font-body text-xs font-medium text-ink">
                     {u.enrollment.completed}
                   </p>
-                  <p className="font-body text-micro text-ink-faint">
-                    concluídos
-                  </p>
-                </div>
-              )}
-              {typeof u.xp === 'number' && (
-                <div className="hidden shrink-0 text-center sm:block">
-                  <p className="font-body text-xs font-medium text-ink">
-                    {u.xp}
-                  </p>
-                  <p className="font-body text-micro text-ink-faint">xp</p>
+                  <p className="font-body text-xs text-ink-muted">concluídos</p>
                 </div>
               )}
               {u.plan && (
-                <div className="w-20">
-                  <ProgressBar value={u.plan.progress} />
-                  <p className="mt-0.5 text-center font-body text-micro text-ink-faint">
+                <div className="shrink-0">
+                  <p className="text-center font-body text-xs text-ink-muted">
                     {u.plan.progress}% PDI
-                    {u.plan.status ? ` · ${u.plan.status}` : ''}
+                    {u.plan.status
+                      ? ` · ${STATUS_CFG[u.plan.status as PlanStatus]?.label ?? u.plan.status}`
+                      : ''}
                   </p>
                 </div>
               )}
@@ -229,12 +220,6 @@ export function ManagerDashboard() {
                   {u.lastScore.toFixed(1)}
                 </span>
               )}
-              {u.alert && (
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full bg-danger"
-                  title="Em risco"
-                />
-              )}
             </div>
           ))}
           {(data?.team?.length ?? 0) === 0 && (
@@ -247,13 +232,9 @@ export function ManagerDashboard() {
 
       {/* Manager alerts */}
       {(data?.alerts ?? []).length > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-3 font-body font-semibold text-ink-muted">
-            <AlertTriangle
-              size={14}
-              strokeWidth={1.75}
-              className="inline align-[-2px]"
-            />{' '}
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <h3 className="-mx-5 -mt-5 mb-3.5 flex items-center gap-2 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
+            <AlertTriangle size={14} strokeWidth={1.75} />
             Alertas da Equipa
           </h3>
           <div className="space-y-2">
