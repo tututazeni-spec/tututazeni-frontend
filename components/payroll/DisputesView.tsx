@@ -90,9 +90,9 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
 
       {!isLoading && rows.length > 0 && (
         <div className="overflow-x-auto">
-          <div className="min-w-[900px] overflow-hidden rounded-card border border-border bg-surface">
+          <div className="min-w-[900px] overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div
-              className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}
+              className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white`}
             >
               <div>Colaborador</div>
               <div>Recibo</div>
