@@ -9,6 +9,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -16,8 +17,10 @@ import {
   Download,
   Eye,
   EyeOff,
+  FileText,
   Mail,
   Printer,
+  Wallet,
 } from 'lucide-react';
 import { API_URL } from '@/lib/apiClient';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -37,6 +40,60 @@ function maskString(value: string, visibleEnd = 4): string {
   const visible = value.slice(-visibleEnd);
   const masked = '•'.repeat(Math.max(0, value.length - visibleEnd));
   return masked + visible;
+}
+
+// Estado "Emitido" a verde sólido com letra branca neste card; os restantes
+// estados mantêm o mapa partilhado.
+const CARD_STATUS_MAP: typeof PAYSLIP_STATUS_MAP = {
+  ...PAYSLIP_STATUS_MAP,
+  ISSUED: { label: 'Emitido', cls: 'bg-success text-white' },
+};
+
+type InfoRow = [label: string, value: string, masked?: boolean];
+
+// Coluna de informação do recibo: título + linhas etiqueta/valor.
+function InfoColumn({
+  title,
+  rows,
+  action,
+  footer,
+}: {
+  title: string;
+  rows: InfoRow[];
+  action?: ReactNode;
+  footer?: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-2 flex items-center justify-between gap-2 border-b-2 border-[#0F1F3D] pb-2">
+        <h4 className="font-body text-xs font-bold uppercase tracking-wider text-[#0F1F3D]">
+          {title}
+        </h4>
+        {action}
+      </div>
+      <dl>
+        {rows.map(([label, value, masked]) => (
+          <div
+            key={label}
+            className="flex items-baseline justify-between gap-4 border-b border-[#DCE6F7] py-2 last:border-0"
+          >
+            <dt className="shrink-0 font-body text-xs text-ink-muted">
+              {label}
+            </dt>
+            <dd
+              className={cn(
+                'min-w-0 text-right font-body text-sm font-semibold',
+                masked ? 'tracking-widest text-ink-faint' : 'text-brand-ink',
+              )}
+            >
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {footer}
+    </div>
+  );
 }
 
 export interface PayslipDetailViewProps {
@@ -94,71 +151,58 @@ export function PayslipDetailView({
         Voltar aos recibos
       </Button>
 
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
-        {/* Cabeçalho do documento */}
-        <div className="bg-primary px-6 py-5 text-canvas">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="font-display text-base font-semibold">
-                INNOVA Angola, Lda.
-              </div>
-              <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-canvas/70">
-                <span>NIF: 5000045678</span>
-                <span>Rua da Missão, 42, Luanda</span>
-                <span>Período: {fmtPeriod(data.period)}</span>
-                {data.paymentDate && (
-                  <span>Pagamento: {fmtDate(data.paymentDate)}</span>
-                )}
-              </div>
-              <div className="mt-2 font-body text-xs text-canvas/60">
-                {data.receiptCode}
-              </div>
+      <div className="payslip-print space-y-6">
+        {/* Card 1 — empresa, colaborador e dados fiscais */}
+        <section className="print:break-inside-avoid relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+          {/* Cabeçalho do documento */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="inline-flex items-center gap-3 rounded-br-[28px] bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] py-3 pl-6 pr-10 text-white">
+              <FileText size={26} strokeWidth={1.8} aria-hidden="true" />
+              <h3 className="font-body text-lg font-bold uppercase tracking-wide">
+                Recibo de vencimento
+              </h3>
             </div>
-            <StatusBadge
-              value={data.status}
-              map={PAYSLIP_STATUS_MAP}
-              variant="dot"
-            />
+            <div className="pr-6 pt-3">
+              <StatusBadge
+                value={data.status}
+                map={CARD_STATUS_MAP}
+                variant="dot"
+                className="px-3 py-1 text-sm font-semibold"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-6 px-6 py-5">
-          {/* Info colaborador + dados fiscais */}
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                Colaborador
-              </div>
-              <div className="space-y-0">
-                {[
-                  ['Nome', data.user?.fullName ?? '—'],
-                  ['Nº Funcionário', data.user?.employeeNumber ?? '—'],
-                  ['Cargo', data.user?.position?.name ?? '—'],
-                  ['Departamento', data.user?.department?.name ?? '—'],
-                  ['Admissão', fmtDate(data.user?.hireDate ?? null)],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between border-b border-border py-1.5 last:border-0"
-                  >
-                    <span className="font-body text-xs text-ink-muted">
-                      {label}
-                    </span>
-                    <span className="font-body text-xs font-medium text-ink">
-                      {value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center gap-2">
-                <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                  Dados fiscais
-                </div>
+          <div className="grid gap-x-10 gap-y-6 px-6 pt-5 md:grid-cols-3">
+            <InfoColumn
+              title="Empresa e período"
+              rows={[
+                ['Empresa', 'INNOVA Angola, Lda.'],
+                ['NIF', '5000045678'],
+                ['Morada', 'Rua da Missão, 42, Luanda'],
+                ['Período', fmtPeriod(data.period)],
+                [
+                  'Pagamento',
+                  data.paymentDate ? fmtDate(data.paymentDate) : '—',
+                ],
+                ['Recibo', data.receiptCode],
+              ]}
+            />
+            <InfoColumn
+              title="Colaborador"
+              rows={[
+                ['Nome', data.user?.fullName ?? '—'],
+                ['Nº Funcionário', data.user?.employeeNumber ?? '—'],
+                ['Cargo', data.user?.position?.name ?? '—'],
+                ['Departamento', data.user?.department?.name ?? '—'],
+                ['Admissão', fmtDate(data.user?.hireDate ?? null)],
+              ]}
+            />
+            <InfoColumn
+              title="Dados fiscais"
+              action={
                 <LinkButton
                   onClick={() => setMaskedData((m) => !m)}
-                  className="flex items-center gap-1 font-body text-xs"
+                  className="flex items-center gap-1 font-body text-xs normal-case tracking-normal"
                 >
                   {maskedData ? (
                     <>
@@ -170,154 +214,148 @@ export function PayslipDetailView({
                     </>
                   )}
                 </LinkButton>
-              </div>
-              <div className="space-y-0">
-                {[
-                  [
-                    'NIF/BI',
-                    maskedData
-                      ? maskString(data.user?.nif ?? '', 3)
-                      : (data.user?.nif ?? '—'),
-                  ],
-                  [
-                    'NIB',
-                    maskedData
-                      ? maskString(data.user?.nib ?? '', 4)
-                      : (data.user?.nib ?? '—'),
-                  ],
-                  ['INSS colaborador', '3%'],
-                  ['INSS empregador', '8%'],
-                  [
-                    'Escalão IRT',
-                    data.irtBracketRate !== null
-                      ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%`
-                      : '—',
-                  ],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between border-b border-border py-1.5 last:border-0"
-                  >
-                    <span className="font-body text-xs text-ink-muted">
-                      {label}
-                    </span>
-                    <span
-                      className={cn(
-                        'font-body text-xs font-medium',
-                        maskedData && (label === 'NIF/BI' || label === 'NIB')
-                          ? 'tracking-widest text-ink-faint'
-                          : 'text-ink',
-                      )}
-                    >
-                      {value}
-                    </span>
+              }
+              rows={[
+                [
+                  'NIF/BI',
+                  maskedData
+                    ? maskString(data.user?.nif ?? '', 3)
+                    : (data.user?.nif ?? '—'),
+                  maskedData,
+                ],
+                [
+                  'NIB',
+                  maskedData
+                    ? maskString(data.user?.nib ?? '', 4)
+                    : (data.user?.nib ?? '—'),
+                  maskedData,
+                ],
+                ['INSS colaborador', '3%'],
+                ['INSS empregador', '8%'],
+                [
+                  'Escalão IRT',
+                  data.irtBracketRate !== null
+                    ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%`
+                    : '—',
+                ],
+              ]}
+              footer={
+                data.irtFormula ? (
+                  <div className="mt-2 rounded-control bg-warning-subtle p-2 font-body text-xs text-warning-ink">
+                    {data.irtFormula}
                   </div>
-                ))}
-              </div>
-              {data.irtFormula && (
-                <div className="mt-2 rounded-control bg-warning-subtle p-2 font-body text-xs text-warning-ink">
-                  {data.irtFormula}
-                </div>
+                ) : null
+              }
+            />
+          </div>
+        </section>
+
+        {/* Card 2 — remunerações, deduções, resumo e acções */}
+        <section className="print:break-before-page print:break-inside-avoid relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+          <div className="inline-flex items-center gap-3 rounded-br-[28px] bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] py-3 pl-6 pr-10 text-white">
+            <Wallet size={26} strokeWidth={1.8} aria-hidden="true" />
+            <h3 className="font-body text-lg font-bold uppercase tracking-wide">
+              Remunerações e deduções
+            </h3>
+          </div>
+          <div className="space-y-6 px-6 pt-5">
+            {/* Remunerações / Deduções / Resumo final */}
+            <PayslipAmountBreakdown payslip={data} compact />
+
+            {/* Acções */}
+            <div className="flex flex-wrap items-center gap-3 border-t border-[#DCE6F7] pt-5 print:hidden">
+              <a
+                href={`${API_URL}/payslips/my/${payslipId}/pdf`}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonVariants({ intent: 'primary', size: 'md' })}
+              >
+                <Download size={16} strokeWidth={1.75} />
+                Download PDF
+              </a>
+              <Button intent="secondary" onClick={() => window.print()}>
+                <Printer size={16} strokeWidth={1.75} />
+                Imprimir
+              </Button>
+              <Button intent="secondary">
+                <Mail size={16} strokeWidth={1.75} />
+                Enviar por email
+              </Button>
+
+              {data.status === 'ISSUED' && (
+                <Button
+                  intent="success"
+                  loading={acknowledging}
+                  onClick={onAcknowledge}
+                  className="ml-auto"
+                >
+                  {!acknowledging && (
+                    <CheckCircle2 size={16} strokeWidth={1.75} />
+                  )}
+                  {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
+                </Button>
               )}
-            </div>
-          </div>
 
-          {/* Remunerações / Deduções / Resumo final */}
-          <PayslipAmountBreakdown payslip={data} />
-
-          {/* Acções */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <a
-              href={`${API_URL}/payslips/my/${payslipId}/pdf`}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonVariants({ intent: 'primary', size: 'md' })}
-            >
-              <Download size={16} strokeWidth={1.75} />
-              Download PDF
-            </a>
-            <Button intent="secondary">
-              <Printer size={16} strokeWidth={1.75} />
-              Imprimir
-            </Button>
-            <Button intent="secondary">
-              <Mail size={16} strokeWidth={1.75} />
-              Enviar por email
-            </Button>
-
-            {data.status === 'ISSUED' && (
-              <Button
-                intent="success"
-                loading={acknowledging}
-                onClick={onAcknowledge}
-                className="ml-auto"
-              >
-                {!acknowledging && (
-                  <CheckCircle2 size={16} strokeWidth={1.75} />
-                )}
-                {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
-              </Button>
-            )}
-
-            {data.status !== 'DISPUTED' && (
-              <Button
-                intent="danger"
-                onClick={() => dispatchDispute({ type: 'OPEN' })}
-              >
-                <AlertTriangle size={16} strokeWidth={1.75} />
-                Abrir disputa
-              </Button>
-            )}
-          </div>
-
-          {/* Modal disputa (inline) */}
-          {dispute.open && (
-            <div className="space-y-3 rounded-card border border-danger/30 bg-danger-subtle p-4">
-              <div className="font-body text-sm font-medium text-danger-ink">
-                Abrir disputa sobre este recibo
-              </div>
-              <Input
-                className="w-full"
-                placeholder="Motivo da disputa *"
-                value={dispute.reason}
-                onChange={(e) =>
-                  dispatchDispute({
-                    type: 'SET_REASON',
-                    reason: e.target.value,
-                  })
-                }
-              />
-              <Textarea
-                className="w-full resize-none"
-                placeholder="Detalhes adicionais (opcional)"
-                rows={3}
-                value={dispute.details}
-                onChange={(e) =>
-                  dispatchDispute({
-                    type: 'SET_DETAILS',
-                    details: e.target.value,
-                  })
-                }
-              />
-              <div className="flex gap-2">
+              {data.status !== 'DISPUTED' && (
                 <Button
                   intent="danger"
-                  loading={dispute.submitting}
-                  disabled={!dispute.reason.trim()}
-                  onClick={onSubmitDispute}
+                  onClick={() => dispatchDispute({ type: 'OPEN' })}
                 >
-                  {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
+                  <AlertTriangle size={16} strokeWidth={1.75} />
+                  Abrir disputa
                 </Button>
-                <Button
-                  intent="secondary"
-                  onClick={() => dispatchDispute({ type: 'CLOSE' })}
-                >
-                  Cancelar
-                </Button>
-              </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* Modal disputa (inline) */}
+            {dispute.open && (
+              <div className="space-y-3 rounded-card border border-danger/30 bg-danger-subtle p-4">
+                <div className="font-body text-sm font-medium text-danger-ink">
+                  Abrir disputa sobre este recibo
+                </div>
+                <Input
+                  className="w-full"
+                  placeholder="Motivo da disputa *"
+                  value={dispute.reason}
+                  onChange={(e) =>
+                    dispatchDispute({
+                      type: 'SET_REASON',
+                      reason: e.target.value,
+                    })
+                  }
+                />
+                <Textarea
+                  className="w-full resize-none"
+                  placeholder="Detalhes adicionais (opcional)"
+                  rows={3}
+                  value={dispute.details}
+                  onChange={(e) =>
+                    dispatchDispute({
+                      type: 'SET_DETAILS',
+                      details: e.target.value,
+                    })
+                  }
+                />
+                <div className="flex gap-2">
+                  <Button
+                    intent="danger"
+                    loading={dispute.submitting}
+                    disabled={!dispute.reason.trim()}
+                    onClick={onSubmitDispute}
+                  >
+                    {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
+                  </Button>
+                  <Button
+                    intent="secondary"
+                    onClick={() => dispatchDispute({ type: 'CLOSE' })}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

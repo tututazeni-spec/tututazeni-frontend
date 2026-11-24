@@ -558,3 +558,26 @@ select:focus {
     display: none !important;
   }
 }
+
+/* Impressão do recibo (PayslipDetailView): só o conteúdo de .payslip-print
+   sai no papel — menu lateral, cabeçalho e botões ficam de fora. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .payslip-print,
+  .payslip-print * {
+    visibility: visible;
+  }
+  .payslip-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .payslip-print,
+  .payslip-print * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -32,6 +32,12 @@ export interface PayslipAmountBreakdownProps {
     | 'netSalary'
     | 'irtBracketRate'
   >;
+  /**
+   * Versão sem painéis ilustrados, para dentro de um card que já tem o seu
+   * próprio título: duas colunas (Remunerações / Deduções) com total em
+   * destaque e uma faixa com o salário líquido.
+   */
+  compact?: boolean;
 }
 
 // Cores medidas na imagem de referência.
@@ -198,8 +204,53 @@ function SummaryIllustration() {
   );
 }
 
+function CompactColumn({
+  title,
+  rows,
+  totalLabel,
+  total,
+  minus,
+}: {
+  title: string;
+  rows: Row[];
+  totalLabel: string;
+  total: string;
+  minus?: boolean;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col">
+      <h4 className="mb-2 border-b-2 border-[#0F1F3D] pb-2 font-body text-xs font-bold uppercase tracking-wider text-[#0F1F3D]">
+        {title}
+      </h4>
+      <dl>
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            className="flex items-baseline justify-between gap-4 border-b border-[#DCE6F7] py-2 last:border-0"
+          >
+            <dt className="font-body text-xs text-ink-muted">
+              {r.label}
+              {r.sub && <span className="ml-2 text-ink-faint">{r.sub}</span>}
+            </dt>
+            <dd className="shrink-0 text-right font-body text-sm font-semibold text-brand-ink">
+              {minus ? '− ' : ''}
+              {fmtKz(r.amount)}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {/* mt-auto: os dois totais ficam alinhados na mesma linha, mesmo com
+          número de linhas diferente em cada coluna. */}
+      <div className="mt-auto pt-3">
+        <TotalPill label={totalLabel} value={total} />
+      </div>
+    </div>
+  );
+}
+
 export function PayslipAmountBreakdown({
   payslip: data,
+  compact,
 }: PayslipAmountBreakdownProps) {
   const irtSub =
     data.irtBracketRate !== null
@@ -248,6 +299,40 @@ export function PayslipAmountBreakdown({
       amount: data.otherDeductions,
     },
   ].filter(Boolean) as Row[];
+
+  if (compact) {
+    return (
+      <div className="space-y-5">
+        <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
+          <CompactColumn
+            title="Remunerações"
+            rows={earnings}
+            totalLabel="Total bruto"
+            total={fmtKz(data.grossSalary)}
+          />
+          <CompactColumn
+            title="Deduções"
+            rows={deductions}
+            minus
+            totalLabel="Total deduções"
+            total={`− ${fmtKz(data.totalDeductions)}`}
+          />
+        </div>
+        <div
+          className="flex items-center justify-between gap-4 rounded-[16px] px-5 py-4 text-white"
+          style={{ background: NAVY_GRADIENT }}
+        >
+          <span className="flex items-center gap-2 font-body text-sm font-bold">
+            <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+            Salário líquido
+          </span>
+          <span className="font-display text-2xl font-bold">
+            {fmtKz(data.netSalary)}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
