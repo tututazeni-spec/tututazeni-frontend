@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader, TotalPill } from './PayslipAmountBreakdown';
+import { componentLabel } from './componentLabels';
 import { CompensationFormModal } from './CompensationFormModal';
 import { CompensationComponentsEditor } from './CompensationComponentsEditor';
 import type { EmployeeCompensation } from './types';
@@ -112,9 +113,6 @@ export function CompensationDetailView({
                 <div className="font-body text-xs font-semibold tabular-nums text-black">
                   {fmtKz(r.baseSalary)}
                 </div>
-                <div className="font-body text-xs text-black">
-                  {r.components.length} comp.
-                </div>
               </div>
               {open && (
                 <div className="mb-1 rounded-[8px] bg-[#EAF0FB] px-5 py-1">
@@ -127,7 +125,7 @@ export function CompensationDetailView({
                         className="flex items-center justify-between py-0 font-body text-xs text-black"
                       >
                         <span className="font-body text-xs">
-                          {c.componentCode}
+                          {componentLabel(c.componentCode)}
                         </span>
                         <span className="font-body tabular-nums">
                           {fmtKz(c.value)}

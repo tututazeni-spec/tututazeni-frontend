@@ -135,6 +135,6 @@ describe('CompensationDetailView', () => {
     fireEvent.click(
       screen.getAllByRole('button', { name: /ver componentes/i })[0],
     );
-    expect(screen.getByText('TRANSPORT')).toBeInTheDocument();
+    expect(screen.getByText('Transport')).toBeInTheDocument();
   });
 });

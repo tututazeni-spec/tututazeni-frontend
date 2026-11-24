@@ -159,7 +159,7 @@ describe('CompensationComponentsEditor', () => {
       />,
     );
     // the option is surfaced labelled "(inactivo)" so the admin can see the row
-    expect(screen.getByText(/BONUS_2024 — \(inactivo\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bonus 2024 \(inactivo\)/i)).toBeInTheDocument();
     // and Guardar still round-trips that code untouched
     fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));

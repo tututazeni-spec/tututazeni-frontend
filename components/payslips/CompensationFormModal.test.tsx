@@ -134,8 +134,9 @@ describe('CompensationFormModal', () => {
       />,
     );
     // bank details carried forward from the current record
-    expect(screen.getByLabelText('Banco')).toHaveValue('BAI');
-    expect(screen.getByLabelText('IBAN')).toHaveValue('AO0600');
+    expect(screen.getByText('BAI')).toBeInTheDocument();
+    // o prefixo AO06 é fixo; o campo só mostra os dígitos
+    expect(screen.getByLabelText('IBAN')).toHaveValue('00');
     expect(screen.getByLabelText('Nº de conta')).toHaveValue('123');
     // base salary intentionally blank — a new version means a new figure
     expect(screen.getByLabelText(/Salário base/i)).toHaveValue(null);
