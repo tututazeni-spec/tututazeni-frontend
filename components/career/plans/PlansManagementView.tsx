@@ -225,9 +225,9 @@ export function PlansManagementView() {
                         type="button"
                         disabled={deletePlan.isPending}
                         onClick={() => handleDelete(plan)}
-                        className="inline-flex h-[29px] shrink-0 items-center gap-1.5 rounded-[9px] bg-brand px-[13px] font-body text-[11px] font-bold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[11px] bg-brand px-4 font-body text-sm font-bold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        <Trash2 size={12} strokeWidth={1.75} /> Apagar
+                        <Trash2 size={15} strokeWidth={1.75} /> Apagar
                       </button>
                     </div>
 
