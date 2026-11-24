@@ -350,41 +350,55 @@ export function DashboardView() {
           {/* Plano de Carreira */}
           {careerPlan && (
             <NavyHeroCard className="flex-col items-start gap-0">
-              <div className="mb-1 font-body text-xs font-semibold uppercase tracking-widest text-white/80">
+              <div className="mb-1 font-body text-xs font-semibold uppercase tracking-widest text-white">
                 Plano activo
               </div>
-              <div className="w-full truncate font-body text-sm font-medium text-white">
+              <div className="w-full font-body text-base font-semibold leading-snug text-white">
                 {careerPlan.title}
               </div>
+
               {(careerPlan.currentRole || careerPlan.targetRole) && (
-                <div className="mt-1 flex items-center gap-2 font-body text-xs text-white/80">
-                  {careerPlan.currentRole && (
-                    <span>{careerPlan.currentRole.name}</span>
-                  )}
-                  {careerPlan.targetRole && (
-                    <>
-                      <ChevronRight size={14} strokeWidth={1.75} />
-                      <span className="font-medium text-white">
-                        {careerPlan.targetRole.name}
-                      </span>
-                    </>
-                  )}
+                <div className="mt-3 grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-card bg-white/10 px-3 py-2">
+                  <div className="min-w-0">
+                    <div className="font-body text-xs uppercase tracking-wider text-white">
+                      Cargo atual
+                    </div>
+                    <div className="truncate font-body text-sm text-white">
+                      {careerPlan.currentRole?.name ?? '—'}
+                    </div>
+                  </div>
+                  <ChevronRight
+                    size={16}
+                    strokeWidth={1.75}
+                    className="text-white"
+                  />
+                  <div className="min-w-0">
+                    <div className="font-body text-xs uppercase tracking-wider text-white">
+                      Cargo pretendido
+                    </div>
+                    <div className="truncate font-body text-sm font-semibold text-white">
+                      {careerPlan.targetRole?.name ?? '—'}
+                    </div>
+                  </div>
                 </div>
               )}
-              <div className="mt-1 font-body text-xs text-white/80">
-                {careerPlan.goals?.length ?? 0} objetivos
+
+              <div className="mt-3 flex w-full flex-wrap items-center gap-2 font-body text-xs text-white">
+                <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                  {careerPlan.goals?.length ?? 0} objetivos
+                </span>
+                {careerPlan.targetDate && (
+                  <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                    Alvo:{' '}
+                    {new Date(careerPlan.targetDate).toLocaleDateString(
+                      'pt-AO',
+                      { month: 'short', year: 'numeric' },
+                    )}
+                  </span>
+                )}
               </div>
-              {careerPlan.targetDate && (
-                <div className="mt-1 font-body text-xs text-white">
-                  Alvo:{' '}
-                  {new Date(careerPlan.targetDate).toLocaleDateString('pt-AO', {
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </div>
-              )}
               <div className="mt-3 w-full">
-                <div className="mb-1 flex justify-between font-body text-xs text-white/80">
+                <div className="mb-1 flex justify-between font-body text-xs text-white">
                   <span>Progresso</span>
                   <span>{planProgress}%</span>
                 </div>

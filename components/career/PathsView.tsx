@@ -112,7 +112,7 @@ export function PathsView() {
 
                 {first ? (
                   <div className="flex h-[52px] min-w-0 items-center gap-3 border-l border-brand-line pl-5">
-                    <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[#2563EB] font-body text-lg font-bold text-white">
+                    <span className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#4F8DF7] to-[#1D4ED8] font-display text-xl font-extrabold tabular-nums text-white shadow-[0_6px_14px_rgba(37,99,235,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] ring-1 ring-inset ring-white/25">
                       {first.order}
                     </span>
                     <div className="min-w-0">
