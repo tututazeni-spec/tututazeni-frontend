@@ -29,7 +29,7 @@ import type { Paginated } from './types';
 import type { EmployeeProfile, RunEmployeeRow } from './insightTypes';
 
 const TH =
-  'whitespace-nowrap px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint';
+  'whitespace-nowrap px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-label';
 const TD = 'whitespace-nowrap px-3 py-3';
 
 function EmployeeProfileView({
@@ -104,7 +104,7 @@ function EmployeeProfileView({
               />
             ) : (
               <>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-label">
                   Remuneração base e componentes
                 </h3>
                 <EmptyState
@@ -116,7 +116,7 @@ function EmployeeProfileView({
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-label">
               Recibos e pagamentos
             </h3>
             <div className="overflow-x-auto rounded-card border border-border bg-surface">

@@ -388,7 +388,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
 
           {/* Indicadores do período */}
           <div>
-            <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Período: processos iniciados entre{' '}
               {formatDateNumeric(data.range.from)} e{' '}
               {formatDateNumeric(data.range.to)}
@@ -496,7 +496,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
 
           {/* Estado actual */}
           <div>
-            <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Estado actual (independente do período)
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -621,7 +621,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           {/* Agrupamento */}
           <div className="rounded-card border border-border bg-surface">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Agrupamento
               </div>
               <Select

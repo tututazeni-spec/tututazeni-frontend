@@ -187,7 +187,7 @@ export function CompensationDetailView({
           {current ? (
             <div className="mb-6">
               <div className="mb-2 flex items-center gap-2">
-                <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+                <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
                   Registo activo
                 </h3>
               </div>

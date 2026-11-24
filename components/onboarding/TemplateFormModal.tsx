@@ -381,7 +381,7 @@ export function TemplateFormModal({
             </div>
           )}
 
-          <div className="text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="text-xs font-medium text-ink-label uppercase tracking-wide">
             Informações gerais
           </div>
 
@@ -538,7 +538,7 @@ export function TemplateFormModal({
           {!editing && (
             <>
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                <div className="text-xs font-medium text-ink-faint uppercase tracking-wide">
+                <div className="text-xs font-medium text-ink-label uppercase tracking-wide">
                   Estrutura (Tarefas, Formação, Documentos, Acessos, Políticas,
                   Reuniões, Avaliações…)
                 </div>

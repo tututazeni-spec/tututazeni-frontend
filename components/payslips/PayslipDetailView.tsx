@@ -77,7 +77,7 @@ function InfoColumn({
   return (
     <div className="min-w-0">
       <div className="mb-2 flex items-center justify-between gap-2 border-b-2 border-[#0F1F3D] pb-2">
-        <h4 className="font-body text-xs font-bold uppercase tracking-wider text-[#0F1F3D]">
+        <h4 className="font-body text-xs font-bold uppercase tracking-wider text-ink-label">
           {title}
         </h4>
         {action}
@@ -302,12 +302,13 @@ export function PayslipDetailView({
                 {data.status === 'ISSUED' && (
                   <Button
                     intent="success"
+                    size="sm"
                     loading={acknowledging}
                     onClick={onAcknowledge}
                     className="ml-auto"
                   >
                     {!acknowledging && (
-                      <CheckCircle2 size={16} strokeWidth={1.75} />
+                      <CheckCircle2 size={14} strokeWidth={1.75} />
                     )}
                     {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
                   </Button>
@@ -316,9 +317,10 @@ export function PayslipDetailView({
                 {data.status !== 'DISPUTED' && (
                   <Button
                     intent="danger"
+                    size="sm"
                     onClick={() => dispatchDispute({ type: 'OPEN' })}
                   >
-                    <AlertTriangle size={16} strokeWidth={1.75} />
+                    <AlertTriangle size={14} strokeWidth={1.75} />
                     Abrir disputa
                   </Button>
                 )}

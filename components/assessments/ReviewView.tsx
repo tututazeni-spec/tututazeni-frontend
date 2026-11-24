@@ -53,7 +53,7 @@ export function ReviewView() {
     <div className="grid grid-cols-[280px_1fr] gap-5">
       {/* Attempts list */}
       <div className="space-y-2">
-        <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-2">
+        <div className="text-xs font-medium text-ink-label uppercase tracking-wide mb-2">
           Histórico
         </div>
         {attempts.length === 0 && (

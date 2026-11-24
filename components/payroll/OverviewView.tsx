@@ -36,7 +36,7 @@ function Section({
 }) {
   return (
     <section>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         {title}
       </h3>
       {/* Cartas largas: um montante de 7+ dígitos em AOA (ex.: 1 234 567 AOA) tem de caber inteiro. */}
@@ -166,7 +166,7 @@ export function OverviewView() {
           </Section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
               Valores
             </h3>
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">

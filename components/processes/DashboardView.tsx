@@ -455,7 +455,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           {/* Instâncias recentes */}
           {data.recentInstances.length > 0 && (
             <div>
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Instâncias recentes
               </div>
               <div className="overflow-hidden rounded-card border border-border bg-surface">

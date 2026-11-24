@@ -249,7 +249,7 @@ function CompactColumn({
 }) {
   return (
     <div className="flex min-w-0 flex-col">
-      <h4 className="mb-2 border-b-2 border-[#0F1F3D] pb-2 font-body text-xs font-bold uppercase tracking-wider text-[#0F1F3D]">
+      <h4 className="mb-2 border-b-2 border-[#0F1F3D] pb-2 font-body text-xs font-bold uppercase tracking-wider text-ink-label">
         {title}
       </h4>
       <dl>

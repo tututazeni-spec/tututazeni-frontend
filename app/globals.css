@@ -187,6 +187,7 @@ table > thead th {
   --color-ink: #20241f;
   --color-ink-muted: #6e756b;
   --color-ink-faint: #9aa097;
+  --color-ink-label: #0f1f3d; /* rótulos/títulos de secção e cabeçalhos de tabela (navy) */
 
   /* marca */
   --color-primary: #163a2e;
@@ -305,6 +306,7 @@ table > thead th {
   --color-ink: #e6e9ef;
   --color-ink-muted: #a3acba;
   --color-ink-faint: #8590a2;
+  --color-ink-label: #8aa6d6;
 
   /* marca */
   --color-primary: #2a8160;
@@ -381,6 +383,7 @@ table > thead th {
     --color-ink: #e6e9ef;
     --color-ink-muted: #a3acba;
     --color-ink-faint: #8590a2;
+    --color-ink-label: #8aa6d6;
 
     /* marca */
     --color-primary: #2a8160;

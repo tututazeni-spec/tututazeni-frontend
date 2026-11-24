@@ -55,7 +55,7 @@ export function AdminView({
       {/* Por categoria */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="p-4">
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
             Por categoria
           </div>
           {stats.byCategory.map((c) => {
@@ -78,7 +78,7 @@ export function AdminView({
 
         {/* Envio em massa */}
         <Card className="p-4">
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
             Enviar a todos
           </div>
           <div className="space-y-3">

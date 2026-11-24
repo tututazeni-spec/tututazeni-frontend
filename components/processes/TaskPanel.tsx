@@ -45,7 +45,7 @@ type Sub =
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-ink-label">{label}</div>
     <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
   </div>
 );
@@ -235,7 +235,7 @@ export function TaskPanel({ instanceId, stepId, onClose }: TaskPanelProps) {
           {/* Dependências */}
           {t.dependencies.length > 0 && (
             <div className="mt-5">
-              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Depende de
               </h4>
               <ul className="space-y-1">
@@ -257,7 +257,7 @@ export function TaskPanel({ instanceId, stepId, onClose }: TaskPanelProps) {
           {/* Checklist / subtarefas */}
           {t.checklist.items.length > 0 && (
             <div className="mt-5">
-              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Lista de verificação ({t.checklist.done.length}/{t.checklist.items.length})
               </h4>
               <ul className="space-y-1.5">
@@ -319,7 +319,7 @@ export function TaskPanel({ instanceId, stepId, onClose }: TaskPanelProps) {
 
           {/* Comentários */}
           <div className="mt-5">
-            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Comentários
             </h4>
             <ul className="space-y-2">

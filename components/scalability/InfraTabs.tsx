@@ -808,7 +808,7 @@ export function ResilienceTab({
                 <tr key={c.key} className="border-t border-border">
                   <td className="py-2 text-ink">{c.label}</td>
                   <td className="py-2 text-ink-muted">{c.detail}</td>
-                  <td className="py-2 text-right text-micro uppercase text-ink-faint">
+                  <td className="py-2 text-right text-micro uppercase text-ink-label">
                     {c.source === 'MEDIDO' ? 'medido' : 'declarado'}
                   </td>
                   <td className="py-2 text-right">

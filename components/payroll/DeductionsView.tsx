@@ -30,7 +30,7 @@ const pct = (r: number) => `${(r * 100).toFixed(2).replace(/\.?0+$/, '')}%`;
 const TH =
   'px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white';
 const H3 =
-  'mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint';
+  'mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label';
 
 export function DeductionsView() {
   const notify = useToast();

@@ -244,7 +244,7 @@ function SnapshotsPanel() {
             <div className="mb-5 overflow-x-auto">
               <table className="w-full min-w-[480px] font-body text-sm">
                 <thead>
-                  <tr className="text-left text-xs text-ink-faint">
+                  <tr className="text-left text-xs text-ink-label">
                     <th className="pb-2">Período</th>
                     <th className="pb-2">Utilizadores</th>
                     <th className="pb-2">Inscrições</th>

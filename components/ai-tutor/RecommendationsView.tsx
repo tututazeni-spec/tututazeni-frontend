@@ -79,7 +79,7 @@ export function RecommendationsView() {
       {/* Gaps */}
       {data.competencyGaps.length > 0 && (
         <Card className="p-4">
-          <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+          <div className="font-body text-xs font-medium text-ink-label uppercase tracking-wide mb-3">
             Lacunas de competência identificados
           </div>
           <div className="flex flex-wrap gap-2">

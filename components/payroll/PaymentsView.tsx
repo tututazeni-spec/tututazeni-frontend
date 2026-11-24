@@ -52,7 +52,7 @@ function Field({
 }) {
   return (
     <div className={wide ? 'col-span-2' : undefined}>
-      <dt className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+      <dt className="font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
         {label}
       </dt>
       <dd

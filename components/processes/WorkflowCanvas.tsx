@@ -222,7 +222,7 @@ export function WorkflowCanvas({
               } ${readOnly ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}`}
               style={{ left: n.x, top: n.y, width: NODE_W, height: NODE_H }}
             >
-              <div className="font-body text-micro uppercase tracking-wide text-ink-faint">{meta.label}</div>
+              <div className="font-body text-micro uppercase tracking-wide text-ink-label">{meta.label}</div>
               <div className="truncate font-body text-sm font-medium text-ink">{n.title || 'Sem nome'}</div>
               <div className="truncate font-body text-micro text-ink-muted">
                 {n.type === 'REVIEW'

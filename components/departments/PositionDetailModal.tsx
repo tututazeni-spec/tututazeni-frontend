@@ -40,7 +40,7 @@ function fmtMoney(value: number | null) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-ink-faint">{label}</dt>
+      <dt className="text-xs uppercase tracking-wide text-ink-label">{label}</dt>
       <dd className="mt-1 text-sm text-ink">{children}</dd>
     </div>
   );
@@ -186,7 +186,7 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
             )}
 
             <div>
-              <dt className="mb-2 text-xs uppercase tracking-wide text-ink-faint">
+              <dt className="mb-2 text-xs uppercase tracking-wide text-ink-label">
                 Colaboradores neste cargo ({p.users.length})
               </dt>
               {p.users.length === 0 ? (
@@ -242,7 +242,7 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
 
             {p.internalVacancies.length > 0 && (
               <div>
-                <dt className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-ink-faint">
+                <dt className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-ink-label">
                   <Briefcase size={13} strokeWidth={1.75} />
                   Vagas associadas
                 </dt>

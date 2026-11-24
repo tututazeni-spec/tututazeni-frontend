@@ -52,7 +52,7 @@ export function LoadingRows() {
 export function RateGauge({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex min-h-[155px] flex-col items-center justify-center gap-2">
-      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
         {label}
       </h3>
       <SpeedometerChart

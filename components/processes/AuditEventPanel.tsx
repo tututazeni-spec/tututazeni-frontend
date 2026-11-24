@@ -25,7 +25,7 @@ export interface AuditEventPanelProps {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
+      <div className="font-body text-xs uppercase tracking-wide text-ink-label">{label}</div>
       <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
     </div>
   );
@@ -92,7 +92,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
 
             {e.meta && Object.keys(e.meta).length > 0 && (
               <div>
-                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Alterações e dados do evento
                 </div>
                 <dl className="divide-y divide-border rounded-card border border-border">
@@ -108,7 +108,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
 
             {e.approval && (
               <div className="rounded-card border border-border p-3">
-                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Decisão associada
                 </div>
                 <div className="font-body text-sm text-ink">
@@ -124,7 +124,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
 
             {e.document && (
               <div className="rounded-card border border-border p-3">
-                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Documento associado
                 </div>
                 <div className="font-body text-sm text-ink">
@@ -140,7 +140,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="rounded-card border border-border p-3">
-                <div className="font-body text-xs uppercase tracking-wide text-ink-faint">Evento anterior</div>
+                <div className="font-body text-xs uppercase tracking-wide text-ink-label">Evento anterior</div>
                 {e.previousEvent ? (
                   <LinkButton
                     type="button"
@@ -154,7 +154,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
                 )}
               </div>
               <div className="rounded-card border border-border p-3">
-                <div className="font-body text-xs uppercase tracking-wide text-ink-faint">
+                <div className="font-body text-xs uppercase tracking-wide text-ink-label">
                   Próxima acção desencadeada
                 </div>
                 {e.nextEvent ? (

@@ -79,6 +79,8 @@ export function SimulateView() {
   const canEditRules = useHasRole(ADMIN_ROLES);
   const [editingRules, setEditingRules] = useState(false);
   const [form, setForm] = useState<Record<FormKey, number>>(EMPTY_FORM);
+  // Texto em edição por campo: permite apagar tudo e reescrever sem o 0 forçado.
+  const [drafts, setDrafts] = useState<Partial<Record<FormKey, string>>>({});
 
   // Os dados salariais do próprio utilizador (compensação actual) preenchem o
   // formulário, para o simulador partir exactamente do que o recibo usa.
@@ -203,12 +205,20 @@ export function SimulateView() {
                       id={`sim-${key}`}
                       type="number"
                       min={0}
-                      value={form[key]}
-                      onChange={(e) =>
+                      value={drafts[key] ?? form[key]}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        setDrafts((prev) => ({ ...prev, [key]: raw }));
                         setForm((prev) => ({
                           ...prev,
-                          [key]: parseFloat(e.target.value) || 0,
-                        }))
+                          [key]: parseFloat(raw) || 0,
+                        }));
+                      }}
+                      onBlur={() =>
+                        setDrafts((prev) => {
+                          const { [key]: _omit, ...rest } = prev;
+                          return rest;
+                        })
                       }
                       className="w-full"
                     />

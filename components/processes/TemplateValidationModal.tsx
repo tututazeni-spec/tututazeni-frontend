@@ -81,7 +81,7 @@ export function TemplateValidationModal({
 
               {r.simulation.length > 0 && (
                 <div>
-                  <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                     Simulação de execução
                   </h4>
                   <ol className="space-y-2">

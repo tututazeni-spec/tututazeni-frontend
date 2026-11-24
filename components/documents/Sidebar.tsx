@@ -37,7 +37,7 @@ export function Sidebar({
 
       {/* Quick filters */}
       <div>
-        <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-ink-label uppercase tracking-wider mb-2">
           Filtros
         </p>
         <div className="space-y-1">
@@ -78,7 +78,7 @@ export function Sidebar({
 
       {/* Categories */}
       <div>
-        <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-ink-label uppercase tracking-wider mb-2">
           Categorias
         </p>
         <div className="space-y-1">
@@ -103,7 +103,7 @@ export function Sidebar({
       {/* Tag cloud */}
       {allTags.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
+          <p className="text-xs font-semibold text-ink-label uppercase tracking-wider mb-2">
             Tags
           </p>
           <div className="flex flex-wrap gap-1.5">

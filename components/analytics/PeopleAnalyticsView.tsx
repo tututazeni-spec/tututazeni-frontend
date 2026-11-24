@@ -93,7 +93,7 @@ function DepartmentDetail({ departmentId }: { departmentId: number }) {
       </div>
       {data.topCompetencies.length > 0 && (
         <div>
-          <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
             Top competências
           </div>
           <div className="space-y-2">

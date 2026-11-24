@@ -154,7 +154,7 @@ export function PDIAnalyticsView() {
       {/* Acções por tipo */}
       <Card>
         <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
             Acções por tipo
           </div>
           <div className="flex flex-wrap gap-2">

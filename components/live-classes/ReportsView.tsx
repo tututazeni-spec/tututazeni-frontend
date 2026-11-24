@@ -168,7 +168,7 @@ export function ReportsView() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Participantes e presença
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -210,7 +210,7 @@ export function ReportsView() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Avaliação
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

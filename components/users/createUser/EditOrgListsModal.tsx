@@ -45,7 +45,7 @@ function ListEditor({
 }) {
   return (
     <div>
-      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-label">
         {title}
       </div>
       <div className="space-y-2">

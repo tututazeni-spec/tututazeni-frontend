@@ -171,7 +171,7 @@ export function AdminPayslipDetailView({
 
       {data.disputes.length > 0 && (
         <div className="mb-8">
-          <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+          <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
             Disputas
           </h3>
           <div className="space-y-3">

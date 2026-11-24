@@ -415,7 +415,7 @@ function ExportModal({
             )}
 
             <div>
-              <div className="mb-2 font-medium uppercase tracking-wide text-ink-faint">
+              <div className="mb-2 font-medium uppercase tracking-wide text-ink-label">
                 Histórico de acessos
               </div>
               {item.accesses.length === 0 ? (

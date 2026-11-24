@@ -93,7 +93,7 @@ export function ExceptionsPanel({
 
   return (
     <div>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         Exceções
       </h3>
       {isLoading && <Skeleton rows={4} />}

@@ -88,7 +88,7 @@ export function StepInspector({
     <aside className="flex h-full w-[360px] shrink-0 flex-col rounded-card border border-border bg-surface">
       <div className="flex items-start justify-between gap-2 border-b border-border p-3">
         <div className="min-w-0">
-          <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{meta.label}</div>
+          <div className="font-body text-xs uppercase tracking-wide text-ink-label">{meta.label}</div>
           <div className="truncate font-body text-sm font-medium text-ink">{node.title || 'Sem nome'}</div>
         </div>
         <IconButton icon={X} label="Fechar" intent="ghost" size="compact" type="button" onClick={onClose} />
@@ -137,7 +137,7 @@ export function StepInspector({
               <UserPicker value={node.reviewerId} onChange={(v) => onChange({ reviewerId: v })} className="w-full" />
             </FormField>
             <div>
-              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Depende de (entradas)
               </div>
               {others.length === 0 && <EmptyState variant="inline" title="Sem outras etapas" />}
@@ -178,7 +178,7 @@ export function StepInspector({
             {node.type === 'NOTIFICATION' && (
               <>
                 <div>
-                  <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Destinatários *</div>
+                  <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">Destinatários *</div>
                   <RecipientPicker value={node.recipients} onChange={(v) => onChange({ recipients: v })} disabled={readOnly} />
                 </div>
                 <FormField label="Mensagem *" htmlFor="si-msg">
@@ -223,7 +223,7 @@ export function StepInspector({
             {isApproval && (
               <>
                 <div>
-                  <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                     Aprovadores (por ordem)
                   </div>
                   <ul className="space-y-1.5">
@@ -274,7 +274,7 @@ export function StepInspector({
         {tab === 'conditions' && (
           <>
             <div>
-              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Condições de entrada
               </div>
               <p className="mb-2 font-body text-xs text-ink-faint">
@@ -283,7 +283,7 @@ export function StepInspector({
               <ConditionEditor value={node.entry} onChange={(v) => onChange({ entry: v })} fields={baseFields} allowFormFields disabled={readOnly} emptyHint="Executa sempre." />
             </div>
             <div>
-              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Condições para avançar
               </div>
               <p className="mb-2 font-body text-xs text-ink-faint">
@@ -305,11 +305,11 @@ export function StepInspector({
         {tab === 'actions' && (
           <>
             <div>
-              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Em caso de sucesso</div>
+              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">Em caso de sucesso</div>
               <ActionListEditor value={node.successActions} onChange={(v) => onChange({ successActions: v })} disabled={readOnly} />
             </div>
             <div>
-              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Em caso de falha / rejeição</div>
+              <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-label">Em caso de falha / rejeição</div>
               <ActionListEditor value={node.failureActions} onChange={(v) => onChange({ failureActions: v })} disabled={readOnly} />
             </div>
           </>
@@ -343,7 +343,7 @@ export function StepInspector({
               Exige evidência (upload) para concluir
             </label>
             <div className="rounded-card border border-border p-3">
-              <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Política de escalonamento</div>
+              <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">Política de escalonamento</div>
               <FormField label="Escalar após (horas depois do prazo)" htmlFor="si-esc">
                 <Input id="si-esc" value={node.escalationAfterHours} disabled={readOnly} onChange={num(node.escalationAfterHours, (v) => onChange({ escalationAfterHours: v }))} />
               </FormField>

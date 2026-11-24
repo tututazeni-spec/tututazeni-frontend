@@ -351,7 +351,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
         </div>
       )}
 
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         Cronologia
       </h3>
       <ol className="mb-8 grid gap-5 rounded-[14px] border border-brand-edge bg-brand-deep px-5 py-4 shadow-[0_4px_16px_rgba(7,29,59,0.35)] sm:grid-flow-col sm:auto-cols-fr sm:gap-0">

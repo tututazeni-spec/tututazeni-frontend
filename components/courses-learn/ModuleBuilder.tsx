@@ -113,7 +113,7 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="font-body text-xs font-medium text-ink-label uppercase tracking-wide">
           {modules.length} módulos
         </div>
         <Button size="sm" onClick={() => setCreatingModule(true)}>
