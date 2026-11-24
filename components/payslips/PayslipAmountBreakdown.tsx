@@ -38,6 +38,12 @@ export interface PayslipAmountBreakdownProps {
    * destaque e uma faixa com o salário líquido.
    */
   compact?: boolean;
+  /**
+   * Só as secções Remunerações e Deduções (com totais), uma por cima da outra,
+   * sem painéis, mas com a faixa do salário líquido: para meter dentro de outro card
+   * (ex.: "Comparar meses", uma metade por mês).
+   */
+  stacked?: boolean;
 }
 
 // Cores medidas na imagem de referência.
@@ -68,7 +74,11 @@ function Rows({ rows, minus }: { rows: Row[]; minus?: boolean }) {
               <span className="ml-2 text-xs text-ink-faint">{r.sub}</span>
             )}
           </span>
-          <span className="shrink-0 font-body text-sm text-[#1B2742]">
+          <span
+            className={`shrink-0 text-right font-body text-sm font-semibold tabular-nums ${
+              minus ? 'text-danger' : 'text-[#1B2742]'
+            }`}
+          >
             {minus ? '− ' : ''}
             {fmtKz(r.amount)}
           </span>
@@ -226,13 +236,17 @@ function CompactColumn({
         {rows.map((r) => (
           <div
             key={r.label}
-            className="flex items-baseline justify-between gap-4 border-b border-[#DCE6F7] py-2 last:border-0"
+            className="flex items-baseline justify-between gap-3 border-b border-[#DCE6F7] py-2 last:border-0"
           >
             <dt className="font-body text-xs text-ink-muted">
               {r.label}
               {r.sub && <span className="ml-2 text-ink-faint">{r.sub}</span>}
             </dt>
-            <dd className="shrink-0 text-right font-body text-sm font-semibold text-brand-ink">
+            <dd
+              className={`shrink-0 text-right font-body text-sm font-semibold tabular-nums ${
+                minus ? 'text-danger' : 'text-brand-ink'
+              }`}
+            >
               {minus ? '− ' : ''}
               {fmtKz(r.amount)}
             </dd>
@@ -251,6 +265,7 @@ function CompactColumn({
 export function PayslipAmountBreakdown({
   payslip: data,
   compact,
+  stacked,
 }: PayslipAmountBreakdownProps) {
   const irtSub =
     data.irtBracketRate !== null
@@ -300,6 +315,42 @@ export function PayslipAmountBreakdown({
     },
   ].filter(Boolean) as Row[];
 
+  if (stacked) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col">
+          <SectionHeader icon={Wallet}>Remunerações</SectionHeader>
+          <Rows rows={earnings} />
+          <div className="mt-3">
+            <TotalPill label="Total bruto" value={fmtKz(data.grossSalary)} />
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <SectionHeader icon={FileText}>Deduções</SectionHeader>
+          <Rows rows={deductions} minus />
+          <div className="mt-3">
+            <TotalPill
+              label="Total deduções"
+              value={`− ${fmtKz(data.totalDeductions)}`}
+            />
+          </div>
+        </div>
+        <div
+          className="flex items-center justify-between gap-4 rounded-[16px] px-5 py-4 text-white"
+          style={{ background: NAVY_GRADIENT }}
+        >
+          <span className="flex items-center gap-2 font-body text-sm font-bold">
+            <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+            Salário líquido
+          </span>
+          <span className="font-display text-xl font-bold">
+            {fmtKz(data.netSalary)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (compact) {
     return (
       <div className="space-y-5">
@@ -326,7 +377,7 @@ export function PayslipAmountBreakdown({
             <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} aria-hidden />
             Salário líquido
           </span>
-          <span className="font-display text-2xl font-bold">
+          <span className="font-display text-[21.6px] font-bold">
             {fmtKz(data.netSalary)}
           </span>
         </div>
@@ -392,9 +443,9 @@ export function PayslipAmountBreakdown({
         </div>
 
         {/* Cartão do salário líquido */}
-        <div className="p-2.5 lg:pl-0">
+        <div className="flex flex-col gap-2.5 p-2.5 lg:pl-0">
           <div
-            className="relative flex h-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[20px] px-5 py-6 text-center text-white"
+            className="relative flex flex-1 flex-col items-center justify-center gap-1 overflow-hidden rounded-[20px] px-5 py-6 text-center text-white"
             style={{ background: NAVY_GRADIENT }}
           >
             <svg
@@ -417,7 +468,7 @@ export function PayslipAmountBreakdown({
             <p className="relative mt-1 font-body text-sm font-bold">
               Salário líquido
             </p>
-            <p className="relative font-display text-3xl font-bold leading-tight">
+            <p className="relative font-display text-[27px] font-bold leading-tight">
               {fmtKz(data.netSalary)}
             </p>
           </div>
