@@ -561,6 +561,14 @@ select:focus {
 
 /* Impressão do recibo (PayslipDetailView): só o conteúdo de .payslip-print
    sai no papel — menu lateral, cabeçalho e botões ficam de fora. */
+/* margin: 0 elimina o cabeçalho/rodapé do browser (data e hora, título da
+   página, endereço localhost); a margem visual vem do padding de
+   .payslip-print (e do 2.º card, que começa nova página). */
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -574,6 +582,8 @@ select:focus {
     left: 0;
     top: 0;
     width: 100%;
+    box-sizing: border-box;
+    padding: 12mm;
   }
   .payslip-print,
   .payslip-print * {

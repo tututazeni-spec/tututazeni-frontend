@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   AlertTriangle,
@@ -29,6 +29,7 @@ import { Button, buttonVariants } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import type { DisputeAction, DisputeState } from '@/hooks/usePayslipDetail';
 import { fmtPeriod } from './format';
 import { PayslipAmountBreakdown } from './PayslipAmountBreakdown';
@@ -41,6 +42,23 @@ function maskString(value: string, visibleEnd = 4): string {
   const masked = '•'.repeat(Math.max(0, value.length - visibleEnd));
   return masked + visible;
 }
+
+// Motivos habituais de disputa; "Outro" abre o campo de texto livre.
+const MANUAL = '__manual';
+const DISPUTE_REASONS = [
+  'Salário base incorrecto',
+  'Subsídio em falta ou incorrecto',
+  'Horas extras não contabilizadas',
+  'Dedução de IRT incorrecta',
+  'Dedução de INSS incorrecta',
+  'Desconto indevido (empréstimo, adiantamento ou seguro)',
+  'Dias de falta ou de ausência mal registados',
+  'Dados pessoais ou fiscais incorrectos',
+];
+const REASON_ITEMS = [
+  ...DISPUTE_REASONS.map((r) => ({ value: r, label: r })),
+  { value: MANUAL, label: 'Outro motivo (escrever manualmente)' },
+];
 
 // Estado "Emitido" a verde sólido com letra branca neste card; os restantes
 // estados mantêm o mapa partilhado.
@@ -122,6 +140,11 @@ export function PayslipDetailView({
   onSubmitDispute,
 }: PayslipDetailViewProps) {
   const [maskedData, setMaskedData] = useState(true);
+  const [manualReason, setManualReason] = useState(false);
+  // Ao fechar/enviar a disputa, o motivo volta a ser escolhido da lista.
+  useEffect(() => {
+    if (!dispute.open) setManualReason(false);
+  }, [dispute.open]);
 
   if (loading)
     return (
@@ -251,111 +274,134 @@ export function PayslipDetailView({
         </section>
 
         {/* Card 2 — remunerações, deduções, resumo e acções */}
-        <section className="print:break-before-page print:break-inside-avoid relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
-          <div className="inline-flex items-center gap-3 rounded-br-[28px] bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] py-3 pl-6 pr-10 text-white">
-            <Wallet size={26} strokeWidth={1.8} aria-hidden="true" />
-            <h3 className="font-body text-lg font-bold uppercase tracking-wide">
-              Remunerações e deduções
-            </h3>
-          </div>
-          <div className="space-y-6 px-6 pt-5">
-            {/* Remunerações / Deduções / Resumo final */}
-            <PayslipAmountBreakdown payslip={data} compact />
-
-            {/* Acções */}
-            <div className="flex flex-wrap items-center gap-3 border-t border-[#DCE6F7] pt-5 print:hidden">
-              <a
-                href={`${API_URL}/payslips/my/${payslipId}/pdf`}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonVariants({ intent: 'primary', size: 'md' })}
-              >
-                <Download size={16} strokeWidth={1.75} />
-                Download PDF
-              </a>
-              <Button intent="secondary" onClick={() => window.print()}>
-                <Printer size={16} strokeWidth={1.75} />
-                Imprimir
-              </Button>
-              <Button intent="secondary">
-                <Mail size={16} strokeWidth={1.75} />
-                Enviar por email
-              </Button>
-
-              {data.status === 'ISSUED' && (
-                <Button
-                  intent="success"
-                  loading={acknowledging}
-                  onClick={onAcknowledge}
-                  className="ml-auto"
-                >
-                  {!acknowledging && (
-                    <CheckCircle2 size={16} strokeWidth={1.75} />
-                  )}
-                  {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
-                </Button>
-              )}
-
-              {data.status !== 'DISPUTED' && (
-                <Button
-                  intent="danger"
-                  onClick={() => dispatchDispute({ type: 'OPEN' })}
-                >
-                  <AlertTriangle size={16} strokeWidth={1.75} />
-                  Abrir disputa
-                </Button>
-              )}
+        <div className="print:break-before-page print:pt-[12mm]">
+          <section className="print:break-inside-avoid relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+            <div className="inline-flex items-center gap-3 rounded-br-[28px] bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] py-3 pl-6 pr-10 text-white">
+              <Wallet size={26} strokeWidth={1.8} aria-hidden="true" />
+              <h3 className="font-body text-lg font-bold uppercase tracking-wide">
+                Remunerações e deduções
+              </h3>
             </div>
+            <div className="space-y-6 px-6 pt-5">
+              {/* Remunerações / Deduções / Resumo final */}
+              <PayslipAmountBreakdown payslip={data} compact />
 
-            {/* Modal disputa (inline) */}
-            {dispute.open && (
-              <div className="space-y-3 rounded-card border border-danger/30 bg-danger-subtle p-4">
-                <div className="font-body text-sm font-medium text-danger-ink">
-                  Abrir disputa sobre este recibo
-                </div>
-                <Input
-                  className="w-full"
-                  placeholder="Motivo da disputa *"
-                  value={dispute.reason}
-                  onChange={(e) =>
-                    dispatchDispute({
-                      type: 'SET_REASON',
-                      reason: e.target.value,
-                    })
-                  }
-                />
-                <Textarea
-                  className="w-full resize-none"
-                  placeholder="Detalhes adicionais (opcional)"
-                  rows={3}
-                  value={dispute.details}
-                  onChange={(e) =>
-                    dispatchDispute({
-                      type: 'SET_DETAILS',
-                      details: e.target.value,
-                    })
-                  }
-                />
-                <div className="flex gap-2">
+              {/* Acções */}
+              <div className="flex flex-wrap items-center gap-3 border-t border-[#DCE6F7] pt-5 print:hidden">
+                <a
+                  href={`${API_URL}/payslips/my/${payslipId}/pdf`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonVariants({ intent: 'primary', size: 'md' })}
+                >
+                  <Download size={16} strokeWidth={1.75} />
+                  Download PDF
+                </a>
+                <Button intent="secondary" onClick={() => window.print()}>
+                  <Printer size={16} strokeWidth={1.75} />
+                  Imprimir
+                </Button>
+                <Button intent="secondary">
+                  <Mail size={16} strokeWidth={1.75} />
+                  Enviar por email
+                </Button>
+
+                {data.status === 'ISSUED' && (
+                  <Button
+                    intent="success"
+                    loading={acknowledging}
+                    onClick={onAcknowledge}
+                    className="ml-auto"
+                  >
+                    {!acknowledging && (
+                      <CheckCircle2 size={16} strokeWidth={1.75} />
+                    )}
+                    {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
+                  </Button>
+                )}
+
+                {data.status !== 'DISPUTED' && (
                   <Button
                     intent="danger"
-                    loading={dispute.submitting}
-                    disabled={!dispute.reason.trim()}
-                    onClick={onSubmitDispute}
+                    onClick={() => dispatchDispute({ type: 'OPEN' })}
                   >
-                    {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
+                    <AlertTriangle size={16} strokeWidth={1.75} />
+                    Abrir disputa
                   </Button>
-                  <Button
-                    intent="secondary"
-                    onClick={() => dispatchDispute({ type: 'CLOSE' })}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
+                )}
               </div>
-            )}
-          </div>
-        </section>
+
+              {/* Modal disputa (inline) */}
+              {dispute.open && (
+                <div className="space-y-3 rounded-card border border-danger/30 bg-danger-subtle p-4">
+                  <div className="font-body text-sm font-medium text-black">
+                    Abrir disputa sobre este recibo
+                  </div>
+                  <Select
+                    className="w-full"
+                    placeholder="Motivo da disputa *"
+                    items={REASON_ITEMS}
+                    value={
+                      manualReason
+                        ? MANUAL
+                        : DISPUTE_REASONS.includes(dispute.reason)
+                          ? dispute.reason
+                          : ''
+                    }
+                    onValueChange={(v) => {
+                      setManualReason(v === MANUAL);
+                      dispatchDispute({
+                        type: 'SET_REASON',
+                        reason: v === MANUAL ? '' : v,
+                      });
+                    }}
+                  />
+                  {manualReason && (
+                    <Input
+                      className="w-full"
+                      placeholder="Escreva o motivo da disputa *"
+                      value={dispute.reason}
+                      onChange={(e) =>
+                        dispatchDispute({
+                          type: 'SET_REASON',
+                          reason: e.target.value,
+                        })
+                      }
+                    />
+                  )}
+                  <Textarea
+                    className="w-full resize-none"
+                    placeholder="Detalhes adicionais (opcional)"
+                    rows={3}
+                    value={dispute.details}
+                    onChange={(e) =>
+                      dispatchDispute({
+                        type: 'SET_DETAILS',
+                        details: e.target.value,
+                      })
+                    }
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      intent="danger"
+                      loading={dispute.submitting}
+                      disabled={!dispute.reason.trim()}
+                      onClick={onSubmitDispute}
+                    >
+                      {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
+                    </Button>
+                    <Button
+                      intent="secondary"
+                      onClick={() => dispatchDispute({ type: 'CLOSE' })}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
