@@ -6,7 +6,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Compass, Plus, Trash2 } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { ClipboardList, Compass, Layers, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -14,15 +15,50 @@ import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NewCareerPlanModal } from '../NewCareerPlanModal';
 import type { CareerPlan } from './types';
 
+function PlanAvatar({
+  name,
+  url,
+  initials,
+}: {
+  name: string;
+  url?: string | null;
+  initials: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (url && !failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt={name}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="h-[52px] w-[52px] shrink-0 rounded-full object-cover ring-2 ring-white/80"
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#5BD86B] to-[#27A33C] font-body text-lg font-bold text-white"
+    >
+      {initials}
+    </span>
+  );
+}
+
 export function PlansManagementView() {
   const [showNew, setShowNew] = useState(false);
+  const [department, setDepartment] = useState('');
+  const params = { department: department || undefined };
   const notify = useToast();
   const confirm = useConfirm();
   const {
@@ -30,13 +66,27 @@ export function PlansManagementView() {
     isLoading: loading,
     refetch,
   } = useApiQuery<{ data: CareerPlan[] }>(
-    queryKeys.careerPlans.list({}),
+    queryKeys.careerPlans.list(params),
     '/career-plans',
     {
+      params,
       staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
     },
   );
   const plans = resp?.data ?? [];
+
+  const deptParams = { limit: 200 };
+  const { data: deptResp } = useApiQuery<{
+    data: { id: number; name: string }[];
+  }>(queryKeys.departments.list(deptParams), '/departments', {
+    params: deptParams,
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+  const departmentItems = [
+    { value: 'ALL', label: 'Todos os departamentos' },
+    ...(deptResp?.data ?? []).map((d) => ({ value: d.name, label: d.name })),
+  ];
 
   const deletePlan = useApiMutation(
     (id: number) => apiClient.delete(`/career-plans/${id}`),
@@ -70,12 +120,26 @@ export function PlansManagementView() {
         </Button>
       </div>
 
+      <div className="mb-6 w-full sm:w-72">
+        <Select
+          variant="underline"
+          icon={Layers}
+          items={departmentItems}
+          value={department || 'ALL'}
+          onValueChange={(v) => setDepartment(v === 'ALL' ? '' : v)}
+        />
+      </div>
+
       {loading ? (
         <Skeleton rows={4} />
       ) : plans.length === 0 ? (
         <EmptyState
           title="Sem planos de carreira"
-          description="Cria o primeiro plano de carreira para um colaborador."
+          description={
+            department
+              ? 'Nenhum plano encontrado para este departamento.'
+              : 'Cria o primeiro plano de carreira para um colaborador.'
+          }
         />
       ) : (
         <div className="space-y-5">
@@ -112,16 +176,11 @@ export function PlansManagementView() {
                     className="relative flex items-center gap-4 bg-gradient-to-r from-[#0A1B3F] via-[#0B2A66] to-[#0B3A9A] pl-6 pr-10 text-white"
                     style={{ clipPath: diagonal }}
                   >
-                    {plan.user?.avatarUrl ? (
-                      <Avatar name={name} url={plan.user.avatarUrl} size="md" />
-                    ) : (
-                      <span
-                        aria-hidden="true"
-                        className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#5BD86B] to-[#27A33C] font-body text-lg font-bold text-white"
-                      >
-                        {initials}
-                      </span>
-                    )}
+                    <PlanAvatar
+                      name={name}
+                      url={plan.user?.avatarUrl}
+                      initials={initials}
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-body text-lg font-bold leading-tight">
                         {name}
