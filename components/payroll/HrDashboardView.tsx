@@ -7,7 +7,6 @@ import {
   Eye,
   FileEdit,
   FileText,
-  Percent,
   ShieldAlert,
   ThumbsUp,
 } from 'lucide-react';
@@ -19,6 +18,10 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { KpiCard } from '@/components/ui/KpiCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { HrDashboard } from './types';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -111,13 +114,12 @@ export function HrDashboardView() {
               Compliance
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-              <KpiCard
-                tab="payslips"
-                className="min-h-[178px]"
-                icon={Percent}
+              <SpeedometerStatCard
+                bare
                 label="Taxa de confirmação"
-                value={data.compliance.viewRate}
-                intent="info"
+                value={parseFloat(String(data.compliance.viewRate)) || 0}
+                bands={RATE_BANDS}
+                display={String(data.compliance.viewRate)}
               />
               <KpiCard
                 tab="payslips"
