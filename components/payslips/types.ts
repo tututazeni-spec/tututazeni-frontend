@@ -54,6 +54,14 @@ export const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
   DISPUTED: { label: 'Disputa', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
+// "Os meus recibos" (lista e detalhe): Emitido a verde e Disputa a vermelho,
+// ambos sólidos com letra branca. Os restantes estados mantêm o mapa partilhado.
+export const PAYSLIP_STATUS_SOLID_MAP: StatusBadgeMap<PayslipStatus> = {
+  ...PAYSLIP_STATUS_MAP,
+  ISSUED: { label: 'Emitido', cls: 'bg-success text-white' },
+  DISPUTED: { label: 'Disputa', cls: 'bg-danger text-white' },
+};
+
 // ─── Tipos das restantes views (List/Compare/Simulate/Annual) ─────────────────
 // Extraído de app/(platform)/payslips/page.tsx.
 

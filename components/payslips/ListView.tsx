@@ -17,7 +17,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { fmtPeriod } from './format';
-import { PAYSLIP_STATUS_MAP } from './types';
+import { PAYSLIP_STATUS_SOLID_MAP } from './types';
 import type { PaginatedPayslips } from './types';
 
 interface ListViewProps {
@@ -168,7 +168,7 @@ export function ListView({ onSelect }: ListViewProps) {
                 <div>
                   <StatusBadge
                     value={p.status}
-                    map={PAYSLIP_STATUS_MAP}
+                    map={PAYSLIP_STATUS_SOLID_MAP}
                     variant="dot"
                   />
                 </div>

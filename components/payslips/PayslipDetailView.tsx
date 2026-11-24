@@ -33,7 +33,7 @@ import { Select } from '@/components/ui/Select';
 import type { DisputeAction, DisputeState } from '@/hooks/usePayslipDetail';
 import { fmtPeriod } from './format';
 import { PayslipAmountBreakdown } from './PayslipAmountBreakdown';
-import { PAYSLIP_STATUS_MAP, type Payslip } from './types';
+import { PAYSLIP_STATUS_SOLID_MAP, type Payslip } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
 
 function maskString(value: string, visibleEnd = 4): string {
@@ -59,13 +59,6 @@ const REASON_ITEMS = [
   ...DISPUTE_REASONS.map((r) => ({ value: r, label: r })),
   { value: MANUAL, label: 'Outro motivo (escrever manualmente)' },
 ];
-
-// Estado "Emitido" a verde sólido com letra branca neste card; os restantes
-// estados mantêm o mapa partilhado.
-const CARD_STATUS_MAP: typeof PAYSLIP_STATUS_MAP = {
-  ...PAYSLIP_STATUS_MAP,
-  ISSUED: { label: 'Emitido', cls: 'bg-success text-white' },
-};
 
 type InfoRow = [label: string, value: string, masked?: boolean];
 
@@ -188,7 +181,7 @@ export function PayslipDetailView({
             <div className="pr-6 pt-3">
               <StatusBadge
                 value={data.status}
-                map={CARD_STATUS_MAP}
+                map={PAYSLIP_STATUS_SOLID_MAP}
                 variant="dot"
                 className="px-3 py-1 text-sm font-semibold"
               />
