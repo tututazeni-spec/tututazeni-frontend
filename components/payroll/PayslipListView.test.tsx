@@ -33,7 +33,11 @@ vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 vi.mock('@/components/ui/Select', () => ({
   Select: ({ items, value, onValueChange }: any) => (
     <select
-      data-testid="status-select"
+      data-testid={
+        items.some((it: any) => it.value === 'DRAFT')
+          ? 'status-select'
+          : 'year-select'
+      }
       value={value ?? ''}
       onChange={(e) => onValueChange(e.target.value)}
     >

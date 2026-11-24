@@ -29,9 +29,11 @@ vi.mock('@/components/ui/Select', () => ({
   ),
 }));
 vi.mock('@/components/ui/Combobox', () => ({
-  Combobox: ({ value, onValueChange }: any) => (
+  Combobox: ({ value, onValueChange, placeholder }: any) => (
     <input
-      data-testid="group-combobox"
+      data-testid={
+        placeholder?.startsWith('Período') ? 'period-select' : 'group-combobox'
+      }
       value={value}
       onChange={(e) => onValueChange(e.target.value)}
     />
@@ -112,6 +114,10 @@ describe('RunListView', () => {
 
   test('"all" period and group send no filter', () => {
     render(<RunListView onSelect={vi.fn()} />);
+    // o período por omissão é o mês actual; "Todos os períodos" remove o filtro
+    fireEvent.change(screen.getByTestId('period-select'), {
+      target: { value: 'all' },
+    });
     const lastCall = JSON.stringify(useApiQuery.mock.calls.at(-1)!);
     expect(lastCall).not.toContain('"period"');
     expect(lastCall).not.toContain('"payGroup"');

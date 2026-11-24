@@ -179,9 +179,15 @@ beforeEach(() => {
   detailResult = { data: baseDetail, isLoading: false, error: null };
 });
 
+// As secções do plano vêm fechadas por omissão e abrem ao clicar no título.
+function openSection(title: string) {
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(title) }));
+}
+
 describe('PlanDetailModal — leitura e remoção', () => {
   test('mostra colaborador, template e tarefa por fase', () => {
     renderModal();
+    openSection('Primeiro Dia');
     expect(screen.getAllByText('Ana Silva').length).toBeGreaterThan(0);
     expect(screen.getByText('Onboarding TI')).toBeInTheDocument();
     expect(screen.getByText('Primeiro Dia')).toBeInTheDocument();
@@ -273,6 +279,7 @@ describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
 
   test('"Aprovar" envia POST /onboarding/tasks/approve decision=approve', async () => {
     renderModal();
+    openSection('Primeiro Dia');
     fireEvent.click(screen.getByRole('button', { name: 'Aprovar' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -284,6 +291,7 @@ describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
 
   test('"Saltar" exige motivo e envia POST /onboarding/tasks/skip', async () => {
     renderModal();
+    openSection('Primeiro Dia');
     fireEvent.click(screen.getByRole('button', { name: 'Saltar' }));
 
     const confirmBtn = screen.getByRole('button', { name: 'Saltar tarefa' });
@@ -305,6 +313,7 @@ describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
 
   test('"Rejeitar" envia decision=reject (comentário opcional)', async () => {
     renderModal();
+    openSection('Primeiro Dia');
     fireEvent.click(screen.getByRole('button', { name: 'Rejeitar' }));
     fireEvent.click(screen.getByRole('button', { name: 'Rejeitar tarefa' }));
 
@@ -319,6 +328,7 @@ describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
 describe('PlanDetailModal — validação de documentos', () => {
   test('mostra o documento com link e estado', () => {
     renderModal();
+    openSection('Documentos');
     expect(screen.getByText('Cópia do BI')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Abrir documento' }),
@@ -334,6 +344,7 @@ describe('PlanDetailModal — validação de documentos', () => {
 
   test('"Aprovar documento" envia PATCH status=APPROVED', async () => {
     renderModal();
+    openSection('Documentos');
     fireEvent.click(screen.getByRole('button', { name: 'Aprovar documento' }));
 
     await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
@@ -345,6 +356,7 @@ describe('PlanDetailModal — validação de documentos', () => {
 
   test('"Rejeitar documento" abre painel e envia PATCH status=REJECTED', async () => {
     renderModal();
+    openSection('Documentos');
     fireEvent.click(screen.getByRole('button', { name: 'Rejeitar documento' }));
     fireEvent.change(screen.getByPlaceholderText(/Motivo da rejeição/), {
       target: { value: '  Ilegível  ' },
@@ -387,6 +399,7 @@ describe('PlanDetailModal — Avaliação de Integração', () => {
       error: null,
     };
     renderModal();
+    openSection('Avaliação de Integração');
     fireEvent.click(screen.getByRole('button', { name: 'Pedir avaliação' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -404,6 +417,7 @@ describe('PlanDetailModal — Avaliação de Integração', () => {
       error: null,
     };
     renderModal();
+    openSection('Avaliação de Integração');
     expect(screen.getByText('Pedida')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Pedir avaliação' }),

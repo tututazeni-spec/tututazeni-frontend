@@ -54,7 +54,7 @@ describe('HrDashboardView', () => {
   test('changing the period refetches with the chosen period', () => {
     useApiQuery.mockReturnValue({ data: dash, isLoading: false, error: null });
     render(<HrDashboardView />);
-    fireEvent.change(screen.getByPlaceholderText(/AAAA-MM/i), {
+    fireEvent.change(screen.getByLabelText(/Período/i), {
       target: { value: '2026-05' },
     });
     const last = useApiQuery.mock.calls.at(-1)!;
