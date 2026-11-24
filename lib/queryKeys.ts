@@ -328,6 +328,7 @@ export const queryKeys = {
     whatsappStatus: () =>
       [...queryKeys.settings.all, 'whatsapp-status'] as const,
     certificates: () => [...queryKeys.settings.all, 'certificates'] as const,
+    career: () => [...queryKeys.settings.all, 'career'] as const,
     certificateTemplates: () =>
       [...queryKeys.settings.all, 'certificate-templates'] as const,
     privacy: () => [...queryKeys.settings.all, 'privacy'] as const,

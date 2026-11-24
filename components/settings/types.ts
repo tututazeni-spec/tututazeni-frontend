@@ -10,6 +10,7 @@ export type Tab =
   | 'notificacoes'
   | 'integracoes'
   | 'certificados'
+  | 'carreira'
   | 'privacidade'
   | 'licenca'
   | 'auditoria'
@@ -206,6 +207,15 @@ export interface WhatsAppStatus {
   };
 }
 
+// ─── Carreira (Critérios de Promoção) ───
+
+export interface CareerSettings {
+  minMonthsInRole: number;
+  minPerformanceScore: number;
+  minCompetenciesPct: number;
+  readyIn12mCompetenciesPct: number;
+}
+
 // ─── §7 Certificados ───────────────────────────────────────────────────────
 
 export interface CertificateSettings {
@@ -267,7 +277,8 @@ export interface PrivacySettings {
   openRequests: number;
 }
 
-export type DsrType = 'ACCESS' | 'RECTIFICATION' | 'ERASURE' | 'PORTABILITY' | 'OBJECTION';
+export type DsrType =
+  'ACCESS' | 'RECTIFICATION' | 'ERASURE' | 'PORTABILITY' | 'OBJECTION';
 export type DsrStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
 
 export interface DataSubjectRequest {
@@ -315,7 +326,11 @@ export interface AuditDataOverview {
   failedOperations24h: number;
   deniedOperations24h: number;
   totalEvents7d: number | null;
-  backup: { destination: string | null; frequency: string | null; configured: boolean };
+  backup: {
+    destination: string | null;
+    frequency: string | null;
+    configured: boolean;
+  };
   exports: {
     byStatus: Array<{ status: string; count: number }>;
     expiredPendingPurge: number;
@@ -340,7 +355,12 @@ export type OidcProviderKey = 'GOOGLE' | 'MICROSOFT' | 'OIDC';
 export interface AuthSettings {
   ssoEnabled: boolean;
   ssoProvider: OidcProviderKey | null;
-  oidc: { clientId: string; tenantId: string; issuer: string; hasClientSecret: boolean };
+  oidc: {
+    clientId: string;
+    tenantId: string;
+    issuer: string;
+    hasClientSecret: boolean;
+  };
   ldap: {
     enabled: boolean;
     url: string;
@@ -391,7 +411,8 @@ export interface EmailTestResult {
 // ─── §13 WhatsApp ────────────────────────────────────────────────────────────
 
 export type WhatsAppProvider = 'TWILIO' | 'META';
-export type WhatsAppEventKey = 'NOTIFICATION' | 'AUTOMATION' | 'CORPORATE_EVENT';
+export type WhatsAppEventKey =
+  'NOTIFICATION' | 'AUTOMATION' | 'CORPORATE_EVENT';
 
 export interface WhatsAppTemplateMapping {
   name: string;
@@ -423,7 +444,12 @@ export interface WhatsAppSettingsView {
     displayPhoneNumber?: string;
     verifiedName?: string;
     qualityRating?: string;
-    usage: { lastHour: number; lastDay: number; hourlyLimit: number; dailyLimit: number };
+    usage: {
+      lastHour: number;
+      lastDay: number;
+      hourlyLimit: number;
+      dailyLimit: number;
+    };
   };
 }
 
@@ -497,7 +523,22 @@ export interface SystemStatus {
     paused: boolean;
     counts: Record<string, number> | null;
   }[];
-  cache: { connected: boolean; keys?: number; usedMemoryMb?: number | null; enabled?: boolean };
-  db: { connected: boolean; latencyMs?: number; sizeMb?: number; poolMax?: number };
-  process: { uptimeSeconds: number; nodeVersion: string; memoryMb: number; env: string };
+  cache: {
+    connected: boolean;
+    keys?: number;
+    usedMemoryMb?: number | null;
+    enabled?: boolean;
+  };
+  db: {
+    connected: boolean;
+    latencyMs?: number;
+    sizeMb?: number;
+    poolMax?: number;
+  };
+  process: {
+    uptimeSeconds: number;
+    nodeVersion: string;
+    memoryMb: number;
+    env: string;
+  };
 }

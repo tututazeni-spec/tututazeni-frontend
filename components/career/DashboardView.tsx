@@ -7,13 +7,20 @@
 
 import { useState } from 'react';
 import {
+  AlertCircle,
+  BarChart3,
   BookOpen,
+  CalendarDays,
+  CheckCircle2,
   ChevronRight,
+  ClipboardList,
   History,
-  Sparkles,
+  PlayCircle,
+  Rocket,
   TrendingUp,
-  Zap,
+  Trophy,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -46,7 +53,7 @@ function estimatedDate(months: number): string {
 
 interface GapListProps {
   title: string;
-  tone: 'danger' | 'warning';
+  tone: 'danger' | 'warning' | 'success';
   gaps: SimulationGap[];
 }
 
@@ -58,7 +65,11 @@ function GapList({ title, tone, gaps }: GapListProps) {
       <div
         className={cn(
           'mb-1.5 font-body text-xs font-bold',
-          tone === 'danger' ? 'text-danger-ink' : 'text-warning-ink',
+          tone === 'danger'
+            ? 'text-danger-ink'
+            : tone === 'success'
+              ? 'text-success-ink'
+              : 'text-warning-ink',
         )}
       >
         {title}
@@ -84,6 +95,50 @@ function GapList({ title, tone, gaps }: GapListProps) {
         ))}
       </div>
     </div>
+  );
+}
+
+const CRITERIA_ICONS: Record<string, LucideIcon> = {
+  time: CalendarDays,
+  performance: BarChart3,
+  competencies: Trophy,
+};
+
+// Forma decorativa discreta ao fundo de cada cartão de critério.
+function CriteriaDecoration({ kind, met }: { kind: string; met: boolean }) {
+  if (kind === 'performance') {
+    return (
+      <div
+        className="pointer-events-none absolute bottom-0 right-4 flex items-end gap-2 opacity-20"
+        aria-hidden
+      >
+        {[28, 44, 64].map((h) => (
+          <div
+            key={h}
+            className="w-6 rounded-t-full bg-[#3B6BC4]"
+            style={{ height: h }}
+          />
+        ))}
+      </div>
+    );
+  }
+  if (kind === 'competencies') {
+    return (
+      <CheckCircle2
+        className={cn(
+          'pointer-events-none absolute -bottom-6 -right-4 h-32 w-32 opacity-20',
+          met ? 'text-[#34D399]' : 'text-[#3B6BC4]',
+        )}
+        strokeWidth={1.5}
+        aria-hidden
+      />
+    );
+  }
+  return (
+    <div
+      className="pointer-events-none absolute -bottom-12 right-6 h-28 w-28 rounded-full border-[14px] border-[#3B6BC4] opacity-20"
+      aria-hidden
+    />
   );
 }
 
@@ -133,6 +188,9 @@ export function DashboardView() {
   const missingGaps = (simulation?.competencyGaps ?? []).filter(
     (g) => !g.met && g.currentLevel === 0,
   );
+  const metCompetencies = (simulation?.competencyGaps ?? []).filter(
+    (g) => g.met,
+  );
   const partialGaps = (simulation?.competencyGaps ?? []).filter(
     (g) => !g.met && g.currentLevel > 0,
   );
@@ -154,7 +212,7 @@ export function DashboardView() {
       {/* Header do perfil */}
       <ProfileRoiCard
         kicker="Minha carreira"
-        kickerIcon={TrendingUp}
+        statsGrid
         name={user.fullName}
         avatarUrl={user.avatarUrl}
         subtitle={`${user.position?.name ?? 'Sem cargo'} · ${user.department?.name ?? '—'}`}
@@ -163,7 +221,6 @@ export function DashboardView() {
           { label: 'Cursos', value: stats.enrollments },
           { label: 'Competências', value: stats.userCompetencies },
           { label: 'Badges', value: stats.badgeAwards },
-          ...(user.points ? [{ label: 'XP', value: user.points.points }] : []),
           ...(promotionEligibility
             ? [
                 {
@@ -340,108 +397,142 @@ export function DashboardView() {
 
       {/* Critérios de Elegibilidade */}
       {promotionEligibility && (
-        <Card className="p-5">
-          <div className="mb-4 font-body text-sm font-semibold text-ink">
+        <section>
+          <h3 className="mb-3 font-display text-lg font-bold text-[#0F1F3D]">
             Critérios de Promoção
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            {Object.entries(promotionEligibility.criteria).map(([key, c]) => (
-              <div
-                key={key}
-                className={cn(
-                  'rounded-card border p-4',
-                  c.met
-                    ? 'border-success bg-success-subtle'
-                    : 'border-border bg-surface-sunken',
-                )}
-              >
-                <div className="mb-2 font-body text-xs text-ink-muted">
-                  {c.label}
-                </div>
+          </h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {Object.entries(promotionEligibility.criteria).map(([key, c]) => {
+              const Icon = CRITERIA_ICONS[key] ?? Trophy;
+              return (
                 <div
-                  className={cn(
-                    'font-data text-2xl font-bold',
-                    c.met ? 'text-success-ink' : 'text-ink',
-                  )}
+                  key={key}
+                  className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] to-[#14295a] px-4 py-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
                 >
-                  {typeof c.value === 'number' && c.value % 1 !== 0
-                    ? c.value.toFixed(1)
-                    : c.value}
-                  <span className="ml-1 font-body text-sm font-normal text-ink-faint">
-                    / {c.required}
-                  </span>
+                  <CriteriaDecoration kind={key} met={c.met} />
+                  <div className="relative flex items-center gap-4">
+                    <span
+                      className={cn(
+                        'flex h-14 w-14 shrink-0 items-center justify-center rounded-full',
+                        c.met ? 'bg-[#2E9E5B]' : 'bg-[#1E3F85]',
+                      )}
+                    >
+                      <Icon className="h-7 w-7" strokeWidth={1.8} aria-hidden />
+                    </span>
+                    <div className="h-14 w-px shrink-0 bg-white/20" />
+                    <div className="min-w-0">
+                      <p className="font-body text-sm text-white">{c.label}</p>
+                      <p className="mt-0.5 font-display text-2xl font-bold">
+                        {typeof c.value === 'number' && c.value % 1 !== 0
+                          ? c.value.toFixed(1)
+                          : c.value}
+                        <span className="ml-1 font-body text-base font-normal text-white/80">
+                          / {c.required}
+                        </span>
+                      </p>
+                      <span
+                        className={cn(
+                          'mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                          c.met
+                            ? 'bg-[#16A34A] text-white'
+                            : 'bg-[#F97316] text-white',
+                        )}
+                      >
+                        {c.met ? (
+                          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                        ) : (
+                          <AlertCircle className="h-3.5 w-3.5" aria-hidden />
+                        )}
+                        {c.met ? 'Cumprido' : 'Pendente'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  className={cn(
-                    'mt-1 font-body text-xs font-medium',
-                    c.met ? 'text-success' : 'text-warning',
-                  )}
-                >
-                  {c.met ? '✓ Cumprido' : 'Pendente'}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </Card>
+        </section>
       )}
 
       {/* Simulador de Carreira (único — fundiu o antigo modal "Simular Carreira") */}
-      <Card className="p-5">
-        <div className="mb-1 flex items-center gap-1.5 font-body text-sm font-semibold text-ink">
-          <Sparkles size={16} strokeWidth={1.75} className="text-accent" />
-          Simulador de Carreira
-        </div>
-        <p className="mb-3 font-body text-xs text-ink-muted">
-          Veja o que é necessário para chegar ao próximo nível
-        </p>
-        {!posLoading && positionOptions.length === 0 ? (
-          <EmptyState
-            variant="inline"
-            title="Sem cargos definidos — o RH pode criá-los em Organização"
-          />
-        ) : (
-          <div className="mb-4 flex gap-3">
-            <Combobox
-              items={positionOptions}
-              value={simTarget}
-              onValueChange={(v) => {
-                setSimTarget(v);
-                simulateMutation.reset();
-              }}
-              placeholder={
-                posLoading ? 'A carregar cargos…' : 'Escolha o cargo alvo…'
-              }
-              searchPlaceholder="Escreva para filtrar cargos…"
-              disabled={posLoading}
-              className="flex-1"
-            />
-            <Button
-              onClick={runSimulation}
-              disabled={!simTarget}
-              loading={simLoading}
-            >
-              <Zap size={15} strokeWidth={1.75} />
-              Simular
-            </Button>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#14295a] to-[#0F1F3D] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="p-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <div className="flex min-w-0 items-center gap-4 md:flex-1">
+              <Rocket
+                className="h-12 w-12 shrink-0 text-[#60A5FA]"
+                strokeWidth={1.5}
+                aria-hidden
+              />
+              <div className="h-12 w-px shrink-0 bg-white/20" />
+              <div className="min-w-0">
+                <h3 className="font-display text-lg font-bold">
+                  Simulador de Carreira
+                </h3>
+                <p className="font-body text-sm text-white/80">
+                  Veja o que é necessário para chegar ao próximo nível
+                </p>
+              </div>
+            </div>
+            {!posLoading && positionOptions.length === 0 ? (
+              <p className="font-body text-sm text-white/80">
+                Sem cargos definidos — o RH pode criá-los em Organização
+              </p>
+            ) : (
+              <div className="flex flex-1 gap-3 md:max-w-xl">
+                <Combobox
+                  items={positionOptions}
+                  value={simTarget}
+                  onValueChange={(v) => {
+                    setSimTarget(v);
+                    simulateMutation.reset();
+                  }}
+                  placeholder={
+                    posLoading ? 'A carregar cargos…' : 'Escolha o cargo alvo…'
+                  }
+                  searchPlaceholder="Escreva para filtrar cargos…"
+                  disabled={posLoading}
+                  className="flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={runSimulation}
+                  disabled={!simTarget || simLoading}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-control bg-[#22C55E] px-5 font-body text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {simLoading ? 'A simular…' : 'Simular'}
+                </button>
+              </div>
+            )}
           </div>
-        )}
 
-        {simulation && (
-          <div className="space-y-4">
-            <div className="rounded-card bg-primary-subtle p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <div className="font-body text-sm font-bold text-ink">
+          {simulation && (
+            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,15rem)_1fr]">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    'flex h-12 w-12 shrink-0 items-center justify-center rounded-full',
+                    simulation.summary.ready
+                      ? 'bg-[#22A559]'
+                      : simulation.readinessScore >= 50
+                        ? 'bg-[#F97316]'
+                        : 'bg-[#DC2626]',
+                  )}
+                >
+                  <Trophy className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-body text-sm font-bold">
                     Prontidão para &quot;{simulation.targetPosition.name}&quot;
-                  </div>
-                  <div
+                  </p>
+                  <p
                     className={cn(
                       'font-body text-xs font-semibold',
                       simulation.summary.ready
-                        ? 'text-success'
+                        ? 'text-[#4ADE80]'
                         : simulation.readinessScore >= 50
-                          ? 'text-warning'
-                          : 'text-danger',
+                          ? 'text-[#FBBF24]'
+                          : 'text-[#F87171]',
                     )}
                   >
                     {simulation.summary.ready
@@ -449,70 +540,86 @@ export function DashboardView() {
                       : simulation.readinessScore >= 50
                         ? 'Em desenvolvimento'
                         : 'Lacunas significativas'}
-                  </div>
-                </div>
-                <div
-                  className={cn(
-                    'font-data text-3xl font-bold',
-                    scoreClass(simulation.readinessScore),
-                  )}
-                >
-                  {simulation.readinessScore}%
+                  </p>
                 </div>
               </div>
-              <ProgressBar
-                value={simulation.readinessScore}
-                intent={
-                  simulation.summary.ready
-                    ? 'success'
-                    : simulation.readinessScore >= 50
-                      ? 'warning'
-                      : 'danger'
-                }
-                className="mb-3 bg-surface"
-              />
-              <div className="grid grid-cols-2 gap-2 font-body text-xs md:grid-cols-4">
-                <div className="rounded-control bg-surface p-2">
-                  <div className="text-ink-faint">Requisitos</div>
-                  <div className="font-bold text-ink">
-                    {simulation.summary.requirementsMet}/
-                    {simulation.summary.totalRequirements}
-                  </div>
-                </div>
-                <div className="rounded-control bg-surface p-2">
-                  <div className="text-ink-faint">Estimativa</div>
-                  <div
-                    className={cn(
-                      'font-bold',
-                      simulation.summary.ready
-                        ? 'text-success'
-                        : 'text-warning',
-                    )}
-                  >
-                    {simulation.summary.ready
+              <div className="flex items-center gap-4">
+                <ProgressBar
+                  value={simulation.readinessScore}
+                  color={
+                    simulation.summary.ready
+                      ? '#22C55E'
+                      : simulation.readinessScore >= 50
+                        ? '#F59E0B'
+                        : '#EF4444'
+                  }
+                  className="h-2 flex-1 bg-white/20"
+                />
+                <span className="font-display text-3xl font-bold">
+                  {simulation.readinessScore}%
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:col-span-2">
+                {[
+                  {
+                    icon: ClipboardList,
+                    label: 'Requisitos',
+                    value: `${simulation.summary.requirementsMet}/${simulation.summary.totalRequirements}`,
+                  },
+                  {
+                    icon: TrendingUp,
+                    label: 'Estimativa',
+                    value: simulation.summary.ready
                       ? 'Pronto'
-                      : `${simulation.summary.estimatedTimeMonths ?? 0} meses`}
-                  </div>
-                </div>
-                <div className="rounded-control bg-surface p-2">
-                  <div className="text-ink-faint">Data prevista</div>
-                  <div className="font-bold text-ink">
-                    {simulation.summary.ready
+                      : `${simulation.summary.estimatedTimeMonths ?? 0} meses`,
+                  },
+                  {
+                    icon: CalendarDays,
+                    label: 'Data prevista',
+                    value: simulation.summary.ready
                       ? 'Agora'
                       : estimatedDate(
                           simulation.summary.estimatedTimeMonths ?? 0,
-                        )}
+                        ),
+                  },
+                  {
+                    icon: PlayCircle,
+                    label: 'Cursos rec.',
+                    value: String(simulation.recommendedCourses.length),
+                  },
+                ].map((t) => (
+                  <div
+                    key={t.label}
+                    className="flex items-center gap-3 rounded-card bg-white/10 px-4 py-3"
+                  >
+                    <t.icon
+                      className="h-6 w-6 shrink-0 text-white"
+                      strokeWidth={1.6}
+                      aria-hidden
+                    />
+                    <div className="min-w-0">
+                      <p className="font-body text-xs text-white/80">
+                        {t.label}
+                      </p>
+                      <p className="font-body text-sm font-bold">{t.value}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-control bg-surface p-2">
-                  <div className="text-ink-faint">Cursos rec.</div>
-                  <div className="font-bold text-ink">
-                    {simulation.recommendedCourses.length}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
+          )}
+        </div>
 
+        {simulation && (
+          <div className="space-y-4 bg-surface p-5 text-ink">
+            {metCompetencies.length > 0 && (
+              <GapList
+                title="Requisitos cumpridos"
+                tone="success"
+                gaps={metCompetencies}
+              />
+            )}
             {missingGaps.length > 0 && (
               <GapList
                 title="Competências obrigatórias em falta"
@@ -553,7 +660,7 @@ export function DashboardView() {
             )}
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Histórico de Carreira */}
       {careerHistory.length > 0 && (

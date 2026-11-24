@@ -18,7 +18,10 @@ export interface ProfileRoiStat {
 
 interface ProfileRoiCardProps {
   kicker: string;
-  kickerIcon: LucideIcon;
+  /** Opcional: sem ícone, só o título em maiúsculas. */
+  kickerIcon?: LucideIcon;
+  /** Estatísticas em grelha de colunas iguais com divisórias, em vez de fluir em linha. */
+  statsGrid?: boolean;
   /** Sem nome, o card mostra só o título e as colunas (sem avatar). */
   name?: string;
   avatarUrl?: string | null;
@@ -30,6 +33,7 @@ interface ProfileRoiCardProps {
 export function ProfileRoiCard({
   kicker,
   kickerIcon: KickerIcon,
+  statsGrid = false,
   name,
   avatarUrl,
   subtitle,
@@ -39,7 +43,7 @@ export function ProfileRoiCard({
   const t = {
     kicker: 'text-[17.6px]',
     name: 'text-[17px]',
-    sub: 'text-[10.2px]',
+    sub: 'text-[11.2px]',
     label: 'text-[12px]',
     value: 'text-[17px]',
     note: 'text-[12px]',
@@ -47,7 +51,9 @@ export function ProfileRoiCard({
   return (
     <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       <div className="mb-2 flex items-center gap-3">
-        <KickerIcon className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+        {KickerIcon && (
+          <KickerIcon className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+        )}
         <h3
           className={`font-display ${t.kicker} font-bold uppercase tracking-wide`}
         >
@@ -74,36 +80,67 @@ export function ProfileRoiCard({
             </p>
           )}
           {subtitle && (
-            <p className={`mb-2 font-body ${t.sub} text-white/70`}>
+            <p
+              className={`mb-2 font-body ${t.sub} ${statsGrid ? 'text-white' : 'text-white/70'}`}
+            >
               {subtitle}
             </p>
           )}
-          <div
-            className={`flex flex-wrap items-stretch gap-x-8 gap-y-2 ${name !== undefined ? 'mt-2' : ''}`}
-          >
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex items-stretch gap-8">
-                {i > 0 && <div className="hidden w-px bg-white/20 sm:block" />}
-                <div>
-                  <p className={`font-body ${t.label} text-white/70`}>
-                    {s.label}
-                  </p>
+          {statsGrid ? (
+            <div
+              className={`grid grid-cols-2 gap-y-3 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_minmax(0,1.6fr)] ${name !== undefined ? 'mt-3' : ''}`}
+            >
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className="border-white/20 px-4 first:pl-0 sm:border-l sm:first:border-l-0"
+                >
+                  <p className={`font-body ${t.label} text-white`}>{s.label}</p>
                   <p
                     className={`mt-1 flex items-center gap-2 font-display ${t.value} font-bold`}
                     style={s.color ? { color: s.color } : undefined}
                   >
                     {s.color && (
                       <span
-                        className="h-4 w-4 rounded-full"
+                        className="h-3 w-3 shrink-0 rounded-full"
                         style={{ backgroundColor: s.color }}
                       />
                     )}
                     {s.value}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={`flex flex-wrap items-stretch gap-x-8 gap-y-2 ${name !== undefined ? 'mt-2' : ''}`}
+            >
+              {stats.map((s, i) => (
+                <div key={s.label} className="flex items-stretch gap-8">
+                  {i > 0 && (
+                    <div className="hidden w-px bg-white/20 sm:block" />
+                  )}
+                  <div>
+                    <p className={`font-body ${t.label} text-white/70`}>
+                      {s.label}
+                    </p>
+                    <p
+                      className={`mt-1 flex items-center gap-2 font-display ${t.value} font-bold`}
+                      style={s.color ? { color: s.color } : undefined}
+                    >
+                      {s.color && (
+                        <span
+                          className="h-4 w-4 rounded-full"
+                          style={{ backgroundColor: s.color }}
+                        />
+                      )}
+                      {s.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
