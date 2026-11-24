@@ -36,9 +36,11 @@ export function HrDashboardView() {
     <div>
       <div className="mb-5 flex items-center gap-3">
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          placeholder="Período (AAAA-MM)"
+          aria-label="Período (mês e ano)"
           className="w-44"
         />
       </div>

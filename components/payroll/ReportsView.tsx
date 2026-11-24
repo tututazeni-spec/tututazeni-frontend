@@ -35,7 +35,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { buildCsv } from '@/lib/csv';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { useDepartmentOptions } from './runData';
+import { thisMonth } from './periodOptions';
 import type { ReportResult } from './insightTypes';
 import { saveBlob } from '@/lib/download';
 
@@ -118,6 +120,29 @@ const TOTAL_LABEL: Record<string, string> = {
   failed: 'Falhados',
 };
 
+// Totalizadores apresentados como carteira (igual ao Fecho Salarial).
+const WALLET_STYLE: Record<
+  string,
+  {
+    tone: 'blue' | 'green' | 'orange' | 'red';
+    money: 'bills' | 'coins' | 'stack' | 'mixed' | 'fan';
+    image?: string;
+  }
+> = {
+  employees: {
+    tone: 'blue',
+    money: 'coins',
+    image: '/images/colaboradores.png',
+  },
+  payslips: { tone: 'blue', money: 'mixed', image: '/images/recibos.png' },
+  totalGross: { tone: 'blue', money: 'bills' },
+  totalNet: { tone: 'green', money: 'stack' },
+  totalDeductions: { tone: 'orange', money: 'mixed' },
+  totalInss: { tone: 'orange', money: 'coins' },
+  totalIrt: { tone: 'orange', money: 'coins' },
+  totalEmployerCost: { tone: 'red', money: 'bills' },
+};
+
 // Ícone e cor por totalizador: azul neutro, verde positivo, laranja
 // deduções/pendentes, vermelho custo/problema.
 const TOTAL_STYLE: Record<
@@ -186,8 +211,10 @@ function exportReport(
 
 export function ReportsView() {
   const [type, setType] = useState('monthly-payroll');
-  const [year, setYear] = useState(String(new Date().getFullYear()));
-  const [month, setMonth] = useState('');
+  const [period, setPeriod] = useState(thisMonth());
+  const [pYear, pMonth] = period.split('-');
+  const year = pYear || String(new Date().getFullYear());
+  const month = pMonth ? String(Number(pMonth)) : '';
   const [status, setStatus] = useState('all');
   const [departmentId, setDepartmentId] = useState('all');
   const { options: depOptions } = useDepartmentOptions();
@@ -205,6 +232,7 @@ export function ReportsView() {
   );
 
   const columns = data?.rows[0] ? Object.keys(data.rows[0]) : [];
+  const gridCols = `repeat(${columns.length}, minmax(7rem, 1fr))`;
 
   return (
     <div>
@@ -216,16 +244,12 @@ export function ReportsView() {
           className="w-72"
         />
         <Input
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          placeholder="Ano"
-          className="w-24"
-        />
-        <Input
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          placeholder="Mês (1-12)"
-          className="w-28"
+          type="month"
+          variant="underline"
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          aria-label="Período (mês e ano)"
+          className="w-44"
         />
         <Select
           variant="underline"
@@ -265,17 +289,38 @@ export function ReportsView() {
 
       {data && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            {Object.entries(data.totals).map(([k, v]) => (
-              <KpiCard
-                key={k}
-                icon={TOTAL_STYLE[k]?.icon}
-                intent={TOTAL_STYLE[k]?.intent}
-                label={TOTAL_LABEL[k] ?? k}
-                value={COUNT_TOTALS.has(k) ? v : fmtKz(v)}
-              />
-            ))}
-          </div>
+          {Object.entries(data.totals).some(([k]) => k in WALLET_STYLE) && (
+            <div className="grid grid-cols-1 items-start gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              {Object.entries(data.totals)
+                .filter(([k]) => k in WALLET_STYLE)
+                .map(([k, v]) => (
+                  <WalletStat
+                    key={k}
+                    zoom
+                    image={WALLET_STYLE[k].image ?? '/images/carteira.png'}
+                    money={WALLET_STYLE[k].money}
+                    tone={WALLET_STYLE[k].tone}
+                    label={TOTAL_LABEL[k] ?? k}
+                    value={COUNT_TOTALS.has(k) ? v : fmtKz(v)}
+                  />
+                ))}
+            </div>
+          )}
+          {Object.entries(data.totals).some(([k]) => !(k in WALLET_STYLE)) && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              {Object.entries(data.totals)
+                .filter(([k]) => !(k in WALLET_STYLE))
+                .map(([k, v]) => (
+                  <KpiCard
+                    key={k}
+                    icon={TOTAL_STYLE[k]?.icon}
+                    intent={TOTAL_STYLE[k]?.intent}
+                    label={TOTAL_LABEL[k] ?? k}
+                    value={COUNT_TOTALS.has(k) ? v : fmtKz(v)}
+                  />
+                ))}
+            </div>
+          )}
 
           {data.rows.length === 0 ? (
             <EmptyState
@@ -283,35 +328,33 @@ export function ReportsView() {
               description="Ajuste o período ou limpe os filtros."
             />
           ) : (
-            <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-              <table className="w-full text-left font-body text-xs">
-                <thead className="bg-brand-dark">
-                  <tr>
-                    {columns.map((c) => (
-                      <th
-                        key={c}
-                        className="px-2 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white"
-                      >
-                        {COLUMN_LABEL[c] ?? c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.rows.map((r, i) => (
-                    <tr
-                      key={`${r.key ?? i}`}
-                      className="border-b border-[#6F8FB8]/20 last:border-0"
-                    >
-                      {columns.map((c) => (
-                        <td key={c} className="px-2 py-3 text-white">
-                          {cell(c, r[c])}
-                        </td>
-                      ))}
-                    </tr>
+            <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
+              <div className="min-w-fit">
+                <div
+                  className="grid items-center gap-x-6 bg-brand-dark px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white"
+                  style={{ gridTemplateColumns: gridCols }}
+                >
+                  {columns.map((c) => (
+                    <div key={c}>{COLUMN_LABEL[c] ?? c}</div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                {data.rows.map((r, i) => (
+                  <div
+                    key={`${r.key ?? i}`}
+                    className="grid items-center gap-x-6 border-b border-brand-line px-4 py-[11px] last:border-0"
+                    style={{ gridTemplateColumns: gridCols }}
+                  >
+                    {columns.map((c) => (
+                      <div
+                        key={c}
+                        className="truncate font-body text-xs font-semibold text-ink"
+                      >
+                        {cell(c, r[c])}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
