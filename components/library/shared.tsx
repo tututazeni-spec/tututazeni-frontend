@@ -11,7 +11,7 @@ interface InfoProps {
 export function Info({ label, value }: InfoProps) {
   return (
     <div>
-      <p className="font-body text-xs uppercase text-ink-faint">{label}</p>
+      <p className="font-body text-xs uppercase text-ink-label">{label}</p>
       <p className="font-body text-sm text-ink">{value || '—'}</p>
     </div>
   );

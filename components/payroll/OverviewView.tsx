@@ -18,19 +18,14 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
 
-const thisMonth = () => new Date().toISOString().slice(0, 7);
-
-const ALERT_CLS = {
-  info: 'border-info/30 bg-info-subtle text-info-ink',
-  warning: 'border-warning/30 bg-warning-subtle text-warning-ink',
-  error: 'border-danger/30 bg-danger-subtle text-danger-ink',
-} as const;
+import { thisMonth } from './periodOptions';
 
 function Section({
   title,
@@ -41,7 +36,7 @@ function Section({
 }) {
   return (
     <section>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         {title}
       </h3>
       {/* Cartas largas: um montante de 7+ dígitos em AOA (ex.: 1 234 567 AOA) tem de caber inteiro. */}
@@ -65,24 +60,26 @@ export function OverviewView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          placeholder="Período (AAAA-MM)"
+          aria-label="Período (mês e ano)"
           className="w-44"
         />
         {data?.run && (
-          <div className="flex items-center gap-2 font-body text-sm text-ink-muted">
+          <div className="flex items-center gap-2 font-body text-sm text-black">
             Estado da folha:
             <StatusBadge
               value={data.run.status as keyof typeof RUN_STATUS_MAP}
               map={RUN_STATUS_MAP}
-              variant="dot"
+              variant="pill"
+              className={
+                data.run.status === 'PUBLISHED'
+                  ? '!bg-success !text-sm !font-normal !text-white'
+                  : '!bg-transparent !px-0 !text-sm !font-normal !text-black'
+              }
             />
-            {data.run.closed && (
-              <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-white">
-                Fechada
-              </span>
-            )}
           </div>
         )}
       </div>
@@ -100,15 +97,24 @@ export function OverviewView() {
       {data && (
         <div className="space-y-8">
           {data.alerts.length > 0 && (
-            <div className="space-y-2">
-              {data.alerts.map((a) => (
-                <div
-                  key={a.code}
-                  className={`rounded-card border px-4 py-2.5 font-body text-sm ${ALERT_CLS[a.severity]}`}
-                >
-                  {a.message}
-                </div>
-              ))}
+            <div className="space-y-1">
+              {data.alerts.map((a) =>
+                a.code === 'EXCEPTIONS' ? (
+                  <AlertCard
+                    key={a.code}
+                    variant="warning"
+                    compact
+                    navyText
+                    className="w-fit max-w-full"
+                    title={a.message.replace(/\.$/, '')}
+                    message="Valide-os antes de fechar a folha."
+                  />
+                ) : (
+                  <p key={a.code} className="font-body text-sm text-[#0F1F3D]">
+                    {a.message}
+                  </p>
+                ),
+              )}
             </div>
           )}
 
@@ -160,12 +166,14 @@ export function OverviewView() {
           </Section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
               Valores
             </h3>
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="bills"
                 tone="blue"
                 label="Salário bruto"
@@ -173,21 +181,22 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="stack"
                 tone="green"
                 label="Salário líquido"
                 value={fmtKz(data.financials.totalNet)}
-                sub={[
+                sub={
                   data.monthlyVariation?.pct != null
                     ? `${data.monthlyVariation.pct > 0 ? '+' : ''}${data.monthlyVariation.pct}%`
-                    : null,
-                  `Anterior (${data.previous.period}): ${fmtKz(data.previous.totalNet)}`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
+                    : undefined
+                }
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="coins"
                 tone="green"
                 label="Remunerações"
@@ -195,27 +204,35 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="mixed"
-                tone="orange"
+                tone="red"
                 label="Deduções"
                 value={fmtKz(data.financials.totalDeductions)}
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="INSS"
                 value={fmtKz(data.financials.totalInss)}
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="IRT"
                 value={fmtKz(data.financials.totalIrt)}
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="bills"
                 tone="red"
                 label="Encargos patronais"
@@ -223,6 +240,8 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="fan"
                 tone="red"
                 label="Custo total com pessoal"
@@ -230,8 +249,10 @@ export function OverviewView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="fan"
-                tone="blue"
+                tone="red"
                 label="Total a pagar"
                 value={fmtKz(data.financials.totalPayable)}
               />

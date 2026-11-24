@@ -118,7 +118,7 @@ function Fact({ icon: Icon, label, children, className }: FactProps) {
         className="mt-0.5 shrink-0 text-brand-muted"
       />
       <div className="min-w-0">
-        <dt className="text-micro font-semibold uppercase tracking-wide text-ink-faint">
+        <dt className="text-micro font-semibold uppercase tracking-wide text-ink-label">
           {label}
         </dt>
         <dd className="text-xs font-medium text-ink">{children}</dd>

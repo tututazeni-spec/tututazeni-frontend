@@ -846,7 +846,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
 
         {versions.length > 0 && (
           <div>
-            <h4 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
               Versões publicadas
             </h4>
             <ul className="flex flex-col gap-1 text-sm">

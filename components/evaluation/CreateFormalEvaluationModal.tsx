@@ -358,7 +358,7 @@ export function CreateFormalEvaluationModal({
 
           {/* Identificação */}
           <div className="space-y-4">
-            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-label">
               Identificação
             </h3>
             <FormField label="Título *" htmlFor="fe-title">
@@ -409,7 +409,7 @@ export function CreateFormalEvaluationModal({
 
           {/* Disponibilidade e nota */}
           <div className="space-y-4">
-            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-label">
               Disponibilidade e nota
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -465,7 +465,7 @@ export function CreateFormalEvaluationModal({
 
           {/* Departamentos */}
           <div className="space-y-3">
-            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-label">
               Departamentos
             </h3>
             <label className="flex items-center gap-2 text-sm text-ink">
@@ -502,7 +502,7 @@ export function CreateFormalEvaluationModal({
           {!importedFromAi && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-label">
                   Perguntas
                 </h3>
                 <Button intent="ghost" size="sm" onClick={addQuestion}>

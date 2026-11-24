@@ -28,6 +28,8 @@ import {
   AlertCircle,
   CalendarDays,
   Clock,
+  ClipboardCheck,
+  FileText,
   ListChecks,
   ShieldCheck,
   Trash2,
@@ -35,6 +37,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -47,11 +50,9 @@ import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   CATEGORY_CFG,
-  DOC_BADGE,
   DOC_LABEL,
   PHASE_LABELS,
   PHASE_ORDER,
@@ -59,6 +60,8 @@ import {
   TASK_STATUS_CFG,
 } from './constants';
 import { DocumentLink } from './DocumentLink';
+
+import { SectionTitleBar } from './SectionTitleBar';
 import { AssignTeamMemberModal } from './AssignTeamMemberModal';
 import { TeamMemberCard, type TeamRole } from './TeamMemberCard';
 import type {
@@ -89,8 +92,20 @@ export function PlanDetailModal({
 }: PlanDetailModalProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  // PATCH /onboarding/:id/team é só ADMIN.
+  const { data: me } = useCurrentUser();
+  const canAssignTeam = canManagePlan && me?.role?.code === 'ADMIN';
   const [pending, setPending] = useState<PendingAction>(null);
   const [reason, setReason] = useState('');
+  // Secções do plano (avaliação, fases, documentos) começam fechadas.
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const toggleSection = (key: string) =>
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   // Painel de rejeição de documento (id do documento) + motivo.
   const [docReject, setDocReject] = useState<number | null>(null);
   const [docReason, setDocReason] = useState('');
@@ -265,7 +280,7 @@ export function PlanDetailModal({
         title="Plano de integração"
         hideHeading
         navyClose
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="max-w-[874px] max-h-[90vh] overflow-y-auto"
       >
         {/* Faixa azul ondulada (desenho onboardings.jpg) */}
         <div className="relative -mx-6 -mt-6 overflow-hidden bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 pb-16 pt-5 pr-14">
@@ -324,7 +339,9 @@ export function PlanDetailModal({
                   <span className="font-body text-lg font-bold text-brand-dark">
                     {data.user.fullName}
                   </span>
-                  <StatusBadge value={data.status} map={STATUS_CFG} />
+                  <span className="cursor-default rounded px-2 py-0.5 font-body text-xs font-bold text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
+                    {STATUS_CFG[data.status]?.label ?? data.status}
+                  </span>
                 </div>
                 <div className="mt-0.5 font-body text-sm text-ink">
                   {data.user.position?.name ?? '—'}
@@ -332,7 +349,7 @@ export function PlanDetailModal({
                     ? ` - ${data.user.department.name}`
                     : ''}
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-sm text-ink-muted">
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-sm text-brand-dark">
                   <span className="inline-flex items-center gap-1.5">
                     <ListChecks size={16} strokeWidth={1.75} />
                     {data.completedTasks}/{data.totalTasks} tarefas ·{' '}
@@ -348,10 +365,9 @@ export function PlanDetailModal({
                       Previsto {fmtDate(data.expectedEndDate)}
                     </span>
                   )}
-                  {data.xpEarned > 0 && <span>{data.xpEarned} XP</span>}
                 </div>
                 <div className="mt-2">
-                  <ProgressBar value={data.progress} />
+                  <ProgressBar value={data.progress} color="#0F1F3D" />
                 </div>
               </div>
             </div>
@@ -360,13 +376,14 @@ export function PlanDetailModal({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {team.map(({ role, label, person, icon }) => (
                 <TeamMemberCard
+                  compact
                   key={label}
                   label={label}
                   person={person}
                   icon={icon}
                   mailSubject={`Onboarding — ${data.user.fullName}`}
                   onAssign={
-                    canManagePlan
+                    canAssignTeam
                       ? () => setAssigning({ role, label, hasPerson: !!person })
                       : undefined
                   }
@@ -380,35 +397,43 @@ export function PlanDetailModal({
                 sistema de avaliação próprio. */}
             {data.status === 'COMPLETED' &&
               (canManageTasks || data.integrationEvalRequestId) && (
-                <div className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-4">
-                  <div className="min-w-0">
-                    <div className="font-body text-sm font-semibold text-ink">
-                      Avaliação de Integração
+                <section>
+                  <SectionTitleBar
+                    icon={ClipboardCheck}
+                    title="Avaliação de Integração"
+                    expanded={openSections.has('eval')}
+                    onToggle={() => toggleSection('eval')}
+                  />
+                  {openSections.has('eval') && (
+                    <div className="flex items-center justify-between gap-3 rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-4">
+                      <div className="min-w-0">
+                        <div className="font-body text-xs text-ink-faint">
+                          {data.integrationEvalRequestId
+                            ? 'Já foi pedida — acompanha o resultado no módulo Avaliação.'
+                            : 'Avalia se o onboarding foi concluído com sucesso.'}
+                        </div>
+                      </div>
+                      {data.integrationEvalRequestId ? (
+                        <Badge dot={false} intent="success">
+                          Pedida
+                        </Badge>
+                      ) : (
+                        canManageTasks && (
+                          <Button
+                            size="sm"
+                            intent="ghost"
+                            className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                            disabled={busy}
+                            loading={triggerEval.isPending}
+                            onClick={() => triggerEval.mutate(undefined)}
+                          >
+                            Pedir avaliação
+                          </Button>
+                        )
+                      )}
                     </div>
-                    <div className="font-body text-xs text-ink-faint">
-                      {data.integrationEvalRequestId
-                        ? 'Já foi pedida — acompanha o resultado no módulo Evaluation.'
-                        : 'Avalia se o onboarding foi concluído com sucesso.'}
-                    </div>
-                  </div>
-                  {data.integrationEvalRequestId ? (
-                    <Badge dot={false} intent="success">
-                      Pedida
-                    </Badge>
-                  ) : (
-                    canManageTasks && (
-                      <Button
-                        size="sm"
-                        intent="secondary"
-                        disabled={busy}
-                        loading={triggerEval.isPending}
-                        onClick={() => triggerEval.mutate(undefined)}
-                      >
-                        Pedir avaliação
-                      </Button>
-                    )
                   )}
-                </div>
+                </section>
               )}
 
             {/* Tarefas por fase */}
@@ -417,140 +442,274 @@ export function PlanDetailModal({
               if (phaseTasks.length === 0) return null;
               return (
                 <section key={phase}>
-                  <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                    {PHASE_LABELS[phase]}
-                    <span className="ml-1.5 text-ink-faint">
-                      ({phaseTasks.length})
-                    </span>
-                  </h3>
-                  <ul className="space-y-2">
-                    {phaseTasks.map((task) => {
-                      const stCfg = TASK_STATUS_CFG[task.status];
-                      const StIcon = stCfg?.icon;
-                      const catCfg = CATEGORY_CFG[task.templateTask.category];
-                      const awaitingApproval =
-                        task.templateTask.requiresApproval &&
-                        task.status === 'IN_PROGRESS';
-                      const canSkip = SKIPPABLE.has(task.status);
-                      const showActions =
-                        canManageTasks && (awaitingApproval || canSkip);
-                      const panelOpen = pending?.taskId === task.id;
-                      return (
-                        <li
-                          key={task.id}
-                          className="rounded-card border border-border bg-surface p-3"
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
-                              {StIcon ? (
-                                <StIcon size={14} strokeWidth={1.75} />
-                              ) : (
-                                '•'
-                              )}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-body text-sm font-medium text-ink">
-                                  {task.templateTask.title}
-                                </span>
+                  <SectionTitleBar
+                    icon={ListChecks}
+                    title={PHASE_LABELS[phase]}
+                    meta={`${phaseTasks.length} ${phaseTasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+                    expanded={openSections.has(`phase-${phase}`)}
+                    onToggle={() => toggleSection(`phase-${phase}`)}
+                  />
+                  {openSections.has(`phase-${phase}`) && (
+                    <ul className="space-y-2">
+                      {phaseTasks.map((task) => {
+                        const stCfg = TASK_STATUS_CFG[task.status];
+                        const StIcon = stCfg?.icon;
+                        const catCfg = CATEGORY_CFG[task.templateTask.category];
+                        const awaitingApproval =
+                          task.templateTask.requiresApproval &&
+                          task.status === 'IN_PROGRESS';
+                        const canSkip = SKIPPABLE.has(task.status);
+                        const showActions =
+                          canManageTasks && (awaitingApproval || canSkip);
+                        const panelOpen = pending?.taskId === task.id;
+                        return (
+                          <li
+                            key={task.id}
+                            className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
+                                {StIcon ? (
+                                  <StIcon size={14} strokeWidth={1.75} />
+                                ) : (
+                                  '•'
+                                )}
+                              </span>
+                              <div className="min-w-0 flex-1">
                                 {catCfg && (
-                                  <span
-                                    className={`rounded px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}
-                                  >
+                                  <div className="font-body text-xs font-bold text-brand-dark">
                                     {catCfg.label}
+                                  </div>
+                                )}
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="font-body text-sm font-medium text-ink">
+                                    {task.templateTask.title}
                                   </span>
-                                )}
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                                {task.dueDate && (
-                                  <span>Prazo {fmtDate(task.dueDate)}</span>
-                                )}
-                                {task.completedAt && (
-                                  <span className="text-success-ink">
-                                    Concluída {fmtDate(task.completedAt)}
-                                  </span>
-                                )}
-                                {task.templateTask.requiresApproval &&
-                                  (task.approvedBy ? (
+                                </div>
+                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                  {task.dueDate && (
+                                    <span className="font-semibold text-ink">
+                                      Prazo {fmtDate(task.dueDate)}
+                                    </span>
+                                  )}
+                                  {task.completedAt && (
                                     <span className="text-success-ink">
-                                      Aprovada por {task.approvedBy.fullName}
+                                      Concluída {fmtDate(task.completedAt)}
                                     </span>
-                                  ) : awaitingApproval ? (
-                                    <span className="text-warning-ink">
-                                      Aguarda aprovação
-                                    </span>
-                                  ) : (
-                                    <span>Requer aprovação</span>
-                                  ))}
-                                {task.approvalNote && (
-                                  <span>Nota: {task.approvalNote}</span>
-                                )}
-                                {task.skipReason && (
-                                  <span>Saltada: {task.skipReason}</span>
-                                )}
+                                  )}
+                                  {task.templateTask.requiresApproval &&
+                                    (task.approvedBy ? (
+                                      <span className="text-success-ink">
+                                        Aprovada por {task.approvedBy.fullName}
+                                      </span>
+                                    ) : awaitingApproval ? (
+                                      <span className="text-warning-ink">
+                                        Aguarda aprovação
+                                      </span>
+                                    ) : (
+                                      <span>Requer aprovação</span>
+                                    ))}
+                                  {task.approvalNote && (
+                                    <span>Nota: {task.approvalNote}</span>
+                                  )}
+                                  {task.skipReason && (
+                                    <span>Saltada: {task.skipReason}</span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            {showActions && !panelOpen && (
-                              <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                                {awaitingApproval && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      intent="secondary"
-                                      disabled={busy}
-                                      loading={approve.isPending}
-                                      onClick={() => approve.mutate(task.id)}
-                                    >
-                                      Aprovar
-                                    </Button>
+                              {showActions && !panelOpen && (
+                                <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                                  {awaitingApproval && (
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        intent="secondary"
+                                        disabled={busy}
+                                        loading={approve.isPending}
+                                        onClick={() => approve.mutate(task.id)}
+                                      >
+                                        Aprovar
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        intent="ghost"
+                                        disabled={busy}
+                                        onClick={() => {
+                                          setReason('');
+                                          setPending({
+                                            taskId: task.id,
+                                            kind: 'reject',
+                                          });
+                                        }}
+                                      >
+                                        Rejeitar
+                                      </Button>
+                                    </>
+                                  )}
+                                  {canSkip && (
                                     <Button
                                       size="sm"
                                       intent="ghost"
+                                      className="cursor-pointer hover:bg-transparent hover:text-ink-muted"
                                       disabled={busy}
                                       onClick={() => {
                                         setReason('');
                                         setPending({
                                           taskId: task.id,
-                                          kind: 'reject',
+                                          kind: 'skip',
                                         });
                                       }}
                                     >
-                                      Rejeitar
+                                      Saltar
                                     </Button>
-                                  </>
-                                )}
-                                {canSkip && (
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {panelOpen && (
+                              <div className="mt-3 border-t border-border pt-3">
+                                <Textarea
+                                  value={reason}
+                                  onChange={(e) => setReason(e.target.value)}
+                                  rows={2}
+                                  className="w-full"
+                                  placeholder={
+                                    pending?.kind === 'skip'
+                                      ? 'Motivo para saltar a tarefa (obrigatório)…'
+                                      : 'Comentário para o colaborador (opcional)…'
+                                  }
+                                />
+                                <div className="mt-2 flex justify-end gap-2">
                                   <Button
                                     size="sm"
                                     intent="ghost"
                                     disabled={busy}
                                     onClick={() => {
+                                      setPending(null);
                                       setReason('');
-                                      setPending({
-                                        taskId: task.id,
-                                        kind: 'skip',
-                                      });
                                     }}
                                   >
-                                    Saltar
+                                    Cancelar
                                   </Button>
-                                )}
+                                  <Button
+                                    size="sm"
+                                    intent={
+                                      pending?.kind === 'skip'
+                                        ? 'primary'
+                                        : 'danger'
+                                    }
+                                    loading={skip.isPending || reject.isPending}
+                                    disabled={
+                                      busy ||
+                                      (pending?.kind === 'skip' &&
+                                        !reason.trim())
+                                    }
+                                    onClick={() => confirmPanel(task)}
+                                  >
+                                    {pending?.kind === 'skip'
+                                      ? 'Saltar tarefa'
+                                      : 'Rejeitar tarefa'}
+                                  </Button>
+                                </div>
                               </div>
                             )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </section>
+              );
+            })}
+
+            {/* Documentos */}
+            {data.documents.length > 0 && (
+              <section>
+                <SectionTitleBar
+                  icon={FileText}
+                  title="Documentos"
+                  meta={`${data.documents.length} ${data.documents.length === 1 ? 'documento' : 'documentos'}`}
+                  expanded={openSections.has('docs')}
+                  onToggle={() => toggleSection('docs')}
+                />
+                {openSections.has('docs') && (
+                  <ul className="space-y-2">
+                    {data.documents.map((doc) => {
+                      const rejectOpen = docReject === doc.id;
+                      return (
+                        <li
+                          key={doc.id}
+                          className="rounded-card bg-gradient-to-r from-white via-white to-brand-subtle shadow-[0_2px_10px_rgba(15,31,61,0.10)] p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-body text-sm font-medium text-ink">
+                                  {doc.documentType}
+                                </span>
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                <DocumentLink
+                                  fileUrl={doc.fileUrl}
+                                  className="text-primary hover:underline"
+                                />
+                                {doc.notes && <span>Nota: {doc.notes}</span>}
+                                {doc.rejectionReason && (
+                                  <span className="text-danger-ink">
+                                    Motivo: {doc.rejectionReason}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-end gap-1">
+                              {canManagePlan &&
+                                doc.status === 'PENDING' &&
+                                !rejectOpen && (
+                                  <div className="flex shrink-0 gap-1">
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                      disabled={busy}
+                                      loading={validateDoc.isPending}
+                                      onClick={() =>
+                                        validateDoc.mutate({
+                                          documentId: doc.id,
+                                          status: 'APPROVED',
+                                        })
+                                      }
+                                    >
+                                      Aprovar documento
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      className="text-brand-dark hover:bg-brand-dark hover:text-white"
+                                      disabled={busy}
+                                      onClick={() => {
+                                        setDocReason('');
+                                        setDocReject(doc.id);
+                                      }}
+                                    >
+                                      Rejeitar documento
+                                    </Button>
+                                  </div>
+                                )}
+                              <span className="pr-3 font-body text-xs font-bold text-ink">
+                                {DOC_LABEL[doc.status]}
+                              </span>
+                            </div>
                           </div>
 
-                          {panelOpen && (
+                          {rejectOpen && (
                             <div className="mt-3 border-t border-border pt-3">
                               <Textarea
-                                value={reason}
-                                onChange={(e) => setReason(e.target.value)}
+                                value={docReason}
+                                onChange={(e) => setDocReason(e.target.value)}
                                 rows={2}
                                 className="w-full"
-                                placeholder={
-                                  pending?.kind === 'skip'
-                                    ? 'Motivo para saltar a tarefa (obrigatório)…'
-                                    : 'Comentário para o colaborador (opcional)…'
-                                }
+                                placeholder="Motivo da rejeição (opcional)…"
                               />
                               <div className="mt-2 flex justify-end gap-2">
                                 <Button
@@ -558,29 +717,26 @@ export function PlanDetailModal({
                                   intent="ghost"
                                   disabled={busy}
                                   onClick={() => {
-                                    setPending(null);
-                                    setReason('');
+                                    setDocReject(null);
+                                    setDocReason('');
                                   }}
                                 >
                                   Cancelar
                                 </Button>
                                 <Button
                                   size="sm"
-                                  intent={
-                                    pending?.kind === 'skip'
-                                      ? 'primary'
-                                      : 'danger'
+                                  intent="danger"
+                                  loading={validateDoc.isPending}
+                                  disabled={busy}
+                                  onClick={() =>
+                                    validateDoc.mutate({
+                                      documentId: doc.id,
+                                      status: 'REJECTED',
+                                      rejectionReason: docReason,
+                                    })
                                   }
-                                  loading={skip.isPending || reject.isPending}
-                                  disabled={
-                                    busy ||
-                                    (pending?.kind === 'skip' && !reason.trim())
-                                  }
-                                  onClick={() => confirmPanel(task)}
                                 >
-                                  {pending?.kind === 'skip'
-                                    ? 'Saltar tarefa'
-                                    : 'Rejeitar tarefa'}
+                                  Confirmar rejeição
                                 </Button>
                               </div>
                             </div>
@@ -589,127 +745,7 @@ export function PlanDetailModal({
                       );
                     })}
                   </ul>
-                </section>
-              );
-            })}
-
-            {/* Documentos */}
-            {data.documents.length > 0 && (
-              <section>
-                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                  Documentos
-                  <span className="ml-1.5 text-ink-faint">
-                    ({data.documents.length})
-                  </span>
-                </h3>
-                <ul className="space-y-2">
-                  {data.documents.map((doc) => {
-                    const rejectOpen = docReject === doc.id;
-                    return (
-                      <li
-                        key={doc.id}
-                        className="rounded-card border border-border bg-surface p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-body text-sm font-medium text-ink">
-                                {doc.documentType}
-                              </span>
-                              <Badge dot={false} intent={DOC_BADGE[doc.status]}>
-                                {DOC_LABEL[doc.status]}
-                              </Badge>
-                            </div>
-                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                              <DocumentLink
-                                fileUrl={doc.fileUrl}
-                                className="text-primary hover:underline"
-                              />
-                              <span>Enviado {fmtDate(doc.createdAt)}</span>
-                              {doc.notes && <span>Nota: {doc.notes}</span>}
-                              {doc.rejectionReason && (
-                                <span className="text-danger-ink">
-                                  Motivo: {doc.rejectionReason}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {canManagePlan &&
-                            doc.status === 'PENDING' &&
-                            !rejectOpen && (
-                              <div className="flex shrink-0 gap-1">
-                                <Button
-                                  size="sm"
-                                  intent="secondary"
-                                  disabled={busy}
-                                  loading={validateDoc.isPending}
-                                  onClick={() =>
-                                    validateDoc.mutate({
-                                      documentId: doc.id,
-                                      status: 'APPROVED',
-                                    })
-                                  }
-                                >
-                                  Aprovar documento
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  intent="ghost"
-                                  disabled={busy}
-                                  onClick={() => {
-                                    setDocReason('');
-                                    setDocReject(doc.id);
-                                  }}
-                                >
-                                  Rejeitar documento
-                                </Button>
-                              </div>
-                            )}
-                        </div>
-
-                        {rejectOpen && (
-                          <div className="mt-3 border-t border-border pt-3">
-                            <Textarea
-                              value={docReason}
-                              onChange={(e) => setDocReason(e.target.value)}
-                              rows={2}
-                              className="w-full"
-                              placeholder="Motivo da rejeição (opcional)…"
-                            />
-                            <div className="mt-2 flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                intent="ghost"
-                                disabled={busy}
-                                onClick={() => {
-                                  setDocReject(null);
-                                  setDocReason('');
-                                }}
-                              >
-                                Cancelar
-                              </Button>
-                              <Button
-                                size="sm"
-                                intent="danger"
-                                loading={validateDoc.isPending}
-                                disabled={busy}
-                                onClick={() =>
-                                  validateDoc.mutate({
-                                    documentId: doc.id,
-                                    status: 'REJECTED',
-                                    rejectionReason: docReason,
-                                  })
-                                }
-                              >
-                                Confirmar rejeição
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                )}
               </section>
             )}
           </div>
@@ -723,14 +759,19 @@ export function PlanDetailModal({
                 onClick={onDelete}
                 loading={remove.isPending}
                 disabled={busy}
-                className="rounded-[14px]"
+                className="rounded-[14px] !px-[14.4px] !py-[7.2px] !text-[11.2px]"
               >
-                <Trash2 size={16} strokeWidth={1.75} aria-hidden />
+                <Trash2 size={13} strokeWidth={1.75} aria-hidden />
                 Remover plano
               </Button>
             )}
           </div>
-          <Button intent="ghost" onClick={onClose}>
+          <Button
+            size="sm"
+            intent="ghost"
+            className="mr-3 cursor-pointer hover:bg-transparent hover:text-ink-muted"
+            onClick={onClose}
+          >
             Fechar
           </Button>
         </div>

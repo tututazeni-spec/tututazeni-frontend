@@ -259,7 +259,7 @@ export function AutomationFormModal({
           </FormField>
 
           <section>
-            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               1. Quando
             </h4>
             <FormField label="Evento desencadeador *" htmlFor="af-trigger">
@@ -295,7 +295,7 @@ export function AutomationFormModal({
           </section>
 
           <section>
-            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               2. Se
             </h4>
             <ConditionEditor
@@ -307,7 +307,7 @@ export function AutomationFormModal({
           </section>
 
           <section>
-            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               3. Então
             </h4>
             <FormField label="Acção *" htmlFor="af-action">
@@ -387,7 +387,7 @@ export function AutomationFormModal({
           </section>
 
           <section>
-            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               4. Gestão da regra
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -168,7 +168,7 @@ export function DashboardView() {
 
       {/* Indicadores */}
       <div>
-        <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
           Indicadores
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

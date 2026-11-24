@@ -84,6 +84,8 @@ export interface AlertCardProps {
   actionLabel?: string;
   /** versão baixa: ~50% da altura, título e mensagem na mesma linha */
   compact?: boolean;
+  /** título, mensagem e detalhe em azul-marinho (#0F1F3D) em vez da cor da variante */
+  navyText?: boolean;
   className?: string;
 }
 
@@ -96,9 +98,19 @@ export function AlertCard({
   onAction,
   actionLabel = 'Ver →',
   compact = false,
+  navyText = false,
   className,
 }: AlertCardProps) {
-  const v = VARIANTS[variant];
+  const base = VARIANTS[variant];
+  const v = navyText
+    ? {
+        ...base,
+        iconColor: 'text-[#0F1F3D]',
+        title: 'text-[#0F1F3D]',
+        message: 'text-[#0F1F3D]',
+        detail: 'text-[#0F1F3D]/80',
+      }
+    : base;
   const Icon = v.icon;
   return (
     <div

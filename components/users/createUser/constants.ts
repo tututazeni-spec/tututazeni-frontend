@@ -14,6 +14,13 @@ export const GENDER_OPTIONS: ComboboxOption[] = [
   { value: 'OTHER', label: 'Outro' },
 ];
 
+export const IDENTIFICATION_TYPE_OPTIONS: ComboboxOption[] = [
+  { value: 'BILHETE_IDENTIDADE', label: 'Bilhete de Identidade' },
+  { value: 'PASSAPORTE', label: 'Passaporte' },
+  { value: 'CARTAO_RESIDENTE', label: 'Cartão de Residente' },
+  { value: 'TITULO_RESIDENCIA', label: 'Título de Residência' },
+];
+
 export const CONTRACT_TYPE_OPTIONS: ComboboxOption[] = Object.entries(
   CONTRACT_LABELS,
 ).map(([value, label]) => ({ value, label }));

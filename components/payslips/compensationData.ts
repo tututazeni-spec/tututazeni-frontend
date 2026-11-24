@@ -8,6 +8,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { SalaryComponent } from './types';
+import { componentLabel } from './componentLabels';
 
 export {
   useDirectoryUsers,
@@ -24,7 +25,7 @@ export function useSalaryComponentOptions(enabled = true) {
   const list = query.data ?? [];
   const options = list.map((c) => ({
     value: c.code,
-    label: `${c.code} — ${c.name} (${c.type === 'EARNING' ? 'Rendimento' : 'Desconto'})`,
+    label: `${componentLabel(c.code, c.name)} (${c.type === 'EARNING' ? 'Rendimento' : 'Desconto'})`,
   }));
   const byCode = Object.fromEntries(list.map((c) => [c.code, c])) as Record<
     string,

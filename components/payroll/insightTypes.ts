@@ -63,6 +63,7 @@ export interface EmployeeProfile {
   user: {
     id: number;
     fullName: string;
+    avatarUrl?: string | null;
     employeeNumber: string | null;
     nif: string | null;
     nib: string | null;
@@ -107,6 +108,8 @@ export interface DeductionsSummary {
     code: string;
     name: string;
     mandatory: boolean;
+    /** Dedução adicional criada por ADMIN/RH (ainda não entra no cálculo dos recibos). */
+    custom?: boolean;
     total: number;
     employeesAffected: number;
   }>;
@@ -121,6 +124,17 @@ export interface DeductionsSummary {
     byBracket: Array<{ bracket: string; employees: number; irt: number }>;
   };
   config: TaxConfig | null;
+}
+
+export interface DeductionTypeRow {
+  id: number;
+  name: string;
+  description: string | null;
+  calcMethod: 'PERCENT' | 'FIXED';
+  /** PERCENT: fracção (0.03 = 3%); FIXED: montante em AOA. */
+  value: number;
+  mandatory: boolean;
+  status: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface TaxConfig {

@@ -42,7 +42,7 @@ export interface CalendarItemPanelProps {
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-ink-label">{label}</div>
     <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
   </div>
 );
@@ -140,7 +140,7 @@ export function CalendarItemPanel({
 
         {item.dependencies.length > 0 && (
           <div className="mt-4">
-            <div className="font-body text-xs uppercase tracking-wide text-ink-faint">
+            <div className="font-body text-xs uppercase tracking-wide text-ink-label">
               Dependências
             </div>
             <ul className="mt-1 space-y-1">
@@ -173,7 +173,7 @@ export function CalendarItemPanel({
         )}
 
         <div className="mt-4">
-          <div className="font-body text-xs uppercase tracking-wide text-ink-faint">
+          <div className="font-body text-xs uppercase tracking-wide text-ink-label">
             Alterações do prazo
           </div>
           {!history || history.length === 0 ? (

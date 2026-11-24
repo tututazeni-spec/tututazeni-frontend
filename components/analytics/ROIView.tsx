@@ -59,7 +59,7 @@ export function ROIView() {
       </div>
 
       <div>
-        <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
           Impacto de formação por curso
         </div>
         <Table>

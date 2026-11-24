@@ -109,17 +109,17 @@ export interface Paginated<T> {
 }
 
 export const RUN_STATUS_MAP: StatusBadgeMap<RunStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-[#FACC15] text-black' },
   PROCESSING: { label: 'A processar', cls: 'bg-info-subtle text-info-ink' },
-  SIMULATED: { label: 'Simulado', cls: 'bg-info-subtle text-info-ink' },
+  SIMULATED: { label: 'Simulado', cls: 'bg-[#1877F2] text-white' },
   PENDING_APPROVAL: {
     label: 'Pendente de aprovação',
-    cls: 'bg-warning-subtle text-warning-ink',
+    cls: 'bg-transparent !px-0 text-[#0F1F3D] [&>span]:hidden',
   },
   CALCULATED: { label: 'Calculado', cls: 'bg-surface-sunken text-ink-muted' },
   APPROVED: { label: 'Aprovado', cls: 'bg-success-subtle text-success-ink' },
   PUBLISHED: { label: 'Publicado', cls: 'bg-success text-white' },
-  CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-danger text-white' },
 };
 
 export const EXCEPTION_SEVERITY_MAP: StatusBadgeMap<'ERROR' | 'WARNING'> = {

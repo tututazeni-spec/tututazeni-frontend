@@ -53,7 +53,7 @@ export function DonutStatCard({
           : 'flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100'
       }
     >
-      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
         {label}
       </h3>
       <div className="relative" style={{ width: size, height: size }}>

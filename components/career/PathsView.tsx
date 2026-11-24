@@ -24,7 +24,6 @@ import { NewCareerPathModal } from './NewCareerPathModal';
 import type { CareerPath } from './types';
 
 export function PathsView() {
-  const [selected, setSelected] = useState<CareerPath | null>(null);
   const [showNew, setShowNew] = useState(false);
   const notify = useToast();
   const confirm = useConfirm();
@@ -46,7 +45,6 @@ export function PathsView() {
     {
       invalidateKeys: [queryKeys.career.paths()],
       onSuccess: () => {
-        setSelected(null);
         notify({ title: 'Percurso de carreira apagado', intent: 'success' });
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -74,159 +72,85 @@ export function PathsView() {
           </Button>
         </div>
       )}
-      <div className="grid grid-cols-[300px_1fr] gap-5">
-        {/* Lista */}
-        <div className="space-y-2">
-          {paths.map((path) => (
-            <div
-              key={path.id}
-              onClick={() => setSelected(path)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelected(path);
-                }
-              }}
-              className={cn(
-                'flex cursor-pointer items-center gap-3 rounded-[18px] border p-4 shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                selected?.id === path.id
-                  ? 'border-transparent bg-gradient-to-br from-brand-mid to-brand-dark text-white'
-                  : 'border-brand-line bg-surface text-brand hover:border-[#0D6EFD]',
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-control',
-                  selected?.id === path.id ? 'bg-[#075FE8]' : 'bg-brand-soft',
-                )}
+      <div className="space-y-5">
+        {/* Lista — cartões horizontais (desenho trilhas.jpg) */}
+        <div className="space-y-3">
+          {paths.map((path) => {
+            const first = path.steps?.[0];
+            return (
+              <div
+                key={path.id}
+                style={{
+                  backgroundImage:
+                    'radial-gradient(ellipse 22% 140% at 0% 50%, rgba(140,160,198,0.55) 0%, rgba(176,192,222,0.30) 55%, rgba(255,255,255,0) 100%), linear-gradient(90deg, #E9EFFA 0%, #F8FAFE 28%, #F3F7FE 62%, #E3EBFA 100%)',
+                }}
+                className="grid h-[78px] grid-cols-[auto_minmax(0,1.35fr)_minmax(0,1fr)_auto] items-center gap-x-5 rounded-[16px] border border-brand-line pl-5 pr-4 shadow-[0_6px_24px_rgba(11,61,145,0.10)]"
               >
-                <Route
-                  size={18}
-                  strokeWidth={1.75}
-                  fill="#FFFFFF"
-                  stroke="#0F1F3D"
-                />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-semibold">
-                  {path.name}
+                <span
+                  aria-hidden="true"
+                  className="flex h-[46px] w-[46px] items-center justify-center rounded-[13px] bg-brand"
+                >
+                  <Route size={22} strokeWidth={2.25} className="text-white" />
+                </span>
+
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="h-[46px] w-[2px] shrink-0 bg-brand"
+                  />
+                  <div className="min-w-0">
+                    <div className="truncate font-body text-[17px] font-bold leading-tight text-brand">
+                      {path.name}
+                    </div>
+                    <div className="mt-0.5 truncate font-body text-xs text-brand-muted">
+                      {CAREER_PATH_TYPE[path.type] ?? path.type}
+                      <span className="mx-2">|</span>
+                      {path.steps?.length ?? 0} cargos
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-1 flex items-center justify-between gap-2 font-body text-xs opacity-70">
-                  <span>{CAREER_PATH_TYPE[path.type] ?? path.type}</span>
-                  <span>{path.steps?.length ?? 0} cargos</span>
-                </div>
+
+                {first ? (
+                  <div className="flex h-[52px] min-w-0 items-center gap-3 border-l border-brand-line pl-5">
+                    <span className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#4F8DF7] to-[#1D4ED8] font-display text-xl font-extrabold tabular-nums text-white shadow-[0_6px_14px_rgba(37,99,235,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] ring-1 ring-inset ring-white/25">
+                      {first.order}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate font-body text-sm font-bold leading-tight text-brand">
+                        {first.position?.name}
+                      </div>
+                      {first.minMonthsRequired ? (
+                        <div className="mt-0.5 inline-flex items-center gap-1.5 font-body text-xs text-brand-muted">
+                          <Clock size={13} strokeWidth={1.75} />
+                          {first.minMonthsRequired}m mínimos
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <span />
+                )}
+
+                {canManage ? (
+                  <button
+                    type="button"
+                    disabled={deletePath.isPending}
+                    onClick={() => handleDelete(path)}
+                    className="inline-flex h-[40px] shrink-0 items-center gap-2 rounded-[11px] bg-brand px-5 font-body text-sm font-bold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Trash2 size={16} strokeWidth={1.75} /> Apagar
+                  </button>
+                ) : (
+                  <span />
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           {paths.length === 0 && (
             <EmptyState
               title="Sem trilhas de carreira"
               description="Ainda não há trilhas de carreira configuradas."
             />
-          )}
-        </div>
-
-        {/* Detalhe */}
-        <div>
-          {!selected ? (
-            <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
-              Selecciona uma trilha
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-              {/* Cabeçalho */}
-              <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2.5">
-                    <Route size={20} strokeWidth={1.75} />
-                    <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
-                      {selected.name}
-                    </h3>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2 font-body text-xs text-white/85">
-                    <span className="rounded-full bg-white/15 px-2.5 py-0.5">
-                      {CAREER_PATH_TYPE[selected.type] ?? selected.type}
-                    </span>
-                    <span className="rounded-full bg-white/15 px-2.5 py-0.5">
-                      {selected.steps.length} passos
-                    </span>
-                  </div>
-                </div>
-                {canManage && (
-                  <button
-                    type="button"
-                    disabled={deletePath.isPending}
-                    onClick={() => handleDelete(selected)}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} /> Apagar
-                  </button>
-                )}
-              </div>
-
-              <div className="p-6">
-                {selected.description && (
-                  <p className="mb-5 font-body text-sm text-brand/70">
-                    {selected.description}
-                  </p>
-                )}
-
-                {/* Passos / Cargos */}
-                <div className="space-y-3">
-                  {selected.steps.map((step, idx) => (
-                    <div key={step.id} className="flex items-start gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-[#075FE8] font-body text-sm font-bold text-white">
-                          {step.order}
-                        </div>
-                        {idx < selected.steps.length - 1 && (
-                          <div className="mt-1 h-6 w-0.5 bg-brand-line" />
-                        )}
-                      </div>
-                      <div className="flex-1 rounded-card border border-brand-line bg-brand-soft/50 p-3">
-                        <div className="font-body text-sm font-semibold text-brand">
-                          {step.position?.name}
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-brand/60">
-                          {step.minMonthsRequired && (
-                            <span className="inline-flex items-center gap-1">
-                              <Clock size={12} strokeWidth={1.75} />{' '}
-                              {step.minMonthsRequired}m mínimos
-                            </span>
-                          )}
-                          {step.minPerformanceScore && (
-                            <span> Score ≥{step.minPerformanceScore}</span>
-                          )}
-                          {(step.requiredCourseIds?.length ?? 0) > 0 && (
-                            <span>
-                              {step.requiredCourseIds?.length} cursos
-                              obrigatórios
-                            </span>
-                          )}
-                        </div>
-                        {(step.position?.competencies?.length ?? 0) > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {step.position?.competencies
-                              ?.slice(0, 4)
-                              .map((pc) => (
-                                <span
-                                  key={pc.competency.id}
-                                  className="rounded-full bg-[#075FE8] px-2 py-0.5 font-body text-xs text-white"
-                                >
-                                  {pc.competency.name}
-                                </span>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           )}
         </div>
       </div>

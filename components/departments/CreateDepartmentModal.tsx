@@ -84,7 +84,7 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-4 first:border-t-0 first:pt-0">
-      <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
         {title}
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>

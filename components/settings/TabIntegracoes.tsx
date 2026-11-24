@@ -172,7 +172,7 @@ export function TabIntegracoes() {
           <CardBody>
             <div className="grid grid-cols-4 gap-4">
               <div>
-                <p className="m-0 flex flex-col items-start gap-1.5 text-xs uppercase tracking-wider text-ink-faint">
+                <p className="m-0 flex flex-col items-start gap-1.5 text-xs uppercase tracking-wider text-ink-label">
                   <MailCheck
                     size={80}
                     strokeWidth={1.5}
@@ -191,7 +191,7 @@ export function TabIntegracoes() {
                 </Badge>
               </div>
               <div>
-                <p className="m-0 flex flex-col items-start gap-1.5 text-xs uppercase tracking-wider text-ink-faint">
+                <p className="m-0 flex flex-col items-start gap-1.5 text-xs uppercase tracking-wider text-ink-label">
                   <WhatsAppIcon />
                   WhatsApp
                 </p>

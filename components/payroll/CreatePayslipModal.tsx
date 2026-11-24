@@ -166,7 +166,7 @@ export function CreatePayslipModal({
                         onClick={() =>
                           setPicked({ id: u.id, fullName: u.fullName })
                         }
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                        className="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left"
                       >
                         <span className="truncate font-body text-sm text-ink">
                           {u.fullName}

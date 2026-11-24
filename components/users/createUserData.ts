@@ -31,6 +31,13 @@ interface Paginated<T> {
   data: T[];
 }
 
+/** Resposta de GET /users/org-options: listas próprias de um departamento. */
+export interface DepartmentOrgOptions {
+  units: { id: number; name: string }[];
+  areas: string[];
+  departmentUnitId: number | null;
+}
+
 /** Departamentos activos para o Combobox de "Departamento". */
 export function useDepartmentOptions(enabled = true) {
   const params = { limit: 200, active: true };

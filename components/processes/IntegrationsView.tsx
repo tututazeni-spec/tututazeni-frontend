@@ -335,7 +335,7 @@ export function IntegrationsView({
       {/* Eventos recebidos */}
       <div>
         <div className="mb-2 flex flex-wrap items-center gap-3">
-          <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
             Eventos recebidos
           </div>
           <Select

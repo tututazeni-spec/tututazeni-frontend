@@ -33,13 +33,13 @@ export interface ApprovalPanelProps {
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-ink-label">{label}</div>
     <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
   </div>
 );
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+  <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
     {children}
   </h4>
 );

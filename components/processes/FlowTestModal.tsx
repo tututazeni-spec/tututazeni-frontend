@@ -161,7 +161,7 @@ export function FlowTestModal({ processId, steps, onClose }: FlowTestModalProps)
               </ul>
             )}
             <div>
-              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                 Caminho percorrido ({r.executed} executadas, {r.skipped} ignoradas)
               </h4>
               <ol className="space-y-2">

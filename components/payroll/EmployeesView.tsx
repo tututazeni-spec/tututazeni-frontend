@@ -4,23 +4,36 @@
 // salarial (GET /payroll/employees/:userId).
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { AlertTriangle, Building2, UserRound, Wallet } from 'lucide-react';
+import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { apiClient } from '@/lib/apiClient';
+import { exportTable, type ExportFormat } from '@/lib/tableExport';
+import { useToast } from '@/providers/ToastProvider';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Combobox } from '@/components/ui/Combobox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
+import { resolveBadge } from '@/lib/statusBadge';
+import {
+  PAYSLIP_STATUS_MAP,
+  type PayslipStatus,
+} from '@/components/payslips/types';
+import { UNDERLINE_COMBOBOX } from './filterStyles';
 import { RunPicker } from './RunPicker';
 import type { Paginated } from './types';
 import type { EmployeeProfile, RunEmployeeRow } from './insightTypes';
 
 const TH =
-  'whitespace-nowrap px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint';
+  'whitespace-nowrap px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-label';
 const TD = 'whitespace-nowrap px-3 py-3';
 
 function EmployeeProfileView({
@@ -46,78 +59,68 @@ function EmployeeProfileView({
       )}
       {data && (
         <div className="space-y-6 font-body text-sm">
-          <div className="rounded-card border border-border bg-surface p-4">
-            <h2 className="font-display text-lg font-semibold text-ink">
-              {data.user.fullName}
-            </h2>
-            <p className="mt-1 text-ink-muted">
-              Nº {data.user.employeeNumber ?? '—'} · NIF {data.user.nif ?? '—'}{' '}
-              · NIB {data.user.nib ?? '—'}
-            </p>
-            <p className="text-ink-muted">
-              {data.user.position?.name ?? '—'} ·{' '}
-              {data.user.department?.name ?? '—'}
-              {data.user.unit ? ` · ${data.user.unit.name}` : ''}
-            </p>
-          </div>
+          <ProfileRoiCard
+            kicker="Colaborador"
+            kickerIcon={UserRound}
+            name={data.user.fullName}
+            avatarUrl={data.user.avatarUrl}
+            stats={[
+              { label: 'Nº', value: data.user.employeeNumber ?? '—' },
+              { label: 'NIF', value: data.user.nif ?? '—' },
+              { label: 'Cargo', value: data.user.position?.name ?? '—' },
+              {
+                label: 'Departamento',
+                value: data.user.department?.name ?? '—',
+              },
+              ...(data.user.unit
+                ? [{ label: 'Unidade', value: data.user.unit.name }]
+                : []),
+            ]}
+          />
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-              Remuneração base e componentes
-            </h3>
             {data.compensation ? (
-              <div className="rounded-card border border-border bg-surface p-4 text-ink-muted">
-                <p>
-                  Salário base:{' '}
-                  <span className="font-body text-ink">
-                    {fmtKz(data.compensation.baseSalary)}
-                  </span>{' '}
-                  (desde {fmtDate(data.compensation.effectiveFrom)})
-                </p>
-                <p>
-                  Alimentação {fmtKz(data.compensation.foodAllowance)} ·
-                  Transporte {fmtKz(data.compensation.transportAllowance)}
-                  {data.compensation.bankName
-                    ? ` · Banco ${data.compensation.bankName}`
-                    : ''}
-                </p>
-                {data.compensation.components.length > 0 && (
-                  <ul className="mt-2 list-disc pl-5">
-                    {data.compensation.components.map((c) => (
-                      <li key={c.id}>
-                        {c.componentCode}: {fmtKz(c.value)}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <EmptyState
-                title="Sem compensação registada"
-                description="Defina a remuneração base em Compensações."
+              <ProfileRoiCard
+                kicker="Remuneração base e componentes"
+                kickerIcon={Wallet}
+                subtitle={`Salário base em vigor desde ${fmtDate(data.compensation.effectiveFrom)}`}
+                stats={[
+                  {
+                    label: 'Salário base',
+                    value: fmtKz(data.compensation.baseSalary),
+                  },
+                  {
+                    label: 'Alimentação',
+                    value: fmtKz(data.compensation.foodAllowance),
+                  },
+                  {
+                    label: 'Transporte',
+                    value: fmtKz(data.compensation.transportAllowance),
+                  },
+                  ...(data.compensation.bankName
+                    ? [{ label: 'Banco', value: data.compensation.bankName }]
+                    : []),
+                  ...data.compensation.components.map((c) => ({
+                    label: c.componentCode,
+                    value: fmtKz(c.value),
+                  })),
+                ]}
               />
+            ) : (
+              <>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-label">
+                  Remuneração base e componentes
+                </h3>
+                <EmptyState
+                  title="Sem compensação registada"
+                  description="Defina a remuneração base em Compensações."
+                />
+              </>
             )}
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-              Histórico salarial
-            </h3>
-            <ul className="space-y-1 text-ink-muted">
-              {data.salaryHistory.map((h) => (
-                <li key={h.id}>
-                  {fmtDate(h.effectiveFrom)} →{' '}
-                  {h.effectiveTo ? fmtDate(h.effectiveTo) : 'actual'}:{' '}
-                  <span className="font-body text-ink">
-                    {fmtKz(h.baseSalary)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-label">
               Recibos e pagamentos
             </h3>
             <div className="overflow-x-auto rounded-card border border-border bg-surface">
@@ -126,7 +129,7 @@ function EmployeeProfileView({
                   <tr>
                     <th className={TH}>Período</th>
                     <th className={TH}>Recibo</th>
-                    <th className={TH}>Líquido</th>
+                    <th className={`${TH} text-right`}>Líquido</th>
                     <th className={TH}>Estado</th>
                     <th className={TH}>Pago em</th>
                   </tr>
@@ -141,10 +144,17 @@ function EmployeeProfileView({
                       <td className={`${TD} text-ink-muted`}>
                         {p.receiptCode ?? '—'}
                       </td>
-                      <td className={`${TD} font-body`}>
+                      <td className={`${TD} text-right font-body tabular-nums`}>
                         {fmtKz(p.netSalary)}
                       </td>
-                      <td className={`${TD} text-ink-muted`}>{p.status}</td>
+                      <td className={`${TD} text-ink-muted`}>
+                        {
+                          resolveBadge(
+                            PAYSLIP_STATUS_MAP,
+                            p.status as PayslipStatus,
+                          ).label
+                        }
+                      </td>
                       <td className={`${TD} text-ink-muted`}>
                         {p.paymentDate ?? '—'}
                       </td>
@@ -160,21 +170,116 @@ function EmployeeProfileView({
   );
 }
 
+const ALL_DEPARTMENTS = 'all';
+
+interface DepartmentNode {
+  id: number;
+  name: string;
+  children?: DepartmentNode[];
+}
+
+function useDepartmentItems() {
+  const { data } = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(),
+    '/departments/tree',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return useMemo(() => {
+    const flat: { value: string; label: string }[] = [];
+    const walk = (nodes: DepartmentNode[] | undefined) => {
+      for (const n of nodes ?? []) {
+        flat.push({ value: String(n.id), label: n.name });
+        walk(n.children);
+      }
+    };
+    walk(data);
+    flat.sort((a, b) => a.label.localeCompare(b.label, 'pt'));
+    return [
+      { value: ALL_DEPARTMENTS, label: 'Todos os departamentos' },
+      ...flat,
+    ];
+  }, [data]);
+}
+
+async function exportEmployees(
+  runId: number,
+  params: Record<string, string | number>,
+  format: ExportFormat,
+) {
+  // Exporta todos os colaboradores do filtro, não só a página visível.
+  const all = await apiClient.get<Paginated<RunEmployeeRow>>(
+    `/payroll/runs/${runId}/employees`,
+    { params: { ...params, page: 1, limit: 10000 } },
+  );
+  const money = format === 'pdf';
+  const kz = (n: number) => (money ? fmtKz(n) : n);
+  await exportTable(format, {
+    title: 'Colaboradores do processamento',
+    filename: 'folha-colaboradores',
+    headers: [
+      'Colaborador',
+      'Nº',
+      'NIF',
+      'Departamento',
+      'Cargo',
+      'Base',
+      'Subsídios',
+      'Extra',
+      'Prémios',
+      'Faltas',
+      'INSS',
+      'IRT',
+      'Outras deduções',
+      'Bruto',
+      'Líquido',
+      'Custo patronal',
+      'Estado',
+    ],
+    rows: all.data.map((r) => [
+      r.fullName,
+      r.employeeNumber,
+      r.nif,
+      r.department,
+      r.position,
+      kz(r.baseSalary),
+      kz(r.allowances),
+      kz(r.overtime),
+      kz(r.bonuses),
+      r.absenceDays,
+      kz(r.inss),
+      kz(r.irt),
+      kz(r.otherDeductions),
+      kz(r.grossSalary),
+      kz(r.netSalary),
+      kz(r.employerCost),
+      resolveBadge(PAYSLIP_STATUS_MAP, r.status as PayslipStatus).label,
+    ]),
+  });
+}
+
 export function EmployeesView() {
+  const notify = useToast();
   const [runId, setRunId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
+  const [departmentId, setDepartmentId] = useState(''); // '' = nada escolhido
+  const departmentItems = useDepartmentItems();
   const [page, setPage] = useState(1);
   const [userId, setUserId] = useState<number | null>(null);
 
   const params: Record<string, string | number> = { page, limit: 30 };
   if (search.trim()) params.search = search.trim();
+  if (departmentId && departmentId !== ALL_DEPARTMENTS)
+    params.departmentId = departmentId;
+
+  const filtered =
+    runId !== null && (departmentId !== '' || search.trim().length > 0);
 
   const { data, isLoading, error } = useApiQuery<Paginated<RunEmployeeRow>>(
     queryKeys.payroll.section('employees', { runId, ...params }),
     `/payroll/runs/${runId}/employees`,
     {
       params,
-      enabled: runId !== null,
+      enabled: filtered,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
     },
@@ -190,13 +295,29 @@ export function EmployeesView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <RunPicker
+          variant="underline"
+          defaultToLatest
           value={runId}
           onChange={(id) => {
             setRunId(id);
             setPage(1);
           }}
         />
-        <Input
+        <Combobox
+          variant="underline"
+          icon={Building2}
+          items={departmentItems}
+          value={departmentId}
+          onValueChange={(v) => {
+            setDepartmentId(v);
+            setPage(1);
+          }}
+          placeholder="Departamento"
+          searchPlaceholder="Escreva o departamento…"
+          className={`w-64 ${UNDERLINE_COMBOBOX}`}
+        />
+        <SearchInput
+          variant="underline"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -205,6 +326,20 @@ export function EmployeesView() {
           placeholder="Nome ou nº de colaborador"
           className="w-64"
         />
+        {filtered && rows.length > 0 && runId !== null && (
+          <div className="ml-auto">
+            <ExportMenu
+              onExport={(format) =>
+                void exportEmployees(runId, params, format).catch(() =>
+                  notify({
+                    title: 'Não foi possível exportar os colaboradores',
+                    intent: 'danger',
+                  }),
+                )
+              }
+            />
+          </div>
+        )}
       </div>
 
       {runId === null && (
@@ -213,18 +348,24 @@ export function EmployeesView() {
           description="Seleccione o run para ver a situação salarial de cada colaborador."
         />
       )}
-      {runId !== null && isLoading && <Skeleton rows={8} />}
+      {runId !== null && !filtered && (
+        <EmptyState
+          title="Filtre para ver os colaboradores"
+          description="Escolha um departamento ou pesquise por nome ou nº de colaborador."
+        />
+      )}
+      {filtered && isLoading && <Skeleton rows={8} />}
       {error && (
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
-      {runId !== null && !isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Sem colaboradores neste processamento"
           description="Processe o run para gerar os recibos."
         />
       )}
 
-      {rows.length > 0 && (
+      {filtered && rows.length > 0 && (
         <>
           <div className="overflow-x-auto rounded-card border border-border bg-surface">
             <table className="w-full min-w-[1200px] text-left font-body text-sm">
@@ -254,12 +395,18 @@ export function EmployeesView() {
                   <tr
                     key={r.payslipId}
                     onClick={() => setUserId(r.userId)}
-                    className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken"
+                    className="cursor-pointer border-b border-border last:border-0"
                   >
                     <td className={`${TD} font-medium text-ink`}>
                       {r.fullName}
                       {r.hasExceptions && (
-                        <span className="ml-2 text-xs text-warning-ink">⚠</span>
+                        <span
+                          className="ml-2 inline-flex align-middle text-warning-ink"
+                          title="Recibo com excepções — abra a ficha do colaborador para ver o que rever"
+                          aria-label="Recibo com excepções"
+                        >
+                          <AlertTriangle size={14} strokeWidth={1.75} />
+                        </span>
                       )}
                     </td>
                     <td className={`${TD} text-ink-muted`}>
@@ -272,38 +419,47 @@ export function EmployeesView() {
                     <td className={`${TD} text-ink-muted`}>
                       {r.position ?? '—'}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.baseSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.allowances)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.overtime)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.bonuses)}
                     </td>
                     <td className={`${TD} text-right`}>{r.absenceDays}</td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.inss)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.irt)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.otherDeductions)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.grossSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body font-medium`}>
+                    <td
+                      className={`${TD} text-right font-body tabular-nums font-medium`}
+                    >
                       {fmtKz(r.netSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.employerCost)}
                     </td>
-                    <td className={`${TD} text-ink-muted`}>{r.status}</td>
+                    <td className={`${TD} text-ink-muted`}>
+                      {
+                        resolveBadge(
+                          PAYSLIP_STATUS_MAP,
+                          r.status as PayslipStatus,
+                        ).label
+                      }
+                    </td>
                   </tr>
                 ))}
               </tbody>

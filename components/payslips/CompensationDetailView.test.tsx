@@ -80,10 +80,10 @@ describe('CompensationDetailView', () => {
     expect(screen.getByText('AO06004400006729503010102')).toBeInTheDocument();
   });
 
-  test('timeline lists every record with an "Activo" badge on the open one and closed ranges', () => {
+  test('timeline lists every record, without an "Activo" badge, with the open range as "actual"', () => {
     render(<CompensationDetailView userId={7} onBack={vi.fn()} />);
-    // "Activo" badge shows on the active card and on the open timeline row.
-    expect(screen.getAllByText('Activo').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText('Activo')).not.toBeInTheDocument();
+    expect(screen.getByText(/actual/)).toBeInTheDocument();
     // two timeline entries
     expect(screen.getAllByText(/2026/).length).toBeGreaterThanOrEqual(2);
   });
@@ -135,6 +135,6 @@ describe('CompensationDetailView', () => {
     fireEvent.click(
       screen.getAllByRole('button', { name: /ver componentes/i })[0],
     );
-    expect(screen.getByText('TRANSPORT')).toBeInTheDocument();
+    expect(screen.getByText('Transport')).toBeInTheDocument();
   });
 });

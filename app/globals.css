@@ -187,6 +187,7 @@ table > thead th {
   --color-ink: #20241f;
   --color-ink-muted: #6e756b;
   --color-ink-faint: #9aa097;
+  --color-ink-label: #0f1f3d; /* rótulos/títulos de secção e cabeçalhos de tabela (navy) */
 
   /* marca */
   --color-primary: #163a2e;
@@ -305,6 +306,7 @@ table > thead th {
   --color-ink: #e6e9ef;
   --color-ink-muted: #a3acba;
   --color-ink-faint: #8590a2;
+  --color-ink-label: #8aa6d6;
 
   /* marca */
   --color-primary: #2a8160;
@@ -381,6 +383,7 @@ table > thead th {
     --color-ink: #e6e9ef;
     --color-ink-muted: #a3acba;
     --color-ink-faint: #8590a2;
+    --color-ink-label: #8aa6d6;
 
     /* marca */
     --color-primary: #2a8160;
@@ -556,5 +559,38 @@ select:focus {
   .app-topbar-search,
   .app-topbar-identity {
     display: none !important;
+  }
+}
+
+/* Impressão do recibo (PayslipDetailView): só o conteúdo de .payslip-print
+   sai no papel — menu lateral, cabeçalho e botões ficam de fora. */
+/* margin: 0 elimina o cabeçalho/rodapé do browser (data e hora, título da
+   página, endereço localhost); a margem visual vem do padding de
+   .payslip-print (e do 2.º card, que começa nova página). */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .payslip-print,
+  .payslip-print * {
+    visibility: visible;
+  }
+  .payslip-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12mm;
+  }
+  .payslip-print,
+  .payslip-print * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

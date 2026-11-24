@@ -233,7 +233,7 @@ function Control({
           <table className="font-body text-sm">
             <thead>
               <tr>
-                <th className="pr-3 text-left text-xs text-ink-faint">
+                <th className="pr-3 text-left text-xs text-ink-label">
                   De \ Para
                 </th>
                 {spec.rows.map((c) => (

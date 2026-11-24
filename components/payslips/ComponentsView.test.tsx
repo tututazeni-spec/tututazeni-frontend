@@ -113,13 +113,13 @@ describe('ComponentsView', () => {
     expect(screen.queryByText('BASE')).not.toBeInTheDocument();
     expect(screen.getByText('Salário Base')).toBeInTheDocument();
     // The filter labels "Rendimento"/"Desconto" also live in the (mocked) Select
-    // <option>s, so scope the type-badge assertions to the row <span>s. Two
-    // EARNING rows in the fixture → two "Rendimento" badges.
+    // <option>s, so scope the type assertions to the row <div>s. Two
+    // EARNING rows in the fixture → two "Rendimento" cells.
+    expect(screen.getAllByText('Rendimento', { selector: 'div' })).toHaveLength(
+      2,
+    );
     expect(
-      screen.getAllByText('Rendimento', { selector: 'span' }),
-    ).toHaveLength(2);
-    expect(
-      screen.getByText('Desconto', { selector: 'span' }),
+      screen.getByText('Desconto', { selector: 'div' }),
     ).toBeInTheDocument();
   });
 

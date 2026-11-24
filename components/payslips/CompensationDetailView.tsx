@@ -11,6 +11,9 @@ import {
   ChevronDown,
   ChevronRight,
   AlertCircle,
+  Landmark,
+  History,
+  Wallet,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,6 +22,8 @@ import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SectionHeader, TotalPill } from './PayslipAmountBreakdown';
+import { componentLabel } from './componentLabels';
 import { CompensationFormModal } from './CompensationFormModal';
 import { CompensationComponentsEditor } from './CompensationComponentsEditor';
 import type { EmployeeCompensation } from './types';
@@ -34,11 +39,22 @@ type ModalState =
   | { kind: 'components'; record: EmployeeCompensation }
   | { kind: 'create'; from?: EmployeeCompensation };
 
+// Efeito de hover dos botões secundários já usado no detalhe do recibo.
+const CARD_STYLE = {
+  backgroundColor: '#F5F9FF',
+  boxShadow: '0 6px 18px rgba(21,47,89,0.12)',
+};
+
+const BTN_HOVER =
+  'hover:!border-black hover:!bg-black hover:!text-white focus-visible:!bg-black focus-visible:!text-white';
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-border px-4 py-2.5 last:border-0">
-      <dt className="font-body text-sm text-ink-muted">{label}</dt>
-      <dd className="font-body text-sm font-medium text-ink">{value}</dd>
+    <div className="flex items-baseline justify-between gap-3 border-b border-[#EAEFF8] py-1.5 last:border-0">
+      <dt className="font-body text-sm text-[#1B2742]">{label}</dt>
+      <dd className="break-all text-right font-body text-sm font-semibold tabular-nums text-[#1B2742]">
+        {value}
+      </dd>
     </div>
   );
 }
@@ -68,6 +84,64 @@ export function CompensationDetailView({
       return n;
     });
 
+  const historyBlock = (
+    <div className="border-t border-[#BCC6E0] px-5 py-2.5 first:border-t-0">
+      <SectionHeader compact icon={History}>
+        Histórico
+      </SectionHeader>
+      <div>
+        {history.map((r) => {
+          const open = expanded.has(r.id);
+          return (
+            <div key={r.id} className="border-b border-[#EAEFF8] last:border-0">
+              <div className="flex items-center gap-3 py-0.5">
+                <button
+                  aria-label={open ? 'esconder componentes' : 'ver componentes'}
+                  onClick={() => toggle(r.id)}
+                  className="text-black hover:text-black/70"
+                >
+                  {open ? (
+                    <ChevronDown size={14} strokeWidth={1.75} />
+                  ) : (
+                    <ChevronRight size={14} strokeWidth={1.75} />
+                  )}
+                </button>
+                <div className="flex-1 font-body text-xs text-black">
+                  {fmtDate(r.effectiveFrom)} →{' '}
+                  {r.effectiveTo ? fmtDate(r.effectiveTo) : 'actual'}
+                </div>
+                <div className="font-body text-xs font-semibold tabular-nums text-black">
+                  {fmtKz(r.baseSalary)}
+                </div>
+              </div>
+              {open && (
+                <div className="mb-1 rounded-[8px] bg-[#EAF0FB] px-5 py-1">
+                  {r.components.length === 0 ? (
+                    <EmptyState variant="inline" title="Sem componentes" />
+                  ) : (
+                    r.components.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between py-0 font-body text-xs text-black"
+                      >
+                        <span className="font-body text-xs">
+                          {componentLabel(c.componentCode)}
+                        </span>
+                        <span className="font-body tabular-nums">
+                          {fmtKz(c.value)}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <button
@@ -83,9 +157,8 @@ export function CompensationDetailView({
           {heading}
         </h2>
         {person && (
-          <p className="font-body text-sm text-ink-faint">
-            {person.employeeNumber ?? '—'}
-            {person.department ? ` · ${person.department.name}` : ''}
+          <p className="font-body text-sm text-black">
+            {person.department?.name ?? ''}
           </p>
         )}
       </div>
@@ -114,36 +187,67 @@ export function CompensationDetailView({
           {current ? (
             <div className="mb-6">
               <div className="mb-2 flex items-center gap-2">
-                <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+                <h3 className="font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
                   Registo activo
                 </h3>
-                <span className="rounded-full bg-success-subtle px-2 py-0.5 font-body text-xs font-medium text-success-ink">
-                  Activo
-                </span>
               </div>
-              <dl className="overflow-hidden rounded-card border border-border bg-surface">
-                <Row label="Salário base" value={fmtKz(current.baseSalary)} />
-                <Row
-                  label="Subsídio de alimentação"
-                  value={fmtKz(current.foodAllowance)}
-                />
-                <Row
-                  label="Subsídio de transporte"
-                  value={fmtKz(current.transportAllowance)}
-                />
-                <Row label="Banco" value={current.bankName ?? '—'} />
-                <Row label="IBAN" value={current.iban ?? '—'} />
-                <Row label="Nº de conta" value={current.accountNumber ?? '—'} />
-                <Row label="País" value={current.countryCode ?? '—'} />
-                <Row
-                  label="Em vigor desde"
-                  value={fmtDate(current.effectiveFrom)}
-                />
-              </dl>
+              <div
+                className="overflow-hidden rounded-[22px] border border-[#D6E0F2]"
+                style={CARD_STYLE}
+              >
+                <div className="grid md:grid-cols-2 md:divide-x md:divide-[#BCC6E0]">
+                  <div className="flex flex-col px-6 py-5">
+                    <SectionHeader icon={Wallet}>Remunerações</SectionHeader>
+                    <dl>
+                      <Row
+                        label="Salário base"
+                        value={fmtKz(current.baseSalary)}
+                      />
+                      <Row
+                        label="Subsídio de alimentação"
+                        value={fmtKz(current.foodAllowance)}
+                      />
+                      <Row
+                        label="Subsídio de transporte"
+                        value={fmtKz(current.transportAllowance)}
+                      />
+                    </dl>
+                    <div className="mt-3">
+                      <TotalPill
+                        label="Total"
+                        value={fmtKz(
+                          current.baseSalary +
+                            (current.foodAllowance ?? 0) +
+                            (current.transportAllowance ?? 0),
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col px-6 py-5">
+                    <SectionHeader icon={Landmark}>
+                      Dados bancários
+                    </SectionHeader>
+                    <dl>
+                      <Row label="Banco" value={current.bankName ?? '—'} />
+                      <Row label="IBAN" value={current.iban ?? '—'} />
+                      <Row
+                        label="Nº de conta"
+                        value={current.accountNumber ?? '—'}
+                      />
+                      <Row label="País" value={current.countryCode ?? '—'} />
+                      <Row
+                        label="Em vigor desde"
+                        value={fmtDate(current.effectiveFrom)}
+                      />
+                    </dl>
+                  </div>
+                </div>
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button
                   intent="secondary"
                   size="sm"
+                  className={BTN_HOVER}
                   onClick={() => setModal({ kind: 'edit', record: current })}
                 >
                   Corrigir registo
@@ -151,6 +255,7 @@ export function CompensationDetailView({
                 <Button
                   intent="secondary"
                   size="sm"
+                  className={BTN_HOVER}
                   onClick={() =>
                     setModal({ kind: 'components', record: current })
                   }
@@ -182,70 +287,14 @@ export function CompensationDetailView({
             </div>
           )}
 
-          <h3 className="mb-2 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
-            Histórico
-          </h3>
-          <div className="overflow-hidden rounded-card border border-border bg-surface">
-            {history.map((r) => {
-              const open = expanded.has(r.id);
-              return (
-                <div
-                  key={r.id}
-                  className="border-b border-border last:border-0"
-                >
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <button
-                      aria-label={
-                        open ? 'esconder componentes' : 'ver componentes'
-                      }
-                      onClick={() => toggle(r.id)}
-                      className="text-ink-muted hover:text-ink"
-                    >
-                      {open ? (
-                        <ChevronDown size={16} strokeWidth={1.75} />
-                      ) : (
-                        <ChevronRight size={16} strokeWidth={1.75} />
-                      )}
-                    </button>
-                    <div className="flex-1 font-body text-sm text-ink">
-                      {fmtDate(r.effectiveFrom)} →{' '}
-                      {r.effectiveTo ? fmtDate(r.effectiveTo) : 'actual'}
-                    </div>
-                    <div className="font-body text-sm text-ink-muted">
-                      {fmtKz(r.baseSalary)}
-                    </div>
-                    <div className="font-body text-xs text-ink-faint">
-                      {r.components.length} comp.
-                    </div>
-                    {r.effectiveTo === null && (
-                      <span className="rounded-full bg-success-subtle px-2 py-0.5 font-body text-xs font-medium text-success-ink">
-                        Activo
-                      </span>
-                    )}
-                  </div>
-                  {open && (
-                    <div className="bg-surface-sunken px-11 py-2">
-                      {r.components.length === 0 ? (
-                        <EmptyState variant="inline" title="Sem componentes" />
-                      ) : (
-                        r.components.map((c) => (
-                          <div
-                            key={c.id}
-                            className="flex items-center justify-between py-1 font-body text-sm text-ink-muted"
-                          >
-                            <span className="font-body text-xs">
-                              {c.componentCode}
-                            </span>
-                            <span className="font-body">{fmtKz(c.value)}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          {
+            <div
+              className="overflow-hidden rounded-[22px] border border-[#D6E0F2]"
+              style={CARD_STYLE}
+            >
+              {historyBlock}
+            </div>
+          }
         </>
       )}
 

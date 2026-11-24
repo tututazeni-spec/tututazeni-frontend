@@ -5,10 +5,9 @@
 
 'use client';
 
-import { Zap, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { CATEGORY_CFG, TASK_STATUS_CFG } from './constants';
 import { isOverdue } from './utils';
 import type { TaskInstance } from './types';
@@ -26,15 +25,15 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
   const overdue = isOverdue(task.dueDate) && task.status !== 'COMPLETED';
 
   return (
-    <Card
-      className={`flex items-start gap-3 p-4 ${
+    <div
+      className={`flex items-start gap-3 rounded-[18px] border bg-surface px-4 py-[11px] font-body shadow-[0_4px_12px_rgba(21,47,89,0.10)] ${
         task.status === 'COMPLETED'
-          ? 'border-success opacity-70'
+          ? 'border-success'
           : task.status === 'BLOCKED'
-            ? 'opacity-50'
+            ? 'border-brand-line opacity-50'
             : overdue
               ? 'border-danger'
-              : 'hover:shadow-hover'
+              : 'border-brand-line'
       }`}
     >
       <div className={`flex-shrink-0 mt-0.5 ${statusCfg.cls}`}>
@@ -45,7 +44,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <div
-              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-ink-faint' : 'text-ink'}`}
+              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-black' : 'text-black'}`}
             >
               {task.templateTask.title}
             </div>
@@ -55,53 +54,46 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
               </p>
             )}
           </div>
-          <span
-            className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded flex-shrink-0 font-medium ${catCfg.cls}`}
-          >
-            <CatIcon size={12} strokeWidth={1.75} /> {catCfg.label}
-          </span>
         </div>
 
-        <div className="flex items-center gap-3 mt-2 text-xs text-ink-faint">
+        <div className="flex items-center gap-3 mt-2 text-xs text-black">
           {task.dueDate && (
             <span
               className={
-                overdue
-                  ? 'inline-flex items-center gap-1 text-danger font-medium'
-                  : ''
+                overdue ? 'inline-flex items-center gap-1 font-medium' : ''
               }
             >
               {overdue && <AlertTriangle size={12} strokeWidth={1.75} />}
               Prazo: {fmtDate(task.dueDate)}
             </span>
           )}
-          {task.templateTask.xpReward > 0 && (
-            <span className="inline-flex items-center gap-1 text-warning-ink">
-              <Zap size={12} strokeWidth={1.75} /> {task.templateTask.xpReward}{' '}
-              XP
-            </span>
-          )}
           {task.templateTask.requiresApproval && (
             <span className="text-info"> Requer aprovação</span>
           )}
-          {task.completedAt && (
-            <span className="text-success-ink">
-              ✓ {fmtDate(task.completedAt)}
-            </span>
-          )}
+          {task.completedAt && <span>✓ {fmtDate(task.completedAt)}</span>}
         </div>
       </div>
 
-      {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
-        <Button
-          size="sm"
-          onClick={() => onComplete(task.id)}
-          disabled={(task.status as string) === 'BLOCKED'}
-          className="flex-shrink-0"
-        >
-          Executar
-        </Button>
-      ) : null}
-    </Card>
+      <div className="flex flex-shrink-0 flex-col items-end gap-2">
+        {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
+          <Button
+            size="sm"
+            intent="secondary"
+            onClick={() => onComplete(task.id)}
+            disabled={(task.status as string) === 'BLOCKED'}
+            style={{
+              backgroundColor: '#0F1F3D',
+              color: '#FFFFFF',
+              borderColor: '#0F1F3D',
+            }}
+          >
+            Executar
+          </Button>
+        ) : null}
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#0F1F3D]">
+          <CatIcon size={12} strokeWidth={1.75} /> {catCfg.label}
+        </span>
+      </div>
+    </div>
   );
 }

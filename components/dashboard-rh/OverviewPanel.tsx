@@ -42,7 +42,7 @@ function PdiCoverageCard({ pct, status }: { pct: number; status?: string }) {
   return (
     <Card className="col-span-2 flex min-h-[232px] flex-col gap-2 p-5 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
           Cobertura PDI
         </h3>
         <span className="font-display text-3xl font-bold text-ink">{pct}%</span>

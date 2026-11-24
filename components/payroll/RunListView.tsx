@@ -1,26 +1,29 @@
 // components/payroll/RunListView.tsx
 // Lista paginada de PayrollRun (GET /payroll/runs). Mesmo molde de
 // components/payslips/CompensationsView.tsx: filtros na toolbar, tabela,
-// paginação, "+ Novo run" abre CreateRunModal; onCreated navega logo para
+// paginação, "+ Novo processamento" abre CreateRunModal; onCreated navega logo para
 // o detalhe do run recém-criado.
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Combobox } from '@/components/ui/Combobox';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import { CreateRunModal } from './CreateRunModal';
+import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
+import { UNDERLINE_COMBOBOX } from './filterStyles';
+import { periodOptions, thisMonth } from './periodOptions';
 import { RUN_STATUS_MAP, type Paginated, type PayrollRun } from './types';
-import { MapPin } from 'lucide-react';
+import { CalendarDays, MapPin, Users } from 'lucide-react';
 
 export interface RunListViewProps {
   onSelect: (runId: number) => void;
@@ -37,26 +40,41 @@ const STATUS_ITEMS = [
   { value: 'CANCELLED', label: RUN_STATUS_MAP.CANCELLED.label },
 ];
 
+const ALL = 'all';
+
+const PERIOD_ALL = { value: ALL, label: 'Todos os períodos' };
+const GROUP_ITEMS = [
+  { value: ALL, label: 'Todos os grupos' },
+  ...PAY_GROUP_ITEMS.filter((g) => g.value !== PAY_GROUP_NONE),
+];
+
 const COLS =
   'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
 
 export function RunListView({ onSelect }: RunListViewProps) {
   const [status, setStatus] = useState('all');
-  const [period, setPeriod] = useState('');
-  const [payGroup, setPayGroup] = useState('');
+  const [period, setPeriod] = useState(thisMonth());
+  const [payGroup, setPayGroup] = useState(ALL);
+  const periodItems = useMemo(
+    () => [PERIOD_ALL, ...periodOptions(period === ALL ? thisMonth() : period)],
+    [period],
+  );
   const [page, setPage] = useState(1);
   const [creating, setCreating] = useState(false);
 
   const params: Record<string, string | number> = { page, limit: 20 };
   if (status !== 'all') params.status = status;
-  if (period.trim()) params.period = period.trim();
-  if (payGroup.trim()) params.payGroup = payGroup.trim();
+  if (period !== ALL) params.period = period;
+  if (payGroup !== ALL && payGroup.trim()) params.payGroup = payGroup.trim();
+
+  const filtered = status !== ALL || period !== ALL || payGroup !== ALL;
 
   const { data, isLoading, error } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
     '/payroll/runs',
     {
       params,
+      enabled: filtered,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
     },
@@ -79,43 +97,59 @@ export function RunListView({ onSelect }: RunListViewProps) {
           }}
           className="w-56"
         />
-        <Input
+        <Combobox
+          variant="underline"
+          icon={CalendarDays}
+          allowCustom
+          items={periodItems}
           value={period}
-          onChange={(e) => {
-            setPeriod(e.target.value);
+          onValueChange={(v) => {
+            setPeriod(v);
             setPage(1);
           }}
           placeholder="Período (AAAA-MM)"
-          className="w-40"
+          searchPlaceholder="Escreva o período, ex.: 2026-10…"
+          className={`w-56 ${UNDERLINE_COMBOBOX}`}
         />
-        <Input
+        <Combobox
+          variant="underline"
+          icon={Users}
+          allowCustom
+          items={GROUP_ITEMS}
           value={payGroup}
-          onChange={(e) => {
-            setPayGroup(e.target.value);
+          onValueChange={(v) => {
+            setPayGroup(v);
             setPage(1);
           }}
           placeholder="Grupo"
-          className="w-40"
+          searchPlaceholder="Escreva o grupo…"
+          className={`w-48 ${UNDERLINE_COMBOBOX}`}
         />
         <Button className="ml-auto" onClick={() => setCreating(true)}>
-          + Novo run
+          + Novo processamento
         </Button>
       </div>
 
-      {isLoading && <Skeleton rows={8} />}
+      {!filtered && (
+        <EmptyState
+          title="Filtre para ver os processamentos"
+          description="Escolha um estado, período ou grupo para listar os processamentos."
+        />
+      )}
+      {filtered && isLoading && <Skeleton rows={8} />}
       {error && (
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
 
-      {!isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Nenhum run encontrado"
-          description='Limpa os filtros ou cria um novo run com "+ Novo run".'
+          description='Limpa os filtros ou cria um novo processamento com "+ Novo processamento".'
         />
       )}
 
-      {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+      {filtered && !isLoading && rows.length > 0 && (
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[900px]">
             <div
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
@@ -125,47 +159,45 @@ export function RunListView({ onSelect }: RunListViewProps) {
               <div>País</div>
               <div>Estado</div>
               <div>Colaboradores</div>
-              <div>Total líquido</div>
+              <div className="text-right">Total líquido</div>
               <div>Exceções</div>
               <div>Criado em</div>
             </div>
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3 text-ink last:border-0`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink">
                   {r.period}
                 </div>
-                <div className="truncate font-body text-sm text-on-brand">
+                <div className="truncate font-body text-sm text-ink">
                   {r.payGroup ?? '—'}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.countryCode}
                 </div>
                 <div>
-                  <StatusBadge
-                    value={r.status}
-                    map={RUN_STATUS_MAP}
-                    variant="dot"
-                  />
+                  <span className="font-body text-sm text-[#0F1F3D]">
+                    {resolveBadge(RUN_STATUS_MAP, r.status).label}
+                  </span>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.employeeCount ?? '—'}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(r.totalNet)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {r.exceptionsCount ?? 0}
                   {(r.errorCount ?? 0) > 0 && (
-                    <span className="ml-1 text-[#FFB4B4]">
+                    <span className="ml-1 text-danger">
                       ({r.errorCount} erro)
                     </span>
                   )}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(r.createdAt)}
                 </div>
               </div>
@@ -174,7 +206,13 @@ export function RunListView({ onSelect }: RunListViewProps) {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      {filtered && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       {creating && (
         <CreateRunModal

@@ -1,6 +1,10 @@
 // components/users/createUser/ProfessionalSection.tsx
 // Secção «Dados profissionais» do formulário Novo Utilizador (apresentação).
 
+import { useState } from 'react';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { EditOrgListsModal } from './EditOrgListsModal';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import {
@@ -32,13 +36,36 @@ export function ProfessionalSection({
     managersLoading,
     pickManager,
     clearManager,
+    selectedMentor,
+    mentorSearch,
+    setMentorSearch,
+    mentorResults,
+    mentorsLoading,
+    pickMentor,
+    clearMentor,
+    selectedHr,
+    hrSearch,
+    setHrSearch,
+    hrResults,
+    hrLoading,
+    pickHr,
+    clearHr,
     unitOptions,
     unitsLoading,
     departmentOptions,
     departmentsLoading,
     positionOptions,
     positionsLoading,
+    areaOptions,
+    org,
+    unitValue,
+    changeUnit,
+    changeDepartment,
   } = ctl;
+
+  const [editingLists, setEditingLists] = useState(false);
+  const departmentName =
+    departmentOptions.find((d) => d.value === form.departmentId)?.label ?? '';
 
   return (
     <>
@@ -58,9 +85,11 @@ export function ProfessionalSection({
       <FormField label="Unidade" htmlFor="unitId">
         <Combobox
           items={unitOptions}
-          value={form.unitId || undefined}
-          onValueChange={(v) => setField('unitId', v)}
+          value={unitValue || undefined}
+          onValueChange={changeUnit}
+          allowCustom
           placeholder={unitsLoading ? 'A carregar…' : 'Selecionar unidade'}
+          searchPlaceholder="Escreva para filtrar ou indicar outra…"
           disabled={unitsLoading}
         />
       </FormField>
@@ -68,19 +97,43 @@ export function ProfessionalSection({
         <Combobox
           items={departmentOptions}
           value={form.departmentId || undefined}
-          onValueChange={(v) => setField('departmentId', v)}
+          onValueChange={changeDepartment}
           placeholder={
             departmentsLoading ? 'A carregar…' : 'Selecionar departamento'
           }
           disabled={departmentsLoading}
         />
       </FormField>
-      <Field
-        label="Área"
+      <ListField
         id="area"
+        label="Área"
         value={form.area}
-        onChange={handle('area')}
+        onChange={(v) => setField('area', v)}
+        options={areaOptions}
+        custom
       />
+      {form.departmentId && (
+        <div className="col-span-2 -mt-2">
+          <Button
+            intent="ghost"
+            size="sm"
+            type="button"
+            onClick={() => setEditingLists(true)}
+          >
+            <Pencil size={14} strokeWidth={1.75} />
+            Editar listas de unidades e áreas deste departamento
+          </Button>
+        </div>
+      )}
+      {editingLists && (
+        <EditOrgListsModal
+          key={`${form.departmentId}-${org?.units.length ?? 0}`}
+          departmentId={form.departmentId}
+          departmentName={departmentName}
+          org={org}
+          onClose={() => setEditingLists(false)}
+        />
+      )}
       <FormField label="Cargo" htmlFor="positionId">
         <Combobox
           items={positionOptions}
@@ -115,6 +168,30 @@ export function ProfessionalSection({
         loading={managersLoading}
         onPick={pickManager}
         onClear={clearManager}
+      />
+      <ManagerPicker
+        label="Mentor"
+        inputId="mentorSearch"
+        clearLabel="Remover mentor"
+        selected={selectedMentor}
+        search={mentorSearch}
+        onSearch={setMentorSearch}
+        results={mentorResults}
+        loading={mentorsLoading}
+        onPick={pickMentor}
+        onClear={clearMentor}
+      />
+      <ManagerPicker
+        label="RH responsável"
+        inputId="hrSearch"
+        clearLabel="Remover RH responsável"
+        selected={selectedHr}
+        search={hrSearch}
+        onSearch={setHrSearch}
+        results={hrResults}
+        loading={hrLoading}
+        onPick={pickHr}
+        onClear={clearHr}
       />
       <Field
         label="Localização"

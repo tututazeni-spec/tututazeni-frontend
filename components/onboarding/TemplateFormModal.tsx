@@ -47,6 +47,13 @@ import {
   RESPONSIBLE_LABELS,
 } from './constants';
 import { useUnitOptions } from './planData';
+import {
+  DEFAULT_WELCOME_MESSAGE,
+  WELCOME_NAME_TOKEN,
+  objectivesForDepartment,
+  planNameForDepartment,
+  suggestionsForFilters,
+} from './catalog';
 import type {
   OnboardingTemplateDetail,
   ResponsibleRole,
@@ -71,14 +78,20 @@ const BASE_DURATIONS = ['7', '15', '30', '60', '90'];
 const NO_DEPT = 'NONE';
 const NO_POSITION = 'NONE';
 const NO_UNIT = 'NONE';
+const ALL = 'ALL';
+const MANUAL_TITLE = '__manual__';
 
 interface TaskDraft {
   key: number;
   title: string;
   category: TaskCategory | '';
-  phase: TaskPhase;
-  responsible: ResponsibleRole;
+  // Etapa/responsável/prazo funcionam também como filtros da lista de
+  // sugestões do título — '' = sem filtro (assume-se PRE_BOARDING/SELF/0 ao gravar).
+  phase: TaskPhase | '';
+  responsible: ResponsibleRole | '';
   dueDayOffset: string;
+  // Título escrito à mão em vez de escolhido da lista de sugestões.
+  manual: boolean;
   xpReward: string;
   // Formação obrigatória (e qualquer outro item da Estrutura) — default
   // true, batendo com o default do backend (schema.prisma); desmarcar
@@ -91,9 +104,10 @@ const emptyTask = (): TaskDraft => ({
   key: nextDraftKey++,
   title: '',
   category: '',
-  phase: 'PRE_BOARDING',
-  responsible: 'SELF',
-  dueDayOffset: '0',
+  phase: '',
+  responsible: '',
+  dueDayOffset: '',
+  manual: false,
   xpReward: '10',
   isMandatory: true,
 });
@@ -122,25 +136,34 @@ const CATEGORY_ITEMS = Object.entries(CATEGORY_CFG).map(([value, cfg]) => ({
   value,
   label: cfg.label,
 }));
-const PHASE_ITEMS = PHASE_ORDER.map((value) => ({
-  value,
-  label: PHASE_LABELS[value],
-}));
-const RESPONSIBLE_ITEMS = Object.entries(RESPONSIBLE_LABELS).map(
-  ([value, label]) => ({ value, label }),
-);
+const splitObjectives = (raw: string | null | undefined): string[] =>
+  (raw ?? '')
+    .split('\n')
+    .map((o) => o.trim())
+    .filter(Boolean);
+const PHASE_ITEMS = [
+  { value: ALL, label: 'Todas as etapas' },
+  ...PHASE_ORDER.map((value) => ({ value, label: PHASE_LABELS[value] })),
+];
+const RESPONSIBLE_ITEMS = [
+  { value: ALL, label: 'Todos os colaboradores' },
+  ...Object.entries(RESPONSIBLE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
+];
 
 interface TemplateFormModalFormValues {
   name: string;
   description: string;
-  objective: string;
-  company: string;
-  location: string;
+  objectives: string[];
+  customObjective: string;
+  nameTouched: boolean;
   departmentId: string;
   unitId: string;
   positionId: string;
   durationDays: string;
-  welcomeVideoUrl: string;
+  welcomeMessage: string;
   active: boolean;
   tasks: TaskDraft[];
   submitError: string;
@@ -157,9 +180,9 @@ export function TemplateFormModal({
     useFormState<TemplateFormModalFormValues>({
       name: template?.name ?? '',
       description: template?.description ?? '',
-      objective: template?.objective ?? '',
-      company: template?.company ?? '',
-      location: template?.location ?? '',
+      objectives: splitObjectives(template?.objective),
+      customObjective: '',
+      nameTouched: template != null,
       departmentId:
         template?.departmentId != null
           ? String(template.departmentId)
@@ -170,7 +193,7 @@ export function TemplateFormModal({
           ? String(template.positionId)
           : NO_POSITION,
       durationDays: String(template?.durationDays ?? 30),
-      welcomeVideoUrl: template?.welcomeVideoUrl ?? '',
+      welcomeMessage: template?.welcomeMessage ?? DEFAULT_WELCOME_MESSAGE,
       active: template?.active ?? true,
       tasks: [],
       submitError: '',
@@ -178,14 +201,14 @@ export function TemplateFormModal({
   const {
     name,
     description,
-    objective,
-    company,
-    location,
+    objectives,
+    customObjective,
+    nameTouched,
     departmentId,
     unitId,
     positionId,
     durationDays,
-    welcomeVideoUrl,
+    welcomeMessage,
     active,
     tasks,
     submitError,
@@ -214,6 +237,33 @@ export function TemplateFormModal({
       label: p.name,
     })),
   ];
+  const deptName =
+    departmentId !== NO_DEPT
+      ? (deptItems.find((d) => d.value === departmentId)?.label ?? null)
+      : null;
+  const objectiveOptions = objectivesForDepartment(deptName);
+  const onDepartmentChange = (v: string) => {
+    setField('departmentId', v);
+    const label = deptItems.find((d) => d.value === v)?.label;
+    if (v !== NO_DEPT && label && !nameTouched) {
+      setField('name', planNameForDepartment(label));
+    }
+    // Objectivos sugeridos são por departamento: ao mudar, descartam-se os
+    // escolhidos da lista anterior e mantêm-se só os escritos à mão.
+    setField('objectives', (prev) =>
+      prev.filter((o) => !objectiveOptions.includes(o)),
+    );
+  };
+  const toggleObjective = (o: string) =>
+    setField('objectives', (prev) =>
+      prev.includes(o) ? prev.filter((x) => x !== o) : [...prev, o],
+    );
+  const addCustomObjective = () => {
+    const o = customObjective.trim();
+    if (!o) return;
+    setField('objectives', (prev) => (prev.includes(o) ? prev : [...prev, o]));
+    setField('customObjective', '');
+  };
   const unitItems = [{ value: NO_UNIT, label: 'Sem unidade' }, ...unitOptions];
 
   const durationItems = Array.from(new Set([...BASE_DURATIONS, durationDays]))
@@ -274,21 +324,22 @@ export function TemplateFormModal({
     };
     if (description.trim()) payload.description = description.trim();
     else if (editing) payload.description = null;
-    if (objective.trim()) payload.objective = objective.trim();
+    const allObjectives = customObjective.trim()
+      ? [...objectives, customObjective.trim()]
+      : objectives;
+    if (allObjectives.length > 0) payload.objective = allObjectives.join('\n');
     else if (editing) payload.objective = null;
-    if (company.trim()) payload.company = company.trim();
-    else if (editing) payload.company = null;
-    if (location.trim()) payload.location = location.trim();
-    else if (editing) payload.location = null;
     if (departmentId !== NO_DEPT) payload.departmentId = Number(departmentId);
     else if (editing) payload.departmentId = null;
     if (positionId !== NO_POSITION) payload.positionId = Number(positionId);
     else if (editing) payload.positionId = null;
     if (unitId !== NO_UNIT) payload.unitId = Number(unitId);
     else if (editing) payload.unitId = null;
-    if (welcomeVideoUrl.trim())
-      payload.welcomeVideoUrl = welcomeVideoUrl.trim();
-    else if (editing) payload.welcomeVideoUrl = null;
+    // A mensagem geral não se grava: o colaborador vê-a por omissão.
+    const customWelcome = welcomeMessage.trim();
+    if (customWelcome && customWelcome !== DEFAULT_WELCOME_MESSAGE)
+      payload.welcomeMessage = customWelcome;
+    else if (editing) payload.welcomeMessage = null;
     // Criar: backend usa default true, só enviamos quando desligado.
     // Editar: enviamos sempre (é o mecanismo de "arquivar").
     if (editing || !active) payload.active = active;
@@ -299,8 +350,8 @@ export function TemplateFormModal({
         title: t.title.trim(),
         category: t.category,
         type: typeForCategory(t.category as TaskCategory),
-        phase: t.phase,
-        responsible: t.responsible,
+        phase: t.phase || 'PRE_BOARDING',
+        responsible: t.responsible || 'SELF',
         isMandatory: t.isMandatory,
         dueDayOffset:
           t.dueDayOffset.trim() === '' ? 0 : Math.trunc(Number(t.dueDayOffset)),
@@ -330,16 +381,28 @@ export function TemplateFormModal({
             </div>
           )}
 
-          <div className="text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="text-xs font-medium text-ink-label uppercase tracking-wide">
             Informações gerais
           </div>
+
+          <FormField label="Departamento" htmlFor="ot-department">
+            <Select
+              items={deptItems}
+              value={departmentId}
+              onValueChange={onDepartmentChange}
+              className="w-full"
+            />
+          </FormField>
 
           <FormField label="Nome *" htmlFor="ot-name">
             <Input
               id="ot-name"
               value={name}
-              onChange={(e) => setField('name', e.target.value)}
-              placeholder="Ex.: Onboarding Colaborador TI"
+              onChange={(e) => {
+                setField('name', e.target.value);
+                setField('nameTouched', e.target.value.trim() !== '');
+              }}
+              placeholder="Ex.: Plano de Integração da área de Auditoria"
               maxLength={200}
               className="w-full"
             />
@@ -356,15 +419,57 @@ export function TemplateFormModal({
             />
           </FormField>
 
-          <FormField label="Objectivo" htmlFor="ot-objective">
-            <Textarea
-              id="ot-objective"
-              value={objective}
-              onChange={(e) => setField('objective', e.target.value)}
-              placeholder="Opcional — o que este plano de integração pretende alcançar."
-              rows={2}
-              className="w-full"
-            />
+          <FormField label="Objectivos" htmlFor="ot-objective">
+            <div className="space-y-2">
+              <ul
+                role="group"
+                aria-label="Objectivos sugeridos"
+                className="max-h-56 divide-y divide-border overflow-y-auto rounded-card border border-border"
+              >
+                {[
+                  ...objectiveOptions,
+                  ...objectives.filter((o) => !objectiveOptions.includes(o)),
+                ].map((o) => (
+                  <li key={o}>
+                    <label className="flex cursor-pointer items-start gap-2 px-3 py-2 text-sm text-ink">
+                      <Checkbox
+                        checked={objectives.includes(o)}
+                        onChange={() => toggleObjective(o)}
+                      />
+                      <span>{o}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-ink-faint">
+                {objectives.length} seleccionado
+                {objectives.length === 1 ? '' : 's'}
+              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="ot-objective"
+                  value={customObjective}
+                  onChange={(e) => setField('customObjective', e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomObjective();
+                    }
+                  }}
+                  placeholder="Ou escreva um objectivo e prima Adicionar"
+                  className="w-full"
+                />
+                <Button
+                  size="sm"
+                  intent="ghost"
+                  type="button"
+                  onClick={addCustomObjective}
+                  disabled={!customObjective.trim()}
+                >
+                  Adicionar
+                </Button>
+              </div>
+            </div>
           </FormField>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -373,26 +478,6 @@ export function TemplateFormModal({
                 items={durationItems}
                 value={durationDays}
                 onValueChange={(v) => setField('durationDays', v)}
-                className="w-full"
-              />
-            </FormField>
-
-            <FormField label="Empresa" htmlFor="ot-company">
-              <Input
-                id="ot-company"
-                value={company}
-                onChange={(e) => setField('company', e.target.value)}
-                placeholder="Opcional"
-                maxLength={200}
-                className="w-full"
-              />
-            </FormField>
-
-            <FormField label="Departamento" htmlFor="ot-department">
-              <Select
-                items={deptItems}
-                value={departmentId}
-                onValueChange={(v) => setField('departmentId', v)}
                 className="w-full"
               />
             </FormField>
@@ -413,29 +498,28 @@ export function TemplateFormModal({
                 onValueChange={(v) => setField('positionId', v)}
                 className="w-full"
               />
-            </FormField>
-
-            <FormField label="Localização" htmlFor="ot-location">
-              <Input
-                id="ot-location"
-                value={location}
-                onChange={(e) => setField('location', e.target.value)}
-                placeholder="Opcional — ex.: escritório, cidade"
-                maxLength={200}
-                className="w-full"
-              />
-            </FormField>
-
-            <FormField label="URL do vídeo de boas-vindas" htmlFor="ot-video">
-              <Input
-                id="ot-video"
-                value={welcomeVideoUrl}
-                onChange={(e) => setField('welcomeVideoUrl', e.target.value)}
-                placeholder="Opcional — https://…"
-                className="w-full"
-              />
+              <p className="mt-1 text-xs text-ink-faint">
+                Todo novo utilizador com este cargo recebe este plano
+                automaticamente.
+              </p>
             </FormField>
           </div>
+
+          <FormField label="Mensagem de boas-vindas" htmlFor="ot-welcome">
+            <Textarea
+              id="ot-welcome"
+              value={welcomeMessage}
+              onChange={(e) => setField('welcomeMessage', e.target.value)}
+              placeholder="Opcional — mensagem mostrada ao colaborador no início do plano."
+              rows={3}
+              maxLength={2000}
+              className="w-full"
+            />
+            <p className="mt-1 text-xs text-ink-faint">
+              Escreva {WELCOME_NAME_TOKEN} para inserir automaticamente o nome
+              do colaborador. Vale para todos os departamentos.
+            </p>
+          </FormField>
 
           <button
             type="button"
@@ -444,8 +528,8 @@ export function TemplateFormModal({
             className={cn(
               'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
               active
-                ? 'border-primary bg-primary-subtle text-primary'
-                : 'border-border-strong bg-surface text-ink-muted',
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white hover:bg-[#0F1F3D] hover:text-white'
+                : 'border-[#0F1F3D] bg-white text-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]',
             )}
           >
             Template activo
@@ -454,7 +538,7 @@ export function TemplateFormModal({
           {!editing && (
             <>
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                <div className="text-xs font-medium text-ink-faint uppercase tracking-wide">
+                <div className="text-xs font-medium text-ink-label uppercase tracking-wide">
                   Estrutura (Tarefas, Formação, Documentos, Acessos, Políticas,
                   Reuniões, Avaliações…)
                 </div>
@@ -482,27 +566,6 @@ export function TemplateFormModal({
                     key={t.key}
                     className="rounded-card border border-border p-3 space-y-2"
                   >
-                    <div className="flex items-start gap-2">
-                      <Input
-                        aria-label="Título do item"
-                        value={t.title}
-                        onChange={(e) =>
-                          patchTask(t.key, { title: e.target.value })
-                        }
-                        placeholder="Ex.: Entregar documentos de admissão"
-                        maxLength={200}
-                        className="w-full"
-                      />
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        onClick={() => removeTask(t.key)}
-                        type="button"
-                        aria-label="Remover item"
-                      >
-                        <Trash2 size={14} strokeWidth={1.75} />
-                      </Button>
-                    </div>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       <Select
                         items={CATEGORY_ITEMS}
@@ -515,20 +578,25 @@ export function TemplateFormModal({
                       />
                       <Select
                         items={PHASE_ITEMS}
-                        value={t.phase}
+                        value={t.phase || undefined}
                         onValueChange={(v) =>
-                          patchTask(t.key, { phase: v as TaskPhase })
+                          patchTask(t.key, {
+                            phase: v === ALL ? '' : (v as TaskPhase),
+                          })
                         }
+                        placeholder="Etapa"
                         className="w-full"
                       />
                       <Select
                         items={RESPONSIBLE_ITEMS}
-                        value={t.responsible}
+                        value={t.responsible || undefined}
                         onValueChange={(v) =>
                           patchTask(t.key, {
-                            responsible: v as ResponsibleRole,
+                            responsible:
+                              v === ALL ? '' : (v as ResponsibleRole),
                           })
                         }
+                        placeholder="Colaborador"
                         className="w-full"
                       />
                       <Input
@@ -543,6 +611,83 @@ export function TemplateFormModal({
                         className="w-full"
                       />
                     </div>
+                    {(() => {
+                      const options = suggestionsForFilters({
+                        category: t.category,
+                        phase: t.phase,
+                        responsible: t.responsible,
+                        maxDay: t.dueDayOffset,
+                      });
+                      const titleItems = [
+                        ...options.map((o) => ({
+                          value: o.title,
+                          label: o.title,
+                        })),
+                        {
+                          value: MANUAL_TITLE,
+                          label: 'Escrever manualmente…',
+                        },
+                      ];
+                      const picked = options.find((o) => o.title === t.title);
+                      return (
+                        <div className="flex items-start gap-2">
+                          <div className="w-full space-y-2">
+                            <Select
+                              items={titleItems}
+                              value={
+                                t.manual
+                                  ? MANUAL_TITLE
+                                  : picked
+                                    ? picked.title
+                                    : undefined
+                              }
+                              onValueChange={(v) => {
+                                if (v === MANUAL_TITLE) {
+                                  patchTask(t.key, { manual: true, title: '' });
+                                  return;
+                                }
+                                const o = options.find((x) => x.title === v);
+                                if (!o) return;
+                                patchTask(t.key, {
+                                  manual: false,
+                                  title: o.title,
+                                  category: t.category || o.category,
+                                  phase: t.phase || o.phase,
+                                  responsible: t.responsible || o.responsible,
+                                  dueDayOffset:
+                                    t.dueDayOffset.trim() === ''
+                                      ? String(o.dueDay)
+                                      : t.dueDayOffset,
+                                });
+                              }}
+                              placeholder="Escolher item (ex.: Entregar documentos de admissão)"
+                              className="w-full"
+                            />
+                            {t.manual && (
+                              <Input
+                                aria-label="Título do item"
+                                value={t.title}
+                                onChange={(e) =>
+                                  patchTask(t.key, { title: e.target.value })
+                                }
+                                placeholder="Escreva o título do item"
+                                maxLength={200}
+                                className="w-full"
+                              />
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            intent="ghost"
+                            onClick={() => removeTask(t.key)}
+                            type="button"
+                            aria-label="Remover item"
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </div>
+                      );
+                    })()}
                     <label className="flex items-center gap-2 text-xs text-ink-muted">
                       <Checkbox
                         checked={t.isMandatory}
@@ -553,6 +698,15 @@ export function TemplateFormModal({
                       Obrigatória (ex.: Formação obrigatória) — desmarcar
                       torna-a opcional
                     </label>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={addTask}
+                      type="button"
+                    >
+                      <Plus size={14} strokeWidth={1.75} className="mr-1" />
+                      Adicionar item
+                    </Button>
                   </div>
                 ))}
               </div>

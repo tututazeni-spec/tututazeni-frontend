@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { PAYSLIP_STATUS_MAP } from '@/components/payslips/types';
@@ -81,8 +81,8 @@ export function RunPayslipsTable({
 
   return (
     <div>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
-        Recibos do run
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
+        Recibos do processamento
       </h3>
 
       {isLoading && <Skeleton rows={6} />}
@@ -98,14 +98,14 @@ export function RunPayslipsTable({
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[820px]">
             <div
-              className={`${COLS} bg-brand-dark px-3 py-2 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
+              className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
-              <div>Bruto</div>
-              <div>Líquido</div>
+              <div className="text-right">Bruto</div>
+              <div className="text-right">Líquido</div>
               <div>Estado</div>
               <div>Exceções</div>
               {editable && <div>Acções</div>}
@@ -114,42 +114,38 @@ export function RunPayslipsTable({
               <div
                 key={p.id}
                 data-testid={`run-payslip-row-${p.id}`}
-                className={`${COLS} items-center border-b border-[#6F8FB8]/20 px-3 py-2 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
-                  highlightPayslipId === p.id ? 'bg-[#FFB84D]/15' : ''
+                className={`${COLS} items-center border-b border-brand-line px-4 py-3 text-ink last:border-0 ${
+                  highlightPayslipId === p.id ? 'bg-warning-subtle' : ''
                 }`}
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   <Avatar
                     name={p.user.fullName}
                     url={p.user.avatarUrl ?? undefined}
-                    size="md"
+                    size="lg"
                     className="shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="break-words font-body text-sm font-medium leading-tight text-white">
+                    <div className="break-words font-body text-sm font-medium leading-tight text-ink">
                       {p.user.fullName}
                     </div>
-                    <div className="font-body text-xs text-on-brand">
+                    <div className="font-body text-xs text-ink-faint">
                       {p.user.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(p.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(p.netSalary)}
                 </div>
-                <div>
-                  <StatusBadge
-                    value={p.status}
-                    map={PAYSLIP_STATUS_MAP}
-                    variant="dot"
-                  />
+                <div className="font-body text-sm text-ink">
+                  {resolveBadge(PAYSLIP_STATUS_MAP, p.status).label}
                 </div>
                 <div>
                   {p.hasExceptions && (
-                    <span className="flex items-center gap-1 text-[#FFD28A]">
+                    <span className="flex items-center gap-1 text-warning">
                       <AlertCircle size={14} strokeWidth={1.75} />
                     </span>
                   )}

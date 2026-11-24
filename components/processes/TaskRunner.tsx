@@ -227,7 +227,7 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
                 ['Prazo', instance.slaDeadline ? fmtDate(instance.slaDeadline) : '—'],
               ].map(([label, value]) => (
                 <div key={label}>
-                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                     {label}
                   </dt>
                   <dd className="mt-0.5 font-body text-sm text-ink">{value}</dd>
@@ -235,7 +235,7 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
               ))}
               {instance.priority && (
                 <div>
-                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                     Prioridade
                   </dt>
                   <dd className="mt-0.5">
@@ -359,7 +359,7 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
               {/* Checklist */}
               {activeStep.step.checklist.length > 0 && (
                 <div className="mb-4">
-                  <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                     Checklist
                   </div>
                   <div className="space-y-2">
@@ -400,7 +400,7 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
 
               {/* Notas */}
               <div className="mb-4">
-                <label className="mb-1.5 block font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <label className="mb-1.5 block font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Notas / Observações
                 </label>
                 <Textarea

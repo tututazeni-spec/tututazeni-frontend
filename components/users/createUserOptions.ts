@@ -4,12 +4,19 @@
 // sugestão (Combobox allowCustom permite escrever outro valor).
 
 import { COUNTRIES } from '@/lib/countries';
+import { ANGOLAN_BANKS } from '@/lib/angolanBanks';
 import type { ComboboxOption } from '@/components/ui/Combobox';
 
 const asOptions = (labels: string[]): ComboboxOption[] =>
   labels.map((label) => ({ value: label, label }));
 
 export const COUNTRY_OPTIONS = asOptions(COUNTRIES);
+
+// Bancos angolanos para o banco que recebe o salário (aceita outro valor).
+export const BANK_OPTIONS: ComboboxOption[] = ANGOLAN_BANKS.map((b) => ({
+  value: b.name,
+  label: `${b.name} (${b.short})`,
+}));
 
 export const JOB_FUNCTION_OPTIONS = asOptions([
   'Administração',

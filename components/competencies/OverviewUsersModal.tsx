@@ -38,7 +38,7 @@ function UserList({
 }) {
   return (
     <section className="mt-5">
-      <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
         {title} ({users.length})
       </h3>
       {users.length === 0 ? (

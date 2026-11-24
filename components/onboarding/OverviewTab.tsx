@@ -56,6 +56,18 @@ const ACTIVE_GRID =
 const UPCOMING_GRID =
   'grid grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)] items-center gap-x-4 px-4';
 
+// Uma cor por linha (cíclica), para distinguir departamentos/unidades/responsáveis.
+const BAR_COLORS = [
+  'bg-[#2563EB]',
+  'bg-[#16A34A]',
+  'bg-[#F59E0B]',
+  'bg-danger',
+  'bg-[#7C3AED]',
+  'bg-[#0891B2]',
+  'bg-[#DB2777]',
+  'bg-[#65A30D]',
+];
+
 function RankedList({
   title,
   rows,
@@ -75,7 +87,7 @@ function RankedList({
           <EmptyState variant="inline" title="Sem dados" />
         </div>
       ) : (
-        sorted.map(([label, count]) => (
+        sorted.map(([label, count], i) => (
           <div
             key={label}
             className="flex items-center gap-3 border-b border-brand-line bg-surface px-4 py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken"
@@ -88,7 +100,7 @@ function RankedList({
             </span>
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
               <div
-                className="h-full rounded-full bg-primary"
+                className={`h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]}`}
                 style={{ width: `${Math.round((count / max) * 100)}%` }}
               />
             </div>

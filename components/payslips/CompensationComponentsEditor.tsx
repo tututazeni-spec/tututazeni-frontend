@@ -17,6 +17,7 @@ import { Select } from '@/components/ui/Select';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { useSalaryComponentOptions } from './compensationData';
+import { componentLabel } from './componentLabels';
 import type { EmployeeCompensation } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 
@@ -82,7 +83,7 @@ export function CompensationComponentsEditor({
     ...options,
     ...missingCodes.map((code) => ({
       value: code,
-      label: `${code} — (inactivo)`,
+      label: `${componentLabel(code)} (inactivo)`,
     })),
   ];
 
@@ -142,7 +143,7 @@ export function CompensationComponentsEditor({
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Gerir componentes da compensação"
-        description="Estes valores substituem integralmente a lista de overrides deste registo."
+        description="Estes valores substituem integralmente a lista de componentes deste registo."
         className="max-w-xl max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-3">
@@ -174,13 +175,13 @@ export function CompensationComponentsEditor({
               />
               <label
                 className="flex items-center gap-1 text-xs text-ink-muted"
-                title="Marca este valor como substituição explícita do valor de catálogo. Registado para uso futuro — o cálculo actual soma todos os componentes como rendimento extra independentemente desta opção."
+                title="Marca este valor como substituição explícita do valor de catálogo. Fica registado para uso futuro — o cálculo actual soma todos os componentes como rendimento extra, independentemente desta opção."
               >
                 <Checkbox
                   checked={r.override}
                   onChange={(e) => patch(r.key, { override: e.target.checked })}
                 />
-                override
+                Substituir
               </label>
               <IconButton
                 icon={Trash2}

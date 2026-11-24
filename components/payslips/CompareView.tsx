@@ -12,29 +12,40 @@ import { formatKz as fmtKz } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { fmtPeriod } from './format';
+import {
+  PayslipAmountBreakdown,
+  type PayslipAmountBreakdownProps,
+} from './PayslipAmountBreakdown';
 import type { CompareResult } from './types';
 
-interface DeltaBadgeProps {
-  delta: number;
-  pct: number | null;
-}
+type Amount = { a: number; b: number; delta: number; pct: number | null };
 
-function DeltaBadge({ delta, pct }: DeltaBadgeProps) {
-  if (delta === 0)
-    return <span className="font-body text-xs text-ink-faint">—</span>;
-  const up = delta > 0;
-  return (
-    <span
-      className={`flex items-center gap-1 font-body text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}
-    >
-      {up ? (
-        <TrendingUp size={14} strokeWidth={1.75} />
-      ) : (
-        <TrendingDown size={14} strokeWidth={1.75} />
-      )}
-      {pct !== null ? `${Math.abs(pct).toFixed(1)}%` : fmtKz(Math.abs(delta))}
-    </span>
-  );
+/** Monta o recibo de um dos dois meses a partir do resultado da comparação. */
+function toPayslip(
+  result: CompareResult,
+  side: 'a' | 'b',
+): PayslipAmountBreakdownProps['payslip'] {
+  const v = (key: string) => (result[key] as Amount | undefined)?.[side] ?? 0;
+  return {
+    baseSalary: v('baseSalary'),
+    mealAllowance: v('mealAllowance'),
+    vacationAllowance: v('vacationAllowance'),
+    christmasAllowance: v('christmasAllowance'),
+    overtime: v('overtime'),
+    bonuses: v('bonuses'),
+    otherAllowances: v('otherAllowances'),
+    grossSalary: v('grossSalary'),
+    incomeTax: v('incomeTax'),
+    socialSecurity: v('socialSecurity'),
+    employerInss: v('employerInss'),
+    healthInsurance: v('healthInsurance'),
+    loanDeduction: v('loanDeduction'),
+    advanceDeduction: v('advanceDeduction'),
+    otherDeductions: v('otherDeductions'),
+    totalDeductions: v('totalDeductions'),
+    netSalary: v('netSalary'),
+    irtBracketRate: null,
+  };
 }
 
 export function CompareView() {
@@ -59,17 +70,6 @@ export function CompareView() {
   );
   const { data: result, isPending: loading, error } = compareMut;
   const compare = () => compareMut.mutate();
-
-  const compareFields: Array<{ key: string; label: string }> = [
-    { key: 'baseSalary', label: 'Salário base' },
-    { key: 'grossSalary', label: 'Bruto total' },
-    { key: 'incomeTax', label: 'IRT' },
-    { key: 'socialSecurity', label: 'INSS (3%)' },
-    { key: 'bonuses', label: 'Prémios' },
-    { key: 'overtime', label: 'Horas extras' },
-    { key: 'totalDeductions', label: 'Total deduções' },
-    { key: 'netSalary', label: 'Salário líquido' },
-  ];
 
   return (
     <div>
@@ -100,86 +100,24 @@ export function CompareView() {
 
       {result && (
         <div>
-          <div className="grid grid-cols-[1fr_80px_1fr] gap-4 overflow-hidden rounded-card border border-border bg-surface">
-            {/* Col A */}
-            <div className="p-4">
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                {fmtPeriod(result.periodA)}
+          <div
+            className="grid overflow-hidden rounded-[22px] border border-[#D6E0F2] md:grid-cols-2 md:divide-x md:divide-[#BCC6E0]"
+            style={{
+              backgroundColor: '#F5F9FF',
+              boxShadow: '0 6px 18px rgba(21,47,89,0.12)',
+            }}
+          >
+            {(['a', 'b'] as const).map((side) => (
+              <div key={side} className="px-6 py-5">
+                <div className="mb-4 inline-flex rounded-full bg-[#0F1F3D] px-4 py-1 font-body text-sm font-bold text-white">
+                  {fmtPeriod(side === 'a' ? result.periodA : result.periodB)}
+                </div>
+                <PayslipAmountBreakdown
+                  stacked
+                  payslip={toPayslip(result, side)}
+                />
               </div>
-              {compareFields.map((f) => {
-                const field = result[f.key] as {
-                  a: number;
-                  b: number;
-                  delta: number;
-                  pct: number | null;
-                };
-                return (
-                  <div
-                    key={f.key}
-                    className="flex justify-between border-b border-border py-2 last:border-0"
-                  >
-                    <span className="font-body text-xs text-ink-muted">
-                      {f.label}
-                    </span>
-                    <span
-                      className={`font-body text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
-                    >
-                      {fmtKz(field.a)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Delta col */}
-            <div className="flex flex-col bg-surface-sunken pt-9">
-              {compareFields.map((f) => {
-                const field = result[f.key] as {
-                  a: number;
-                  b: number;
-                  delta: number;
-                  pct: number | null;
-                };
-                return (
-                  <div
-                    key={f.key}
-                    className="flex h-[37px] items-center justify-center border-b border-border py-2 last:border-0"
-                  >
-                    <DeltaBadge delta={field.delta} pct={field.pct} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Col B */}
-            <div className="p-4">
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                {fmtPeriod(result.periodB)}
-              </div>
-              {compareFields.map((f) => {
-                const field = result[f.key] as {
-                  a: number;
-                  b: number;
-                  delta: number;
-                  pct: number | null;
-                };
-                return (
-                  <div
-                    key={f.key}
-                    className="flex justify-between border-b border-border py-2 last:border-0"
-                  >
-                    <span className="font-body text-xs text-ink-muted">
-                      {f.label}
-                    </span>
-                    <span
-                      className={`font-body text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
-                    >
-                      {fmtKz(field.b)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            ))}
           </div>
 
           {/* Insight automático */}

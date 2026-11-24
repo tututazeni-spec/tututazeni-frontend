@@ -427,7 +427,7 @@ export function TabPrivacidade() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-ink-faint">
+                <tr className="text-left text-xs uppercase text-ink-label">
                   <th className="py-2">Titular</th>
                   <th>Tipo</th>
                   <th>Estado</th>

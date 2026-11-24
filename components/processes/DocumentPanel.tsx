@@ -39,7 +39,7 @@ type Sub = 'reject' | 'archive' | 'version' | null;
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-ink-label">{label}</div>
     <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
   </div>
 );
@@ -207,7 +207,7 @@ export function DocumentPanel({ doc, onClose, onOpenInstance, onFulfil }: Docume
 
           {/* Histórico de versões */}
           <div className="mt-5">
-            <div className="font-body text-xs uppercase tracking-wide text-ink-faint">
+            <div className="font-body text-xs uppercase tracking-wide text-ink-label">
               Histórico de versões
             </div>
             {!versions ? (

@@ -54,6 +54,14 @@ export const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
   DISPUTED: { label: 'Disputa', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
+// "Os meus recibos" (lista e detalhe): Emitido a verde e Disputa a vermelho,
+// ambos sólidos com letra branca. Os restantes estados mantêm o mapa partilhado.
+export const PAYSLIP_STATUS_SOLID_MAP: StatusBadgeMap<PayslipStatus> = {
+  ...PAYSLIP_STATUS_MAP,
+  ISSUED: { label: 'Emitido', cls: 'bg-success text-white' },
+  DISPUTED: { label: 'Disputa', cls: 'bg-danger text-white' },
+};
+
 // ─── Tipos das restantes views (List/Compare/Simulate/Annual) ─────────────────
 // Extraído de app/(platform)/payslips/page.tsx.
 
@@ -99,6 +107,8 @@ export interface SimulateResult {
   employerInss: number;
   totalDeductions: number;
   netSalary: number;
+  /** Deduções do colaborador, tal como no processamento real (INSS, IRT, seguro…). */
+  deductionLines: Array<{ code: string; name: string; value: number }>;
   irtDetails: {
     bracket: {
       min: number;
@@ -106,6 +116,8 @@ export interface SimulateResult {
       rate: number;
       deduction: number;
     };
+    /** Base sobre a qual o IRT foi calculado (tributável − INSS). */
+    base: number;
     formula: string;
     effectiveRate: number;
   };
@@ -115,6 +127,8 @@ export interface MyCompensation {
   baseSalary: number;
   foodAllowance: number | null;
   transportAllowance: number | null;
+  /** Soma dos componentes extra do registo (tributáveis nos processamentos). */
+  otherAllowances?: number;
   bankName: string | null;
   ibanMasked: string | null;
   effectiveFrom: string;

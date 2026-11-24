@@ -258,7 +258,7 @@ export function StartProcessModal({
 
           {/* Campos específicos do modelo (§19) */}
           <div className="rounded-card border border-border bg-surface-sunken p-3">
-            <p className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <p className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Dados do pedido{chosen ? ` — ${chosen.title}` : ''}
             </p>
             <div className="space-y-3">

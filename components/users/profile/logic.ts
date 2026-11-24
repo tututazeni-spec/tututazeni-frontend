@@ -21,6 +21,16 @@ export type BadgeIntent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
 // ── Dados pessoais e profissionais ──────────────────────────────────────────
 
+const IDENTIFICATION_TYPE_LABELS: Record<string, string> = {
+  BILHETE_IDENTIDADE: 'Bilhete de Identidade',
+  PASSAPORTE: 'Passaporte',
+  CARTAO_RESIDENTE: 'Cartão de Residente',
+  TITULO_RESIDENCIA: 'Título de Residência',
+};
+
+const identificationTypeLabel = (v: string | null | undefined) =>
+  v ? (IDENTIFICATION_TYPE_LABELS[v] ?? v) : null;
+
 export const identificationRows = (user: User): InfoRow[] => [
   ['Nome completo', user.fullName],
   ['Nome preferencial', user.preferredName],
@@ -28,8 +38,11 @@ export const identificationRows = (user: User): InfoRow[] => [
   ['Data de nascimento', user.birthDate && fmtDate(user.birthDate)],
   ['Nacionalidade', user.nationality],
   ['País de residência', user.country],
+  ['Tipo de documento', identificationTypeLabel(user.identificationType)],
   ['Nº de identificação', user.identificationNumber],
   ['NIF', user.nif],
+  ['Banco do salário', user.salaryBankName],
+  ['IBAN', user.iban],
   ['NIB', user.nib],
 ];
 

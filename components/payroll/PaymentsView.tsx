@@ -12,6 +12,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { ANGOLAN_BANKS, BANK_OTHER } from '@/lib/angolanBanks';
 import { FormField } from '@/components/ui/FormField';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -21,6 +23,14 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useToast } from '@/providers/ToastProvider';
 import { fmtPeriodNumeric } from '@/components/payslips/format';
 import { RunPicker } from './RunPicker';
+import { PaymentCard } from './PaymentCard';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import {
   PAYMENT_NEXT,
   PAYMENT_STATUS_MAP,
@@ -29,9 +39,32 @@ import {
 } from './insightTypes';
 import { saveBlob } from '@/lib/download';
 
-const TH =
-  'px-2 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white';
-const TD = 'px-2 py-3 text-white';
+function Field({
+  label,
+  children,
+  strong,
+  wide,
+}: {
+  label: string;
+  children: React.ReactNode;
+  strong?: boolean;
+  wide?: boolean;
+}) {
+  return (
+    <div className={wide ? 'col-span-2' : undefined}>
+      <dt className="font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
+        {label}
+      </dt>
+      <dd
+        className={`mt-0.5 break-words font-body text-ink ${
+          strong ? 'text-lg font-bold' : 'text-sm'
+        }`}
+      >
+        {children}
+      </dd>
+    </div>
+  );
+}
 
 const ACTION_LABEL: Record<PaymentStatus, string> = {
   PENDING: 'Reabrir',
@@ -51,8 +84,21 @@ interface BankFile {
 }
 
 function downloadCsv(file: BankFile) {
-  const blob = new Blob(['﻿', file.content], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿', file.content], {
+    type: 'text/csv;charset=utf-8',
+  });
   saveBlob(blob, file.filename);
+}
+
+// O CSV mantém os cabeçalhos técnicos (formato de importação do banco); o PDF
+// leva cabeçalhos legíveis.
+const PDF_HEADERS = 'Nº colaborador;Nome;NIB;Valor líquido (AOA)';
+
+async function downloadPdf(file: BankFile) {
+  const base = file.filename.replace(/\.csv$/i, '');
+  const content = file.content.replace(/^[^\n]*/, PDF_HEADERS);
+  const { csvTextToPdf } = await import('@/lib/tableExport');
+  await csvTextToPdf(content, 'Ficheiro bancário', base);
 }
 
 export function PaymentsView() {
@@ -63,6 +109,8 @@ export function PaymentsView() {
   const [creating, setCreating] = useState(false);
   const [runId, setRunId] = useState<number | null>(null);
   const [bankName, setBankName] = useState('');
+  // Banco escolhido na lista ('' = nenhum, BANK_OTHER = escrever outro).
+  const [bankChoice, setBankChoice] = useState('');
   const [account, setAccount] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
   const [failing, setFailing] = useState<PayrollPayment | null>(null);
@@ -87,6 +135,7 @@ export function PaymentsView() {
         setCreating(false);
         setRunId(null);
         setBankName('');
+        setBankChoice('');
         setAccount('');
         setExpectedDate('');
       },
@@ -110,14 +159,25 @@ export function PaymentsView() {
   );
 
   const bankFile = useApiMutation(
-    (id: number) =>
-      apiClient.get<BankFile>(`/payroll/payments/${id}/bank-file`),
+    async (v: { id: number; format: 'csv' | 'pdf' }) => ({
+      file: await apiClient.get<BankFile>(
+        `/payroll/payments/${v.id}/bank-file`,
+      ),
+      format: v.format,
+    }),
     {
       invalidateKeys: [queryKeys.payroll.all],
-      onSuccess: (file) => {
-        downloadCsv(file);
+      onSuccess: async ({ file, format }) => {
+        if (format === 'csv') downloadCsv(file);
+        else {
+          try {
+            await downloadPdf(file);
+          } catch {
+            notify({ title: 'Não foi possível gerar o PDF', intent: 'danger' });
+          }
+        }
         notify({
-          title: `Ficheiro gerado (${file.rows} linhas)`,
+          title: `Ficheiro gerado em ${format.toUpperCase()} (${file.rows} linhas)`,
           description: file.missingNib.length
             ? `Sem NIB: ${file.missingNib.join(', ')}`
             : undefined,
@@ -141,12 +201,14 @@ export function PaymentsView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
             setFiltered(true);
           }}
-          placeholder="Período (AAAA-MM)"
+          aria-label="Período (mês e ano)"
           className="w-44"
         />
         <Button className="ml-auto" onClick={() => setCreating(true)}>
@@ -166,106 +228,70 @@ export function PaymentsView() {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <table className="w-full text-left font-body text-xs">
-            <thead className="bg-brand-dark">
-              <tr>
-                <th className={TH}>Período</th>
-                <th className={TH}>Banco</th>
-                <th className={TH}>Conta</th>
-                <th className={TH}>Colab.</th>
-                <th className={`${TH} text-right`}>Valor total</th>
-                <th className={TH}>Prevista</th>
-                <th className={TH}>Efectiva</th>
-                <th className={TH}>Estado</th>
-                <th className={TH}>Referência</th>
-                <th className={TH}>Responsável</th>
-                <th className={TH}>Acções</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-[#6F8FB8]/20 align-top transition-colors duration-150 last:border-0 hover:bg-white/5"
-                >
-                  <td className={`${TD} font-body`}>
-                    {fmtPeriodNumeric(p.period)}
-                  </td>
-                  <td className={`${TD} text-on-brand`}>
-                    {p.bankName ?? '—'}
-                  </td>
-                  <td className={`${TD} text-on-brand`}>
-                    {p.paymentAccount ?? '—'}
-                  </td>
-                  <td className={TD}>{p.employeeCount}</td>
-                  <td className={`${TD} text-right font-body`}>
-                    {fmtKz(p.totalAmount)}
-                  </td>
-                  <td className={`${TD} text-on-brand`}>
-                    {p.expectedDate ? fmtDate(p.expectedDate) : '—'}
-                  </td>
-                  <td className={`${TD} text-on-brand`}>
-                    {p.effectiveDate ? fmtDate(p.effectiveDate) : '—'}
-                  </td>
-                  <td className={TD}>
-                    <StatusBadge
-                      value={p.status}
-                      map={PAYMENT_STATUS_MAP}
-                      variant="dot"
-                    />
-                    {p.errorMessage && (
-                      <div className="mt-1 max-w-[220px] text-xs text-[#FFB4B4]">
-                        {p.errorMessage}
-                      </div>
-                    )}
-                  </td>
-                  <td className={`${TD} font-body text-xs text-on-brand`}>
-                    {p.reference ?? '—'}
-                  </td>
-                  <td className={`${TD} text-on-brand`}>
-                    {p.responsibleName ?? '—'}
-                  </td>
-                  <td className={TD}>
-                    <div className="flex flex-wrap gap-1.5">
-                      {!['CANCELLED', 'FAILED'].includes(p.status) && (
+        <div className="space-y-4">
+          {rows.map((p) => (
+            <PaymentCard
+              key={p.id}
+              payment={p}
+              actions={
+                <>
+                  {!['CANCELLED', 'FAILED'].includes(p.status) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           size="sm"
                           intent="secondary"
+                          className="w-full !rounded-full !border-[1.5px] !border-[#0F1F3D] !bg-white !text-[#0F1F3D] hover:!bg-[#0F1F3D] hover:!text-white"
                           loading={
-                            bankFile.isPending && bankFile.variables === p.id
+                            bankFile.isPending &&
+                            bankFile.variables?.id === p.id
                           }
-                          onClick={() => bankFile.mutate(p.id)}
                         >
+                          <Download size={15} strokeWidth={1.75} />
                           Ficheiro bancário
                         </Button>
-                      )}
-                      {PAYMENT_NEXT[p.status].map((next) => (
-                        <Button
-                          key={next}
-                          size="sm"
-                          intent={
-                            next === 'CANCELLED' || next === 'FAILED'
-                              ? 'ghost'
-                              : 'primary'
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            bankFile.mutate({ id: p.id, format: 'pdf' })
                           }
-                          className={
-                            next === 'CANCELLED' || next === 'FAILED'
-                              ? 'text-white hover:bg-white/10'
-                              : undefined
-                          }
-                          disabled={setStatus.isPending}
-                          onClick={() => onAction(p, next)}
                         >
-                          {ACTION_LABEL[next]}
-                        </Button>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                          <FileText size={14} strokeWidth={1.75} /> PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            bankFile.mutate({ id: p.id, format: 'csv' })
+                          }
+                        >
+                          <FileSpreadsheet size={14} strokeWidth={1.75} /> CSV
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  {PAYMENT_NEXT[p.status].map((next) => {
+                    const secondary = next === 'CANCELLED' || next === 'FAILED';
+                    return (
+                      <Button
+                        key={next}
+                        size="sm"
+                        intent={secondary ? 'ghost' : 'primary'}
+                        className={
+                          secondary
+                            ? 'w-full !rounded-full !text-[#0F1F3D] hover:!bg-[#0F1F3D]/10'
+                            : 'w-full !rounded-full !bg-[#0F1F3D] !text-white hover:!bg-black'
+                        }
+                        disabled={setStatus.isPending}
+                        onClick={() => onAction(p, next)}
+                      >
+                        {ACTION_LABEL[next]}
+                      </Button>
+                    );
+                  })}
+                </>
+              }
+            />
+          ))}
         </div>
       )}
 
@@ -281,13 +307,40 @@ export function PaymentsView() {
                 />
               </FormField>
               <FormField label="Banco" htmlFor="pay-bank">
-                <Input
-                  id="pay-bank"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
+                <Select
+                  items={[
+                    { value: 'none', label: 'Seleccionar banco' },
+                    ...ANGOLAN_BANKS.map((b) => ({
+                      value: b.name,
+                      label: `${b.name} (${b.short})`,
+                    })),
+                    { value: BANK_OTHER, label: 'Outro banco…' },
+                  ]}
+                  value={bankChoice || 'none'}
+                  onValueChange={(v) => {
+                    const choice = v === 'none' ? '' : v;
+                    setBankChoice(choice);
+                    setBankName(
+                      choice === BANK_OTHER || choice === '' ? '' : choice,
+                    );
+                  }}
+                  className="w-full"
                 />
+                {bankChoice === BANK_OTHER && (
+                  <Input
+                    id="pay-bank"
+                    className="mt-2 w-full"
+                    placeholder="Nome do banco"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                )}
               </FormField>
-              <FormField label="Conta de pagamento" htmlFor="pay-acc">
+              <FormField
+                label="Conta de pagamento"
+                htmlFor="pay-acc"
+                hint="NIB/IBAN da conta da empresa"
+              >
                 <Input
                   id="pay-acc"
                   value={account}

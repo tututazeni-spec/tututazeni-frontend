@@ -20,7 +20,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ComponentFormModal } from './ComponentFormModal';
-import type { SalaryComponent, ComponentCalcType } from './types';
+import type { SalaryComponent } from './types';
 
 type StateFilter = 'active' | 'all' | 'inactive';
 
@@ -48,8 +48,6 @@ function calcLabel(c: SalaryComponent): string {
       return 'tabela';
   }
 }
-
-const CALC_MONO: ComponentCalcType[] = ['FORMULA'];
 
 export function ComponentsView() {
   const qc = useQueryClient();
@@ -128,7 +126,7 @@ export function ComponentsView() {
 
       {isLoading && <Skeleton rows={6} />}
       {error && (
-        <div className="font-body text-sm text-danger">{error.message}</div>
+        <div className="font-body text-sm text-[#0F1F3D]">{error.message}</div>
       )}
 
       {!isLoading && !error && (data?.length ?? 0) === 0 && (
@@ -139,7 +137,7 @@ export function ComponentsView() {
       )}
 
       {!isLoading && (data?.length ?? 0) > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div className="min-w-[860px]">
             <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
               <div>Nome</div>
@@ -153,72 +151,50 @@ export function ComponentsView() {
               data!.map((c) => (
                 <div
                   key={c.code}
-                  className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
+                  className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-brand-line px-4 py-3 text-ink last:border-0 ${
                     c.active ? '' : 'opacity-55'
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">
+                    <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
                       {c.name}
                     </div>
                     {c.description && (
-                      <div className="truncate font-body text-xs text-on-brand-faint">
+                      <div className="truncate font-body text-xs text-[#0F1F3D]">
                         {c.description}
                       </div>
                     )}
                     {!c.active && (
-                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro font-medium uppercase tracking-wide text-on-brand">
+                      <div className="mt-0.5 font-body text-xs font-medium text-[#0F1F3D]">
                         Inactivo
-                      </span>
+                      </div>
                     )}
                   </div>
-                  <div>
-                    <span
-                      className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
-                        c.type === 'EARNING'
-                          ? 'bg-success/25 text-[#8FE0B0]'
-                          : 'bg-[#D64545]/25 text-[#FFB4B4]'
-                      }`}
-                    >
-                      {c.type === 'EARNING' ? 'Rendimento' : 'Desconto'}
-                    </span>
+                  <div className="font-body text-sm text-[#0F1F3D]">
+                    {c.type === 'EARNING' ? 'Rendimento' : 'Desconto'}
                   </div>
-                  <div
-                    className={`text-sm text-on-brand ${
-                      CALC_MONO.includes(c.calcType)
-                        ? 'font-body text-xs'
-                        : 'font-body'
-                    }`}
-                  >
+                  <div className="font-body text-sm text-[#0F1F3D]">
                     {calcLabel(c)}
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {c.isTaxable && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
-                        Tributável
-                      </span>
-                    )}
-                    {c.isMandatory && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
-                        Obrigatório
-                      </span>
-                    )}
+                  <div className="flex flex-wrap gap-x-2 font-body text-sm text-[#0F1F3D]">
+                    {c.isTaxable && <span>Tributável</span>}
+                    {c.isMandatory && <span>Obrigatório</span>}
                   </div>
-                  <div className="font-body text-sm text-on-brand">
+                  <div className="font-body text-sm text-[#0F1F3D]">
                     {c.order}
                   </div>
                   <div className="flex gap-1">
                     <Button
                       intent="ghost"
                       size="sm"
-                      className="text-white hover:bg-white/10"
+                      className="text-[#0F1F3D] hover:bg-transparent"
                       onClick={() => setEditing(c)}
                     >
                       Editar
                     </Button>
                     <IconButton
                       icon={Trash2}
-                      className="text-white hover:bg-white/10"
+                      className="text-[#0F1F3D] hover:bg-transparent"
                       label="Remover"
                       intent="ghost"
                       size="sm"

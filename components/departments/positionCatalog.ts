@@ -360,3 +360,45 @@ export const CERTIFICATION_OPTIONS: string[] = [
   'Primeiros socorros',
   'Carta de condução',
 ];
+
+/**
+ * Cursos académicos sugeridos (habilitações). O mesmo catálogo serve o requisito
+ * do cargo e a qualificação do colaborador, para os nomes coincidirem na
+ * comparação do Simulador de Carreira. Quem não encontra o seu escreve à mão.
+ */
+export const ACADEMIC_COURSE_OPTIONS: string[] = [
+  'Administração de Empresas',
+  'Agronomia',
+  'Arquitectura',
+  'Biologia',
+  'Ciências da Educação',
+  'Ciências Políticas',
+  'Comunicação Social',
+  'Contabilidade e Auditoria',
+  'Direito',
+  'Economia',
+  'Enfermagem',
+  'Engenharia Civil',
+  'Engenharia de Petróleos',
+  'Engenharia Electrotécnica',
+  'Engenharia Informática',
+  'Engenharia Mecânica',
+  'Engenharia Química',
+  'Estatística',
+  'Farmácia',
+  'Finanças',
+  'Física',
+  'Gestão de Recursos Humanos',
+  'Gestão e Marketing',
+  'Informática de Gestão',
+  'Jornalismo',
+  'Logística',
+  'Matemática',
+  'Medicina',
+  'Psicologia',
+  'Relações Internacionais',
+  'Relações Públicas',
+  'Segurança e Higiene no Trabalho',
+  'Sociologia',
+  'Tecnologias de Informação',
+];

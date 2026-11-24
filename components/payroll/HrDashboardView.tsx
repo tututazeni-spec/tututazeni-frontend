@@ -7,7 +7,6 @@ import {
   Eye,
   FileEdit,
   FileText,
-  Percent,
   ShieldAlert,
   ThumbsUp,
 } from 'lucide-react';
@@ -19,6 +18,10 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { KpiCard } from '@/components/ui/KpiCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { HrDashboard } from './types';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -36,9 +39,11 @@ export function HrDashboardView() {
     <div>
       <div className="mb-5 flex items-center gap-3">
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          placeholder="Período (AAAA-MM)"
+          aria-label="Período (mês e ano)"
           className="w-44"
         />
       </div>
@@ -51,7 +56,7 @@ export function HrDashboardView() {
       {!isLoading && !error && data && (
         <div className="space-y-8">
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
               Contagens
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
@@ -105,17 +110,16 @@ export function HrDashboardView() {
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
               Compliance
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-              <KpiCard
-                tab="payslips"
-                className="min-h-[178px]"
-                icon={Percent}
+              <SpeedometerStatCard
+                bare
                 label="Taxa de confirmação"
-                value={data.compliance.viewRate}
-                intent="info"
+                value={parseFloat(String(data.compliance.viewRate)) || 0}
+                bands={RATE_BANDS}
+                display={String(data.compliance.viewRate)}
               />
               <KpiCard
                 tab="payslips"
@@ -129,12 +133,14 @@ export function HrDashboardView() {
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
               Financeiro
             </h3>
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3">
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="bills"
                 tone="blue"
                 label="Bruto total"
@@ -142,6 +148,8 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="stack"
                 tone="green"
                 label="Líquido total"
@@ -149,20 +157,26 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="IRT total"
                 value={fmtKz(data.financials.totalIRT)}
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="INSS colaborador"
                 value={fmtKz(data.financials.totalINSSEmployee)}
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira-vermelha.png"
                 money="mixed"
                 tone="red"
                 label="INSS empregador"
@@ -170,6 +184,8 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
+                tight
+                image="/images/carteira.png"
                 money="fan"
                 tone="green"
                 label="Líquido médio"

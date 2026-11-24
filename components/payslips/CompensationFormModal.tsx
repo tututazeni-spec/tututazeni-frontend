@@ -15,6 +15,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Combobox } from '@/components/ui/Combobox';
+import { BANK_OPTIONS } from '@/components/users/createUserOptions';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { useDirectoryUsers, type DirectoryUser } from './compensationData';
@@ -291,20 +293,44 @@ export function CompensationFormModal({
               />
             </FormField>
             <FormField label="Banco" htmlFor="cfm-bank">
-              <Input
-                id="cfm-bank"
-                value={bankName}
-                onChange={(e) => setField('bankName', e.target.value)}
-                className="w-full"
+              <Combobox
+                items={BANK_OPTIONS}
+                value={bankName || undefined}
+                onValueChange={(v) => setField('bankName', v)}
+                placeholder="Selecionar…"
+                searchPlaceholder="Escreva para filtrar ou indicar outro…"
+                allowCustom
               />
             </FormField>
-            <FormField label="IBAN" htmlFor="cfm-iban">
-              <Input
-                id="cfm-iban"
-                value={iban}
-                onChange={(e) => setField('iban', e.target.value)}
-                className="w-full font-mono"
-              />
+            <FormField
+              label="IBAN"
+              htmlFor="cfm-iban"
+              hint="Só os 21 dígitos; o AO06 já está preenchido"
+            >
+              <div className="relative">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm font-semibold text-ink"
+                >
+                  AO06
+                </span>
+                <Input
+                  id="cfm-iban"
+                  inputMode="numeric"
+                  maxLength={21}
+                  placeholder="21 dígitos"
+                  value={iban.replace(/^AO06/i, '')}
+                  onChange={(e) => {
+                    const digits = e.target.value
+                      .replace(/\s+/g, '')
+                      .replace(/^AO06/i, '')
+                      .replace(/\D/g, '')
+                      .slice(0, 21);
+                    setField('iban', digits ? `AO06${digits}` : '');
+                  }}
+                  className="w-full pl-14 font-body"
+                />
+              </div>
             </FormField>
             <FormField label="Nº de conta" htmlFor="cfm-acc">
               <Input

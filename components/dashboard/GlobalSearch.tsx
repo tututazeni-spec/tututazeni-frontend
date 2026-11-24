@@ -71,7 +71,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           <div className="max-h-80 overflow-y-auto px-5 py-3">
             {(results.users?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-faint">
+                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-label">
                   Colaboradores
                 </p>
                 {results.users?.map((u) => (
@@ -94,7 +94,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             )}
             {(results.courses?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-faint">
+                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-label">
                   Cursos
                 </p>
                 {results.courses?.map((c) => (

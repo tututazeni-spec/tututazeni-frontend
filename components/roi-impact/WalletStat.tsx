@@ -2,6 +2,8 @@
 // Carteira ilustrada com dinheiro a sair, independente (sem cartão/caixa à
 // volta): rótulo por cima, carteira ao centro e valor por baixo.
 
+import Image from 'next/image';
+
 type WalletTone = 'blue' | 'green' | 'orange' | 'red';
 type WalletMoney = 'bills' | 'coins' | 'stack' | 'mixed' | 'fan';
 
@@ -12,6 +14,9 @@ const TONES: Record<WalletTone, { body: string; flap: string }> = {
   orange: { body: '#E99A16', flap: '#B3740B' },
   red: { body: '#EF4657', flap: '#B52C3B' },
 };
+
+// Azul marinho do valor quando a carteira é a imagem (carteira.png)
+const NAVY = '#0F1F3D';
 
 const ZOOM =
   'transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100';
@@ -116,6 +121,12 @@ export interface WalletStatProps {
   money: WalletMoney;
   /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
   zoom?: boolean;
+  /** Imagem que substitui a carteira SVG (ex.: /images/carteira.png). */
+  image?: string;
+  /** Selo de visto verde sobre a carteira (ex.: pagamentos concluídos). */
+  check?: boolean;
+  /** Aproxima o título da carteira (título alinhado ao fundo, sem folga). */
+  tight?: boolean;
 }
 
 export function WalletStat({
@@ -125,34 +136,77 @@ export function WalletStat({
   money,
   sub,
   zoom = false,
+  image,
+  check = false,
+  tight = false,
 }: WalletStatProps) {
   const t = TONES[tone];
   return (
     <div
       className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
     >
-      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink">
+      <h3
+        className={`min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink ${tight ? 'flex items-end justify-center' : ''}`}
+      >
         {label}
       </h3>
-      <svg
-        width="120"
-        height="100"
-        viewBox="0 0 120 100"
-        role="img"
-        aria-label={label}
-      >
-        <Money kind={money} />
-        <rect x="8" y="38" width="100" height="56" rx="10" fill={t.body} />
-        <path
-          d="M8 48a10 10 0 0 1 10-10h80a10 10 0 0 1 10 10v6H8z"
-          fill={t.flap}
-        />
-        <rect x="78" y="58" width="42" height="24" rx="8" fill={t.flap} />
-        <circle cx="92" cy="70" r="4.5" fill="#fff" />
-      </svg>
+      {image ? (
+        <div className={`relative ${tight ? '-mt-1' : ''}`}>
+          <Image
+            src={image}
+            alt={label}
+            width={120}
+            height={108}
+            className="h-[100px] w-auto object-contain"
+          />
+          {check && (
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              aria-hidden="true"
+              className="absolute -bottom-1 -right-3 drop-shadow-md"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="#218653"
+                stroke="#fff"
+                strokeWidth="3"
+              />
+              <path
+                d="M10.5 18.5l5 5 10-11"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </div>
+      ) : (
+        <svg
+          width="120"
+          height="100"
+          viewBox="0 0 120 100"
+          role="img"
+          aria-label={label}
+        >
+          <Money kind={money} />
+          <rect x="8" y="38" width="100" height="56" rx="10" fill={t.body} />
+          <path
+            d="M8 48a10 10 0 0 1 10-10h80a10 10 0 0 1 10 10v6H8z"
+            fill={t.flap}
+          />
+          <rect x="78" y="58" width="42" height="24" rx="8" fill={t.flap} />
+          <circle cx="92" cy="70" r="4.5" fill="#fff" />
+        </svg>
+      )}
       <p
         className="font-display text-2xl font-bold leading-none"
-        style={{ color: t.body }}
+        style={{ color: image ? NAVY : t.body }}
       >
         {value}
       </p>

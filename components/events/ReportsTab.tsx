@@ -297,7 +297,7 @@ export function ReportsTab() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Participação
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -358,7 +358,7 @@ export function ReportsTab() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Presença por sessão
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -380,7 +380,7 @@ export function ReportsTab() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Custos
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -406,7 +406,7 @@ export function ReportsTab() {
           </div>
 
           <div>
-            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Satisfação
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

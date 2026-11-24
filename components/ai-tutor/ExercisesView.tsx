@@ -460,7 +460,7 @@ export function ExercisesView() {
         <div className="space-y-4">
           {(content as PracticalCaseItem[]).map((c, i) => (
             <Card key={i} className="p-4">
-              <div className="font-body text-xs text-ink-faint uppercase tracking-wide mb-1">
+              <div className="font-body text-xs text-ink-label uppercase tracking-wide mb-1">
                 Caso {i + 1}
               </div>
               <div className="font-body text-sm text-ink mb-2">
@@ -515,7 +515,7 @@ export function ExercisesView() {
         <div className="space-y-4">
           {(content as ScenarioItem[]).map((s, i) => (
             <Card key={i} className="p-4">
-              <div className="font-body text-xs text-ink-faint uppercase tracking-wide mb-1">
+              <div className="font-body text-xs text-ink-label uppercase tracking-wide mb-1">
                 Cenário {i + 1}
               </div>
               <div className="font-body text-sm text-ink mb-2">{s.context}</div>

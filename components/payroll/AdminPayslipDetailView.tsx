@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { AccessLogsPanel } from './AccessLogsPanel';
+import { PayslipDisputeCard } from './PayslipDisputeCard';
 import { EditPayslipModal } from './EditPayslipModal';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
 import {
@@ -29,6 +30,10 @@ export interface AdminPayslipDetailViewProps {
   payslipId: number;
   onBack: () => void;
 }
+
+// Hover: fundo preto com letra branca (Descarregar PDF, Editar).
+const BTN_HOVER =
+  'hover:!border-black hover:!bg-black hover:!text-white focus-visible:!bg-black focus-visible:!text-white';
 
 const LOCKED_NOTE: Record<string, string> = {
   ISSUED: 'Recibo emitido — já não é editável.',
@@ -81,114 +86,103 @@ export function AdminPayslipDetailView({
 
   const editable = data.status === 'DRAFT' && data.run?.status !== 'PUBLISHED';
 
+  const isDisputed = data.status === 'DISPUTED';
+  const statusBadge = (
+    <StatusBadge
+      value={data.status}
+      map={PAYSLIP_STATUS_MAP}
+      variant="plain"
+      className={cn(
+        '!px-3 !py-0.5 !rounded-full border-[1.5px] font-body !text-xs !font-semibold',
+        data.status === 'DRAFT' || isDisputed
+          ? '!border-[#F59E0B] !bg-[#F59E0B] !text-white'
+          : data.status === 'ISSUED'
+            ? '!border-[#218653] !bg-[#218653] !text-white'
+            : '!border-[#0F1F3D]/30 !bg-transparent !text-[#0F1F3D]',
+      )}
+    />
+  );
+  const rightBadge = <div className="ml-auto">{statusBadge}</div>;
+
   return (
     <div>
       <button
         onClick={onBack}
-        className="mb-4 flex items-center gap-1 font-body text-sm text-ink-muted hover:text-ink"
+        className="mb-4 flex items-center gap-1 font-body text-sm text-ink-muted"
       >
         <ChevronLeft size={16} strokeWidth={1.75} />
         Voltar
       </button>
 
       <div className="mb-5 flex items-center gap-3">
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-semibold text-ink">
             {data.user?.fullName ?? '—'}
           </h2>
-          <p className="font-body text-sm text-ink-faint">
-            {fmtPeriod(data.period)} ·{' '}
-            <span className="font-body">{data.receiptCode ?? data.id}</span>
+          <p className="font-body text-sm text-black">
+            {fmtPeriod(data.period)}
           </p>
         </div>
-        <StatusBadge
-          value={data.status}
-          map={PAYSLIP_STATUS_MAP}
-          variant="dot"
-        />
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-6 flex flex-wrap items-end gap-2">
         <a
           href={`${API_URL}/payslips/${payslipId}/pdf`}
           target="_blank"
           rel="noreferrer"
-          className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }))}
+          className={cn(
+            buttonVariants({ intent: 'secondary', size: 'sm' }),
+            BTN_HOVER,
+          )}
         >
           <Download size={15} strokeWidth={1.75} />
           Descarregar PDF
         </a>
-        {editable ? (
-          <>
-            <Button
-              size="sm"
-              intent="secondary"
-              onClick={() => setEditing(true)}
-            >
-              Editar
-            </Button>
-            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
-              Emitir
-            </Button>
-          </>
-        ) : (
+        {editable && (
+          <Button
+            size="sm"
+            intent="secondary"
+            className={BTN_HOVER}
+            onClick={() => setEditing(true)}
+          >
+            Editar
+          </Button>
+        )}
+
+        {editable && (
+          <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
+            Emitir
+          </Button>
+        )}
+
+        {!editable && (
           <p className="font-body text-sm text-ink-faint">
             {data.run?.status === 'PUBLISHED'
               ? 'Recibo pertence a um run publicado — já não é editável.'
               : (LOCKED_NOTE[data.status] ?? '')}
           </p>
         )}
+        {rightBadge}
       </div>
 
-      <div className="mb-8 rounded-card border border-border bg-surface p-6">
+      <div className="mb-8">
         <PayslipAmountBreakdown payslip={data} />
       </div>
 
       {data.disputes.length > 0 && (
         <div className="mb-8">
-          <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+          <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
             Disputas
           </h3>
           <div className="space-y-3">
             {data.disputes.map((d) => (
-              <div
+              <PayslipDisputeCard
                 key={d.id}
-                className="rounded-card border border-border bg-surface p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sm font-medium text-ink">
-                    {d.reason}
-                  </span>
-                  <StatusBadge
-                    value={d.status}
-                    map={DISPUTE_STATUS_MAP}
-                    variant="plain"
-                  />
-                </div>
-                {d.details && (
-                  <p className="mt-1 font-body text-sm text-ink-muted">
-                    {d.details}
-                  </p>
-                )}
-                <p className="mt-1 font-body text-xs text-ink-faint">
-                  Aberta em {fmtDate(d.createdAt)}
-                </p>
-                {d.status === 'RESOLVED' && (
-                  <p className="mt-1 font-body text-xs text-success-ink">
-                    Resolvida em {fmtDate(d.resolvedAt)} — {d.resolution}
-                  </p>
-                )}
-                {d.status === 'OPEN' && (
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    className="mt-3"
-                    onClick={() => setResolving(d)}
-                  >
-                    Resolver
-                  </Button>
-                )}
-              </div>
+                dispute={d}
+                onResolve={
+                  d.status === 'OPEN' ? () => setResolving(d) : undefined
+                }
+              />
             ))}
           </div>
         </div>

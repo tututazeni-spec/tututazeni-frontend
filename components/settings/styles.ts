@@ -7,6 +7,7 @@ import {
   Archive,
   BadgeCheck,
   Bell,
+  TrendingUp,
   FileLock2,
   KeyRound,
   LayoutDashboard,
@@ -72,6 +73,13 @@ export const NAV: Array<
     label: 'Certificados',
     hint: 'Modelos e emissão',
     icon: BadgeCheck,
+    adminOnly: true,
+  },
+  {
+    key: 'carreira',
+    label: 'Carreira',
+    hint: 'Critérios de promoção',
+    icon: TrendingUp,
     adminOnly: true,
   },
   {

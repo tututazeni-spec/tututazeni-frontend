@@ -3,7 +3,9 @@
 // todos os onboardings, com filtros. "Prioridade" vem já derivada do
 // backend (GET /onboarding/tasks). Clicar numa linha abre o
 // PlanDetailModal do plano dono da tarefa — é lá que vivem aprovar/
-// rejeitar/saltar (evita duplicar essa lógica aqui).
+// rejeitar/saltar (evita duplicar essa lógica aqui). ADMIN/RH (`canManagePlan`)
+// veem ainda "+ Nova tarefa" (POST /onboarding/:id/tasks) e "Atribuir" por
+// linha (PATCH /onboarding/tasks/:id/assignee).
 
 'use client';
 
@@ -15,14 +17,23 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG, PHASE_LABELS, TASK_STATUS_CFG } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
+import { AssignTaskModal } from './AssignTaskModal';
+import { PlanTaskFormModal } from './PlanTaskFormModal';
 import type { OnboardingTaskListItem, TaskPriority } from './types';
-import { LayoutGrid, MapPin } from 'lucide-react';
+import {
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  LayoutGrid,
+  MapPin,
+} from 'lucide-react';
 
 interface Paginated {
   data: OnboardingTaskListItem[];
@@ -82,6 +93,10 @@ export function TasksTab({
     page: 1,
   });
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [assigning, setAssigning] = useState<OnboardingTaskListItem | null>(
+    null,
+  );
 
   function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));
@@ -126,17 +141,20 @@ export function TasksTab({
         <button
           type="button"
           onClick={() => updateFilters({ overdue: !filters.overdue })}
-          className={`rounded-control border px-3 py-2 font-body text-sm ${
+          aria-pressed={filters.overdue}
+          className={`rounded-control border px-3 py-2 font-body text-sm transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white ${
             filters.overdue
-              ? 'border-danger bg-danger-subtle text-danger-ink'
+              ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
               : 'border-border text-ink-muted'
           }`}
         >
           Só em atraso
         </button>
-        <span className="ml-auto font-body text-sm text-ink-faint">
-          {data?.meta.total ?? 0} tarefas
-        </span>
+        {canManagePlan && (
+          <Button size="sm" className="ml-auto" onClick={() => setCreating(true)}>
+            + Nova tarefa
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -147,41 +165,84 @@ export function TasksTab({
           description="Nenhuma tarefa corresponde aos filtros."
         />
       ) : (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="flex flex-col gap-3">
           {data.data.map((t) => {
             const catCfg = CATEGORY_CFG[t.templateTask.category];
             return (
-              <button
+              <div
                 key={t.id}
-                type="button"
-                onClick={() => setDetailId(t.plan.id)}
-                className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+                className="relative flex items-stretch overflow-hidden rounded-card border border-border bg-gradient-to-r from-[#E8EFFC] via-[#F4F7FD] to-[#F8FAFE]"
               >
-                <Avatar
-                  name={t.plan.user.fullName}
-                  url={t.plan.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {t.templateTask.title}
+                <button
+                  type="button"
+                  onClick={() => setDetailId(t.plan.id)}
+                  className="group flex min-w-0 flex-1 items-center gap-4 bg-transparent px-4 py-2.5 text-left"
+                  title={t.templateTask.description || undefined}
+                >
+                  <div
+                    aria-hidden="true"
+                    className="relative hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/70 text-[#1E4FB5] shadow-sm sm:flex"
+                  >
+                    <ClipboardCheck size={26} strokeWidth={1.5} />
+                    <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#1E4FB5] text-white">
+                      <Clock size={12} strokeWidth={2} />
+                    </span>
                   </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {t.plan.user.fullName} ·{' '}
-                    {PHASE_LABELS[t.templateTask.phase]}
-                    {catCfg ? ` · ${catCfg.label}` : ''}
+                  <div
+                    aria-hidden="true"
+                    className="hidden h-9 w-px bg-border sm:block"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <h3 className="m-0 truncate text-base font-bold text-[#0F1F3D]">
+                        {t.templateTask.title}
+                      </h3>
+                      {t.priority !== 'MEDIUM' && (
+                        <Badge dot={false} intent={PRIORITY_BADGE[t.priority]}>
+                          {PRIORITY_LABEL[t.priority]}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-1 flex min-w-0 items-center gap-2">
+                      <Avatar
+                        name={t.plan.user.fullName}
+                        url={t.plan.user.avatarUrl ?? undefined}
+                        size="sm"
+                        className="shrink-0"
+                      />
+                      <div className="truncate text-xs text-ink-muted">
+                        <span className="font-bold text-[#0F1F3D]">
+                          {t.plan.user.fullName}
+                        </span>
+                        {` · ${PHASE_LABELS[t.templateTask.phase]}`}
+                        {catCfg ? ` · ${catCfg.label}` : ''}
+                        {t.assignee
+                          ? ` · Responsável: ${t.assignee.fullName}`
+                          : ''}
+                        <span className="font-semibold">
+                          {` · ${STATUS_LABEL[t.status] ?? t.status}`}
+                        </span>
+                        {` · ${t.startDate ? `${fmtDate(t.startDate)} → ` : ''}${t.dueDate ? fmtDate(t.dueDate) : '—'}`}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <Badge dot={false} intent={PRIORITY_BADGE[t.priority]}>
-                  {PRIORITY_LABEL[t.priority]}
-                </Badge>
-                <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
-                  {t.dueDate ? fmtDate(t.dueDate) : '—'}
-                </div>
-                <div className="shrink-0 font-body text-xs text-ink-faint">
-                  {STATUS_LABEL[t.status] ?? t.status}
-                </div>
-              </button>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition-transform group-hover:translate-x-0.5">
+                    <ChevronRight size={18} strokeWidth={2} />
+                  </span>
+                </button>
+                {canManagePlan && (
+                  <div className="flex w-28 shrink-0 items-center pr-3">
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      className="w-full justify-center"
+                      onClick={() => setAssigning(t)}
+                    >
+                      {t.assignee ? 'Reatribuir' : 'Atribuir'}
+                    </Button>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
@@ -192,6 +253,17 @@ export function TasksTab({
           page={data.meta.page}
           totalPages={data.meta.totalPages}
           onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))}
+        />
+      )}
+
+      {creating && <PlanTaskFormModal onClose={() => setCreating(false)} />}
+      {assigning && (
+        <AssignTaskModal
+          taskId={assigning.id}
+          planId={assigning.plan.id}
+          taskTitle={assigning.templateTask.title}
+          currentAssigneeId={assigning.assignee?.id ?? null}
+          onClose={() => setAssigning(null)}
         />
       )}
 

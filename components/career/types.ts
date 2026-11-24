@@ -286,10 +286,7 @@ export interface CareerOverview {
 
 // ─── Requisitos estruturados por cargo (spec 2026-10-12) ────────────────────
 export type RequirementCategory =
-  | 'ACADEMIC'
-  | 'EXPERIENCE'
-  | 'LANGUAGE'
-  | 'CERTIFICATION';
+  'ACADEMIC' | 'EXPERIENCE' | 'LANGUAGE' | 'CERTIFICATION';
 
 export interface PositionRequirement {
   id: number;
@@ -312,6 +309,16 @@ export const ACADEMIC_LEVEL_LABEL: Record<string, string> = {
 };
 
 export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+
+/** Significado de cada nível do Quadro Europeu Comum de Referência (CEFR). */
+export const CEFR_LEVEL_LABEL: Record<(typeof CEFR_LEVELS)[number], string> = {
+  A1: 'Iniciante',
+  A2: 'Elementar',
+  B1: 'Intermédio',
+  B2: 'Intermédio avançado',
+  C1: 'Avançado',
+  C2: 'Fluente / Proficiente',
+};
 
 export type RequirementStatus = 'MET' | 'NOT_MET' | 'NO_DATA';
 

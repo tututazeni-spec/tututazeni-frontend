@@ -7,23 +7,35 @@
 
 'use client';
 
+import { useState } from 'react';
+import { ChevronRight, ClipboardCheck, Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PlanDetailModal } from './PlanDetailModal';
 import type { OnboardingIntegrationEvaluation } from './types';
 
-const STATUS_BADGE: Record<string, 'success' | 'warning' | 'neutral'> = {
-  COMPLETED: 'success',
-  PENDING: 'warning',
-  IN_PROGRESS: 'warning',
+const STATUS_LABEL: Record<string, string> = {
+  PENDING: 'Pendente',
+  IN_PROGRESS: 'Em curso',
+  COMPLETED: 'Concluída',
+  SKIPPED: 'Ignorada',
 };
 
-export function IntegrationEvaluationTab() {
+export interface IntegrationEvaluationTabProps {
+  canManagePlan?: boolean;
+  canManageTasks?: boolean;
+}
+
+export function IntegrationEvaluationTab({
+  canManagePlan = false,
+  canManageTasks = false,
+}: IntegrationEvaluationTabProps) {
+  const [detailId, setDetailId] = useState<number | null>(null);
   const { data = [], isLoading } = useApiQuery<
     OnboardingIntegrationEvaluation[]
   >(
@@ -44,45 +56,75 @@ export function IntegrationEvaluationTab() {
   }
 
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface">
+    <div className="space-y-3">
       {data.map((row) => (
-        <div
+        <button
           key={row.planId}
-          className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+          type="button"
+          onClick={() => setDetailId(row.planId)}
+          className="group relative flex w-full cursor-pointer items-center gap-4 overflow-hidden rounded-card border border-border bg-gradient-to-r from-[#E8EFFC] via-[#F4F7FD] to-[#F8FAFE] px-4 py-2.5 text-left"
         >
-          <Avatar
-            name={row.user.fullName}
-            url={row.user.avatarUrl ?? undefined}
-            size="sm"
+          <div
+            aria-hidden="true"
+            className="relative hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/70 text-[#1E4FB5] shadow-sm sm:flex"
+          >
+            <ClipboardCheck size={26} strokeWidth={1.5} />
+            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#1E4FB5] text-white">
+              <Clock size={12} strokeWidth={2} />
+            </span>
+          </div>
+          <div
+            aria-hidden="true"
+            className="hidden h-9 w-px bg-border sm:block"
           />
           <div className="min-w-0 flex-1">
-            <div className="truncate font-body text-sm font-medium text-ink">
-              {row.user.fullName}
-            </div>
-            <div className="truncate font-body text-xs text-ink-faint">
-              {row.evaluation?.evaluator &&
-                `Avaliador: ${row.evaluation.evaluator.fullName}`}
-              {row.onboardingCompletedAt &&
-                ` · Onboarding concluído ${fmtDate(row.onboardingCompletedAt)}`}
+            <h3 className="m-0 truncate text-base font-bold text-[#0F1F3D]">
+              Avaliação de Integração
+            </h3>
+            <div className="mt-1 flex min-w-0 items-center gap-2">
+              <Avatar
+                name={row.user.fullName}
+                url={row.user.avatarUrl ?? undefined}
+                size="sm"
+                className="shrink-0"
+              />
+              <div className="truncate text-xs text-ink-muted">
+                <span className="font-bold text-[#0F1F3D]">
+                  {row.user.fullName}
+                </span>
+                {row.evaluation?.evaluator &&
+                  ` · Avaliador: ${row.evaluation.evaluator.fullName}`}
+                {row.onboardingCompletedAt &&
+                  ` · Onboarding concluído ${fmtDate(row.onboardingCompletedAt)}`}
+                {row.evaluation && (
+                  <span className="font-semibold">
+                    {` · ${STATUS_LABEL[row.evaluation.status] ?? row.evaluation.status}`}
+                  </span>
+                )}
+                {` · ${
+                  row.evaluation?.completedAt
+                    ? `Concluída ${fmtDate(row.evaluation.completedAt)}`
+                    : row.evaluation?.dueDate
+                      ? `Prazo ${fmtDate(row.evaluation.dueDate)}`
+                      : '—'
+                }`}
+              </div>
             </div>
           </div>
-          <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
-            {row.evaluation?.completedAt
-              ? `Concluída ${fmtDate(row.evaluation.completedAt)}`
-              : row.evaluation?.dueDate
-                ? `Prazo ${fmtDate(row.evaluation.dueDate)}`
-                : '—'}
-          </div>
-          {row.evaluation && (
-            <Badge
-              dot={false}
-              intent={STATUS_BADGE[row.evaluation.status] ?? 'neutral'}
-            >
-              {row.evaluation.status}
-            </Badge>
-          )}
-        </div>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition-transform group-hover:translate-x-0.5">
+            <ChevronRight size={18} strokeWidth={2} />
+          </span>
+        </button>
       ))}
+
+      {detailId !== null && (
+        <PlanDetailModal
+          planId={detailId}
+          canManagePlan={canManagePlan}
+          canManageTasks={canManageTasks}
+          onClose={() => setDetailId(null)}
+        />
+      )}
     </div>
   );
 }

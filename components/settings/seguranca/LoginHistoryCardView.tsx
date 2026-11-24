@@ -52,7 +52,7 @@ export function LoginHistoryCardView({
           <>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-ink-faint">
+                <tr className="text-left text-xs uppercase text-ink-label">
                   {scope === 'all' && <th className="py-2">Utilizador</th>}
                   <th>Acção</th>
                   <th>IP</th>

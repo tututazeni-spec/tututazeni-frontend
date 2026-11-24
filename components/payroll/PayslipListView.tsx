@@ -28,7 +28,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Download, Eye, MapPin } from 'lucide-react';
+import { CalendarDays, Download, Eye, MapPin } from 'lucide-react';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { Paginated } from './types';
@@ -60,6 +60,14 @@ const STATUS_ITEMS = [
   { value: 'ISSUED', label: PAYSLIP_STATUS_MAP.ISSUED.label },
   { value: 'ACKNOWLEDGED', label: PAYSLIP_STATUS_MAP.ACKNOWLEDGED.label },
   { value: 'DISPUTED', label: PAYSLIP_STATUS_MAP.DISPUTED.label },
+];
+
+const YEAR_ITEMS = [
+  { value: 'all', label: 'Todos os anos' },
+  ...Array.from({ length: 8 }, (_, i) => {
+    const y = String(new Date().getFullYear() + 1 - i);
+    return { value: y, label: y };
+  }),
 ];
 
 const COLS =
@@ -145,24 +153,28 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           className="w-48"
         />
         <Input
+          type="month"
+          variant="underline"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
             setFiltered(true);
             setPage(1);
           }}
-          placeholder="Período (AAAA-MM)"
-          className="w-40"
+          aria-label="Período (mês e ano)"
+          className="w-44"
         />
-        <Input
-          value={year}
-          onChange={(e) => {
-            setYear(e.target.value);
+        <Select
+          variant="underline"
+          icon={CalendarDays}
+          items={YEAR_ITEMS}
+          value={year || 'all'}
+          onValueChange={(v) => {
+            setYear(v === 'all' ? '' : v);
             setFiltered(true);
             setPage(1);
           }}
-          placeholder="Ano (AAAA)"
-          className="w-32"
+          className="w-40"
         />
         <Button className="ml-auto" onClick={onCreate}>
           + Novo recibo
@@ -188,7 +200,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
           <div>
             <div
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
@@ -196,15 +208,15 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
               <div>Colaborador</div>
               <div>Período</div>
               <div>Pagamento</div>
-              <div>Bruto</div>
-              <div>Líquido</div>
+              <div className="text-right">Bruto</div>
+              <div className="text-right">Líquido</div>
               <div>Estado</div>
               <div>Acções</div>
             </div>
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
+                className={`${COLS} cursor-pointer items-center border-b border-brand-line px-4 py-3.5 text-ink last:border-0`}
                 onClick={() => onSelect(r.id)}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -215,31 +227,32 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     className="shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">
+                    <div className="truncate font-body text-sm font-semibold text-ink">
                       {r.user?.fullName ?? '—'}
                     </div>
-                    <div className="truncate font-body text-xs text-on-brand-faint">
+                    <div className="truncate font-body text-xs text-ink-muted">
                       {r.user?.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtPeriodNumeric(r.period)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink">
                   {fmtDate(r.paymentDate)}
                 </div>
-                <div className="font-body text-sm text-on-brand">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(r.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(r.netSalary)}
                 </div>
                 <div>
                   <StatusBadge
                     value={r.status}
                     map={PAYSLIP_STATUS_MAP}
-                    variant="dot"
+                    variant="plain"
+                    className="!bg-transparent !px-0 font-body !text-sm"
                   />
                 </div>
                 <div
@@ -251,7 +264,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     label="Ver detalhe"
                     intent="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10"
+                    className="text-ink hover:bg-transparent"
                     onClick={() => onSelect(r.id)}
                   />
                   <a
@@ -262,7 +275,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     title="Descarregar PDF"
                     className={cn(
                       buttonVariants({ intent: 'ghost', size: 'sm' }),
-                      'aspect-square h-9 w-9 p-0 text-white hover:bg-white/10',
+                      'aspect-square h-9 w-9 p-0 text-ink hover:bg-transparent',
                     )}
                   >
                     <Download size={16} strokeWidth={1.75} />

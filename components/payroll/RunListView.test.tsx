@@ -12,7 +12,11 @@ vi.mock('@tanstack/react-query', () => ({ keepPreviousData: Symbol('kpd') }));
 vi.mock('@/components/ui/Select', () => ({
   Select: ({ items, value, onValueChange }: any) => (
     <select
-      data-testid="status-select"
+      data-testid={
+        items.some((it: any) => it.value === 'DRAFT')
+          ? 'status-select'
+          : 'period-select'
+      }
       value={value ?? ''}
       onChange={(e) => onValueChange(e.target.value)}
     >
@@ -22,6 +26,17 @@ vi.mock('@/components/ui/Select', () => ({
         </option>
       ))}
     </select>
+  ),
+}));
+vi.mock('@/components/ui/Combobox', () => ({
+  Combobox: ({ value, onValueChange, placeholder }: any) => (
+    <input
+      data-testid={
+        placeholder?.startsWith('Período') ? 'period-select' : 'group-combobox'
+      }
+      value={value}
+      onChange={(e) => onValueChange(e.target.value)}
+    />
   ),
 }));
 vi.mock('@/components/ui/Pagination', () => ({
@@ -67,7 +82,9 @@ beforeEach(() => {
 describe('RunListView', () => {
   test('renders a row with period, payGroup, status, employeeCount, totalNet, exceptions', () => {
     render(<RunListView onSelect={vi.fn()} />);
-    expect(screen.getByText('2026-09')).toBeInTheDocument();
+    expect(
+      screen.getByText('2026-09', { selector: 'div' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Mensais')).toBeInTheDocument();
     expect(screen.getByText('120')).toBeInTheDocument();
     expect(screen.getByText(/45.?000.?000/)).toBeInTheDocument();
@@ -82,10 +99,34 @@ describe('RunListView', () => {
     expect(JSON.stringify(lastCall)).toContain('"status":"APPROVED"');
   });
 
+  test('period and group filters feed the query params', () => {
+    render(<RunListView onSelect={vi.fn()} />);
+    fireEvent.change(screen.getByTestId('period-select'), {
+      target: { value: '2026-09' },
+    });
+    fireEvent.change(screen.getByTestId('group-combobox'), {
+      target: { value: 'Mensais' },
+    });
+    const lastCall = JSON.stringify(useApiQuery.mock.calls.at(-1)!);
+    expect(lastCall).toContain('"period":"2026-09"');
+    expect(lastCall).toContain('"payGroup":"Mensais"');
+  });
+
+  test('"all" period and group send no filter', () => {
+    render(<RunListView onSelect={vi.fn()} />);
+    // o período por omissão é o mês actual; "Todos os períodos" remove o filtro
+    fireEvent.change(screen.getByTestId('period-select'), {
+      target: { value: 'all' },
+    });
+    const lastCall = JSON.stringify(useApiQuery.mock.calls.at(-1)!);
+    expect(lastCall).not.toContain('"period"');
+    expect(lastCall).not.toContain('"payGroup"');
+  });
+
   test('row click calls onSelect with the run id', () => {
     const onSelect = vi.fn();
     render(<RunListView onSelect={onSelect} />);
-    fireEvent.click(screen.getByText('2026-09'));
+    fireEvent.click(screen.getByText('2026-09', { selector: 'div' }));
     expect(onSelect).toHaveBeenCalledWith(7);
   });
 
@@ -105,10 +146,12 @@ describe('RunListView', () => {
     expect(screen.getByText(/Nenhum run encontrado/i)).toBeInTheDocument();
   });
 
-  test('"+ Novo run" opens CreateRunModal; onCreated calls onSelect', () => {
+  test('"+ Novo processamento" opens CreateRunModal; onCreated calls onSelect', () => {
     const onSelect = vi.fn();
     render(<RunListView onSelect={onSelect} />);
-    fireEvent.click(screen.getByRole('button', { name: '+ Novo run' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: '+ Novo processamento' }),
+    );
     fireEvent.click(screen.getByTestId('create-modal'));
     expect(onSelect).toHaveBeenCalledWith(99);
   });

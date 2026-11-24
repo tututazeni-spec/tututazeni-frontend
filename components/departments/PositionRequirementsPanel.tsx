@@ -23,13 +23,18 @@ import { Select } from '@/components/ui/Select';
 import {
   ACADEMIC_LEVEL_LABEL,
   CEFR_LEVELS,
+  CEFR_LEVEL_LABEL,
   type PositionRequirement,
   type RequirementCategory,
 } from '@/components/career/types';
 import type { PositionDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { ChoiceOrManualField } from './PositionFormFields';
-import { CERTIFICATION_OPTIONS, LANGUAGE_OPTIONS } from './positionCatalog';
+import {
+  ACADEMIC_COURSE_OPTIONS,
+  CERTIFICATION_OPTIONS,
+  LANGUAGE_OPTIONS,
+} from './positionCatalog';
 
 type SectionKey = RequirementCategory | 'HARD_SKILL' | 'SOFT_SKILL';
 
@@ -45,7 +50,10 @@ const SECTIONS: Array<{ key: SectionKey; title: string }> = [
 const ACADEMIC_ITEMS = Object.entries(ACADEMIC_LEVEL_LABEL).map(
   ([value, label]) => ({ value, label }),
 );
-const CEFR_ITEMS = CEFR_LEVELS.map((l) => ({ value: l, label: l }));
+const CEFR_ITEMS = CEFR_LEVELS.map((l) => ({
+  value: l,
+  label: `${l} — ${CEFR_LEVEL_LABEL[l]}`,
+}));
 const SCALE_ITEMS = [1, 2, 3, 4, 5].map((n) => ({
   value: String(n),
   label: `Nível ${n}`,
@@ -393,25 +401,33 @@ export function PositionRequirementsPanel({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {key === 'LANGUAGE' || key === 'CERTIFICATION' ? (
+                      {key === 'LANGUAGE' ||
+                      key === 'CERTIFICATION' ||
+                      key === 'ACADEMIC' ? (
                         <ChoiceOrManualField
                           id={`req-${key}`}
                           options={
                             key === 'LANGUAGE'
                               ? LANGUAGE_OPTIONS
-                              : CERTIFICATION_OPTIONS
+                              : key === 'ACADEMIC'
+                                ? ACADEMIC_COURSE_OPTIONS
+                                : CERTIFICATION_OPTIONS
                           }
                           value={form.title}
                           onChange={(v) => setForm((f) => ({ ...f, title: v }))}
                           placeholder={
                             key === 'LANGUAGE'
                               ? 'Seleccionar idioma…'
-                              : 'Seleccionar certificação…'
+                              : key === 'ACADEMIC'
+                                ? 'Seleccionar curso…'
+                                : 'Seleccionar certificação…'
                           }
                           manualPlaceholder={
                             key === 'LANGUAGE'
                               ? 'Idioma (ex.: Inglês)'
-                              : 'Certificação (ex.: AWS Cloud)'
+                              : key === 'ACADEMIC'
+                                ? 'Curso exigido (ex.: Informática)'
+                                : 'Certificação (ex.: AWS Cloud)'
                           }
                         />
                       ) : (
@@ -420,15 +436,7 @@ export function PositionRequirementsPanel({
                           onChange={(e) =>
                             setForm((f) => ({ ...f, title: e.target.value }))
                           }
-                          placeholder={
-                            key === 'ACADEMIC'
-                              ? 'Curso exigido (ex.: Informática) — é comparado com o curso do colaborador'
-                              : key === 'EXPERIENCE'
-                                ? 'Descrição (ex.: Desenvolvimento web) — só informativa'
-                                : key === 'LANGUAGE'
-                                  ? 'Idioma (ex.: Inglês)'
-                                  : 'Certificação (ex.: AWS Cloud)'
-                          }
+                          placeholder="Descrição (ex.: Desenvolvimento web) — só informativa"
                           className="w-full"
                         />
                       )}

@@ -247,7 +247,7 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
           <div className="space-y-4">
             {report.narrative && (
               <Card className="p-5">
-                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Narrativa Executiva
                 </div>
                 <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ink">
@@ -288,7 +288,7 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
           <div className="space-y-3">
             {report.nextSteps.length > 0 ? (
               <Card className="p-5">
-                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
                   Próximos Passos
                 </div>
                 <div className="space-y-2">

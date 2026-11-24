@@ -92,7 +92,7 @@ function ComparisonView({ c }: { c: EvaluationComparison }) {
         <table className="w-full text-xs">
           <caption className="sr-only">Evolução por competência</caption>
           <thead>
-            <tr className="text-left text-ink-faint">
+            <tr className="text-left text-ink-label">
               <th scope="col" className="py-1 font-medium">
                 Competência
               </th>

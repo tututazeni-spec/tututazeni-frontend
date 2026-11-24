@@ -6,7 +6,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { resolveBadge } from '@/lib/statusBadge';
 import {
   EXCEPTION_SEVERITY_MAP,
   EXCEPTION_CODE_LABEL,
@@ -24,6 +24,9 @@ interface GroupProps {
   onSelectException?: (payslipId: number) => void;
 }
 
+const COLS =
+  'grid grid-cols-[minmax(240px,2fr)_minmax(160px,1fr)_minmax(240px,2fr)_110px] gap-2';
+
 function Group({ title, items, onSelectException }: GroupProps) {
   if (items.length === 0) return null;
   return (
@@ -31,36 +34,44 @@ function Group({ title, items, onSelectException }: GroupProps) {
       <h4 className="mb-2 font-body text-sm font-semibold text-ink">
         {title} ({items.length})
       </h4>
-      <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-        {items.map((e, i) => (
-          <button
-            key={`${e.payslipId}-${e.code}-${i}`}
-            type="button"
-            onClick={() => onSelectException?.(e.payslipId)}
-            className="flex w-full items-center gap-3 border-b border-[#6F8FB8]/20 px-3 py-2 text-left text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
+      <div className="overflow-x-auto rounded-[18px] border border-brand-line bg-surface shadow-[0_4px_12px_rgba(21,47,89,0.10)]">
+        <div className="min-w-[820px]">
+          <div
+            className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
           >
-            <StatusBadge
-              value={e.severity}
-              map={EXCEPTION_SEVERITY_MAP}
-              variant="pill"
-            />
-            <Avatar
-              name={e.fullName}
-              url={e.avatarUrl ?? undefined}
-              size="md"
-              className="shrink-0"
-            />
-            <span className="font-body text-sm font-medium text-white">
-              {e.fullName}
-            </span>
-            <span className="font-body text-xs text-on-brand-faint">
-              {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
-            </span>
-            <span className="ml-auto text-right font-body text-sm text-on-brand">
-              {e.message}
-            </span>
-          </button>
-        ))}
+            <div>Colaborador</div>
+            <div>Tipo</div>
+            <div>Mensagem</div>
+            <div>Gravidade</div>
+          </div>
+          {items.map((e, i) => (
+            <button
+              key={`${e.payslipId}-${e.code}-${i}`}
+              type="button"
+              onClick={() => onSelectException?.(e.payslipId)}
+              className={`${COLS} w-full cursor-pointer items-center border-b border-brand-line px-4 py-3 text-left text-ink last:border-0`}
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <Avatar
+                  name={e.fullName}
+                  url={e.avatarUrl ?? undefined}
+                  size="lg"
+                  className="shrink-0"
+                />
+                <span className="break-words font-body text-sm font-medium leading-tight text-ink">
+                  {e.fullName}
+                </span>
+              </div>
+              <div className="font-body text-sm text-ink">
+                {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
+              </div>
+              <div className="font-body text-sm text-ink">{e.message}</div>
+              <div className="font-body text-sm text-ink">
+                {resolveBadge(EXCEPTION_SEVERITY_MAP, e.severity).label}
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -82,7 +93,7 @@ export function ExceptionsPanel({
 
   return (
     <div>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         Exceções
       </h3>
       {isLoading && <Skeleton rows={4} />}

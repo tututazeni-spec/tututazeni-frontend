@@ -38,7 +38,7 @@ function Field({
 }) {
   return (
     <div className={`min-w-0 ${wide ? 'sm:col-span-2' : ''}`}>
-      <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-label">
         {label}
       </dt>
       <dd className="mt-0.5 font-body text-sm text-ink">{children}</dd>

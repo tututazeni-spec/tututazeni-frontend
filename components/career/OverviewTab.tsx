@@ -86,7 +86,7 @@ export function OverviewTab() {
       {overview.alerts.length > 0 && (
         <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
           {overview.alerts.map((a, i) => (
-            <AlertCard key={i} variant="warning" title="Atenção" message={a} />
+            <AlertCard key={i} variant="warning" title="Atenção" message={a} navyText />
           ))}
         </div>
       )}
@@ -124,6 +124,7 @@ export function OverviewTab() {
         />
         <KpiCard
           tab="succession"
+          icon={Users}
           label="Posições críticas"
           value={successionDashboard.kpis.totalCriticalPositions}
           sub={`${successionDashboard.kpis.withoutSuccessor} sem sucessor`}

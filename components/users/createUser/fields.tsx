@@ -66,7 +66,7 @@ export function Field({
 export function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="col-span-2 mt-2">
-      <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3 pb-2 border-b border-border">
+      <div className="text-xs font-medium text-ink-label uppercase tracking-wide mb-3 pb-2 border-b border-border">
         {children}
       </div>
     </div>

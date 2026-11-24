@@ -27,6 +27,17 @@ import type { Role as CareerPlansRole } from './plans/types';
 import type { CareerPath } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 
+const OBJECTIVE_OTHER = '__other__';
+
+const DEFAULT_OBJECTIVES = [
+  'Progredir para uma função de liderança',
+  'Tornar-se especialista técnico na área',
+  'Mudar de área dentro da empresa',
+  'Assumir a gestão de uma equipa',
+  'Desenvolver competências para a função actual',
+  'Preparar-se para a sucessão de um cargo-chave',
+];
+
 const MENTORING_OPTIONS = [
   'Sessões de mentoria quinzenais',
   'Sessões de mentoria mensais',
@@ -75,7 +86,27 @@ export function NewCareerPlanModal({
     label: p.name,
   }));
 
+  const objectiveOptions = [
+    ...Array.from(
+      new Set([
+        ...roles.map((r) => `Tornar-se ${r.name}`),
+        ...DEFAULT_OBJECTIVES,
+      ]),
+    ).map((o) => ({ value: o, label: o })),
+    { value: OBJECTIVE_OTHER, label: 'Outro (escrever manualmente)' },
+  ];
   const [colaborador, setColaborador] = useState<DirectoryUser | null>(null);
+  const positionName = colaborador?.position?.name?.trim() ?? '';
+  // Cargo actual vem do colaborador escolhido (não é editável).
+  const currentRole = positionName
+    ? roles.find(
+        (r) => r.name.trim().toLowerCase() === positionName.toLowerCase(),
+      )
+    : undefined;
+  const currentRoleLabel = colaborador
+    ? positionName || 'Sem cargo definido'
+    : '';
+  const [objectiveChoice, setObjectiveChoice] = useState('');
   const [mentor, setMentor] = useState<DirectoryUser | null>(null);
   const [openToMobility, setOpenToMobility] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -90,7 +121,6 @@ export function NewCareerPlanModal({
       title: '',
       description: '',
       careerPathId: '',
-      currentRoleId: '',
       targetRoleId: '',
       targetDate: '',
       mentoringNotes: '',
@@ -106,9 +136,7 @@ export function NewCareerPlanModal({
         title: form.title,
         description: form.description || undefined,
         careerPathId: form.careerPathId ? Number(form.careerPathId) : undefined,
-        currentRoleId: form.currentRoleId
-          ? Number(form.currentRoleId)
-          : undefined,
+        currentRoleId: currentRole ? Number(currentRole.id) : undefined,
         targetRoleId: form.targetRoleId ? Number(form.targetRoleId) : undefined,
         targetDate: form.targetDate || undefined,
         mentorId: mentor?.id,
@@ -158,15 +186,32 @@ export function NewCareerPlanModal({
           />
 
           <FormField label="Objetivo de carreira *" htmlFor="plan-title">
-            <Input
-              id="plan-title"
-              value={form.title}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, title: e.target.value }))
-              }
-              placeholder="Ex.: Tornar-se Tech Lead até 2027"
-              className="w-full"
-            />
+            <div className="space-y-2">
+              <Select
+                items={objectiveOptions}
+                value={objectiveChoice}
+                onValueChange={(v) => {
+                  setObjectiveChoice(v);
+                  setForm((f) => ({
+                    ...f,
+                    title: v === OBJECTIVE_OTHER ? '' : v,
+                  }));
+                }}
+                placeholder="Seleccionar objectivo…"
+                className="w-full"
+              />
+              {objectiveChoice === OBJECTIVE_OTHER && (
+                <Input
+                  id="plan-title"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, title: e.target.value }))
+                  }
+                  placeholder="Escrever o objectivo (ex.: Tornar-se Tech Lead até 2027)"
+                  className="w-full"
+                />
+              )}
+            </div>
           </FormField>
 
           <FormField label="Percurso de carreira" htmlFor="plan-path">
@@ -181,13 +226,12 @@ export function NewCareerPlanModal({
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Cargo atual" htmlFor="plan-current-role">
-              <Select
-                items={roleOptions}
-                value={form.currentRoleId}
-                onValueChange={(v) =>
-                  setForm((f) => ({ ...f, currentRoleId: v }))
-                }
-                placeholder="Seleccionar…"
+              <Input
+                id="plan-current-role"
+                value={currentRoleLabel}
+                readOnly
+                disabled
+                placeholder="Definido pelo colaborador"
                 className="w-full"
               />
             </FormField>

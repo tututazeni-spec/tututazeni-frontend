@@ -14,20 +14,25 @@
 import { useState, type ReactNode } from 'react';
 import {
   ClipboardList,
+  ClipboardCheck,
   Clapperboard,
+  MessageCircle,
   ShieldCheck,
+  Star,
   User,
   Users,
+  X,
+  type LucideIcon,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { renderWelcomeMessage } from './catalog';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -81,17 +86,28 @@ const DOC_GRID =
 
 function SectionCard({
   title,
+  icon: Icon,
   children,
 }: {
   title: string;
+  icon?: LucideIcon;
   children: ReactNode;
 }) {
+  // Mesmo desenho do cartão "Submeter documento".
   return (
-    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-      <h4 className="-mx-5 -mt-5 mb-4 bg-brand-dark px-5 py-3 font-body text-xs font-semibold uppercase tracking-wider text-white">
-        {title}
-      </h4>
-      {children}
+    <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex items-center gap-3 bg-brand-dark px-4 py-3 text-white">
+        {Icon && (
+          <>
+            <Icon size={16} strokeWidth={2} className="shrink-0" />
+            <span className="h-4 w-px bg-white/40" aria-hidden="true" />
+          </>
+        )}
+        <h4 className="m-0 font-body text-xs font-semibold uppercase tracking-wider text-white">
+          {title}
+        </h4>
+      </div>
+      <div className="p-6">{children}</div>
     </div>
   );
 }
@@ -102,6 +118,18 @@ function paceLabel(pct: number): string {
   return 'Início do percurso';
 }
 
+// Dispensa do cartão de boas-vindas: por utilizador + plano, no browser.
+function welcomeDismissKey(userId: number | undefined, planId: number) {
+  return `onboarding-welcome-dismissed:${userId ?? 'me'}:${planId}`;
+}
+function readWelcomeDismissed(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function MyPlanView() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
@@ -110,14 +138,16 @@ export function MyPlanView() {
     label: string;
     hasPerson: boolean;
   } | null>(null);
-  // PATCH /onboarding/:id/team é só ADMIN/RH.
-  const canAssignTeam = me?.role?.code === 'ADMIN' || me?.role?.code === 'RH';
+  // PATCH /onboarding/:id/team é só ADMIN.
+  const canAssignTeam = me?.role?.code === 'ADMIN';
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   // Marco escolhido no Select; '' = usar o mais recente disponível.
   const [milestoneChoice, setMilestoneChoice] = useState<SurveyMilestone | ''>(
     '',
   );
+  // Chaves de boas-vindas dispensadas nesta sessão (a persistência é no localStorage).
+  const [dismissedWelcome, setDismissedWelcome] = useState<string[]>([]);
   const [activeTab, setActiveTab] =
     useState<(typeof SUB_TABS)[number]['id']>('tasks');
 
@@ -196,7 +226,15 @@ export function MyPlanView() {
   }
 
   const plan = plans[0];
-  const pct = plan.progress ?? 0;
+  // /onboarding/my não devolve contadores — calculam-se a partir das tarefas
+  // reais do plano (mesma regra do backend: concluídas = COMPLETED).
+  const totalTasks = plan.totalTasks ?? plan.taskInstances.length;
+  const completedTasks =
+    plan.completedTasks ??
+    plan.taskInstances.filter((t) => t.status === 'COMPLETED').length;
+  const pct =
+    plan.progress ??
+    (totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0);
   // /onboarding/my não devolve `user` — o plano é sempre o do próprio.
   const owner = plan.user ?? me;
 
@@ -225,9 +263,100 @@ export function MyPlanView() {
     answered,
   );
 
+  // O cartão só aparece com um plano atribuído e ainda não concluído; some
+  // sozinho quando a integração termina e o utilizador pode dispensá-lo (X).
+  const welcomeKey = welcomeDismissKey(me?.id, plan.id);
+  const showWelcome =
+    plan.status !== 'COMPLETED' &&
+    plan.status !== 'ABANDONED' &&
+    !dismissedWelcome.includes(welcomeKey) &&
+    !readWelcomeDismissed(welcomeKey);
+  const dismissWelcome = () => {
+    try {
+      localStorage.setItem(welcomeKey, '1');
+    } catch {
+      /* sem localStorage: fica dispensado só até recarregar */
+    }
+    setDismissedWelcome((cur) => [...cur, welcomeKey]);
+  };
+
   return (
     <div className="space-y-5">
-      {/* Welcome */}
+      {/* Welcome — desenho feedback.jpeg: faixa navy com ondulação verde,
+          balão azul, pílula, mensagem e autor. */}
+      {showWelcome && (
+        <div className="relative overflow-hidden rounded-panel bg-surface shadow-[0_4px_16px_rgba(15,31,61,0.12)]">
+          <button
+            type="button"
+            onClick={dismissWelcome}
+            aria-label="Fechar mensagem de boas-vindas"
+            className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white"
+          >
+            <X size={20} strokeWidth={2.25} aria-hidden />
+          </button>
+          <div className="relative flex items-center gap-4 overflow-hidden bg-[#0F1F3D] px-6 py-4">
+            <Star
+              size={30}
+              strokeWidth={1.75}
+              className="shrink-0 text-white"
+              aria-hidden
+            />
+            <span aria-hidden className="h-8 w-px shrink-0 bg-white/40" />
+            <span className="font-body text-xl font-extrabold text-white">
+              Mensagem de boas-vindas
+            </span>
+            <svg
+              aria-hidden
+              viewBox="0 0 200 80"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute inset-y-0 right-0 h-full w-40 text-[#16A765]"
+            >
+              <path
+                d="M200 0 V80 H120 C 150 60, 170 30, 170 0 Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <div className="flex items-center gap-5 px-6 py-5">
+            <div
+              aria-hidden
+              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white shadow-[0_8px_16px_rgba(29,78,216,0.35)]"
+            >
+              <MessageCircle size={38} strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-[#CDEFD9] px-3 py-1 font-body text-sm font-semibold text-[#0F1F3D]">
+                  Boas-vindas
+                </span>
+                <span aria-hidden className="h-5 w-px bg-border-strong" />
+                <span className="font-body text-sm text-ink">
+                  {plan.template.name}
+                </span>
+              </div>
+              <p className="whitespace-pre-line break-words font-body text-lg text-[#0F1F3D]">
+                “
+                {renderWelcomeMessage(
+                  plan.template.welcomeMessage,
+                  owner?.fullName,
+                )}
+                ”
+              </p>
+              {(plan.hrResponsible ?? plan.manager) && (
+                <div className="flex items-center gap-2 font-body text-sm text-ink">
+                  <User size={18} strokeWidth={1.75} aria-hidden />
+                  <span>
+                    por{' '}
+                    <strong className="text-[#0F1F3D]">
+                      {(plan.hrResponsible ?? plan.manager)?.fullName}
+                    </strong>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {plan.template.welcomeVideoUrl && (
         <div className="bg-primary text-canvas rounded-card p-5 flex items-center gap-4">
           <Clapperboard size={36} strokeWidth={1.5} className="shrink-0" />
@@ -252,23 +381,20 @@ export function MyPlanView() {
 
       {/* Header — mesmo desenho do cartão da Visão Geral do evaluation360 */}
       <ProfileRoiCard
-        kicker="Plano de integração"
+        kicker={`Plano de integração - ${plan.template.name}`}
         kickerIcon={ClipboardList}
         name={owner?.fullName ?? '—'}
         avatarUrl={owner?.avatarUrl}
-        subtitle={plan.template.name}
         stats={[
           { label: 'Cargo', value: owner?.position?.name || '—' },
           { label: 'Departamento', value: owner?.department?.name || '—' },
           { label: 'Início', value: fmtDate(plan.startDate) },
           {
             label: 'Tarefas',
-            value: `${plan.completedTasks ?? 0}/${plan.totalTasks ?? 0}`,
+            value: `${completedTasks}/${totalTasks}`,
           },
         ]}
-        note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias${
-          plan.xpEarned > 0 ? ` · ${plan.xpEarned} XP` : ''
-        }`}
+        note={`${paceLabel(pct)} · ${pct}% do plano concluído · ${plan.template.durationDays} dias`}
       />
 
       {/* Tabs */}
@@ -281,7 +407,7 @@ export function MyPlanView() {
 
       {/* Tarefas por fase */}
       {activeTab === 'tasks' && (
-        <SectionCard title="Tarefas">
+        <SectionCard title="Tarefas" icon={ClipboardCheck}>
           <div className="space-y-5">
             {PHASE_ORDER.map((phase) => {
               const phaseTasks = tasksByPhase[phase] ?? [];
@@ -304,6 +430,7 @@ export function MyPlanView() {
                           ? (phaseCompleted / phaseTasks.length) * 100
                           : 0
                       }
+                      color="#0F1F3D"
                       className="flex-1"
                     />
                   </div>
@@ -336,47 +463,52 @@ export function MyPlanView() {
               Ainda não submeteste documentos.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-              <div
-                className={cn(
-                  DOC_GRID,
-                  'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
-                )}
-              >
-                <div>Documento</div>
-                <div>Ficheiro</div>
-                <div>Submetido</div>
-                <div>Estado</div>
-                <div>Motivo</div>
-              </div>
-              {plan.documents.map((doc) => (
+            <div className="flex flex-col gap-3">
+              <h2 className="m-0 text-lg font-bold text-ink">
+                Documentos submetidos
+              </h2>
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
                 <div
-                  key={doc.id}
                   className={cn(
                     DOC_GRID,
-                    'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                    'bg-brand-dark py-3 text-xs font-semibold uppercase tracking-wider text-white',
                   )}
                 >
-                  <div className="break-words font-semibold text-ink">
-                    {doc.documentType}
-                  </div>
-                  <div>
-                    <DocumentLink
-                      fileUrl={doc.fileUrl}
-                      className="text-sm font-semibold text-ink hover:underline"
-                    />
-                  </div>
-                  <div>{doc.createdAt ? fmtDate(doc.createdAt) : '—'}</div>
-                  <div>
-                    <span className="text-xs font-bold text-ink">
-                      {DOC_STATUS_LABEL[doc.status]}
-                    </span>
-                  </div>
-                  <div className="break-words">
-                    {doc.rejectionReason ?? '—'}
-                  </div>
+                  <div>Documento</div>
+                  <div>Ficheiro</div>
+                  <div>Submetido</div>
+                  <div>Estado</div>
+                  <div>Motivo</div>
                 </div>
-              ))}
+                {plan.documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className={cn(
+                      DOC_GRID,
+                      'border-b border-brand-line bg-surface py-3 font-body text-sm text-ink-muted last:border-0 hover:bg-surface-sunken',
+                    )}
+                  >
+                    <div className="break-words font-semibold text-ink">
+                      {doc.documentType}
+                    </div>
+                    <div>
+                      <DocumentLink
+                        fileUrl={doc.fileUrl}
+                        className="text-sm font-semibold text-ink hover:underline"
+                      />
+                    </div>
+                    <div>{doc.createdAt ? fmtDate(doc.createdAt) : '—'}</div>
+                    <div>
+                      <span className="text-xs font-bold text-ink">
+                        {DOC_STATUS_LABEL[doc.status]}
+                      </span>
+                    </div>
+                    <div className="break-words">
+                      {doc.rejectionReason ?? '—'}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -438,34 +570,81 @@ export function MyPlanView() {
           <div className="space-y-4">
             {/* Pesquisas anteriores */}
             {plan.surveys.length > 0 && (
-              <Card className="p-4">
-                <div className="text-xs font-medium text-ink-muted mb-3">
-                  Feedbacks anteriores
-                </div>
-                {plan.surveys.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center gap-3 py-2 border-b border-border last:border-0"
+              <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+                {/* Cabeçalho — desenho do Feedback Contínuo, tamanho do Submeter documento */}
+                <div className="relative flex items-center gap-3 overflow-hidden bg-brand-dark px-4 py-3 text-white">
+                  <Star
+                    size={16}
+                    strokeWidth={1.75}
+                    className="relative z-10 shrink-0 text-white"
+                  />
+                  <span
+                    className="relative z-10 h-4 w-px bg-white/40"
+                    aria-hidden="true"
+                  />
+                  <h3 className="relative z-10 m-0 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                    Feedbacks anteriores
+                  </h3>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 200 80"
+                    preserveAspectRatio="none"
+                    className="pointer-events-none absolute right-0 top-0 h-full w-[22%]"
                   >
-                    <Badge intent="info">
-                      {SURVEY_MILESTONE_LABELS[s.milestone] ?? s.milestone}
-                    </Badge>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <span
-                          key={i}
-                          className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
-                        ></span>
-                      ))}
-                    </div>
-                    {s.comment && (
-                      <p className="text-xs text-ink-muted truncate">
-                        {s.comment}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </Card>
+                    <defs>
+                      <linearGradient
+                        id="prev-fb-swoosh"
+                        x1="0"
+                        y1="1"
+                        x2="1"
+                        y2="0"
+                      >
+                        <stop offset="0%" stopColor="#16a34a" />
+                        <stop offset="100%" stopColor="#4ade80" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M200 0v52C170 66 120 72 70 76 130 56 150 24 160 0z"
+                      fill="url(#prev-fb-swoosh)"
+                    />
+                  </svg>
+                </div>
+                <ul className="m-0 list-none divide-y divide-border p-0">
+                  {plan.surveys.map((s) => (
+                    <li
+                      key={s.id}
+                      className="flex flex-wrap items-center gap-x-4 gap-y-1 px-6 py-3"
+                    >
+                      <span
+                        className="rounded-full py-0.5 pl-3.5 pr-3 font-body text-xs font-bold"
+                        style={{
+                          background: '#dbeafe',
+                          color: '#17408a',
+                          boxShadow: 'inset 6px 0 0 #60a5fa',
+                        }}
+                      >
+                        {SURVEY_MILESTONE_LABELS[s.milestone] ?? s.milestone}
+                      </span>
+                      <span className="h-4 w-px bg-ink/30" aria-hidden="true" />
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span
+                            key={i}
+                            className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      {s.comment && (
+                        <p className="m-0 min-w-0 flex-1 truncate font-display text-base text-brand-dark">
+                          {s.comment}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             {/* Nova pesquisa */}
@@ -498,8 +677,12 @@ export function MyPlanView() {
                       <button
                         key={s}
                         onClick={() => setSurveyScore(s)}
+                        type="button"
+                        aria-label={`Nota ${s} de 5`}
                         className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
-                      ></button>
+                      >
+                        ★
+                      </button>
                     ))}
                   </div>
                   <Textarea

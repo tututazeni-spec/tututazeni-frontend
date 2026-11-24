@@ -302,7 +302,7 @@ function BuilderInner({ process, canEdit, onBack }: BuilderInnerProps) {
       <div className="flex gap-4">
         {!readOnly && (
           <aside className="w-48 shrink-0 rounded-card border border-border bg-surface p-2">
-            <div className="px-1 pb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="px-1 pb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-label">
               Blocos
             </div>
             <ul className="space-y-1">

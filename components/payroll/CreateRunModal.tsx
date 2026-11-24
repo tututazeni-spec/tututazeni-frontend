@@ -6,7 +6,10 @@
 // disponível na API mas sem UI aqui. onCreated navega logo para o detalhe.
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { CalendarDays } from 'lucide-react';
+import { periodOptions, thisMonth } from './periodOptions';
+import { PAY_GROUP_ITEMS, PAY_GROUP_NONE } from './payGroupOptions';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -37,19 +40,6 @@ const OPTION_FIELDS = [
   ['applyDiscounts', 'Aplicar descontos'],
 ] as const;
 
-// Grupos de pagamento (PayrollRun.payGroup é texto livre; esta lista padroniza
-// o que a UI grava para os filtros por grupo baterem certo).
-const PAY_GROUP_NONE = 'NONE';
-const PAY_GROUP_ITEMS = [
-  { value: PAY_GROUP_NONE, label: 'Sem grupo' },
-  { value: 'Mensais', label: 'Mensais' },
-  { value: 'Quinzenais', label: 'Quinzenais' },
-  { value: 'Semanais', label: 'Semanais' },
-  { value: 'Diaristas', label: 'Diaristas' },
-  { value: 'Estagiários', label: 'Estagiários' },
-  { value: 'Direcção', label: 'Direcção' },
-];
-
 type OptionKey = (typeof OPTION_FIELDS)[number][0];
 type RunOptions = Record<OptionKey, boolean>;
 
@@ -64,7 +54,8 @@ export interface CreateRunModalProps {
 
 export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const notify = useToast();
-  const [period, setPeriod] = useState('');
+  const [period, setPeriod] = useState(thisMonth());
+  const periodItems = useMemo(() => periodOptions(period), [period]);
   const [payGroup, setPayGroup] = useState(PAY_GROUP_NONE);
   const [countryCode, setCountryCode] = useState('AO');
   const [notes, setNotes] = useState('');
@@ -111,18 +102,19 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo run" className="max-w-lg">
+      <ModalContent title="Novo processamento" className="max-w-lg">
         <div className="mt-5 space-y-4">
           <FormField
             label="Período *"
             htmlFor="crm-period"
             hint="Formato AAAA-MM"
           >
-            <Input
-              id="crm-period"
+            <Select
+              variant="underline"
+              icon={CalendarDays}
+              items={periodItems}
               value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              placeholder="2026-09"
+              onValueChange={setPeriod}
               className="w-full"
             />
           </FormField>
@@ -208,20 +200,31 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
               ) : depOptions.length === 0 ? (
                 <EmptyState variant="inline" title="Sem departamentos" />
               ) : (
-                depOptions.map((d) => (
-                  <label
-                    key={d.value}
-                    className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
-                  >
+                <>
+                  <label className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2">
                     <Checkbox
-                      checked={depIds.has(d.value)}
-                      onChange={() => toggleDep(d.value)}
+                      checked={depIds.size === 0}
+                      onChange={() => setDepIds(new Set())}
                     />
-                    <span className="font-body text-sm text-ink">
-                      {d.label}
+                    <span className="font-body text-sm font-semibold text-ink">
+                      Todos
                     </span>
                   </label>
-                ))
+                  {depOptions.map((d) => (
+                    <label
+                      key={d.value}
+                      className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0"
+                    >
+                      <Checkbox
+                        checked={depIds.has(d.value)}
+                        onChange={() => toggleDep(d.value)}
+                      />
+                      <span className="font-body text-sm text-ink">
+                        {d.label}
+                      </span>
+                    </label>
+                  ))}
+                </>
               )}
             </div>
           </FormField>

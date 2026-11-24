@@ -118,7 +118,7 @@ export function ModuleAccordion({
           {/* Materiais complementares */}
           {mod.materials.length > 0 && (
             <div className="px-4 py-2 bg-surface-sunken border-t border-border">
-              <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide mb-1.5">
+              <div className="font-body text-xs font-medium text-ink-label uppercase tracking-wide mb-1.5">
                 Materiais
               </div>
               {mod.materials.map((mat) => (

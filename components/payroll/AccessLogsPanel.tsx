@@ -26,7 +26,7 @@ export function AccessLogsPanel({ payslipId }: AccessLogsPanelProps) {
 
   return (
     <div>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-label">
         Últimos 50 acessos
       </h3>
       {isLoading && <Skeleton rows={3} />}
@@ -55,10 +55,10 @@ export function AccessLogsPanel({ payslipId }: AccessLogsPanelProps) {
               <div className="text-ink">
                 {log.user?.fullName ?? `#${log.userId}`}
               </div>
-              <div className="font-body text-xs text-ink-faint">
+              <div className="font-body text-xs text-black">
                 {log.ipAddress ?? '—'}
               </div>
-              <div className="text-ink-muted">{fmtDate(log.accessedAt)}</div>
+              <div className="text-black">{fmtDate(log.accessedAt)}</div>
             </div>
           ))}
         </div>

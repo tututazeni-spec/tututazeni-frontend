@@ -12,6 +12,7 @@ import { TabUtilizadores } from '@/components/settings/TabUtilizadores';
 import { TabNotificacoes } from '@/components/settings/TabNotificacoes';
 import { TabIntegracoes } from '@/components/settings/TabIntegracoes';
 import { TabCertificados } from '@/components/settings/TabCertificados';
+import { TabCarreira } from '@/components/settings/TabCarreira';
 import { TabPrivacidade } from '@/components/settings/TabPrivacidade';
 import { TabLicenca } from '@/components/settings/TabLicenca';
 import { TabAuditoria } from '@/components/settings/TabAuditoria';
@@ -119,6 +120,12 @@ export default function SettingsPage() {
         {isAdmin && (
           <TabsContent value="certificados">
             <TabCertificados />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="carreira">
+            <TabCarreira />
           </TabsContent>
         )}
 

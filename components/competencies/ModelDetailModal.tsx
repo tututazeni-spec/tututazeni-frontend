@@ -219,7 +219,7 @@ export function ModelDetailModal({
 
             <div className="mt-6 space-y-4 border-t border-border pt-4">
               <div>
-                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
                   Competências incluídas ({data.items.length})
                 </h3>
                 {data.items.length === 0 ? (
@@ -369,7 +369,7 @@ function AddItemForm({
 
   return (
     <div className="mt-3 rounded-card border border-dashed border-border p-4">
-      <div className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+      <div className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-label">
         Adicionar competência
       </div>
       <div className="grid grid-cols-2 gap-3">

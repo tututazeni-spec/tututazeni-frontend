@@ -1,9 +1,9 @@
 // components/onboarding/TemplateCard.tsx
-// Card de template do separador "Planos de Integração"
-// (docs/prompt_claude_code_card_onboarding.md): cabeçalho azul com fachada
-// de vidro desenhada em CSS (sem assets novos), título + estado, linha de
-// métricas, divisor e linhas de informação. O clique no card (abre o
-// TemplateDetailModal) continua a ser tratado por quem o usa.
+// Card de template do separador "Planos de Integração" no desenho de "card
+// para cursos criados" (public/images): fundo em gradiente azul escuro na cor
+// da paleta do template, topo com a imagem "folha de pagamento" tingida com a cor do template e a etiqueta de estado, métricas com ícones, linhas de
+// informação, e rodapé com barra de destaque + título + botão circular. O
+// clique no card (abre o TemplateDetailModal) é tratado por quem o usa.
 
 import {
   CalendarDays,
@@ -12,10 +12,9 @@ import {
   GraduationCap,
   ListChecks,
   User,
-  Users,
   type LucideIcon,
 } from 'lucide-react';
-import { CATEGORY_CFG } from './constants';
+import { cn } from '@/lib/cn';
 import type { OnboardingTemplate } from './types';
 
 // Paleta por template (escolhida pelo id, estável entre renders): cada card
@@ -46,6 +45,9 @@ export function headerBackground([c1, c2, c3]: [
   ].join(', ');
 }
 
+// Imagem do topo do card (public/images/folha de pagamento.jpg).
+const TEMPLATE_IMAGE = '/images/folha%20de%20pagamento.jpg';
+
 function Metric({
   icon: Icon,
   children,
@@ -54,39 +56,9 @@ function Metric({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2 px-3 first:pl-0 last:pr-0 text-[15px] text-brand">
-      <Icon
-        size={22}
-        strokeWidth={1.75}
-        className="shrink-0 text-brand-muted"
-      />
-      <span>{children}</span>
-    </div>
-  );
-}
-
-interface InfoRowProps {
-  icon: LucideIcon;
-  accent: string;
-  children: React.ReactNode;
-}
-
-function InfoRow({ icon: Icon, accent, children }: InfoRowProps) {
-  return (
-    <div className="flex items-center gap-3 rounded-[14px] bg-brand-soft px-4 py-3 text-[15px] text-brand">
-      <Icon
-        size={20}
-        strokeWidth={1.75}
-        className="shrink-0"
-        style={{ color: accent }}
-      />
-      <span className="min-w-0 flex-1 break-words">{children}</span>
-      <ChevronRight
-        size={18}
-        strokeWidth={1.75}
-        className="shrink-0"
-        style={{ color: accent }}
-      />
+    <div className="flex items-center gap-3 text-[15px] font-medium text-white">
+      <Icon size={22} strokeWidth={1.5} className="shrink-0 text-[#9DB8E0]" />
+      <span className="min-w-0 break-words">{children}</span>
     </div>
   );
 }
@@ -101,7 +73,6 @@ export function TemplateCard({
   const palette = PALETTE[Math.abs(t.id) % PALETTE.length];
   const category = t.department?.name ?? t.company ?? null;
   const description = t.objective || t.description;
-  const tasks = t.tasks ?? [];
 
   return (
     <div
@@ -114,23 +85,84 @@ export function TemplateCard({
           onOpen();
         }
       }}
-      className="cursor-pointer overflow-hidden rounded-[20px] border border-brand-line bg-surface shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className={cn(
+        'relative flex h-full cursor-pointer flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
+      )}
+      style={{
+        background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
+      }}
     >
+      {/* Topo: fachada de vidro que se funde no azul do card */}
       <div
-        className="flex min-h-[190px] flex-col justify-between p-7 text-white"
-        style={{ background: headerBackground(palette) }}
+        className="relative min-h-[170px] shrink-0"
+        style={{
+          backgroundImage: `url("${TEMPLATE_IMAGE}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       >
-        <div className="flex items-start justify-between">
-          <Users size={30} strokeWidth={1.75} aria-hidden />
+        {/* Tinge a imagem com a cor própria de cada template */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: `linear-gradient(160deg, ${palette[0]}26 0%, ${palette[1]}26 100%)`,
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+          style={{
+            background: `linear-gradient(180deg, transparent 0%, ${palette[2]} 100%)`,
+          }}
+        />
+        <span className="absolute right-5 top-5 inline-flex items-center gap-2 rounded-full bg-[#0F1F3D]/80 px-4 py-1.5 text-sm font-semibold text-white">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${t.active ? 'bg-[#16A765] text-white' : 'bg-white/20 text-white'}`}
-          >
-            <span aria-hidden className="h-2 w-2 rounded-full bg-surface" />
-            {t.active ? 'Activo' : 'Inactivo'}
-          </span>
+            aria-hidden
+            className={`h-2.5 w-2.5 rounded-full ${t.active ? 'bg-[#16A765]' : 'bg-white/50'}`}
+          />
+          {t.active ? 'Activo' : 'Inactivo'}
+        </span>
+      </div>
+
+      {/* Métricas e informação */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4 px-6 pb-2 pt-1">
+        <Metric icon={CalendarDays}>{t.durationDays} dias</Metric>
+        <Metric icon={CheckCircle2}>{t._count?.tasks ?? 0} tarefas</Metric>
+        <Metric icon={ListChecks}>{t._count?.plans ?? 0} planos</Metric>
+        {t.position && <Metric icon={User}>{t.position.name}</Metric>}
+        {t.unit && <Metric icon={GraduationCap}>{t.unit.name}</Metric>}
+      </div>
+
+      {description && (
+        <div className="px-6 pt-3">
+          <ul className="space-y-1.5 text-sm text-white/80">
+            {description
+              .split(/\r?\n+|(?<=[.;!?])\s+(?=[A-ZÀ-Ý])/)
+              .map((line) => line.replace(/^[\s\-•*]+/, '').trim())
+              .filter(Boolean)
+              .map((line, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span
+                    aria-hidden
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#FFD28A]"
+                  />
+                  <span className="min-w-0 break-words">{line}</span>
+                </li>
+              ))}
+          </ul>
         </div>
-        <div>
-          <h3 className="font-display text-[24px] font-semibold leading-tight">
+      )}
+
+      {/* Rodapé: barra de destaque + título + botão circular */}
+      <div className="mt-auto flex items-center gap-4 px-6 pb-6 pt-6">
+        <span
+          aria-hidden
+          className="h-16 w-1 shrink-0 rounded-full"
+          style={{ background: palette[3] }}
+        />
+        <div className="min-w-0 flex-1">
+          <h3 className="break-words font-body text-2xl font-extrabold leading-tight">
             {t.name}
             {t.version && t.version > 1 && (
               <span className="ml-2 font-mono text-sm font-normal text-white/70">
@@ -139,57 +171,18 @@ export function TemplateCard({
             )}
           </h3>
           {category && (
-            <p className="mt-1 text-[17px] text-white/80">{category}</p>
+            <p className="mt-1 break-words text-[15px] text-white/70">
+              {category}
+            </p>
           )}
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-y-2 px-7 py-6 divide-x divide-brand-line">
-        <Metric icon={CalendarDays}>{t.durationDays} dias</Metric>
-        <Metric icon={CheckCircle2}>{t._count?.tasks ?? 0} tarefas</Metric>
-        <Metric icon={ListChecks}>{t._count?.plans ?? 0} planos</Metric>
-      </div>
-
-      <div className="mx-7 border-t border-brand-line" />
-
-      <div className="space-y-2 px-7 py-6">
-        {description && (
-          <p className="mb-3 break-words text-xs text-brand-muted">
-            {description}
-          </p>
-        )}
-        {t.position && (
-          <InfoRow icon={User} accent={palette[3]}>
-            {t.position.name}
-          </InfoRow>
-        )}
-        {t.unit && (
-          <InfoRow icon={GraduationCap} accent={palette[3]}>
-            {t.unit.name}
-          </InfoRow>
-        )}
-
-        {tasks.length > 0 && (
-          <div className="space-y-1 pt-3">
-            {tasks.map((task) => {
-              const CatIcon = CATEGORY_CFG[task.category]?.icon;
-              return (
-                <div
-                  key={task.id}
-                  className="flex items-start gap-2 text-xs text-brand-muted"
-                >
-                  <span>
-                    {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
-                  </span>
-                  <span className="min-w-0 break-words">{task.title}</span>
-                  <span className="ml-auto shrink-0 text-warning-ink">
-                    +{task.xpReward}xp
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <span
+          aria-hidden
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white"
+          style={{ background: palette[0] }}
+        >
+          <ChevronRight size={22} strokeWidth={2.25} />
+        </span>
       </div>
     </div>
   );
