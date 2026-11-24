@@ -88,23 +88,36 @@ function Rows({ rows, minus }: { rows: Row[]; minus?: boolean }) {
   );
 }
 
-function SectionHeader({
+export function SectionHeader({
   icon: Icon,
   children,
+  compact,
 }: {
   icon: typeof Wallet;
   children: React.ReactNode;
+  /** Versão baixa para cards pequenos. */
+  compact?: boolean;
 }) {
   return (
-    <div className="mb-3 flex items-center gap-2.5">
+    <div
+      className={
+        compact
+          ? 'mb-1 flex items-center gap-2'
+          : 'mb-3 flex items-center gap-2.5'
+      }
+    >
       <Icon
-        className="h-6 w-6"
+        className={compact ? 'h-4 w-4' : 'h-6 w-6'}
         style={{ color: ACCENT }}
         strokeWidth={1.75}
         aria-hidden
       />
       <h4
-        className="font-display text-lg font-bold"
+        className={
+          compact
+            ? 'font-display text-sm font-bold'
+            : 'font-display text-lg font-bold'
+        }
         style={{ color: NAVY_TEXT }}
       >
         {children}
@@ -113,22 +126,29 @@ function SectionHeader({
   );
 }
 
-function TotalPill({ label, value }: { label: string; value: string }) {
+export function TotalPill({
+  label,
+  value,
+  compact,
+}: {
+  label: string;
+  value: string;
+  compact?: boolean;
+}) {
+  const text = compact
+    ? 'font-body text-xs font-bold'
+    : 'font-body text-sm font-bold';
   return (
     <div
-      className="mt-auto flex items-baseline justify-between gap-3 rounded-[12px] px-4 py-2.5"
+      className={`mt-auto flex items-baseline justify-between gap-3 ${
+        compact ? 'rounded-[8px] px-3 py-1' : 'rounded-[12px] px-4 py-2.5'
+      }`}
       style={{ backgroundColor: PILL_BG }}
     >
-      <span
-        className="font-body text-sm font-bold"
-        style={{ color: NAVY_TEXT }}
-      >
+      <span className={text} style={{ color: NAVY_TEXT }}>
         {label}
       </span>
-      <span
-        className="font-body text-sm font-bold"
-        style={{ color: NAVY_TEXT }}
-      >
+      <span className={text} style={{ color: NAVY_TEXT }}>
         {value}
       </span>
     </div>
