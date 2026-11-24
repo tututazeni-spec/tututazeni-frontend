@@ -125,7 +125,7 @@ function EmployeeProfileView({
                   <tr>
                     <th className={TH}>Período</th>
                     <th className={TH}>Recibo</th>
-                    <th className={TH}>Líquido</th>
+                    <th className={`${TH} text-right`}>Líquido</th>
                     <th className={TH}>Estado</th>
                     <th className={TH}>Pago em</th>
                   </tr>
@@ -140,7 +140,7 @@ function EmployeeProfileView({
                       <td className={`${TD} text-ink-muted`}>
                         {p.receiptCode ?? '—'}
                       </td>
-                      <td className={`${TD} font-body`}>
+                      <td className={`${TD} text-right font-body tabular-nums`}>
                         {fmtKz(p.netSalary)}
                       </td>
                       <td className={`${TD} text-ink-muted`}>
@@ -343,35 +343,37 @@ export function EmployeesView() {
                     <td className={`${TD} text-ink-muted`}>
                       {r.position ?? '—'}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.baseSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.allowances)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.overtime)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.bonuses)}
                     </td>
                     <td className={`${TD} text-right`}>{r.absenceDays}</td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.inss)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.irt)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.otherDeductions)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.grossSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body font-medium`}>
+                    <td
+                      className={`${TD} text-right font-body tabular-nums font-medium`}
+                    >
                       {fmtKz(r.netSalary)}
                     </td>
-                    <td className={`${TD} text-right font-body`}>
+                    <td className={`${TD} text-right font-body tabular-nums`}>
                       {fmtKz(r.employerCost)}
                     </td>
                     <td className={`${TD} text-ink-muted`}>

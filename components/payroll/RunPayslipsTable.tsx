@@ -104,8 +104,8 @@ export function RunPayslipsTable({
               className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
-              <div>Bruto</div>
-              <div>Líquido</div>
+              <div className="text-right">Bruto</div>
+              <div className="text-right">Líquido</div>
               <div>Estado</div>
               <div>Exceções</div>
               {editable && <div>Acções</div>}
@@ -134,10 +134,10 @@ export function RunPayslipsTable({
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-ink">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(p.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div className="font-body text-sm text-ink">

@@ -91,10 +91,10 @@ export function InssRulesCard({ config }: { config: TaxConfig }) {
           <table className="w-full min-w-[520px] font-body text-sm text-ink">
             <thead style={{ backgroundColor: NAVY }}>
               <tr>
-                <th className={TH}>De</th>
-                <th className={TH}>Até</th>
+                <th className={`${TH} text-right`}>De</th>
+                <th className={`${TH} text-right`}>Até</th>
                 <th className={TH}>Taxa</th>
-                <th className={TH}>Parcela a abater</th>
+                <th className={`${TH} text-right`}>Parcela a abater</th>
               </tr>
             </thead>
             <tbody>
@@ -103,12 +103,14 @@ export function InssRulesCard({ config }: { config: TaxConfig }) {
                   key={b.id}
                   className="border-b border-brand-line last:border-0"
                 >
-                  <td className="px-4 py-1.5">{fmtKz(b.min)}</td>
-                  <td className="px-4 py-1.5">
+                  <td className="px-4 py-1.5 text-right tabular-nums">
+                    {fmtKz(b.min)}
+                  </td>
+                  <td className="px-4 py-1.5 text-right tabular-nums">
                     {b.max == null ? '∞' : fmtKz(b.max)}
                   </td>
                   <td className="px-4 py-1.5">{pct(b.rate)}</td>
-                  <td className="px-4 py-1.5">
+                  <td className="px-4 py-1.5 text-right tabular-nums">
                     {b.deduction ? fmtKz(b.deduction) : '—'}
                   </td>
                 </tr>

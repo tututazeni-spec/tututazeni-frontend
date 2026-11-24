@@ -112,7 +112,7 @@ export function ListView({ onSelect }: ListViewProps) {
           <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
             <div>Período</div>
             <div>Pagamento</div>
-            <div>Salário líquido</div>
+            <div className="text-right">Salário líquido</div>
             <div>Estado</div>
             <div>Acções</div>
           </div>
@@ -162,7 +162,7 @@ export function ListView({ onSelect }: ListViewProps) {
                 <div className="font-body text-sm text-ink">
                   {fmtDate(p.paymentDate)}
                 </div>
-                <div className="font-body text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>

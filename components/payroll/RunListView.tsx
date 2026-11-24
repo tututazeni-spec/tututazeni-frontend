@@ -159,7 +159,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
               <div>País</div>
               <div>Estado</div>
               <div>Colaboradores</div>
-              <div>Total líquido</div>
+              <div className="text-right">Total líquido</div>
               <div>Exceções</div>
               <div>Criado em</div>
             </div>
@@ -186,7 +186,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
                 <div className="font-body text-sm text-ink">
                   {r.employeeCount ?? '—'}
                 </div>
-                <div className="font-body text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(r.totalNet)}
                 </div>
                 <div className="font-body text-sm text-ink">

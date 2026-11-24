@@ -280,7 +280,7 @@ export function DeductionsView() {
                       <td className="px-4 py-3 text-ink-muted">
                         {t.employeesAffected}
                       </td>
-                      <td className="px-4 py-3 text-right font-body text-ink">
+                      <td className="px-4 py-3 text-right font-body tabular-nums text-ink">
                         {fmtKz(t.total)}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -363,7 +363,7 @@ export function DeductionsView() {
                       <td className="px-4 py-3 text-ink-muted">
                         {b.employees}
                       </td>
-                      <td className="px-4 py-3 text-right font-body text-ink">
+                      <td className="px-4 py-3 text-right font-body tabular-nums text-ink">
                         {fmtKz(b.irt)}
                       </td>
                     </tr>

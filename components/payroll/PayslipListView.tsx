@@ -208,8 +208,8 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
               <div>Colaborador</div>
               <div>Período</div>
               <div>Pagamento</div>
-              <div>Bruto</div>
-              <div>Líquido</div>
+              <div className="text-right">Bruto</div>
+              <div className="text-right">Líquido</div>
               <div>Estado</div>
               <div>Acções</div>
             </div>
@@ -241,10 +241,10 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                 <div className="font-body text-sm text-ink">
                   {fmtDate(r.paymentDate)}
                 </div>
-                <div className="font-body text-sm text-ink">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(r.grossSalary)}
                 </div>
-                <div className="font-body text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(r.netSalary)}
                 </div>
                 <div>

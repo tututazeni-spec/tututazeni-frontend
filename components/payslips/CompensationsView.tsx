@@ -90,9 +90,9 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
             >
               <div>Colaborador</div>
               <div>Departamento</div>
-              <div>Salário base</div>
-              <div>Subs. alim.</div>
-              <div>Subs. transp.</div>
+              <div className="text-right">Salário base</div>
+              <div className="text-right">Subs. alim.</div>
+              <div className="text-right">Subs. transp.</div>
               <div>Desde</div>
               <div>Componentes</div>
             </div>
@@ -121,13 +121,13 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
                 <div className="truncate font-body text-sm text-ink">
                   {r.user.department?.name ?? '—'}
                 </div>
-                <div className="font-body text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-ink text-right tabular-nums">
                   {fmtKz(r.baseSalary)}
                 </div>
-                <div className="font-body text-sm text-ink">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(r.foodAllowance)}
                 </div>
-                <div className="font-body text-sm text-ink">
+                <div className="font-body text-sm text-ink text-right tabular-nums">
                   {fmtKz(r.transportAllowance)}
                 </div>
                 <div className="font-body text-sm text-ink">
