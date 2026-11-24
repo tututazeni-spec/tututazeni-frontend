@@ -4,7 +4,7 @@
 'use client';
 
 import { ExportMenu } from '@/components/ui/ExportMenu';
-import { exportTable, type ExportFormat } from '@/lib/tableExport';
+import { exportTable, slugify, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import {
   AlertTriangle,
@@ -189,10 +189,14 @@ function exportReport(
   columns: string[],
   format: ExportFormat,
 ) {
+  // Nome em português do relatório (nunca o código técnico, ex.: monthly-payroll).
+  const reportLabel =
+    REPORT_ITEMS.find((i) => i.value === report.type)?.label ?? report.type;
+  const fileBase = `folha-${slugify(reportLabel)}`;
   if (format !== 'csv') {
     void exportTable(format, {
-      title: `Relatório de folha de pagamento — ${report.type}`,
-      filename: `payroll-${report.type}`,
+      title: `Relatório de folha de pagamento — ${reportLabel}`,
+      filename: fileBase,
       headers: columns.map((c) => COLUMN_LABEL[c] ?? c),
       rows: report.rows.map((r) =>
         columns.map((c) => (format === 'pdf' ? cell(c, r[c]) : r[c])),
@@ -206,7 +210,7 @@ function exportReport(
     ';',
   );
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  saveBlob(blob, `payroll-${report.type}.csv`);
+  saveBlob(blob, `${fileBase}.csv`);
 }
 
 export function ReportsView() {

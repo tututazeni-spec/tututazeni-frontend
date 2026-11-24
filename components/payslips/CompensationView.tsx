@@ -9,7 +9,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { formatDate, formatKz as fmtKz } from '@/lib/format';
+import { formatKz as fmtKz } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Wallet } from 'lucide-react';
@@ -86,9 +86,6 @@ export function CompensationView() {
           </dl>
         </section>
       </div>
-      <p className="mt-3 font-body text-xs text-ink-faint">
-        Em vigor desde {formatDate(data.effectiveFrom)}
-      </p>
     </div>
   );
 }

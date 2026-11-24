@@ -13,6 +13,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { apiClient } from '@/lib/apiClient';
+import { exportTable, type ExportFormat } from '@/lib/tableExport';
+import { useToast } from '@/providers/ToastProvider';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Combobox } from '@/components/ui/Combobox';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -197,7 +201,64 @@ function useDepartmentItems() {
   }, [data]);
 }
 
+async function exportEmployees(
+  runId: number,
+  params: Record<string, string | number>,
+  format: ExportFormat,
+) {
+  // Exporta todos os colaboradores do filtro, não só a página visível.
+  const all = await apiClient.get<Paginated<RunEmployeeRow>>(
+    `/payroll/runs/${runId}/employees`,
+    { params: { ...params, page: 1, limit: 10000 } },
+  );
+  const money = format === 'pdf';
+  const kz = (n: number) => (money ? fmtKz(n) : n);
+  await exportTable(format, {
+    title: 'Colaboradores do processamento',
+    filename: 'folha-colaboradores',
+    headers: [
+      'Colaborador',
+      'Nº',
+      'NIF',
+      'Departamento',
+      'Cargo',
+      'Base',
+      'Subsídios',
+      'Extra',
+      'Prémios',
+      'Faltas',
+      'INSS',
+      'IRT',
+      'Outras deduções',
+      'Bruto',
+      'Líquido',
+      'Custo patronal',
+      'Estado',
+    ],
+    rows: all.data.map((r) => [
+      r.fullName,
+      r.employeeNumber,
+      r.nif,
+      r.department,
+      r.position,
+      kz(r.baseSalary),
+      kz(r.allowances),
+      kz(r.overtime),
+      kz(r.bonuses),
+      r.absenceDays,
+      kz(r.inss),
+      kz(r.irt),
+      kz(r.otherDeductions),
+      kz(r.grossSalary),
+      kz(r.netSalary),
+      kz(r.employerCost),
+      resolveBadge(PAYSLIP_STATUS_MAP, r.status as PayslipStatus).label,
+    ]),
+  });
+}
+
 export function EmployeesView() {
+  const notify = useToast();
   const [runId, setRunId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [departmentId, setDepartmentId] = useState(''); // '' = nada escolhido
@@ -265,6 +326,20 @@ export function EmployeesView() {
           placeholder="Nome ou nº de colaborador"
           className="w-64"
         />
+        {filtered && rows.length > 0 && runId !== null && (
+          <div className="ml-auto">
+            <ExportMenu
+              onExport={(format) =>
+                void exportEmployees(runId, params, format).catch(() =>
+                  notify({
+                    title: 'Não foi possível exportar os colaboradores',
+                    intent: 'danger',
+                  }),
+                )
+              }
+            />
+          </div>
+        )}
       </div>
 
       {runId === null && (

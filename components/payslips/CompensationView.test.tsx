@@ -38,12 +38,9 @@ describe('CompensationView', () => {
     expect(screen.getByText('•••••••••1234')).toBeInTheDocument();
   });
 
-  test('rodapé indica desde quando a compensação está em vigor', () => {
+  test('não mostra a frase "Em vigor desde"', () => {
     render(<CompensationView />);
-    expect(
-      screen.getByText((t) => t.startsWith('Em vigor desde')),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/2026/)).toBeInTheDocument();
+    expect(screen.queryByText(/Em vigor desde/)).not.toBeInTheDocument();
   });
 
   test('esconde as linhas de subsídio quando são nulas', () => {
