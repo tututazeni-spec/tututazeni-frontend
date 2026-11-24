@@ -31,6 +31,8 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryBoundary } from '@/components/ui/QueryBoundary';
+import { STATUS_CFG } from '@/components/development-plans/constants';
+import type { PlanStatus } from '@/components/development-plans/types';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
 import { pollInterval } from '@/lib/polling';
@@ -187,29 +189,25 @@ function ColaboradorDashboardContent({ data }: { data: MyDashboardData }) {
       <div className="grid grid-cols-1 gap-5">
         {/* PDI */}
         {plan && (
-          <div className="rounded-card border border-border bg-surface p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 font-body font-semibold text-ink-muted">
-                <Target size={14} strokeWidth={1.75} className="text-primary" />
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="-mx-5 -mt-5 mb-3.5 flex items-center justify-between gap-3 bg-brand-dark px-5 py-3">
+              <h3 className="flex items-center gap-2 font-body text-xs font-semibold uppercase tracking-wider text-white">
+                <Target size={14} strokeWidth={1.75} />
                 PDI Activo
               </h3>
-              <span className="rounded-pill bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink">
-                {plan.status}
+              <span className="rounded-pill bg-white/15 px-2 py-0.5 font-body text-xs text-white">
+                {STATUS_CFG[plan.status as PlanStatus]?.label ?? plan.status}
               </span>
             </div>
-            <p className="mb-3 truncate font-body text-sm text-ink-muted">
+            <p className="mb-3 truncate font-body text-sm font-semibold text-ink">
               {plan.name}
             </p>
             <div className="mb-1 flex justify-between font-body text-xs">
-              <span className="text-ink-faint">Progresso</span>
-              <span
-                className={`font-bold ${plan.progress >= 80 ? 'text-success' : 'text-primary'}`}
-              >
-                {plan.progress}%
-              </span>
+              <span className="text-ink-muted">Progresso</span>
+              <span className="font-bold text-brand">{plan.progress}%</span>
             </div>
-            <ProgressBar value={plan.progress} />
-            <p className="mt-2 font-body text-micro text-ink-faint">
+            <ProgressBar value={plan.progress} color="#0F1F3D" />
+            <p className="mt-2 font-body text-xs text-ink-muted">
               {plan.completedActions} / {plan.goals} acções concluídas
             </p>
           </div>
