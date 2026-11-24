@@ -5,13 +5,15 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BarChart3,
   Calculator,
   Coins,
   Gift,
   Info,
+  Bus,
+  Pencil,
   Percent,
   Receipt,
   Timer,
@@ -19,7 +21,14 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
+import { EditTaxRulesModal } from '@/components/payroll/EditTaxRulesModal';
+import type { TaxConfig } from '@/components/payroll/insightTypes';
 import { apiClient } from '@/lib/apiClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { cn } from '@/lib/cn';
@@ -31,11 +40,16 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import type { SimulateResult } from './types';
+import type { MyCompensation, SimulateResult } from './types';
 import { Input } from '@/components/ui/Input';
 
 type FormKey =
-  'baseSalary' | 'mealAllowance' | 'overtime' | 'bonuses' | 'otherAllowances';
+  | 'baseSalary'
+  | 'mealAllowance'
+  | 'transportAllowance'
+  | 'overtime'
+  | 'bonuses'
+  | 'otherAllowances';
 
 const FIELDS: Array<{ key: FormKey; label: string; icon: LucideIcon }> = [
   { key: 'baseSalary', label: 'Salário base', icon: Wallet },
@@ -44,19 +58,54 @@ const FIELDS: Array<{ key: FormKey; label: string; icon: LucideIcon }> = [
     label: 'Subsídio de alimentação',
     icon: UtensilsCrossed,
   },
+  { key: 'transportAllowance', label: 'Subsídio de transporte', icon: Bus },
   { key: 'overtime', label: 'Horas extras', icon: Timer },
   { key: 'bonuses', label: 'Prémios / Comissões', icon: Gift },
   { key: 'otherAllowances', label: 'Outros subsídios', icon: Receipt },
 ];
 
+const EMPTY_FORM: Record<FormKey, number> = {
+  baseSalary: 0,
+  mealAllowance: 0,
+  transportAllowance: 0,
+  overtime: 0,
+  bonuses: 0,
+  otherAllowances: 0,
+};
+
+const pct = (rate: number) => `${+(rate * 100).toFixed(2)}%`;
+
 export function SimulateView() {
-  const [form, setForm] = useState<Record<FormKey, number>>({
-    baseSalary: 350000,
-    overtime: 0,
-    bonuses: 0,
-    mealAllowance: 25000,
-    otherAllowances: 0,
-  });
+  const canEditRules = useHasRole(ADMIN_ROLES);
+  const [editingRules, setEditingRules] = useState(false);
+  const [form, setForm] = useState<Record<FormKey, number>>(EMPTY_FORM);
+
+  // Os dados salariais do próprio utilizador (compensação actual) preenchem o
+  // formulário, para o simulador partir exactamente do que o recibo usa.
+  const { data: mine } = useApiQuery<MyCompensation | null>(
+    queryKeys.payslips.compensation(),
+    '/payslips/my/compensation',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!mine || prefilled.current) return;
+    prefilled.current = true;
+    setForm((prev) => ({
+      ...prev,
+      baseSalary: mine.baseSalary ?? 0,
+      mealAllowance: mine.foodAllowance ?? 0,
+      transportAllowance: mine.transportAllowance ?? 0,
+      otherAllowances: mine.otherAllowances ?? 0,
+    }));
+  }, [mine]);
+
+  // Regras fiscais reais (as mesmas dos processamentos; editáveis por Admin/RH).
+  const { data: rules } = useApiQuery<TaxConfig>(
+    queryKeys.payroll.section('tax-rules', 'simulator'),
+    '/payslips/tax-rules',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
   // Simulação disparada 400ms após o form mudar. Em erro, `data` do
   // useMutation mantém o último resultado bem-sucedido (mesmo comportamento
   // do try/catch silencioso anterior — "keep old result").
@@ -68,44 +117,35 @@ export function SimulateView() {
 
   // `mutate` é estável (React Query v5), por isso só `form` dispara o debounce.
   const { mutate: simulate } = simulateMutation;
+  // `rules` também refaz a simulação: ao editar a tabela IRT o resultado acompanha.
   useEffect(() => {
     const t = setTimeout(() => simulate(form), 400);
     return () => clearTimeout(t);
-  }, [form, simulate]);
+  }, [form, simulate, rules]);
 
-  const IRT_BRACKETS = [
-    { min: 0, max: 150000, label: '1', rate: 'Isento' },
-    { min: 150001, max: 200000, label: '2', rate: '10%' },
-    { min: 200001, max: 300000, label: '3', rate: '13%' },
-    { min: 300001, max: 500000, label: '4', rate: '16%' },
-    { min: 500001, max: 1000000, label: '5', rate: '18%' },
-    { min: 1000001, max: 1500000, label: '6', rate: '19%' },
-    { min: 1500001, max: Infinity, label: '7', rate: '25%' },
-  ];
+  const brackets = rules?.irtBrackets ?? [];
+  const activeMin = result?.irtDetails.bracket.min;
 
-  const activeIdx = result
-    ? IRT_BRACKETS.findIndex(
-        (b) => form.baseSalary >= b.min && form.baseSalary <= b.max,
-      )
-    : -1;
-
-  const rows = [
+  const rows: Array<{
+    label: string;
+    value: number | undefined;
+    negative: boolean;
+  }> = [
     { label: 'Bruto total', value: result?.grossSalary, negative: false },
-    {
-      label: `IRT (${result ? (result.irtDetails.bracket.rate * 100).toFixed(0) : '—'}%)`,
-      value: result?.incomeTax,
-      negative: true,
-    },
-    {
-      label: 'INSS colaborador (3%)',
-      value: result?.socialSecurity,
-      negative: true,
-    },
-    {
-      label: 'Total deduções',
-      value: result?.totalDeductions,
-      negative: true,
-    },
+    ...(result
+      ? result.deductionLines.map((l) => ({
+          label:
+            l.code === 'IRT'
+              ? `IRT (${pct(result.irtDetails.bracket.rate)})`
+              : l.name,
+          value: l.value,
+          negative: true,
+        }))
+      : [
+          { label: 'IRT', value: undefined, negative: true },
+          { label: 'INSS colaborador', value: undefined, negative: true },
+        ]),
+    { label: 'Total deduções', value: result?.totalDeductions, negative: true },
   ];
 
   return (
@@ -212,7 +252,7 @@ export function SimulateView() {
                 className="flex items-baseline justify-between border-b border-white/15 py-3"
               >
                 <span className="font-body text-sm text-white/85">{label}</span>
-                <span className="font-body tabular-nums text-sm font-semibold">
+                <span className="font-body text-sm font-semibold">
                   {loading
                     ? '…'
                     : value !== undefined
@@ -227,7 +267,7 @@ export function SimulateView() {
                 <Coins size={20} strokeWidth={1.75} />
                 Salário líquido
               </span>
-              <span className="font-body tabular-nums text-2xl font-bold">
+              <span className="font-body text-2xl font-bold">
                 {loading ? '…' : result ? fmtKz(result.netSalary) : '—'}
               </span>
             </div>
@@ -235,7 +275,8 @@ export function SimulateView() {
 
           {result && (
             <div className="mt-4 font-body text-xs text-white/80">
-              <div className="font-body tabular-nums">
+              <div className="font-body">
+                IRT sobre {fmtKz(result.irtDetails.base)}:{' '}
                 {result.irtDetails.formula}
               </div>
               <div className="mt-1">
@@ -253,13 +294,26 @@ export function SimulateView() {
         </div>
       </div>
 
-      {/* Tabela IRT */}
+      {/* Tabela IRT — regras reais, as mesmas dos processamentos */}
       <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-        <div className="flex items-center gap-2.5 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
-          <Percent size={20} strokeWidth={1.75} />
-          <h3 className="font-body text-sm font-semibold uppercase tracking-wider">
-            Tabela IRT Angola 2026
-          </h3>
+        <div className="flex items-center justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
+          <div className="flex items-center gap-2.5">
+            <Percent size={20} strokeWidth={1.75} />
+            <h3 className="font-body text-sm font-semibold uppercase tracking-wider">
+              Tabela IRT Angola {rules?.taxYear ?? new Date().getFullYear()}
+            </h3>
+          </div>
+          {canEditRules && rules && (
+            <Button
+              size="sm"
+              intent="secondary"
+              className="!rounded-full !border-white !bg-transparent !text-white hover:!bg-white hover:!text-[#0F1F3D]"
+              onClick={() => setEditingRules(true)}
+            >
+              <Pencil size={14} strokeWidth={1.75} />
+              Editar tabela
+            </Button>
+          )}
         </div>
         <div className="p-4 sm:px-6">
           <Table>
@@ -268,36 +322,42 @@ export function SimulateView() {
                 <TableHeaderCell className="py-1.5 text-white">
                   Escal.
                 </TableHeaderCell>
-                <TableHeaderCell className="py-1.5 text-white">
+                <TableHeaderCell className="py-1.5 text-right text-white">
                   Mínimo
                 </TableHeaderCell>
-                <TableHeaderCell className="py-1.5 text-white">
+                <TableHeaderCell className="py-1.5 text-right text-white">
                   Máximo
                 </TableHeaderCell>
                 <TableHeaderCell className="py-1.5 text-right text-white">
                   Taxa
                 </TableHeaderCell>
+                <TableHeaderCell className="py-1.5 text-right text-white">
+                  Parcela fixa
+                </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {IRT_BRACKETS.map((b, i) => (
+              {brackets.map((b, i) => (
                 <TableRow
-                  key={i}
+                  key={b.id ?? i}
                   className={cn(
                     'border-brand-line text-brand',
-                    i === activeIdx &&
+                    b.min === activeMin &&
                       'bg-[#075FE8] font-semibold text-white hover:bg-[#075FE8]',
                   )}
                 >
-                  <TableCell className="py-1.5 text-xs">{b.label}</TableCell>
-                  <TableCell className="py-1.5 font-body tabular-nums text-xs">
+                  <TableCell className="py-1.5 text-xs">{i + 1}</TableCell>
+                  <TableCell className="py-1.5 text-right font-body text-xs tabular-nums">
                     {b.min.toLocaleString('pt-AO')}
                   </TableCell>
-                  <TableCell className="py-1.5 font-body tabular-nums text-xs">
-                    {b.max === Infinity ? '—' : b.max.toLocaleString('pt-AO')}
+                  <TableCell className="py-1.5 text-right font-body text-xs tabular-nums">
+                    {b.max == null ? '—' : b.max.toLocaleString('pt-AO')}
                   </TableCell>
-                  <TableCell className="py-1.5 text-right text-xs">
-                    {b.rate}
+                  <TableCell className="py-1.5 text-right text-xs tabular-nums">
+                    {b.rate === 0 ? 'Isento' : pct(b.rate)}
+                  </TableCell>
+                  <TableCell className="py-1.5 text-right font-body text-xs tabular-nums">
+                    {(b.deduction ?? 0).toLocaleString('pt-AO')}
                   </TableCell>
                 </TableRow>
               ))}
@@ -305,6 +365,13 @@ export function SimulateView() {
           </Table>
         </div>
       </div>
+
+      {editingRules && rules && (
+        <EditTaxRulesModal
+          config={rules}
+          onClose={() => setEditingRules(false)}
+        />
+      )}
     </div>
   );
 }

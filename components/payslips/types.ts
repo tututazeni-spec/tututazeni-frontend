@@ -107,6 +107,8 @@ export interface SimulateResult {
   employerInss: number;
   totalDeductions: number;
   netSalary: number;
+  /** Deduções do colaborador, tal como no processamento real (INSS, IRT, seguro…). */
+  deductionLines: Array<{ code: string; name: string; value: number }>;
   irtDetails: {
     bracket: {
       min: number;
@@ -114,6 +116,8 @@ export interface SimulateResult {
       rate: number;
       deduction: number;
     };
+    /** Base sobre a qual o IRT foi calculado (tributável − INSS). */
+    base: number;
     formula: string;
     effectiveRate: number;
   };
@@ -123,6 +127,8 @@ export interface MyCompensation {
   baseSalary: number;
   foodAllowance: number | null;
   transportAllowance: number | null;
+  /** Soma dos componentes extra do registo (tributáveis nos processamentos). */
+  otherAllowances?: number;
   bankName: string | null;
   ibanMasked: string | null;
   effectiveFrom: string;
