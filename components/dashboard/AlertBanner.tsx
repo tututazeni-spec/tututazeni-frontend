@@ -23,6 +23,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
         <AlertCard
           key={i}
           variant="danger"
+          navyText
           title="Urgente"
           message={a.message}
           actionUrl={a.actionUrl}
@@ -32,6 +33,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
         <AlertCard
           key={i}
           variant="warning"
+          navyText
           title="Atenção"
           message={a.message}
           actionUrl={a.actionUrl}
