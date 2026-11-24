@@ -105,6 +105,7 @@ export function AlertCard({
   const v = navyText
     ? {
         ...base,
+        iconColor: 'text-[#0F1F3D]',
         title: 'text-[#0F1F3D]',
         message: 'text-[#0F1F3D]',
         detail: 'text-[#0F1F3D]/80',

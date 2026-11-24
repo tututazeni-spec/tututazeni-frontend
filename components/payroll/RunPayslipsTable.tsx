@@ -82,7 +82,7 @@ export function RunPayslipsTable({
   return (
     <div>
       <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
-        Recibos do run
+        Recibos do processamento
       </h3>
 
       {isLoading && <Skeleton rows={6} />}

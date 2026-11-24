@@ -3,7 +3,7 @@
 // checklist e fecho definitivo (GET/POST /payroll/runs/:id/closure/*).
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -11,7 +11,13 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Filter } from 'lucide-react';
+import {
+  BadgeCheck,
+  Filter,
+  Landmark,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useToast } from '@/providers/ToastProvider';
@@ -19,7 +25,43 @@ import { RunPicker } from './RunPicker';
 import { RUN_STATUS_MAP } from './types';
 import type { ClosureOverview } from './insightTypes';
 
+interface StepProps {
+  icon: LucideIcon;
+  label: string;
+  /** 1.ª linha em destaque (quem); as seguintes em tom suave (quando). */
+  lines: string[];
+  action?: ReactNode;
+}
+
+/** Coluna do cartão de aprovação: ícone, título, texto e acção opcional. */
+function Step({ icon: Icon, label, lines, action }: StepProps) {
+  return (
+    <div className="flex items-center justify-center gap-3 px-4">
+      <Icon size={20} strokeWidth={1.5} className="shrink-0 text-[#1E4DA8]" />
+      <div className="min-w-0 text-left">
+        <div className="font-body text-[13.89px] font-medium leading-tight text-[#0F1F3D]">
+          {label}
+        </div>
+        {lines.map((l, i) => (
+          <div
+            key={i}
+            className={
+              i === 0
+                ? 'mt-0.5 font-body text-[13.23px] font-semibold leading-tight text-[#0F1F3D]'
+                : 'font-body text-[13.23px] leading-tight text-[#0F1F3D]/70'
+            }
+          >
+            {l}
+          </div>
+        ))}
+      </div>
+      {action}
+    </div>
+  );
+}
+
 interface ValidationProps {
+  icon: LucideIcon;
   label: string;
   info: { at: string; by: string | null } | null;
   onValidate: () => void;
@@ -28,6 +70,7 @@ interface ValidationProps {
 }
 
 function Validation({
+  icon,
   label,
   info,
   onValidate,
@@ -35,26 +78,27 @@ function Validation({
   disabled,
 }: ValidationProps) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-card bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] px-4 py-3 text-white shadow-md">
-      <div>
-        <div className="font-body text-sm font-medium text-white">{label}</div>
-        <div className="font-body text-xs text-white">
-          {info
-            ? `Validado por ${info.by ?? '—'} em ${fmtDate(info.at)}`
-            : 'Por validar'}
-        </div>
-      </div>
-      {!info && (
-        <button
-          type="button"
-          disabled={disabled || pending}
-          onClick={onValidate}
-          className="rounded-full bg-[#0F1F3D] px-4 py-1.5 font-body text-sm font-semibold text-white ring-1 ring-white/40 transition hover:bg-[#0A1630] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {pending ? 'A validar…' : 'Validar'}
-        </button>
-      )}
-    </div>
+    <Step
+      icon={icon}
+      label={label}
+      lines={
+        info
+          ? [`Validado por ${info.by ?? '—'}`, fmtDate(info.at)]
+          : ['Por validar']
+      }
+      action={
+        !info && (
+          <button
+            type="button"
+            disabled={disabled || pending}
+            onClick={onValidate}
+            className="shrink-0 cursor-pointer rounded-full bg-[#0F1F3D] px-3 py-0.5 font-body text-[13.23px] font-semibold text-white transition hover:bg-[#1E4DA8] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pending ? 'A validar…' : 'Validar'}
+          </button>
+        )
+      }
+    />
   );
 }
 
@@ -116,17 +160,12 @@ export function ClosureView() {
               map={RUN_STATUS_MAP}
               variant="dot"
             />
-            {data.closed && (
-              <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-white">
-                Fechada em {data.closedAt ? fmtDate(data.closedAt) : '—'} por{' '}
-                {data.closedBy ?? '—'}
-              </span>
-            )}
           </div>
 
           <div className="grid grid-cols-1 items-start gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             <WalletStat
               zoom
+              tight
               image="/images/colaboradores.png"
               money="coins"
               tone="blue"
@@ -135,6 +174,7 @@ export function ClosureView() {
             />
             <WalletStat
               zoom
+              tight
               image="/images/carteira.png"
               money="bills"
               tone="blue"
@@ -143,6 +183,7 @@ export function ClosureView() {
             />
             <WalletStat
               zoom
+              tight
               image="/images/carteira.png"
               money="stack"
               tone="green"
@@ -151,15 +192,17 @@ export function ClosureView() {
             />
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="coins"
-              tone="orange"
+              tone="red"
               label="Impostos (INSS + IRT)"
               value={fmtKz(data.totals.totalTaxes)}
             />
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="bills"
               tone="red"
               label="Encargos patronais"
@@ -167,6 +210,7 @@ export function ClosureView() {
             />
             <WalletStat
               zoom
+              tight
               image="/images/recibos.png"
               money="mixed"
               tone="blue"
@@ -175,40 +219,53 @@ export function ClosureView() {
             />
             <WalletStat
               zoom
+              tight
               check
-              image="/images/carteira.png"
+              image="/images/carteira-vermelha.png"
               money="fan"
-              tone="green"
+              tone="red"
               label="Pagamentos processados"
               value={data.totals.paymentsProcessed}
             />
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-card bg-gradient-to-r from-[#0F1F3D] to-[#1E4DA8] px-4 py-3 text-white shadow-md">
-              <div className="font-body text-sm font-medium text-white">
-                Aprovação
+          <div className="relative mt-6 overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-white py-2 text-[#0F1F3D] shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+            <div className="relative grid items-center gap-3 md:grid-cols-3 md:gap-0">
+              <div>
+                <Step
+                  icon={BadgeCheck}
+                  label="Aprovação"
+                  lines={
+                    data.approval
+                      ? [
+                          `Aprovado por ${data.approval.by ?? '—'}`,
+                          fmtDate(data.approval.at),
+                        ]
+                      : ['Por aprovar']
+                  }
+                />
               </div>
-              <div className="font-body text-xs text-white">
-                {data.approval
-                  ? `Aprovado por ${data.approval.by ?? '—'} em ${fmtDate(data.approval.at)}`
-                  : 'Por aprovar'}
+              <div className="md:border-l md:border-[#DCE6F7]">
+                <Validation
+                  icon={Users}
+                  label="Validação RH"
+                  info={data.hrValidation}
+                  pending={act.isPending && act.variables === 'validate-hr'}
+                  disabled={data.closed || act.isPending}
+                  onValidate={() => act.mutate('validate-hr')}
+                />
+              </div>
+              <div className="md:border-l md:border-[#DCE6F7]">
+                <Validation
+                  icon={Landmark}
+                  label="Validação financeira"
+                  info={data.financeValidation}
+                  pending={act.isPending && act.variables === 'validate-finance'}
+                  disabled={data.closed || act.isPending}
+                  onValidate={() => act.mutate('validate-finance')}
+                />
               </div>
             </div>
-            <Validation
-              label="Validação RH"
-              info={data.hrValidation}
-              pending={act.isPending && act.variables === 'validate-hr'}
-              disabled={data.closed || act.isPending}
-              onValidate={() => act.mutate('validate-hr')}
-            />
-            <Validation
-              label="Validação financeira"
-              info={data.financeValidation}
-              pending={act.isPending && act.variables === 'validate-finance'}
-              disabled={data.closed || act.isPending}
-              onValidate={() => act.mutate('validate-finance')}
-            />
           </div>
 
           <section className="relative overflow-hidden rounded-[28px] border border-[#DCE6F7] bg-gradient-to-br from-white via-[#F4F8FF] to-[#E8F0FD] pb-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">

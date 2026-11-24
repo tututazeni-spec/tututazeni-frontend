@@ -235,6 +235,7 @@ export function EmployeesView() {
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <RunPicker
           variant="underline"
+          defaultToLatest
           value={runId}
           onChange={(id) => {
             setRunId(id);

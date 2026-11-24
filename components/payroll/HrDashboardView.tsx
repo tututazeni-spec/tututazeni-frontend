@@ -139,6 +139,7 @@ export function HrDashboardView() {
             <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3">
               <WalletStat
                 zoom
+                tight
                 image="/images/carteira.png"
                 money="bills"
                 tone="blue"
@@ -147,6 +148,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
+                tight
                 image="/images/carteira.png"
                 money="stack"
                 tone="green"
@@ -155,23 +157,26 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
-                image="/images/carteira.png"
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="IRT total"
                 value={fmtKz(data.financials.totalIRT)}
               />
               <WalletStat
                 zoom
-                image="/images/carteira.png"
+                tight
+                image="/images/carteira-vermelha.png"
                 money="coins"
-                tone="orange"
+                tone="red"
                 label="INSS colaborador"
                 value={fmtKz(data.financials.totalINSSEmployee)}
               />
               <WalletStat
                 zoom
-                image="/images/carteira.png"
+                tight
+                image="/images/carteira-vermelha.png"
                 money="mixed"
                 tone="red"
                 label="INSS empregador"
@@ -179,6 +184,7 @@ export function HrDashboardView() {
               />
               <WalletStat
                 zoom
+                tight
                 image="/images/carteira.png"
                 money="fan"
                 tone="green"

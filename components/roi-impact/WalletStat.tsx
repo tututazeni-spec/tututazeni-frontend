@@ -125,6 +125,8 @@ export interface WalletStatProps {
   image?: string;
   /** Selo de visto verde sobre a carteira (ex.: pagamentos concluídos). */
   check?: boolean;
+  /** Aproxima o título da carteira (título alinhado ao fundo, sem folga). */
+  tight?: boolean;
 }
 
 export function WalletStat({
@@ -136,17 +138,20 @@ export function WalletStat({
   zoom = false,
   image,
   check = false,
+  tight = false,
 }: WalletStatProps) {
   const t = TONES[tone];
   return (
     <div
       className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
     >
-      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink">
+      <h3
+        className={`min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink ${tight ? 'flex items-end justify-center' : ''}`}
+      >
         {label}
       </h3>
       {image ? (
-        <div className="relative">
+        <div className={`relative ${tight ? '-mt-1' : ''}`}>
           <Image
             src={image}
             alt={label}

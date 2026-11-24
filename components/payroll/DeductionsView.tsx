@@ -188,33 +188,37 @@ export function DeductionsView() {
           <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-4">
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="bills"
-              tone="blue"
+              tone="red"
               label="Base contributiva INSS"
               value={fmtKz(data.inss.contributoryBase)}
             />
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="stack"
-              tone="green"
+              tone="red"
               label="INSS trabalhador"
               value={fmtKz(data.inss.employeeTotal)}
             />
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="coins"
-              tone="blue"
+              tone="red"
               label="INSS patronal"
               value={fmtKz(data.inss.employerTotal)}
             />
             <WalletStat
               zoom
-              image="/images/carteira.png"
+              tight
+              image="/images/carteira-vermelha.png"
               money="mixed"
-              tone="orange"
+              tone="red"
               label="IRT retido"
               value={fmtKz(data.irt.withheld)}
             />
@@ -384,6 +388,7 @@ export function DeductionsView() {
             <Button
               size="sm"
               intent="secondary"
+              className="cursor-pointer"
               onClick={() => setEditingRules(true)}
             >
               <Pencil size={14} strokeWidth={1.75} /> Editar regras

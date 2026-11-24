@@ -53,7 +53,7 @@ const COLS =
 
 export function RunListView({ onSelect }: RunListViewProps) {
   const [status, setStatus] = useState('all');
-  const [period, setPeriod] = useState(ALL);
+  const [period, setPeriod] = useState(thisMonth());
   const [payGroup, setPayGroup] = useState(ALL);
   const periodItems = useMemo(
     () => [PERIOD_ALL, ...periodOptions(period === ALL ? thisMonth() : period)],

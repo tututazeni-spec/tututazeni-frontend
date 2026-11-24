@@ -137,9 +137,9 @@ const WALLET_STYLE: Record<
   payslips: { tone: 'blue', money: 'mixed', image: '/images/recibos.png' },
   totalGross: { tone: 'blue', money: 'bills' },
   totalNet: { tone: 'green', money: 'stack' },
-  totalDeductions: { tone: 'orange', money: 'mixed' },
-  totalInss: { tone: 'orange', money: 'coins' },
-  totalIrt: { tone: 'orange', money: 'coins' },
+  totalDeductions: { tone: 'red', money: 'mixed' },
+  totalInss: { tone: 'red', money: 'coins' },
+  totalIrt: { tone: 'red', money: 'coins' },
   totalEmployerCost: { tone: 'red', money: 'bills' },
 };
 
@@ -297,7 +297,13 @@ export function ReportsView() {
                   <WalletStat
                     key={k}
                     zoom
-                    image={WALLET_STYLE[k].image ?? '/images/carteira.png'}
+                    tight
+                    image={
+                      WALLET_STYLE[k].image ??
+                      (WALLET_STYLE[k].tone === 'red'
+                        ? '/images/carteira-vermelha.png'
+                        : '/images/carteira.png')
+                    }
                     money={WALLET_STYLE[k].money}
                     tone={WALLET_STYLE[k].tone}
                     label={TOTAL_LABEL[k] ?? k}
