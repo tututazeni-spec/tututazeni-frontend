@@ -1,13 +1,12 @@
 // components/career/plans/PlansManagementView.tsx
 // Separador "Planos de Carreira" (RH/Gestor/Admin) — Módulo Career,
 // secção 4. Lista todos os planos (GET /career-plans) e abre
-// NewCareerPlanModal para criar um novo. Inclui o roadmap (CareerRoadmap)
-// no detalhe de cada plano seleccionado.
+// NewCareerPlanModal para criar um novo.
 
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { ClipboardList, Compass, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -18,15 +17,12 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NewCareerPlanModal } from '../NewCareerPlanModal';
-import { CareerRoadmap } from './CareerRoadmap';
 import type { CareerPlan } from './types';
 
 export function PlansManagementView() {
   const [showNew, setShowNew] = useState(false);
-  const [selected, setSelected] = useState<CareerPlan | null>(null);
   const notify = useToast();
   const confirm = useConfirm();
   const {
@@ -46,7 +42,6 @@ export function PlansManagementView() {
     (id: number) => apiClient.delete(`/career-plans/${id}`),
     {
       onSuccess: () => {
-        setSelected(null);
         refetch();
         notify({ title: 'Plano de carreira apagado', intent: 'success' });
       },
@@ -83,118 +78,133 @@ export function PlansManagementView() {
           description="Cria o primeiro plano de carreira para um colaborador."
         />
       ) : (
-        <div className="grid grid-cols-[1fr_1.2fr] gap-5">
-          <div className="space-y-2">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                onClick={() => setSelected(plan)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setSelected(plan);
-                  }
-                }}
-                className={cn(
-                  'flex cursor-pointer items-center gap-3 rounded-[18px] p-3.5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'bg-gradient-to-br from-brand via-brand-mid to-brand-dark',
-                  selected?.id === plan.id &&
-                    'ring-2 ring-[#0D6EFD] ring-offset-2',
-                )}
-              >
-                <Avatar
-                  name={plan.user?.fullName ?? '?'}
-                  url={plan.user?.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold">
-                    {plan.user?.fullName ?? `Colaborador #${plan.userId}`}
-                  </div>
-                  <div className="truncate font-body text-xs text-white/80">
-                    {plan.title}
-                  </div>
-                </div>
-                <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold text-white">
-                  {plan.status}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div>
-            {!selected ? (
-              <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
-                Selecciona um plano
-              </div>
-            ) : (
-              <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-4 text-white">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <ClipboardList size={20} strokeWidth={1.75} />
-                      <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
-                        {selected.title}
-                      </h3>
-                    </div>
-                    <div className="mt-2 font-body text-xs text-white/85">
-                      {selected.currentRole?.name ?? '—'} →{' '}
-                      {selected.targetRole?.name ?? '—'}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={deletePlan.isPending}
-                    onClick={() => handleDelete(selected)}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+        <div className="space-y-5">
+          <div className="space-y-3">
+            {plans.map((plan) => {
+              const name = plan.user?.fullName ?? `Colaborador #${plan.userId}`;
+              const score = plan.readiness?.score;
+              const initials = name
+                .split(' ')
+                .filter(Boolean)
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+              const statusTone =
+                plan.status === 'CANCELLED'
+                  ? 'bg-danger'
+                  : plan.status === 'INACTIVE'
+                    ? 'bg-warning'
+                    : 'bg-[#34C04B]';
+              const diagonal =
+                'polygon(0 0, 100% 0, calc(100% - 34px) 100%, 0 100%)';
+              return (
+                <div
+                  key={plan.id}
+                  className="relative grid h-[100px] grid-cols-[46%_1fr] overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_6px_24px_rgba(11,61,145,0.10)]"
+                >
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 w-[calc(46%+7px)] bg-[#34C04B]"
+                    style={{ clipPath: diagonal }}
+                  />
+                  <div
+                    className="relative flex items-center gap-4 bg-gradient-to-r from-[#0A1B3F] via-[#0B2A66] to-[#0B3A9A] pl-6 pr-10 text-white"
+                    style={{ clipPath: diagonal }}
                   >
-                    <Trash2 size={14} strokeWidth={1.75} /> Apagar
-                  </button>
-                </div>
-                <div className="p-6">
-                  {selected.readiness && (
-                    <div className="mb-4 rounded-card bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-4 py-3 text-white">
-                      <div className="mb-1 flex justify-between font-body text-xs font-semibold uppercase tracking-widest text-white">
-                        <span>Prontidão</span>
-                        <span className="tabular-nums">
-                          {selected.readiness.score}%
-                        </span>
+                    {plan.user?.avatarUrl ? (
+                      <Avatar name={name} url={plan.user.avatarUrl} size="md" />
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#5BD86B] to-[#27A33C] font-body text-lg font-bold text-white"
+                      >
+                        {initials}
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-body text-lg font-bold leading-tight">
+                        {name}
                       </div>
-                      <ProgressBar
-                        value={selected.readiness.score}
-                        color="#F97316"
-                        className="bg-white/20"
+                      <div className="mt-0.5 truncate font-body text-sm text-white/85">
+                        {plan.title}
+                      </div>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className="h-[46px] w-px shrink-0 bg-white/80"
+                    />
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-5 py-1.5 font-body text-sm font-bold text-white',
+                        statusTone,
+                      )}
+                    >
+                      {plan.status}
+                    </span>
+                  </div>
+
+                  <div className="flex min-w-0 flex-col justify-center gap-1.5 py-2.5 pl-3 pr-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <ClipboardList
+                          size={26}
+                          strokeWidth={1.75}
+                          className="mt-0.5 shrink-0 text-brand"
+                        />
+                        <div className="min-w-0">
+                          <div className="truncate font-body text-[15px] font-bold uppercase leading-tight tracking-wide text-brand">
+                            {plan.title}
+                          </div>
+                          <div className="truncate font-body text-xs text-brand-muted">
+                            {plan.currentRole?.name ?? '—'} →{' '}
+                            {plan.targetRole?.name ?? '—'}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={deletePlan.isPending}
+                        onClick={() => handleDelete(plan)}
+                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[11px] bg-brand px-4 font-body text-sm font-bold text-white transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Trash2 size={15} strokeWidth={1.75} /> Apagar
+                      </button>
+                    </div>
+
+                    <div
+                      role="progressbar"
+                      aria-valuenow={score ?? 0}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="relative flex h-[22px] items-center justify-between overflow-hidden rounded-full border border-[#1E7A35] bg-[#14532D]/15 px-3 font-body text-xs font-bold uppercase text-white"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300"
+                        style={{
+                          width: `${Math.min(100, Math.max(0, score ?? 0))}%`,
+                          backgroundImage:
+                            'linear-gradient(90deg, #14532D 0%, #3CCB5A 50%, #1E7A35 100%)',
+                        }}
                       />
+                      <span className="relative">Prontidão</span>
+                      <span className="relative tabular-nums">
+                        {score != null ? `${score}%` : '—'}
+                      </span>
                     </div>
-                  )}
-                  <CareerRoadmap plan={selected} />
-                  {(selected.mentoringNotes || selected.coachingNotes) && (
-                    <div className="mt-4 space-y-2 rounded-card bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-4 py-3 font-body text-xs text-white">
-                      {selected.mentoringNotes && (
-                        <div>
-                          <span className="font-semibold">Mentoria: </span>
-                          <span className="whitespace-pre-line">
-                            {selected.mentoringNotes}
-                          </span>
-                        </div>
-                      )}
-                      {selected.coachingNotes && (
-                        <div>
-                          <span className="font-semibold">
-                            Acompanhamento personalizado:{' '}
-                          </span>
-                          <span className="whitespace-pre-line">
-                            {selected.coachingNotes}
-                          </span>
-                        </div>
-                      )}
+
+                    <div className="flex items-center gap-1.5 font-body text-xs text-brand-muted">
+                      <Compass size={13} strokeWidth={1.75} />
+                      <span className="truncate">
+                        {plan.careerPath?.name ??
+                          'Nenhuma trilha de carreira associada'}
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
